@@ -288,6 +288,16 @@ Verified: routing.py set outputs (4 writes confirmed); zai/glm-5.3-flash present
 `pi --list-models`; claude CLI 2.1.250 present.
 Next: conductor preflight (real probes) -> make_cast -> spawn -> monitor.
 
+
+### L-3 | 2026-08-30 | S1-plan (handoff) | main-agent | planner | Phase 0 (main copy)
+Did: Conductor management handed to a successor agent (prompt: docs/build-stream/CONDUCTOR-HANDOFF.md,
+committed on main). Wave-1 mode repaired to generic solo runs (wave-manifest+solo structurally
+incompatible; PLAN-B/C canceled; re-approved under DEC-6). Implementer session 2 active on T2
+(selftest 3/4, F1 scenario fix pending); T1 quiesce done; 3 harness commits in worktree.
+Result: Previous agent stepped back; conductor daemon + watcher continue untouched.
+Verified: status --brief active=[2@1h10m]; watcher state fresh 22:50:18Z; GPUs idle.
+Next: successor agent owns monitoring cadence, owner gates, and per-wave approvals.
+
 ### L-1 | 2026-08-30 | S0-frame/S1-plan | main-agent | framer | Phase 0
 Did: Read CLAUDE.md (997 lines) + PAPER-REFERENCES.md (974 lines) on multivac; audited live
 state (disk, models, images, containers, orchestrator idle, GPUs idle, e11 artifacts); fetched

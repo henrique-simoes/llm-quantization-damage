@@ -2,3 +2,5 @@
 2026-08-29T21:17:06Z | watcher started pid 88128
 2026-08-29T21:21:01Z | watcher started pid 88600
 2026-08-29T21:21:59Z | watcher started pid 88692
+2026-08-29T21:40:02Z | PLAN READY — owner approval required (conductor paused at the gate)
+2026-08-29T21:40:48Z | stage transition: - -> qbench-t1-implementer
