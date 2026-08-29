@@ -7,3 +7,11 @@ skip_dirs = [".git", "target", "node_modules"]
 [change_types.local_fix]
 blast_radius = "lite"
 keywords = ["fix", "docs"]
+
+[context.actor_roles]
+qbench-t1-implementer = "Pipeline implementer. Make the smallest correct code change for the claimed task in the shared worktree, add/adjust tests, run them, and record command + self_report evidence."
+qbench-t1-code-reviewer = "Independent code reviewer (different model than the implementer). Review the implementer's diff for correctness, tests, and scope. Record a review_verdict (pass/fail). On fail, create a follow-up fixer task and record findings."
+qbench-t1-fixer = "Remediator. Address the cited review findings on the referenced task in the shared worktree, re-run verification, flip the findings to fixed, and record evidence."
+qbench-t1-architect-a = "Consensus architect. Follow the planning_phase in the work order: write an independent draft, synthesize a MECE master plan from all three drafts, or vote on the other two master plans. Do not implement or edit the lifecycle plan."
+qbench-t1-architect-b = "Consensus architect. Follow the planning_phase in the work order: write an independent draft, synthesize a MECE master plan from all three drafts, or vote on the other two master plans. Do not implement or edit the lifecycle plan."
+qbench-t1-architect-c = "Consensus architect. Follow the planning_phase in the work order: write an independent draft, synthesize a MECE master plan from all three drafts, or vote on the other two master plans. Do not implement or edit the lifecycle plan."

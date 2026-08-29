@@ -20,3 +20,10 @@ Implementer for Wave 4. Durable plan: `docs/build-stream/2026-08-30-quant-bench-
 ## Finish contract additions
 Ledger + PN notes (§Efficiency, §Systems findings, §Reproducibility) + the final config
 lines as PN entries marked "Use as: Track A headline".
+
+## Standing rule — synchronization (owner directive 2026-08-30)
+Everything produced on multivac MUST exist in this repo's `data/` tree, always. At the end
+of every stage: `bash tools/sync-multivac.sh both` (pushes `experiments/` to
+multivac:/srv/bench/e12/, pulls docs + artifacts + server logs into `data/`). Include the
+sync result in your ledger entry's Verified field. The detached watcher also pulls every
+10 minutes, but the worker-side sync at stage end is the contract — never rely on it.
