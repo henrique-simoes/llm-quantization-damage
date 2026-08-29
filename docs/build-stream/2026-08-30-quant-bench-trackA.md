@@ -7,10 +7,11 @@ branch: main
 cf: { spec: CF-SPEC-1, tasks: [CF-1..] }
 phase: "Phase 0 — settings research consolidation"
 stage: S1-plan
-status: blocked
-blocked_on: "owner: conductor shape + routing roles + delete-list + benchmark sweet-spot approval (DEC-1)"
-last: { agent: main-agent, at: 2026-08-30, ledger: L-1 }
-next_action: "Owner picks conductor shape/roles, approves delete list + benchmark sweet spot; then run conductor preflight, make_pipeline --with-planning, make_cast, spawn."
+status: in-progress
+blocked_on: null
+last: { agent: main-agent, at: 2026-08-30, ledger: L-2 }
+next_action: "Conductor running (qbench-t1, solo architect claude-opus-5 max): monitor ticks; when AWAITING-OWNER-APPROVAL appears, present the architect plan to the owner for DEC-4 approval."
+conductor: { run: qbench-t1, shape: solo-architect, waves: 4, manifest: docs/build-stream/qbench-t1-waves.json }
 ```
 <!-- /STATUS BLOCK -->
 
@@ -73,7 +74,7 @@ Documentation is never deleted — only appended.
 | 1 | Disk sweep under preservation rule; delete list executed; manifests written | `bash /srv/bench/sweep/verify-sweep.sh` green + free ≥ 60 GB on /srv/models | planned |
 | 2 | Harness-validation suite (validate-v2): launch contract, sampling contract, thinking control, provenance capture | `validate-v2.py` catches the 4 seeded fault configs (negative control) | planned |
 | 3 | Bring-up + `-ts` rebalance sweep per quant; bracket context ceilings | `tsweep-v2` full-ratio artifacts + bracketed ceilings re-tested | planned |
-| 4 | Sampling-protocol A/B (greedy vs Qwen-official vs coding-agent candidate) | A/B artifact on HumanEval-40 + repetition-stress set; config locked | planned |
+| 4 | Official-settings validation pilots (G17 equivalence, G8 losslessness at temp>0, pp-behavior probe) | pilot artifacts; spec-decode accuracy-arm rule locked | planned |
 | 5 | MTP/DFlash setting sweep (depth, p-min, draft-KV dtype, DFlash n-max) | sweep JSONs at 32 K and full-depth; best-per-context recorded | planned |
 | 6 | Accuracy instruments: PPL(P1) for UD-Q6_K, code-NLL ladder, HumanEval+ gap-fills, LCB v6 n=100 setup+run | artifacts under /srv/bench/, CIs attached | planned |
 | 7 | Agentic: SWE-bench Verified 25-smoke → 50 stratified; agentic steps; thinking arm | smoke green before 50-run; per-instance manifest + Wilson CIs | planned |
@@ -156,6 +157,16 @@ functional context ceiling (bracketed), quant provenance (GGUF sha256/size), ima
      without explicit sampling runs a third, undocumented configuration. (Root cause of the
      "wrong settings" run-wasting class.)
 
+### Owner decision on sampling (DEC-2, supersedes the candidate below)
+Task benchmarks run at **Qwen/Unsloth official settings** — non-thinking: temp 0.7,
+top_p 0.80, top_k 20, min_p 0.0, presence_penalty 1.5, repetition_penalty 1.0; thinking:
+temp 1.0, top_p 0.95, top_k 20, min_p 0.0, presence_penalty 0.0. Greedy (temp 0) is used
+ONLY for logprob-based instruments (PPL/NLL/divergence), where sampling is undefined
+anyway. Implication for spec decode: losslessness at temp>0 is unproven (G8) — the Wave 2
+pilot decides whether spec-decode arms at official sampling can carry accuracy claims or
+must run no-spec. The former Phase-4 candidate A/B is replaced by the official-settings
+validation pilots (G17 equivalence + G8 losslessness + pp-behavior probe).
+
 ### Candidate configuration — coding agent (llama.cpp, 2×5060 Ti, per quant)
 
 ```bash
@@ -216,6 +227,12 @@ if vLLM images + NVFP4 all go. Pre-deletion: sha256 + size manifest of every GGU
 `/srv/bench/env-manifest.json` (E0 convention) so any deleted quant remains re-downloadable to
 the exact bytes.
 
+## Conductor operation (manager contract — main agent is the conductor manager)
+- Monitor cadence ~every 3 min (under the 5-min prompt-cache window): `conductor.py status --brief` + conductor.log tail; full `status` JSON + actor stdout.log when anything looks off; `scorecard.py` at stage completions.
+- Escalate to the owner immediately on: `AWAITING-OWNER-APPROVAL` (present architect plan), `blocked=N` tasks, `RATE-LIMIT-BLOCKED=<role>` (wait out reset, then `task status <ref> open` buys one dispatch), `WEDGED` verdict, repeated review-fail rounds, or any owner-gated decision in the wave instructions.
+- Worker timeouts: default 2 h wall / 30 min idle per worker; pi idle-kill disabled in defaults (idle_timeout_by_harness.pi=0).
+- The conductor maintains the ledger for S2–S4; the main agent owns S0/S1/S5, reports verdicts, and runs the ship checklist at convergence.
+
 ## Decision log
 
 DEC-1 | 2026-08-30 | S0 | owner
@@ -226,7 +243,50 @@ Decision: PENDING — owner must approve (a) conductor shape + roles, (b) delete
 (incl. NVFP4/vLLM images and the Q6_K vs Q6_K_XL reading), (c) benchmark sweet spot + order.
 Why: these three gates are exactly the owner's stated checkpoints before anything runs.
 
+DEC-2 | 2026-08-30 | S1 | owner
+Context: Phase 4 proposed a coding-agent sampling candidate (temp 0.2, presence 0.0) to
+A/B against Qwen official settings. Owner ruled: use Qwen/Unsloth official model settings
+for the tests.
+Decision: Task benchmarks run at the official settings — non-thinking: temp 0.7, top_p 0.80,
+top_k 20, min_p 0.0, presence_penalty 1.5, repetition_penalty 1.0; thinking: temp 1.0,
+top_p 0.95, top_k 20, min_p 0.0, presence_penalty 0.0. Greedy (temp 0) remains the
+instrument for logprob-based work only (PPL/NLL/divergence). Phase 4 becomes an
+official-settings validation set (G17 equivalence, G8 losslessness at temp>0, pp-behavior
+probe) instead of a candidate A/B. MTP-losslessness implication: accuracy arms that use
+spec decode at temp>0 must re-prove equivalence or run no-spec (pilot decides).
+Why: owner's explicit instruction; makes absolute scores comparable to published numbers
+(resolves the G16 comparability concern for the new runs).
+
+DEC-3 | 2026-08-30 | S1 | owner
+Context: Conductor shape + roles chosen from Option A (solo architect) and the standing
+registry.
+Decision: SOLO architect mode. architect = claude / claude-opus-5 @ max; implementer =
+pi / zai/glm-5.3-flash @ max; code-reviewer = pi / zai/glm-5.3-flash @ max; fixer = claude /
+claude-opus-4-6 @ max. No fallbacks (registry unchanged). Main agent acts as conductor
+manager (monitoring, incident surfacing, owner gates).
+Why: owner directive 2026-08-30. Solo plan is appropriate because the lifecycle file already
+holds the detailed plan; the architect reviews/freezes it.
+
+DEC-4 | 2026-08-30 | S1 | owner
+Context: Delete list + preservation audit + sweet-spot + Q6_K reading presented.
+Decision: APPROVED as presented: quants = UD-Q4_K_XL / UD-Q5_K_XL / plain UD-Q6_K; delete
+IQ4_XS + Q6_K_XL GGUFs, NVFP4 hf-cache duplicate, vLLM stable+nightly images; KEEP
+/srv/engines/nvfp4 (E9 option preserved); sweet-spot suite + order approved; official
+sampling per DEC-2; small-tests-first is a hard gate; all logs saved + docs appended
+BEFORE any deletion or teardown.
+Why: owner directive 2026-08-30.
+
 ## Ledger
+
+### L-2 | 2026-08-30 | S1-plan | main-agent | planner | Phase 0
+Did: Locked owner decisions into the plan (DEC-2 official sampling, DEC-3 conductor roles,
+DEC-4 delete list/sweet-spot/Q6_K); wrote paper-notes protocol + PAPER-NOTES.md;
+wrote wave instruction files 1-4 + qbench-t1-waves manifest; updated routing registry
+(architect=claude-opus-5 max, implementer+reviewer=pi zai/glm-5.3-flash max, fixer=claude-opus-4-6 max, no fallbacks).
+Result: Plan ready for conductor bootstrap: make_pipeline --with-planning --architects 1.
+Verified: routing.py set outputs (4 writes confirmed); zai/glm-5.3-flash present in
+`pi --list-models`; claude CLI 2.1.250 present.
+Next: conductor preflight (real probes) -> make_cast -> spawn -> monitor.
 
 ### L-1 | 2026-08-30 | S0-frame/S1-plan | main-agent | framer | Phase 0
 Did: Read CLAUDE.md (997 lines) + PAPER-REFERENCES.md (974 lines) on multivac; audited live
