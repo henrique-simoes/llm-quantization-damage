@@ -1,0 +1,43 @@
+host=multivac model=Q4_K_M split=layer ctx=8192 kv=q8_0 date=2026-08-20T12:57:47+00:00
+########## 1. BASELINE no speculation
+# --spec-type none
+  run1: decode= 23.90 tok/s  prefill=   22.31 tok/s  n=300
+  run2: decode= 24.12 tok/s  prefill=   22.61 tok/s  n=300
+  run3: decode= 23.95 tok/s  prefill=   22.60 tok/s  n=300
+  MEAN decode: 23.99 tok/s
+  VRAM: 7598 MiB 8674 MiB 
+
+########## 2. MTP embedded head, n-max=2
+# --spec-type draft-mtp --spec-draft-n-max 2 --parallel 1
+  run1: decode= 29.12 tok/s  prefill=   21.91 tok/s  n=300
+  run2: decode= 29.06 tok/s  prefill=   22.09 tok/s  n=300
+  run3: decode= 33.74 tok/s  prefill=   22.09 tok/s  n=300
+  MEAN decode: 30.64 tok/s
+  VRAM: 7520 MiB 9212 MiB 
+  1.03.838.221 I slot print_timing: id  0 | task 7 | draft acceptance = 0.51536 (  151 accepted /   293 generated), mean len =  2.03
+  1.14.508.845 I slot print_timing: id  0 | task 157 | draft acceptance = 0.49498 (  148 accepted /   299 generated), mean len =  1.99
+  1.23.758.296 I slot print_timing: id  0 | task 310 | draft acceptance = 0.66667 (  170 accepted /   255 generated), mean len =  2.33
+
+########## 3. MTP separate draft, n-max=2
+# --spec-type draft-mtp --model-draft /models/mtp-Qwen3.8-27B-Q4_0.gguf --spec-draft-n-max 2 --parallel 1
+  run1: decode= 27.48 tok/s  prefill=   18.76 tok/s  n=300
+  run2: decode= 29.49 tok/s  prefill=   22.28 tok/s  n=300
+  run3: decode= 29.96 tok/s  prefill=   21.98 tok/s  n=300
+  MEAN decode: 28.98 tok/s
+  VRAM: 7520 MiB 9988 MiB 
+  1.37.074.327 I slot print_timing: id  0 | task 7 | draft acceptance = 0.44164 (  140 accepted /   317 generated), mean len =  1.88
+  1.47.595.461 I slot print_timing: id  0 | task 168 | draft acceptance = 0.49333 (  148 accepted /   300 generated), mean len =  1.99
+  1.57.957.453 I slot print_timing: id  0 | task 321 | draft acceptance = 0.50336 (  150 accepted /   298 generated), mean len =  2.01
+
+########## 4. MTP separate draft, n-max=3
+# --spec-type draft-mtp --model-draft /models/mtp-Qwen3.8-27B-Q4_0.gguf --spec-draft-n-max 3 --parallel 1
+  run1: decode= 33.10 tok/s  prefill=   21.87 tok/s  n=300
+  run2: decode= 25.88 tok/s  prefill=   22.33 tok/s  n=300
+  run3: decode= 19.64 tok/s  prefill=   21.52 tok/s  n=300
+  MEAN decode: 26.20 tok/s
+  VRAM: 7598 MiB 10060 MiB 
+  1.53.256.130 I slot print_timing: id  0 | task 7 | draft acceptance = 0.53043 (  183 accepted /   345 generated), mean len =  2.59
+  2.05.199.073 I slot print_timing: id  0 | task 125 | draft acceptance = 0.61587 (  194 accepted /   315 generated), mean len =  2.85
+  2.20.836.887 I slot print_timing: id  0 | task 232 | draft acceptance = 0.36385 (  155 accepted /   426 generated), mean len =  2.08
+
+WROTE /srv/bench/mtp-clean-20260820-1257.txt

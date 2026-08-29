@@ -1,0 +1,64 @@
+host=multivac img=llamacpp-nccl231:latest ctx=32768 kv=q8_0 sampling=greedy date=2026-08-20T13:14:51+00:00
+0, 1, 4
+1, 1, 4
+########## A1 Q4_K_M  layer   no-MTP
+# model=/models/Qwen3.8-27B-UD-Q4_K_M.gguf sm=layer ctx=32768 extra=--spec-type none
+  run1: decode= 23.55 tok/s  prefill=   22.17 tok/s  n=300
+  run2: decode= 24.20 tok/s  prefill=   21.64 tok/s  n=300
+  run3: decode= 24.23 tok/s  prefill=   22.61 tok/s  n=300
+  MEAN decode: 23.99 tok/s
+  VRAM: 8188 MiB 9264 MiB 
+
+########## A2 Q4_K_M  layer   MTP n2
+# model=/models/Qwen3.8-27B-UD-Q4_K_M.gguf sm=layer ctx=32768 extra=--spec-type draft-mtp --spec-draft-n-max 2 --parallel 1
+  run1: decode= 32.12 tok/s  prefill=   21.18 tok/s  n=300
+  run2: decode= 32.95 tok/s  prefill=   22.28 tok/s  n=300
+  run3: decode= 32.92 tok/s  prefill=   22.26 tok/s  n=300
+  MEAN decode: 32.66 tok/s
+  VRAM: 8110 MiB 9994 MiB 
+  1.30.827.754 I slot print_timing: id  0 | task 143 | draft acceptance = 0.61798 (  165 accepted /   267 generated), mean len =  2.23
+  1.40.098.167 I slot print_timing: id  0 | task 279 | draft acceptance = 0.61798 (  165 accepted /   267 generated), mean len =  2.23
+
+########## B1 Q4_K_M  tensor  no-MTP
+# model=/models/Qwen3.8-27B-UD-Q4_K_M.gguf sm=tensor ctx=32768 extra=--spec-type none
+  FAILED
+    /app/ggml/src/ggml-cuda/ggml-cuda.cu:106: CUDA error
+    1.10.126.892 E CUDA error: an illegal memory access was encountered
+    libggml-base.so.0(ggml_abort+0x15b)[0x79613207c8db]
+    /app/libggml-cuda.so(_Z15ggml_cuda_errorPKcS0_S0_iS0_+0xb5)[0x79612221e0a5]
+
+########## B2 Q4_K_M  tensor  MTP n2
+# model=/models/Qwen3.8-27B-UD-Q4_K_M.gguf sm=tensor ctx=32768 extra=--spec-type draft-mtp --spec-draft-n-max 2 --parallel 1
+  FAILED
+    /app/ggml/src/ggml-cuda/ggml-cuda.cu:106: CUDA error
+    1.26.550.562 E CUDA error: an illegal memory access was encountered
+    libggml-base.so.0(ggml_abort+0x15b)[0x7681db28a8db]
+    /app/libggml-cuda.so(_Z15ggml_cuda_errorPKcS0_S0_iS0_+0xb5)[0x7681ca21e0a5]
+
+########## C1 Q4_K_M  row     no-MTP
+# model=/models/Qwen3.8-27B-UD-Q4_K_M.gguf sm=row ctx=32768 extra=--spec-type none
+  FAILED
+    0.02.856.152 E llama_model_load: error loading model: device CUDA0 does not support split buffers
+    0.02.858.236 E common_fit_params: encountered an error while trying to fit params to free device memory: failed to load model
+    0.03.177.437 E llama_model_load: error loading model: device CUDA0 does not support split buffers
+    0.03.179.311 E srv  llama_server: exiting due to model loading error
+
+########## D1 IQ4_XS  tensor  MTP n2
+# model=/models/Qwen3.8-27B-UD-IQ4_XS.gguf sm=tensor ctx=32768 extra=--spec-type draft-mtp --spec-draft-n-max 2 --parallel 1
+  FAILED
+    /app/ggml/src/ggml-cuda/ggml-cuda.cu:106: CUDA error
+    0.52.611.477 E CUDA error: an illegal memory access was encountered
+    libggml-base.so.0(ggml_abort+0x15b)[0x71929c9238db]
+    /app/libggml-cuda.so(_Z15ggml_cuda_errorPKcS0_S0_iS0_+0xb5)[0x71928a21e0a5]
+
+########## D2 IQ4_XS  layer   MTP n2
+# model=/models/Qwen3.8-27B-UD-IQ4_XS.gguf sm=layer ctx=32768 extra=--spec-type draft-mtp --spec-draft-n-max 2 --parallel 1
+  run1: decode= 39.09 tok/s  prefill=   24.15 tok/s  n=300
+  run2: decode= 37.08 tok/s  prefill=    4.48 tok/s  n=300
+  run3: decode= 39.80 tok/s  prefill=   24.15 tok/s  n=300
+  MEAN decode: 38.66 tok/s
+  VRAM: 7076 MiB 9080 MiB 
+  0.58.049.045 I slot print_timing: id  0 | task 146 | draft acceptance = 0.59559 (  162 accepted /   272 generated), mean len =  2.19
+  1.05.997.128 I slot print_timing: id  0 | task 285 | draft acceptance = 0.59559 (  162 accepted /   272 generated), mean len =  2.19
+
+WROTE /srv/bench/final-20260820-1314.txt

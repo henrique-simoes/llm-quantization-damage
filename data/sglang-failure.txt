@@ -1,0 +1,61 @@
+SGLang nao subiu em 131072/65536/32768/16384
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 1.19 GiB. GPU 0 has a total capacity of 15.48 GiB of which 566.12 MiB is free. Including non-PyTorch memory, this process has 14.92 GiB memory in use. Of the allocated memory 14.47 GiB is allocated by PyTorch, and 117.26 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+
+[2026-08-23 05:15:26 TP1] Scheduler hit an exception: Traceback (most recent call last):
+  File "/sgl-workspace/sglang/python/sglang/srt/managers/scheduler.py", line 5048, in run_scheduler_process
+    scheduler = Scheduler(
+                ^^^^^^^^^^
+  File "/sgl-workspace/sglang/python/sglang/srt/managers/scheduler.py", line 518, in __init__
+    self.init_model_worker()
+  File "/sgl-workspace/sglang/python/sglang/srt/managers/scheduler.py", line 998, in init_model_worker
+    self.maybe_init_draft_worker()
+  File "/sgl-workspace/sglang/python/sglang/srt/managers/scheduler.py", line 942, in maybe_init_draft_worker
+    self.draft_worker = DraftWorkerClass(**draft_worker_kwargs)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/sgl-workspace/sglang/python/sglang/srt/speculative/eagle_worker_v2.py", line 1036, in __init__
+    self._draft_worker = EagleDraftWorker(
+                         ^^^^^^^^^^^^^^^^^
+  File "/sgl-workspace/sglang/python/sglang/srt/speculative/eagle_worker_v2.py", line 171, in __init__
+    self.draft_worker = TpModelWorker(
+                        ^^^^^^^^^^^^^^
+  File "/sgl-workspace/sglang/python/sglang/srt/managers/tp_worker.py", line 337, in __init__
+    self._init_model_runner()
+  File "/sgl-workspace/sglang/python/sglang/srt/managers/tp_worker.py", line 466, in _init_model_runner
+    self._model_runner = ModelRunner(
+                         ^^^^^^^^^^^^
+  File "/sgl-workspace/sglang/python/sglang/srt/model_executor/model_runner.py", line 436, in __init__
+    self.initialize()
+  File "/sgl-workspace/sglang/python/sglang/srt/model_executor/model_runner.py", line 630, in initialize
+    self.load_model()
+  File "/sgl-workspace/sglang/python/sglang/srt/model_executor/model_runner.py", line 1099, in load_model
+    loaded = load_model_with_memory_saver(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/sgl-workspace/sglang/python/sglang/srt/model_executor/model_runner_components/load_model_utils.py", line 321, in load_model_with_memory_saver
+    model = loader.load_model(
+            ^^^^^^^^^^^^^^^^^^
+  File "/sgl-workspace/sglang/python/sglang/srt/model_loader/loader.py", line 985, in load_model
+    model = _initialize_model(
+            ^^^^^^^^^^^^^^^^^^
+  File "/sgl-workspace/sglang/python/sglang/srt/model_loader/loader.py", line 345, in _initialize_model
+    return model_class(**kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/sgl-workspace/sglang/python/sglang/srt/models/qwen3_5_mtp.py", line 121, in __init__
+    self.model = Qwen3_5ForCausalLM(
+                 ^^^^^^^^^^^^^^^^^^^
+  File "/sgl-workspace/sglang/python/sglang/srt/models/qwen3_5.py", line 1353, in __init__
+    self.embed_tokens = VocabParallelEmbedding(
+                        ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/sgl-workspace/sglang/python/sglang/srt/layers/vocab_parallel_embedding.py", line 338, in __init__
+    self.quant_method.create_weights(
+  File "/sgl-workspace/sglang/python/sglang/srt/layers/quantization/unquant.py", line 163, in create_weights
+    torch.empty(
+  File "/usr/local/lib/python3.12/dist-packages/torch/utils/_device.py", line 122, in __torch_function__
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 1.19 GiB. GPU 1 has a total capacity of 15.48 GiB of which 566.12 MiB is free. Including non-PyTorch memory, this process has 14.92 GiB memory in use. Of the allocated memory 14.47 GiB is allocated by PyTorch, and 117.26 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://docs.pytorch.org/docs/stable/notes/cuda.html#optimizing-memory-usage-with-pytorch-cuda-alloc-conf)
+
+[2026-08-23 05:15:26] Received sigquit from a child process. It usually means the child failed.
+[2026-08-23 05:15:27] kill_process_tree called: parent_pid=1, include_parent=True, pid=1
+[2026-08-23 05:15:27] kill_process_tree called: parent_pid=1, include_parent=False, pid=1

@@ -1,0 +1,366 @@
+{
+ "perplexity": {
+  "IQ4_XS": {
+   "ppl": 6.6839,
+   "err": 0.04133
+  },
+  "Q4_K_XL": {
+   "ppl": 6.6617,
+   "err": 0.04116
+  },
+  "Q5_K_XL": {
+   "ppl": 6.6556,
+   "err": 0.04114
+  },
+  "Q6_K_XL": {
+   "ppl": 6.6511,
+   "err": 0.04111
+  }
+ },
+ "humaneval_nonthinking": {
+  "Q5_K_XL": {
+   "base": 93.3,
+   "plus": 90.9,
+   "n": 164,
+   "empty": {
+    "empty": 0,
+    "total": 164,
+    "pct": 0.0
+   }
+  },
+  "lcpp-q6k": {
+   "base": 93.3,
+   "plus": 90.2,
+   "n": 164,
+   "empty": {
+    "empty": 0,
+    "total": 164,
+    "pct": 0.0
+   }
+  },
+  "Q6_K": {
+   "base": 43.3,
+   "plus": 43.3,
+   "n": 164,
+   "empty": {
+    "empty": 84,
+    "total": 164,
+    "pct": 51.2
+   }
+  },
+  "Q3_K_XL": {
+   "base": 84.1,
+   "plus": 81.7,
+   "n": 164,
+   "empty": {
+    "empty": 0,
+    "total": 164,
+    "pct": 0.0
+   }
+  },
+  "Q6Kfix": {
+   "base": 93.9,
+   "plus": 91.5,
+   "n": 164,
+   "empty": {
+    "empty": 0,
+    "total": 164,
+    "pct": 0.0
+   }
+  },
+  "deep-32768": {
+   "base": 93.3,
+   "plus": 90.2,
+   "n": 164,
+   "empty": {
+    "empty": 0,
+    "total": 164,
+    "pct": 0.0
+   }
+  },
+  "deep-131072": {
+   "base": 93.3,
+   "plus": 90.2,
+   "n": 164,
+   "empty": {
+    "empty": 0,
+    "total": 164,
+    "pct": 0.0
+   }
+  },
+  "IQ4fix": {
+   "base": 90.2,
+   "plus": 87.8,
+   "n": 164,
+   "empty": {
+    "empty": 0,
+    "total": 164,
+    "pct": 0.0
+   }
+  }
+ },
+ "humaneval_thinking": {
+  "mtp-IQ4_XS": {
+   "base": 86.6,
+   "plus": 86.0,
+   "n": 164,
+   "empty": {
+    "empty": 21,
+    "total": 164,
+    "pct": 12.8
+   },
+   "tasks": 164
+  },
+  "mtp-Q4_K_XL": {
+   "base": 87.8,
+   "plus": 86.0,
+   "n": 164,
+   "empty": {
+    "empty": 20,
+    "total": 164,
+    "pct": 12.2
+   },
+   "tasks": 164
+  },
+  "mtp-Q5_K_XL": {
+   "base": 89.0,
+   "plus": 86.0,
+   "n": 164,
+   "empty": {
+    "empty": 18,
+    "total": 164,
+    "pct": 11.0
+   },
+   "tasks": 164
+  },
+  "mtp-Q6_K_XL": {
+   "empty": {
+    "empty": 4,
+    "total": 59,
+    "pct": 6.8
+   },
+   "tasks": 59
+  },
+  "vllm-NVFP4": {
+   "base": 85.4,
+   "plus": 84.1,
+   "n": 164,
+   "empty": {
+    "empty": 21,
+    "total": 164,
+    "pct": 12.8
+   },
+   "tasks": 164
+  }
+ },
+ "swebench": {
+  "dflash2-calibration": {
+   "completed": "2",
+   "resolved": "2",
+   "unresolved": "0",
+   "with errors": "0"
+  },
+  "iq4_xs-verified50": {
+   "completed": "47",
+   "resolved": "36",
+   "unresolved": "11",
+   "with errors": "2"
+  },
+  "mtp-n1-calib": {
+   "completed": "3",
+   "resolved": "2",
+   "unresolved": "1",
+   "with errors": "0"
+  },
+  "mtp-n8-calib": {
+   "completed": "3",
+   "resolved": "3",
+   "unresolved": "0",
+   "with errors": "0"
+  },
+  "q5_k_xl-verified50": {
+   "completed": "48",
+   "resolved": "35",
+   "unresolved": "13",
+   "with errors": "2"
+  },
+  "thinking/vllm-NVFP4-mtp": {
+   "completed": "1",
+   "resolved": "1",
+   "unresolved": "0",
+   "with errors": "0"
+  },
+  "thinking/vllm-NVFP4": {
+   "completed": "3",
+   "resolved": "2",
+   "unresolved": "1",
+   "with errors": "0"
+  }
+ },
+ "speed": {
+  "MTP2": {
+   "label": "MTP2",
+   "n_runs": 3,
+   "decode_tok_s": 28.298,
+   "ttft_s": 0.112,
+   "tpot_ms": 86.402,
+   "avg_power_w": 133.873,
+   "peak_vram_mib": 14736,
+   "j_per_tok": 4.731,
+   "completion_tokens": 1024,
+   "decode_tok_s_all": [
+    29.44,
+    28.3,
+    27.53
+   ]
+  },
+  "MTP4": {
+   "label": "MTP4",
+   "n_runs": 3,
+   "decode_tok_s": 37.233,
+   "ttft_s": 0.282,
+   "tpot_ms": 90.774,
+   "avg_power_w": 150.281,
+   "peak_vram_mib": 14740,
+   "j_per_tok": 3.797,
+   "completion_tokens": 1024,
+   "decode_tok_s_all": [
+    35.31,
+    40.99,
+    37.23
+   ]
+  },
+  "NOSPEC": {
+   "label": "NOSPEC",
+   "n_runs": 3,
+   "decode_tok_s": 12.443,
+   "ttft_s": 0.314,
+   "tpot_ms": 83.83,
+   "avg_power_w": 126.053,
+   "peak_vram_mib": 15424,
+   "j_per_tok": 9.956,
+   "completion_tokens": 1024,
+   "decode_tok_s_all": [
+    12.44,
+    12.44,
+    13.26
+   ]
+  },
+  "MTP2_clean": {
+   "label": "MTP2_clean",
+   "n_runs": 3,
+   "decode_tok_s": 28.112,
+   "ttft_s": 0.461,
+   "tpot_ms": 86.157,
+   "avg_power_w": 132.712,
+   "peak_vram_mib": 15528,
+   "j_per_tok": 4.573,
+   "completion_tokens": 1024,
+   "decode_tok_s_all": [
+    25.16,
+    29.02,
+    28.11
+   ]
+  },
+  "MTP4_clean": {
+   "label": "MTP4_clean",
+   "n_runs": 3,
+   "decode_tok_s": 41.212,
+   "ttft_s": 0.511,
+   "tpot_ms": 70.509,
+   "avg_power_w": 148.351,
+   "peak_vram_mib": 15566,
+   "j_per_tok": 3.6,
+   "completion_tokens": 1024,
+   "decode_tok_s_all": [
+    32.54,
+    41.21,
+    41.24
+   ]
+  },
+  "llamacpp_nospec": {
+   "label": "llamacpp_nospec",
+   "model": "Qwen3.8-27B-UD-Q4_K_XL",
+   "n_runs": 3,
+   "decode_tok_s": 22.999,
+   "ttft_s": 0.428,
+   "tpot_ms": 43.464,
+   "avg_power_w": 207.048,
+   "peak_vram_mib": 10062,
+   "j_per_tok": 9.002,
+   "completion_tokens": 1024,
+   "decode_tok_s_all": [
+    22.8,
+    23.0,
+    23.02
+   ]
+  },
+  "llamacpp_mtp_n2": {
+   "label": "llamacpp_mtp_n2",
+   "model": "Qwen3.8-27B-UD-Q4_K_XL",
+   "n_runs": 3,
+   "decode_tok_s": 32.692,
+   "ttft_s": 0.437,
+   "tpot_ms": 0.046,
+   "avg_power_w": 214.084,
+   "peak_vram_mib": 11014,
+   "j_per_tok": 6.548,
+   "completion_tokens": 1024,
+   "decode_tok_s_all": [
+    32.19,
+    32.69,
+    32.87
+   ]
+  },
+  "llamacpp_dflash2_n4": {
+   "label": "llamacpp_dflash2_n4",
+   "model": "Qwen3.8-27B-UD-Q4_K_XL",
+   "n_runs": 3,
+   "decode_tok_s": 38.511,
+   "ttft_s": 0.445,
+   "tpot_ms": 0.036,
+   "avg_power_w": 218.224,
+   "peak_vram_mib": 11356,
+   "j_per_tok": 5.666,
+   "completion_tokens": 1024,
+   "decode_tok_s_all": [
+    36.81,
+    38.52,
+    38.51
+   ]
+  }
+ },
+ "server_timings": {
+  "mtp-Q6_K_XL": {
+   "tok_s_mean": 31.46,
+   "tok_s_median": 31.39,
+   "n": 940,
+   "acceptance": 0.77895,
+   "mean_len": 2.56
+  }
+ },
+ "energy": {
+  "gpu_wh": 838.177,
+  "cpu_wh": 91.5245,
+  "sys_wh": 1108.15,
+  "gpu_w": 212.09,
+  "sys_w": 283.6,
+  "ts": "2026-08-27T20:19:49Z"
+ },
+ "run_log": [
+  "2026-08-27T12:49:26+00:00 | mtp-IQ4_XS START",
+  "2026-08-27T14:18:36+00:00 | mtp-IQ4_XS DONE (5257s)",
+  "2026-08-27T14:18:43+00:00 | VALIDATION_FAILED mtp-IQ4_XS",
+  "2026-08-27T14:22:53+00:00 | VALIDATION_PASSED mtp-IQ4_XS",
+  "2026-08-27T14:22:53+00:00 | mtp-Q4_K_XL START",
+  "2026-08-27T16:58:30+00:00 | mtp-Q4_K_XL DONE (9214s)",
+  "2026-08-27T16:58:37+00:00 | mtp-Q5_K_XL START",
+  "2026-08-27T19:35:25+00:00 | mtp-Q5_K_XL DONE (9255s)",
+  "2026-08-27T19:35:32+00:00 | mtp-Q6_K_XL START"
+ ],
+ "phase4": [],
+ "running": [
+  "bash /srv/bench/run-humaneval-thinking-v2.sh",
+  "bash /srv/bench/phase34-waiter.sh"
+ ]
+}
