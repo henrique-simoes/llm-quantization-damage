@@ -76,6 +76,30 @@ Accuracy, on the same arms, separates them at **3.7–11.8 σ** with non-overlap
 So the decision rule's first criterion is the only one that resolves anything, which is why the
 recommendation follows accuracy almost exclusively.
 
+### The closer the corpus gets to the real task, the worse quantization looks
+
+Adding the HumanEval+ task prompts as a third domain (SSA S5) makes the picture sharper, and it
+does not flatter any arm:
+
+| quant | WikiText-2 | django code | HumanEval+ prompts | task ÷ prose |
+|---|---|---|---|---|
+| Q6_K | 0.003321 | 0.005829 | **0.010403** | 3.13× |
+| Q5_K_XL | 0.004465 | 0.010285 | **0.017285** | 3.87× |
+| Q4_K_XL | 0.008207 | 0.021529 | **0.036129** | 4.40× |
+
+Against Fireworks' <0.007 threshold: **two of three arms pass on prose, one on generic code, and
+none on the actual task distribution.** The prose-to-task amplification also grows as quantization
+gets more aggressive, so the cheap arm is penalised twice.
+
+Two consequences for the ladder above:
+
+1. **Fallback A (Q6_K_XL) is stronger than a "nice to have".** For accuracy-critical work the
+   19 % context cost buys the only arm not measured as degraded on the task distribution — though
+   note it is the reference, so its own distance from FP16 is unmeasured, not zero.
+2. **Fallback B (Q4_K_XL) is weaker than its speed story suggests.** At 0.036 on task prompts it
+   is five times the threshold, and its top-1 agreement of 95.894 % means roughly **one token in
+   24 differs from the reference under greedy decoding** — on function bodies, that is a lot.
+
 **This inverts the usual quantization intuition.** The case for a cheaper quant is normally
 "meaningfully faster for slightly less accuracy". On this host at full context, the smaller quant
 is **not meaningfully faster** — it is only less accurate. Q4_K_XL earns its place on VRAM
@@ -105,4 +129,5 @@ footprint alone.
 `data/raw/e12/tsweep-v2-*.json` (ceilings, ratios, decode reps) ·
 `data/raw/e12/ssa/ssa-results-parsed.json` (divergence, top-1, E2) ·
 `data/raw/e12/serverlogs/` (raw tool output every number was parsed from) ·
-paper notes PN-13, PN-14, PN-15, PN-18, PN-19 · ledger L-8, L-9, L-10.
+paper notes PN-13, PN-14, PN-15, PN-18, PN-19, PN-20, PN-21 · ledger L-8, L-9, L-10, L-11.
+`data/raw/e12/ssa/ssa-s5-results.json` (task-prompt divergence).
