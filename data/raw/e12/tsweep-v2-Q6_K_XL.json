@@ -313,14 +313,247 @@
    },
    "when_utc": "2026-08-30T03:21:11Z",
    "finished_utc": "2026-08-30T03:25:18Z"
+  },
+  {
+   "key": "212992:56,44:1:base",
+   "ctx_requested": 212992,
+   "ts": "56,44",
+   "rep": 1,
+   "tag": null,
+   "ctxcp": 4,
+   "ok": true,
+   "stage": "done",
+   "failure_mode": null,
+   "error": "",
+   "n_ctx_reported": 212992,
+   "command": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 212992 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 4 --spec-type draft-mtp --spec-draft-n-max 2 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "prefill_tokens": 201672,
+   "prefill_frac": 0.9469,
+   "prefill_tok_s": 559.3084514529419,
+   "decode_tok_s": 12.981649792334382,
+   "n_predict": 192,
+   "seed": 20260831,
+   "sampling": {
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "top_k": 20,
+    "min_p": 0.0,
+    "presence_penalty": 1.5,
+    "repeat_penalty": 1.0
+   },
+   "spec_live": true,
+   "draft_n": 175,
+   "draft_n_accepted": 103,
+   "vram_peak_mib": [
+    15656,
+    15414
+   ],
+   "vram_prefill_end_mib": [
+    15656,
+    15414
+   ],
+   "imbalance_mib": 242,
+   "imbalance_timealigned_mib": 1380,
+   "load_seconds": 240,
+   "serverlog": "/srv/bench/server-timings/e12-Q6_K_XL-c212992-ts56_44.serverlog",
+   "serverlog_bytes": 18502,
+   "free_bytes": {
+    "/srv/models": {
+     "available": 38924001280
+    },
+    "/": {
+     "available": 82987769856
+    }
+   },
+   "when_utc": "2026-08-30T03:25:18Z",
+   "prefill_target_tokens": 201830,
+   "mtp_acceptance": 0.5886,
+   "truncated": false,
+   "finished_utc": "2026-08-30T03:36:47Z"
+  },
+  {
+   "key": "229376:56,44:1:base",
+   "ctx_requested": 229376,
+   "ts": "56,44",
+   "rep": 1,
+   "tag": null,
+   "ctxcp": 4,
+   "ok": false,
+   "stage": "health",
+   "failure_mode": "compute-buffer-oom",
+   "error": "load hang / died: llocate compute buffers 3.10.834.187 E llama_init_from_model: failed to initialize the context: failed to allocate compute pp buffers 3.10.834.213 E cmn  common_init_: failed to create context with model '/models/Qwen3.8-27B-UD-Q6_K_XL.gguf' 3.10.835.058 E cmn  common_init_: failed to create context with model '/models/Qwen3.8-27B-UD-Q6_K_XL.gguf' 3.10.839.944 E srv    load_model",
+   "n_ctx_reported": 0,
+   "command": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 229376 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 4 --spec-type draft-mtp --spec-draft-n-max 2 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "prefill_tokens": 0,
+   "prefill_frac": null,
+   "prefill_tok_s": null,
+   "decode_tok_s": null,
+   "n_predict": 192,
+   "seed": 20260831,
+   "sampling": {
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "top_k": 20,
+    "min_p": 0.0,
+    "presence_penalty": 1.5,
+    "repeat_penalty": 1.0
+   },
+   "spec_live": null,
+   "draft_n": null,
+   "draft_n_accepted": null,
+   "vram_peak_mib": [
+    12120,
+    11284
+   ],
+   "vram_prefill_end_mib": [],
+   "imbalance_mib": 836,
+   "imbalance_timealigned_mib": 838,
+   "load_seconds": 215,
+   "serverlog": "/srv/bench/server-timings/e12-Q6_K_XL-c229376-ts56_44.serverlog",
+   "serverlog_bytes": 1826,
+   "free_bytes": {
+    "/srv/models": {
+     "available": 38924001280
+    },
+    "/": {
+     "available": 82983501824
+    }
+   },
+   "when_utc": "2026-08-30T03:36:47Z",
+   "finished_utc": "2026-08-30T03:40:30Z"
+  },
+  {
+   "key": "229376:56,44:1:retest",
+   "ctx_requested": 229376,
+   "ts": "56,44",
+   "rep": 1,
+   "tag": "retest",
+   "ctxcp": 4,
+   "ok": false,
+   "stage": "health",
+   "failure_mode": "compute-buffer-oom",
+   "error": "load hang / died: llocate compute buffers 4.15.254.399 E llama_init_from_model: failed to initialize the context: failed to allocate compute pp buffers 4.15.254.416 E cmn  common_init_: failed to create context with model '/models/Qwen3.8-27B-UD-Q6_K_XL.gguf' 4.15.254.761 E cmn  common_init_: failed to create context with model '/models/Qwen3.8-27B-UD-Q6_K_XL.gguf' 4.15.258.838 E srv    load_model",
+   "n_ctx_reported": 0,
+   "command": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 229376 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 4 --spec-type draft-mtp --spec-draft-n-max 2 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "prefill_tokens": 0,
+   "prefill_frac": null,
+   "prefill_tok_s": null,
+   "decode_tok_s": null,
+   "n_predict": 192,
+   "seed": 20260831,
+   "sampling": {
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "top_k": 20,
+    "min_p": 0.0,
+    "presence_penalty": 1.5,
+    "repeat_penalty": 1.0
+   },
+   "spec_live": null,
+   "draft_n": null,
+   "draft_n_accepted": null,
+   "vram_peak_mib": [
+    12120,
+    11284
+   ],
+   "vram_prefill_end_mib": [],
+   "imbalance_mib": 836,
+   "imbalance_timealigned_mib": 838,
+   "load_seconds": 278,
+   "serverlog": "/srv/bench/server-timings/e12-Q6_K_XL-c229376-ts56_44-retest.serverlog",
+   "serverlog_bytes": 1826,
+   "free_bytes": {
+    "/srv/models": {
+     "available": 38924001280
+    },
+    "/": {
+     "available": 82974134272
+    }
+   },
+   "when_utc": "2026-08-30T03:40:31Z",
+   "finished_utc": "2026-08-30T03:45:17Z"
   }
  ],
  "best": null,
- "best_speed": null,
- "best_at_ceiling": null,
- "ceiling": null,
+ "best_speed": 196608,
+ "best_at_ceiling": {
+  "key": "212992:56,44:1:base",
+  "ctx_requested": 212992,
+  "ts": "56,44",
+  "rep": 1,
+  "tag": null,
+  "ctxcp": 4,
+  "ok": true,
+  "stage": "done",
+  "failure_mode": null,
+  "error": "",
+  "n_ctx_reported": 212992,
+  "command": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 212992 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 4 --spec-type draft-mtp --spec-draft-n-max 2 --seed 20260830 --host 0.0.0.0 --port 8080",
+  "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+  "prefill_tokens": 201672,
+  "prefill_frac": 0.9469,
+  "prefill_tok_s": 559.3084514529419,
+  "decode_tok_s": 12.981649792334382,
+  "n_predict": 192,
+  "seed": 20260831,
+  "sampling": {
+   "temperature": 0.7,
+   "top_p": 0.8,
+   "top_k": 20,
+   "min_p": 0.0,
+   "presence_penalty": 1.5,
+   "repeat_penalty": 1.0
+  },
+  "spec_live": true,
+  "draft_n": 175,
+  "draft_n_accepted": 103,
+  "vram_peak_mib": [
+   15656,
+   15414
+  ],
+  "vram_prefill_end_mib": [
+   15656,
+   15414
+  ],
+  "imbalance_mib": 242,
+  "imbalance_timealigned_mib": 1380,
+  "load_seconds": 240,
+  "serverlog": "/srv/bench/server-timings/e12-Q6_K_XL-c212992-ts56_44.serverlog",
+  "serverlog_bytes": 18502,
+  "free_bytes": {
+   "/srv/models": {
+    "available": 38924001280
+   },
+   "/": {
+    "available": 82987769856
+   }
+  },
+  "when_utc": "2026-08-30T03:25:18Z",
+  "prefill_target_tokens": 201830,
+  "mtp_acceptance": 0.5886,
+  "truncated": false,
+  "finished_utc": "2026-08-30T03:36:47Z"
+ },
+ "ceiling": {
+  "ctx": 212992,
+  "failed_rung_above": 229376,
+  "failed_rung_attempts": 2,
+  "note": "rung 229376 failed; winning config attempted 2 times (R2 two-attempt rule)"
+ },
  "d3": null,
- "g21": null,
+ "g21": {
+  "verdict": "Q6_K_XL MTP ceiling rebalanced to 212992 (published default-split: 131,072)",
+  "best_ts": "56,44",
+  "ceiling": {
+   "ctx": 212992,
+   "failed_rung_above": 229376,
+   "failed_rung_attempts": 2,
+   "note": "rung 229376 failed; winning config attempted 2 times (R2 two-attempt rule)"
+  }
+ },
  "env": {
   "source": "e12-wave1",
   "run_ids": [],

@@ -1,0 +1,387 @@
+{
+ "experiment": "e12-tensor-split-rebalance-v2",
+ "quant": "Q6_K",
+ "model": "/srv/bench/models/Qwen3.8-27B-UD-Q6_K.gguf",
+ "mode": "speed",
+ "source": "e12-wave1",
+ "run_ids": [
+  "tsweep-v2-Q6_K"
+ ],
+ "sm": "layer",
+ "kv": "q4_0",
+ "spec": "mtp2",
+ "ctxcp": 4,
+ "decode_tokens": 192,
+ "sampling": {
+  "temperature": 0.7,
+  "top_p": 0.8,
+  "top_k": 20,
+  "min_p": 0.0,
+  "presence_penalty": 1.5,
+  "repeat_penalty": 1.0
+ },
+ "sampling_note": "DEC-2 non-thinking block on every request (owner 2026-08-30); speed/acceptance rows are NOT directly comparable to e11 rows measured at temperature 0; ceiling brackets are VRAM-based and unaffected; per-quant comparisons are internal to this wave.",
+ "ratios": [
+  null,
+  "54,46",
+  "56,44",
+  "58,42",
+  "60,40",
+  "62,38"
+ ],
+ "ladder": [
+  262144,
+  245760,
+  229376,
+  212992,
+  196608,
+  180224,
+  163840,
+  147456,
+  131072,
+  114688,
+  98304
+ ],
+ "policy": {
+  "climb": "winner+runner-up per rung; failed rung attempted twice with the winning ratio (R2)",
+  "d2": "top-two decode medians within 10% -> median-of-3; ties: smaller |imbalance|, then ratio nearer default",
+  "d3": "one -ctxcp 4 vs 32 A/B pair at the Q6_K winning cell",
+  "prefill_gate": "a cell FAILS as 'pad-too-short' unless the measured prefill reaches >=0.90 of the requested ctx (enforced 2026-08-30; previously documented only)"
+ },
+ "cells": [
+  {
+   "key": "262144:default:1:base",
+   "ctx_requested": 262144,
+   "ts": null,
+   "rep": 1,
+   "tag": null,
+   "ctxcp": 4,
+   "ok": false,
+   "stage": "health",
+   "failure_mode": "compute-buffer-oom",
+   "error": "load hang / died: 32.981 E ggml_backend_cuda_buffer_type_alloc_buffer: allocating 1024.00 MiB on device 1: cudaMalloc failed: out of memory 3.52.232.987 E alloc_tensor_range: failed to allocate CUDA1 buffer of size 1073741824 3.52.248.807 E llama_init_from_model: failed to initialize the context: failed to allocate buffer for kv cache 3.52.248.824 E common_speculative_init_result: failed to create",
+   "n_ctx_reported": 0,
+   "command": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -c 262144 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 4 --spec-type draft-mtp --spec-draft-n-max 2 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "prefill_tokens": 0,
+   "prefill_frac": null,
+   "prefill_tok_s": null,
+   "decode_tok_s": null,
+   "n_predict": 192,
+   "seed": 20260831,
+   "sampling": {
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "top_k": 20,
+    "min_p": 0.0,
+    "presence_penalty": 1.5,
+    "repeat_penalty": 1.0
+   },
+   "spec_live": null,
+   "draft_n": null,
+   "draft_n_accepted": null,
+   "vram_peak_mib": [
+    14024,
+    15624
+   ],
+   "vram_prefill_end_mib": [],
+   "imbalance_mib": 1600,
+   "imbalance_timealigned_mib": 1622,
+   "load_seconds": 258,
+   "serverlog": "/srv/bench/server-timings/e12-Q6_K-c262144-tsdefault.serverlog",
+   "serverlog_bytes": 1382,
+   "free_bytes": {
+    "/srv/models": {
+     "available": 38924001280
+    },
+    "/": {
+     "available": 82969108480
+    }
+   },
+   "when_utc": "2026-08-30T03:45:23Z",
+   "finished_utc": "2026-08-30T03:49:50Z"
+  },
+  {
+   "key": "262144:54,46:1:base",
+   "ctx_requested": 262144,
+   "ts": "54,46",
+   "rep": 1,
+   "tag": null,
+   "ctxcp": 4,
+   "ok": false,
+   "stage": "health",
+   "failure_mode": "compute-buffer-oom",
+   "error": "load hang / died: c4aa12d5d] /app/libllama.so.0(llama_decode+0xf)[0x7e8c4aa1428f] /app/libllama-common.so.0(_Z25common_context_can_seq_rmP13llama_context+0xd9)[0x7e8c4b062c19] /app/libllama-server-impl.so(_ZN19server_context_impl10load_modelER13common_params+0x10e5)[0x7e8c4b8f8005] /app/libllama-server-impl.so(_Z12llama_serverR13common_paramsiPPc+0x3597)[0x7e8c4b859b97] /app/libllama-server-impl.s",
+   "n_ctx_reported": 0,
+   "command": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 54,46 -c 262144 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 4 --spec-type draft-mtp --spec-draft-n-max 2 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "prefill_tokens": 0,
+   "prefill_frac": null,
+   "prefill_tok_s": null,
+   "decode_tok_s": null,
+   "n_predict": 192,
+   "seed": 20260831,
+   "sampling": {
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "top_k": 20,
+    "min_p": 0.0,
+    "presence_penalty": 1.5,
+    "repeat_penalty": 1.0
+   },
+   "spec_live": null,
+   "draft_n": null,
+   "draft_n_accepted": null,
+   "vram_peak_mib": [
+    15188,
+    15848
+   ],
+   "vram_prefill_end_mib": [],
+   "imbalance_mib": 660,
+   "imbalance_timealigned_mib": 10010,
+   "load_seconds": 273,
+   "serverlog": "/srv/bench/server-timings/e12-Q6_K-c262144-ts54_46.serverlog",
+   "serverlog_bytes": 3071,
+   "free_bytes": {
+    "/srv/models": {
+     "available": 38924001280
+    },
+    "/": {
+     "available": 82963935232
+    }
+   },
+   "when_utc": "2026-08-30T03:49:50Z",
+   "finished_utc": "2026-08-30T03:54:29Z"
+  },
+  {
+   "key": "262144:56,44:1:base",
+   "ctx_requested": 262144,
+   "ts": "56,44",
+   "rep": 1,
+   "tag": null,
+   "ctxcp": 4,
+   "ok": true,
+   "stage": "done",
+   "failure_mode": null,
+   "error": "",
+   "n_ctx_reported": 262144,
+   "command": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 56,44 -c 262144 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 4 --spec-type draft-mtp --spec-draft-n-max 2 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "prefill_tokens": 248522,
+   "prefill_frac": 0.948,
+   "prefill_tok_s": 490.3175792694275,
+   "decode_tok_s": 10.219966861623682,
+   "n_predict": 192,
+   "seed": 20260831,
+   "sampling": {
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "top_k": 20,
+    "min_p": 0.0,
+    "presence_penalty": 1.5,
+    "repeat_penalty": 1.0
+   },
+   "spec_live": true,
+   "draft_n": 174,
+   "draft_n_accepted": 103,
+   "vram_peak_mib": [
+    15528,
+    15586
+   ],
+   "vram_prefill_end_mib": [
+    15526,
+    15586
+   ],
+   "imbalance_mib": 58,
+   "imbalance_timealigned_mib": 10314,
+   "load_seconds": 347,
+   "serverlog": "/srv/bench/server-timings/e12-Q6_K-c262144-ts56_44.serverlog",
+   "serverlog_bytes": 21748,
+   "free_bytes": {
+    "/srv/models": {
+     "available": 38924001280
+    },
+    "/": {
+     "available": 82933334016
+    }
+   },
+   "when_utc": "2026-08-30T03:54:30Z",
+   "prefill_target_tokens": 248524,
+   "mtp_acceptance": 0.592,
+   "truncated": false,
+   "finished_utc": "2026-08-30T04:09:46Z"
+  },
+  {
+   "key": "262144:58,42:1:base",
+   "ctx_requested": 262144,
+   "ts": "58,42",
+   "rep": 1,
+   "tag": null,
+   "ctxcp": 4,
+   "ok": true,
+   "stage": "done",
+   "failure_mode": null,
+   "error": "",
+   "n_ctx_reported": 262144,
+   "command": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 58,42 -c 262144 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 4 --spec-type draft-mtp --spec-draft-n-max 2 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "prefill_tokens": 248522,
+   "prefill_frac": 0.948,
+   "prefill_tok_s": 468.65476961321923,
+   "decode_tok_s": 10.749014396982263,
+   "n_predict": 192,
+   "seed": 20260831,
+   "sampling": {
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "top_k": 20,
+    "min_p": 0.0,
+    "presence_penalty": 1.5,
+    "repeat_penalty": 1.0
+   },
+   "spec_live": true,
+   "draft_n": 174,
+   "draft_n_accepted": 103,
+   "vram_peak_mib": [
+    15322,
+    15082
+   ],
+   "vram_prefill_end_mib": [
+    15316,
+    15080
+   ],
+   "imbalance_mib": 240,
+   "imbalance_timealigned_mib": 2534,
+   "load_seconds": 330,
+   "serverlog": "/srv/bench/server-timings/e12-Q6_K-c262144-ts58_42.serverlog",
+   "serverlog_bytes": 21597,
+   "free_bytes": {
+    "/srv/models": {
+     "available": 38924001280
+    },
+    "/": {
+     "available": 82916118528
+    }
+   },
+   "when_utc": "2026-08-30T04:09:46Z",
+   "prefill_target_tokens": 248524,
+   "mtp_acceptance": 0.592,
+   "truncated": false,
+   "finished_utc": "2026-08-30T04:25:33Z"
+  },
+  {
+   "key": "262144:60,40:1:base",
+   "ctx_requested": 262144,
+   "ts": "60,40",
+   "rep": 1,
+   "tag": null,
+   "ctxcp": 4,
+   "ok": false,
+   "stage": "health",
+   "failure_mode": "compute-buffer-oom",
+   "error": "load hang / died: d to allocate compute buffers 4.32.765.326 E llama_init_from_model: failed to initialize the context: failed to allocate compute pp buffers 4.32.765.344 E cmn  common_init_: failed to create context with model '/models2/Qwen3.8-27B-UD-Q6_K.gguf' 4.32.765.579 E cmn  common_init_: failed to create context with model '/models2/Qwen3.8-27B-UD-Q6_K.gguf' 4.32.769.581 E srv    load_mod",
+   "n_ctx_reported": 0,
+   "command": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 60,40 -c 262144 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 4 --spec-type draft-mtp --spec-draft-n-max 2 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "prefill_tokens": 0,
+   "prefill_frac": null,
+   "prefill_tok_s": null,
+   "decode_tok_s": null,
+   "n_predict": 192,
+   "seed": 20260831,
+   "sampling": {
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "top_k": 20,
+    "min_p": 0.0,
+    "presence_penalty": 1.5,
+    "repeat_penalty": 1.0
+   },
+   "spec_live": null,
+   "draft_n": null,
+   "draft_n_accepted": null,
+   "vram_peak_mib": [
+    11330,
+    8914
+   ],
+   "vram_prefill_end_mib": [],
+   "imbalance_mib": 2416,
+   "imbalance_timealigned_mib": 2418,
+   "load_seconds": 291,
+   "serverlog": "/srv/bench/server-timings/e12-Q6_K-c262144-ts60_40.serverlog",
+   "serverlog_bytes": 1818,
+   "free_bytes": {
+    "/srv/models": {
+     "available": 38924001280
+    },
+    "/": {
+     "available": 82908553216
+    }
+   },
+   "when_utc": "2026-08-30T04:25:34Z",
+   "finished_utc": "2026-08-30T04:30:32Z"
+  }
+ ],
+ "best": null,
+ "best_speed": 262144,
+ "best_at_ceiling": null,
+ "ceiling": null,
+ "d3": null,
+ "g21": null,
+ "env": {
+  "source": "e12-wave1",
+  "run_ids": [],
+  "recorded_utc": "2026-08-30T03:45:23Z",
+  "image": {
+   "image": "llamacpp-mtp:latest",
+   "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "manifest_image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "version_string": "version: 0.3.0-dev (build 1, commit d222767); built with GNU 13.3.0 for Linux x86_64",
+   "matches_manifest": true
+  },
+  "model": {
+   "file": "/srv/bench/models/Qwen3.8-27B-UD-Q6_K.gguf",
+   "bytes": 21983677344,
+   "sha256": "c9c206812fbe4ac7b76a729e25928b63f2ae89d37f69da7a71c20aec763cd436",
+   "source": "env-manifest"
+  },
+  "seed": 20260830,
+  "sampling_non_thinking": {
+   "temperature": 0.7,
+   "top_p": 0.8,
+   "top_k": 20,
+   "min_p": 0.0,
+   "presence_penalty": 1.5,
+   "repeat_penalty": 1.0
+  },
+  "sampling_thinking": {
+   "temperature": 1.0,
+   "top_p": 0.95,
+   "top_k": 20,
+   "min_p": 0.0,
+   "presence_penalty": 0.0,
+   "repeat_penalty": 1.0
+  },
+  "server_defaults_measured": {
+   "temperature": 1.0,
+   "top_k": 20,
+   "top_p": 0.95,
+   "min_p": 0.05,
+   "presence_penalty": 0.0,
+   "repeat_penalty": 1.0
+  },
+  "kv_dtype": "q4_0",
+  "spec": "mtp2",
+  "split_mode": "layer",
+  "ctx_requested": 262144,
+  "ts": null,
+  "ctxcp": 4,
+  "free_bytes": {
+   "/srv/models": 38924001280,
+   "/": 82973966336
+  },
+  "extra": {
+   "mode": "speed"
+  }
+ }
+}

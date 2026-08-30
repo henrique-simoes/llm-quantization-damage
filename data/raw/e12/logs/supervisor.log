@@ -1,0 +1,7 @@
+[2026-08-30T04:31:26Z] ################ SUPERVISOR START pid 1846476 ################
+[2026-08-30T04:31:27Z] plan: wait for sweep -> summarize -> verify-1a -> SSA S0 gate -> S1..S4 -> report
+[2026-08-30T04:31:27Z] policy: a failing step is logged and SKIPPED; the chain continues regardless
+[2026-08-30T04:31:27Z] superseding ssa_runner.sh (pid 1800668)
+[2026-08-30T04:31:27Z] superseding finish_wave1.sh (pid 1661575)
+[2026-08-30T04:31:27Z] superseding finish_wave1.sh (pid 1661639)
+[2026-08-30T04:31:30Z] waiting for GPU work to finish (sweep / llamasrv-e12)
