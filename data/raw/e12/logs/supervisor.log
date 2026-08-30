@@ -50,3 +50,7 @@
 [2026-08-30T09:39:23Z] === STEP ssa_S3 START ===
 [2026-08-30T09:39:23Z]     cmd: /srv/bench/.venv-evalplus/bin/python /srv/bench/e12/experiments/ssa_kld.py --step S3 --out /srv/bench/e12/ssa/ssa-results.json
 [2026-08-30T09:58:30Z] === STEP ssa_S3 OK (rc=0) -> /srv/bench/e12/logs/ssa_S3.log ===
+[2026-08-30T09:58:32Z]   git: pushed (after ssa_S3)
+[2026-08-30T09:58:32Z] === STEP ssa_S4 START ===
+[2026-08-30T09:58:32Z]     cmd: /srv/bench/.venv-evalplus/bin/python /srv/bench/e12/experiments/ssa_kld.py --step S4 --out /srv/bench/e12/ssa/ssa-results.json
+[2026-08-30T10:27:38Z] === STEP ssa_S4 OK (rc=0) -> /srv/bench/e12/logs/ssa_S4.log ===

@@ -181,7 +181,48 @@
     "kld_95p": 0.0558
    },
    "ok": true
+  },
+  {
+   "label": "ssa-Q6_K_XL-code-base",
+   "arm": "Q6_K_XL",
+   "domain": "code",
+   "mode": "base",
+   "kv": "f16",
+   "n_ctx": 2048,
+   "chunks": 32,
+   "tokens": 65536,
+   "rc": 0,
+   "seconds": 1371.7,
+   "serverlog": "/srv/bench/server-timings/ssa-Q6_K_XL-code-base.serverlog",
+   "serverlog_bytes": 2664,
+   "command": "docker run --rm --name ssa-perplexity --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro -v /srv/bench/corpus:/corpus:ro -v /srv/bench/e12:/e12:ro -v /srv/bench/e12/ssa:/ssa --entrypoint /app/llama-perplexity llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -f /e12/corpus.txt -c 2048 --chunks 32 -ngl 99 -fa on -ctk f16 -ctv f16 -s 20260830 --kl-divergence-base /ssa/base-code-f16.kld",
+   "metrics": {
+    "ppl": 1.1791,
+    "ppl_err": 0.00605
+   },
+   "ok": true
+  },
+  {
+   "label": "ssa-Q6_K_XL-code-kld-e2",
+   "arm": "Q6_K_XL",
+   "domain": "code",
+   "mode": "kld",
+   "kv": "q4_0",
+   "n_ctx": 2048,
+   "chunks": 32,
+   "tokens": 65536,
+   "rc": 0,
+   "seconds": 369.5,
+   "serverlog": "/srv/bench/server-timings/ssa-Q6_K_XL-code-kld-e2.serverlog",
+   "serverlog_bytes": 7324,
+   "command": "docker run --rm --name ssa-perplexity --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro -v /srv/bench/corpus:/corpus:ro -v /srv/bench/e12:/e12:ro -v /srv/bench/e12/ssa:/ssa --entrypoint /app/llama-perplexity llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -f /e12/corpus.txt -c 2048 --chunks 32 -ngl 99 -fa on -ctk q4_0 -ctv q4_0 -s 20260830 --kl-divergence --kl-divergence-base /ssa/base-code-f16.kld",
+   "metrics": {
+    "max_kld": 1.317717,
+    "kld_99p": 0.067592,
+    "kld_95p": 0.008188
+   },
+   "ok": true
   }
  ],
- "finished_utc": "2026-08-30T09:58:29Z"
+ "finished_utc": "2026-08-30T10:27:35Z"
 }

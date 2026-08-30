@@ -1,0 +1,5 @@
+[2026-08-30T09:58:33Z] RUN ssa-Q6_K_XL-code-base: -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -f /e12/corpus.txt -c 2048 --chunks 32 -ngl 99 -fa on -ctk f16 -ctv f16 -s 20260830 --kl-divergence-base /ssa/base-code-f16.kld
+[2026-08-30T10:21:25Z]   -> ok=True {"ppl": 1.1791, "ppl_err": 0.00605}
+[2026-08-30T10:21:25Z] RUN ssa-Q6_K_XL-code-kld-e2: -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -f /e12/corpus.txt -c 2048 --chunks 32 -ngl 99 -fa on -ctk q4_0 -ctv q4_0 -s 20260830 --kl-divergence --kl-divergence-base /ssa/base-code-f16.kld
+[2026-08-30T10:27:35Z]   -> ok=True {"max_kld": 1.317717, "kld_99p": 0.067592, "kld_95p": 0.008188}
+[2026-08-30T10:27:35Z] SSA S4 done: 10/10 cells ok -> /srv/bench/e12/ssa/ssa-results.json
