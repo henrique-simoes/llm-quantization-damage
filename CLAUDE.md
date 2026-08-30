@@ -24,10 +24,18 @@ equal standing; one is the record and the others are mirrors that silently go st
 | Document | Owner | How it moves | Never do this |
 |---|---|---|---|
 | `docs/**` (lifecycle plan, PAPER-NOTES, METHOD-REFERENCES) | **this repo** | `tools/sync-multivac.sh push` → multivac | Edit multivac's copy under `data/build-stream-docs/` — the next push overwrites it |
-| `~/CLAUDE.md` on multivac (machine doc: hardware, engines, results) | **multivac** | pulled → `data/CLAUDE.md` | Edit `data/CLAUDE.md` expecting it to sync — push does **not** carry it |
-| `PAPER-REFERENCES.md` (the report's reference log) | **multivac**, at `~/Documents/multivac-paper/data/` | pulled → `data/multivac-src/` | Append to the repo-root copy — push does **not** carry it. Append **on multivac** |
+| `~/CLAUDE.md` on multivac (machine doc: hardware, engines, results) | **multivac** | pulled → `data/multivac-src/multivac-CLAUDE.md` | Edit the mirror expecting it to sync — push does **not** carry it. Edit **on multivac** |
+| `PAPER-REFERENCES.md` (the report's reference log) | **multivac**, at `~/Documents/multivac-paper/data/` | pulled → `data/multivac-src/` | Append to a mirror — push does **not** carry it. Append **on multivac** |
 | This `CLAUDE.md`, `AGENTS.md` | **this repo** | git + push | — |
 | `/srv/bench/**` artifacts | **multivac** | pulled selectively → `data/raw/` | Bulk-sync it; DEC-5 makes the routine sync docs-only |
+
+**Naming rule — one `CLAUDE.md`.** This file, at the repo root, is the only file in the repository
+allowed to be named `CLAUDE.md`. Claude Code discovers that name anywhere in the tree and merges
+what it finds into an agent's instructions, so multivac's 79 KB machine log is mirrored as
+`data/multivac-src/multivac-CLAUDE.md` — it is an engineering record, not instructions for this
+repo. Likewise every mirrored document has exactly **one** copy, under `data/multivac-src/`;
+`PAPER-REFERENCES.md` once existed three times and the root copy had silently gone stale by 25 KB.
+See `data/README.md`.
 
 **Before any `sync-multivac.sh push`: confirm `docs/` is not behind the mirror.** It was once
 23.5 KB against the mirror's 69 KB, and a push would have destroyed four hours of work.
@@ -73,9 +81,9 @@ docs/paper/PAPER-NOTES.md                           paper-candidate findings (PN
 docs/paper/PAPER-NOTES-PROTOCOL.md                  how to write one
 docs/paper/METHOD-REFERENCES.md                     external sources R1-R7 behind the accuracy design
 data/raw/e12/                                       pulled evidence + harness-src/ + quarantine/
-data/multivac-src/                                  read-only mirrors of multivac-owned docs
+data/multivac-src/                                  read-only mirrors: multivac-CLAUDE.md, PAPER-REFERENCES.md
 tools/sync-multivac.sh                              the tar sync
-PAPER-REFERENCES.md                                 read-only mirror (multivac owns it)
+data/README.md                                      what lives under data/ and the naming rules
 ```
 
 On multivac: `/srv/bench/e12/` (current wave), `/srv/bench/` (all prior results, never deleted),

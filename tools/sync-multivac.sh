@@ -18,8 +18,13 @@ rc=0
 
 pull() {
   mkdir -p "$D"/multivac-src "$D"/watch
-  # 1. CLAUDE.md — the machine's project documentation of record
-  $SSHOPT $H 'cat ~/CLAUDE.md' > "$D/CLAUDE.md" 2>/dev/null || { echo "WARN: CLAUDE.md pull failed"; rc=1; }
+  # 1. multivac's ~/CLAUDE.md — the MACHINE's documentation of record.
+  #    Written as multivac-src/multivac-CLAUDE.md, NOT as data/CLAUDE.md: Claude Code discovers
+  #    CLAUDE.md by NAME, so a second file with that name anywhere in the tree can be loaded as
+  #    project instructions. The repo's own agent guide is the root CLAUDE.md and is the only
+  #    file in this repository allowed to carry that name.
+  mkdir -p "$D/multivac-src"
+  $SSHOPT $H 'cat ~/CLAUDE.md' > "$D/multivac-src/multivac-CLAUDE.md" 2>/dev/null || { echo "WARN: CLAUDE.md pull failed"; rc=1; }
   # 2. The multivac paper-data folder (PAPER-REFERENCES.md + mirrors)
   $SSHOPT $H "cd 'Documents/multivac-paper/data' && find . \\( -name '*.md' -o -name '*.json' -o -name '*.txt' -o -name '*.sh' -o -name '*.py' \\) -type f -print0 2>/dev/null | tar czf - --null -T -" | tar xzf - -C "$D/multivac-src" 2>/dev/null || rc=1
   echo "documentation pull complete (rc=$rc)"
