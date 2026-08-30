@@ -159,11 +159,13 @@ Live checklist — update it as things land. `[~]` = running unattended.
 - [x] S2 wikitext-2 KLD — 0.00332 / 0.00447 / 0.00821
 - [x] S3 code KLD — 0.00583 / 0.01029 / 0.02153 — **~2x prose, gap widens with quantization**
 - [x] S4 **E2 closed** — q4_0 KV costs 0.00296 KLD = 51 % of a quant level; defensible, not free
-- [~] S5 HumanEval+ prompt-KLD — harness written (`ssa_s5.py`), running: 164 prompts, 18,432 tokens
+- [x] S5 HumanEval+ prompt-KLD — **three-tier hierarchy: prose < code < task prompts**; no arm
+      passes the <0.007 threshold on the task distribution (PN-21)
 - [ ] S6 generative HumanEval+, Q4_K_XL vs Q6_K_XL, paired per-problem — **harness not written**
-- [~] S7 `--hellaswag` / `--winogrande` — datafiles fetched with sha256 provenance
-      (`data/raw/e12/s7-data-provenance.json`); harness `ssa_s7.py` deployed with a pilot gate,
-      chained to start when S5 releases the GPU. **Face validity only — cannot rank the arms**
+- [!] S7 `--hellaswag` / `--winogrande` — data fetched + sha256 pinned, harness parser fixed and
+      verified. **PAUSED on owner scope call:** measured cost is 250 s load + 3.08 s/task, so the
+      full design is ~375 min. Options: HS 400 x 4 arms ~99 min · +WG 400 ~197 min · 2 arms ~49 min.
+      **Face validity only — cannot rank the arms at any affordable n**
 - [x] Deleted the `*.kld` logits — 50 GB reclaimed, `/` 87 % -> 63 %; serverlogs pulled locally first
 
 ### Wave 2 — MTP/DFlash sweeps (Phases 4–5), *deferred behind Wave 3*

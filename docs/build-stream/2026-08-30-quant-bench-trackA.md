@@ -1499,3 +1499,39 @@ Next: S5 in flight. S7 blocked on an owner call — it needs two external datafi
   (HellaSwag and Winogrande), which I wrongly described as "free/built-in" when recommending it;
   the flags are built in, the data is not. S6 needs an unwritten generative harness. Wave 2 and
   Wave 4's speed/energy curve are both optional — the Track A decision does not depend on either.
+
+
+### L-11 | 2026-08-30T13:00:00Z | S2-execute | claude-opus-5 | conductor-manager | S5 complete; S7 pilot gate fired; S7 cost corrected twice <!-- bsc-ledger:qbench-t1-S5-S7 -->
+Did: (a) S5 COMPLETE — divergence over the 164 HumanEval+ task prompts (18,432 tokens/cell),
+  same instrument, reference and seed as S2/S3. Result establishes a THREE-TIER DOMAIN HIERARCHY
+  (PN-21): mean KLD rises monotonically prose -> generic code -> actual task prompts, and the
+  prose-to-task amplification GROWS with quantization aggressiveness (3.13x / 3.87x / 4.40x for
+  Q6_K / Q5_K_XL / Q4_K_XL). Against Fireworks' <0.007 threshold, two of three arms pass on prose,
+  one on generic code, **none on the task distribution**. Q4_K_XL's top-1 agreement falls to
+  95.894 % — about one token in 24 differs from the reference under greedy decoding.
+  TRACK-A-DECISION.md updated: the primary recommendation (UD-Q6_K) is unchanged, but Fallback A
+  (Q6_K_XL) is strengthened and Fallback B (Q4_K_XL) is weakened, both with the reasoning stated.
+  (b) S7 PILOT GATE FIRED, and it earned its place. The 25-task HellaSwag pilot returned rc=0 with
+  an unparsed score, so the gate stopped the run (exit 2) BEFORE the full budget was spent. Cause
+  was the same class as PN-17: the real output is a running tab-separated table whose accuracy
+  carries a `%` suffix and is followed by a CI column, and the first parser matched neither.
+  Fixed and verified by re-parsing the existing pilot log — 25 rows, final acc_norm 72.00 %,
+  CI95 [52.42 %, 85.72 %]. The `ok` criterion now also requires a parsed accuracy, so this class
+  cannot report green again here either.
+  (c) S7 COST CORRECTED — twice now, both times by me, both recorded rather than quietly adjusted.
+  I first recommended S7 as "free, already built into llama-perplexity": the FLAGS are built in,
+  the DATA is not (two external downloads, since fetched with sha256 provenance). The pilot then
+  measured the true compute: **250 s fixed model load per cell plus 3.08 s per task**, which makes
+  the design as specified (HellaSwag 400 + Winogrande 1267, four arms) **~375 min**, not "free".
+  Stopped and put the scope to the owner rather than spending it.
+Result: S5 delivered the study's sharpest finding. S7 is parser-fixed, provenance-logged and ready,
+  but paused on an owner scope decision. Nothing is running on the GPU.
+  Standing caution for the record: S7 cannot rank the arms at any affordable n — at 400 tasks the
+  interval is roughly +/-4-5 points against inter-arm gaps of 1-3. Its only value is face validity
+  and comparability with published tables. The Track A decision does not depend on it.
+Verified: ssa-s5-results.json all 4 cells ok with populated metrics; the three-domain table
+  recomputed independently from the two results files; pilot log re-parsed with the fixed patterns
+  (25 rows, load 249.756 s); cost arithmetic derived from measured load and rate, not estimated;
+  harness, provenance and serverlogs mirrored to data/raw/e12/ and pushed.
+Next: owner scope call on S7. Then the remaining optional work: S6 (generative HumanEval+, harness
+  unwritten), Wave 2 (MTP/DFlash), Wave 4 speed/energy curve. All optional — Track A is decided.

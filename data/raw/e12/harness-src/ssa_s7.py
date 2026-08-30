@@ -42,21 +42,37 @@ def run(arm, bench, tasks, n_ctx=2048):
             "rc": p.returncode, "seconds": round(time.time() - t0, 1),
             "serverlog": f"{LOGS}/{label}.serverlog",
             "command": " ".join(cmd), "score": parse(out, bench),
-            "ok": p.returncode == 0}
+            # rc=0 with no parsed accuracy is NOT success (PN-17)
+            "ok": p.returncode == 0 and "acc_pct" in parse(out, bench)}
 
 def parse(out, bench):
+    """llama-perplexity prints a RUNNING table, one row per task; the LAST row is the result.
+
+    Real format (tab-separated, note the % suffix and the trailing CI column that the first
+    version of this parser did not account for -- caught by the pilot gate before any budget
+    was spent, which is exactly what the gate is for):
+        task\tacc_norm\t95% confidence interval
+        25\t72.00000000%\t[52.4177%, 85.7275%]
+    Winogrande prints the same shape plus a final summary line.
+    """
     m = {}
-    # winogrande prints a final line with an uncertainty; hellaswag prints a running
-    # "<n>\t<acc>" table whose LAST row is the final score.
-    h = re.search(r"Final Winogrande score\((\d+) tasks\):\s*([\d.]+)\s*(?:\+/-|±)\s*([\d.]+)", out)
+    rows = re.findall(r"^\s*(\d+)\s*\t\s*([\d.]+)\s*%\s*\t\s*\[\s*([\d.]+)\s*%\s*,\s*([\d.]+)\s*%\s*\]",
+                      out, re.M)
+    if not rows:   # tolerate whitespace-separated variants
+        rows = re.findall(r"^\s*(\d+)\s+([\d.]+)\s*%\s+\[\s*([\d.]+)\s*%\s*,\s*([\d.]+)\s*%\s*\]",
+                          out, re.M)
+    if rows:
+        n, acc, lo, hi = rows[-1]
+        m["n"] = int(n); m["acc_pct"] = float(acc)
+        m["ci95_lo_pct"] = float(lo); m["ci95_hi_pct"] = float(hi)
+        m["n_rows"] = len(rows)
+    h = re.search(r"Final Winogrande score\((\d+) tasks\):\s*([\d.]+)\s*(?:\+/-|\u00b1)\s*([\d.]+)", out)
     if h:
-        m["n"], m["acc_pct"], m["acc_err_pct"] = int(h.group(1)), float(h.group(2)), float(h.group(3))
-    rows = re.findall(r"^\s*(\d+)\s+([\d.]+)\s*$", out, re.M)
-    if rows and "acc_pct" not in m:
-        m["n"], m["acc_pct"] = int(rows[-1][0]), float(rows[-1][1])
-    h2 = re.search(r"Final result:\s*([\d.]+)\s*(?:\+/-|±)\s*([\d.]+)", out)
-    if h2:
-        m["acc_pct"], m["acc_err_pct"] = float(h2.group(1)), float(h2.group(2))
+        m["n"] = int(h.group(1)); m["acc_pct"] = float(h.group(2)); m["acc_err_pct"] = float(h.group(3))
+    # scoring rate, excluding model load: the engine logs when scoring begins
+    t = re.search(r"^(\d+)\.(\d+)\.(\d+)\.(\d+)\s+I\s+\w+_score\s*:\s*calculating", out, re.M)
+    if t:
+        m["load_seconds"] = int(t.group(1)) * 60 + int(t.group(2)) + int(t.group(3)) / 1000.0
     return m
 
 def main():

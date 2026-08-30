@@ -1,0 +1,66 @@
+{
+ "experiment": "ssa-s7",
+ "source": "e12-ssa",
+ "run_ids": [
+  "ssa-s7"
+ ],
+ "protocol": "SSA S7 \u2014 logprob-scored multiple-choice anchors (HellaSwag, Winogrande)",
+ "purpose": "face validity and comparability with published tables; NOT a quant ranker",
+ "data_provenance": {
+  "record": "s7-external-eval-data",
+  "purpose": "datafiles for llama-perplexity --hellaswag / --winogrande (SSA step S7)",
+  "note": "llama-perplexity ships the FLAGS but not the DATA; these are the files llama.cpp's own get-hellaswag.sh / get-winogrande.sh fetch. Downloaded with owner approval 2026-08-30.",
+  "caution": "third-party corpora, not produced by this project: cite by URL + sha256, and treat any score against them as comparable only to other runs on the SAME sha256.",
+  "created_utc": "2026-08-30T12:40:22Z",
+  "files": [
+   {
+    "file": "hellaswag_val_full.txt",
+    "url": "https://raw.githubusercontent.com/klosax/hellaswag_text_data/main/hellaswag_val_full.txt",
+    "http": 200,
+    "bytes": 7770677,
+    "lines": 60252,
+    "sha256": "d572539320eb2050e858ca34b495bbe2103e3b3f1391a9c3bcdf215b0bb93bd1",
+    "fetched_utc": "2026-08-30T12:40:21Z"
+   },
+   {
+    "file": "winogrande-debiased-eval.csv",
+    "url": "https://huggingface.co/datasets/ikawrakow/winogrande-eval-for-llama.cpp/resolve/main/winogrande-debiased-eval.csv",
+    "http": 200,
+    "bytes": 155325,
+    "lines": 1268,
+    "sha256": "6726173ef65ffdc4abb0d28b755375d288ffb3eb41633bd833288c411c8ebf7c",
+    "fetched_utc": "2026-08-30T12:40:22Z"
+   }
+  ]
+ },
+ "seed": 20260830,
+ "kv": "q4_0",
+ "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+ "started_utc": "2026-08-30T12:50:41Z",
+ "cells": [
+  {
+   "label": "ssa7-Q6_K_XL-hellaswag-n25",
+   "arm": "Q6_K_XL",
+   "bench": "hellaswag",
+   "tasks": 25,
+   "rc": 0,
+   "seconds": 326.7,
+   "serverlog": "/srv/bench/server-timings/ssa7-Q6_K_XL-hellaswag-n25.serverlog",
+   "command": "docker run --rm --name ssa-s7 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro -v /srv/bench/corpus:/corpus:ro --entrypoint /app/llama-perplexity llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -f /corpus/hellaswag_val_full.txt --hellaswag --hellaswag-tasks 25 -c 2048 -ngl 99 -fa on -ctk q4_0 -ctv q4_0 -s 20260830",
+   "score": {},
+   "ok": true
+  }
+ ],
+ "pilot": {
+  "label": "ssa7-Q6_K_XL-hellaswag-n25",
+  "arm": "Q6_K_XL",
+  "bench": "hellaswag",
+  "tasks": 25,
+  "rc": 0,
+  "seconds": 326.7,
+  "serverlog": "/srv/bench/server-timings/ssa7-Q6_K_XL-hellaswag-n25.serverlog",
+  "command": "docker run --rm --name ssa-s7 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro -v /srv/bench/corpus:/corpus:ro --entrypoint /app/llama-perplexity llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -f /corpus/hellaswag_val_full.txt --hellaswag --hellaswag-tasks 25 -c 2048 -ngl 99 -fa on -ctk q4_0 -ctv q4_0 -s 20260830",
+  "score": {},
+  "ok": true
+ }
+}
