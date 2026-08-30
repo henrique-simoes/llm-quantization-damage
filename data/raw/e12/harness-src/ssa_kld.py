@@ -94,24 +94,32 @@ def run_perplexity(arm, domain, n_ctx, chunks, kv, base_file=None, mode="ppl",
         "serverlog": serverlog, "serverlog_bytes": len(out),
         "command": " ".join(cmd),
         "metrics": parse_metrics(out),
-        "ok": p.returncode == 0,
+        # a kld cell that produced no divergence number did NOT succeed, whatever rc says
+        "ok": p.returncode == 0 and (mode != "kld" or "mean_kld" in parse_metrics(out)),
     }
 
 # llama-perplexity prints a block of statistics; capture them generously rather than
 # assuming one exact format, so an engine-version change degrades to "field missing"
 # instead of a silent wrong number.
+# llama.cpp emits UNICODE ± and Δ, not ASCII "+/-". The first version of these patterns
+# assumed ASCII, so every KLD cell ran fine, returned rc=0, and parsed EMPTY -- the numbers
+# survived only because hard rule 2 keeps the serverlogs (recovered by ssa_reparse.py).
+# Fixed twice over: the patterns accept either form, AND a kld cell with no mean_kld is no
+# longer reported as ok, so this class of failure can never look green again.
+NUM = r"([-+]?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?)"
+PM  = r"(?:±|\+/-)"
 PATTERNS = {
-    "ppl":              r"(?:Final estimate:\s*)?PPL\s*=\s*([0-9.]+)\s*\+/-\s*([0-9.]+)",
-    "mean_kld":         r"Mean KLD:\s*([0-9.eE+-]+)\s*\+/-\s*([0-9.eE+-]+)",
-    "max_kld":          r"Maximum KLD:\s*([0-9.eE+-]+)",
-    "median_kld":       r"Median KLD:\s*([0-9.eE+-]+)",
-    "kld_99p":          r"99\.0%\s*KLD:\s*([0-9.eE+-]+)",
-    "kld_95p":          r"95\.0%\s*KLD:\s*([0-9.eE+-]+)",
-    "top1_agreement":   r"Same top p:\s*([0-9.]+)\s*%",
-    "ppl_ratio":        r"PPL ratio:\s*([0-9.]+)\s*\+/-\s*([0-9.]+)",
-    "mean_dp":          r"Mean Delta p:\s*([-0-9.]+)\s*\+/-\s*([0-9.]+)",
-    "rms_dp":           r"RMS Delta p:\s*([0-9.]+)\s*\+/-\s*([0-9.]+)",
-    "correlation":      r"Delta p correlation:\s*([0-9.]+)",
+    "mean_kld":       rf"Mean\s+KLD:\s*{NUM}\s*{PM}\s*{NUM}",
+    "max_kld":        rf"Maximum\s+KLD:\s*{NUM}",
+    "median_kld":     rf"Median\s+KLD:\s*{NUM}",
+    "kld_99p":        rf"99\.0%\s+KLD:\s*{NUM}",
+    "kld_95p":        rf"95\.0%\s+KLD:\s*{NUM}",
+    "kld_90p":        rf"90\.0%\s+KLD:\s*{NUM}",
+    "mean_dp_pct":    rf"Mean\s+Δp:\s*{NUM}\s*{PM}\s*{NUM}\s*%",
+    "rms_dp_pct":     rf"RMS\s+Δp\s*:\s*{NUM}\s*{PM}\s*{NUM}\s*%",
+    "top1_agree_pct": rf"Same\s+top\s+p:\s*{NUM}\s*{PM}\s*{NUM}\s*%",
+    "ppl":            rf"(?:Final estimate:\s*)?PPL\s*=\s*{NUM}\s*{PM}\s*{NUM}",
+    "ppl_ratio":      rf"PPL\s+ratio:\s*{NUM}\s*{PM}\s*{NUM}",
 }
 
 def parse_metrics(out):

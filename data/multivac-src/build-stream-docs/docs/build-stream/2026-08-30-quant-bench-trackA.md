@@ -1331,3 +1331,46 @@ Verified: `nvidia-smi` and `sensors` read live at 04:11:04Z; power log 43,182 co
 Next: let Wave 1 finish (Q6_K incl. the automatic D3/A8 A/B, then Q4_K_XL), then finish_wave1.sh
   closes it (summarize + verify-sweep --stage 1a). Then build and run SSA S0-S6 against a free GPU.
   T6 close-out and the PAPER-REFERENCES graduation follow.
+
+
+### L-7 | 2026-08-30T04:35:00Z | S2-execute | claude-opus-5 | conductor-manager | Private git sync + unattended autonomy <!-- bsc-ledger:qbench-t1-AUTONOMY -->
+Did: Owner is away for some hours and asked that the work continue without an agent present.
+  (a) PRIVATE GIT SYNC between the laptop and multivac. Bare hub at
+  `multivac:~/repos/multivac-paper.git` (mode 700), working clone at `~/repos/multivac-paper`,
+  laptop remote `multivac`. **No origin, no GitHub, never public** — `git remote -v` shows the one
+  ssh remote and nothing else. Round-trip verified in both directions (laptop -> hub -> multivac,
+  and multivac -> hub -> laptop).
+  Exclusion-first `.gitignore`: GGUFs, `*.kld` logits (~11 GB each), container/image material,
+  bulk corpora, generated pads, serverlogs, venvs. Provenance for every excluded item lives in
+  `env-manifest.json`, which IS tracked — sha256 + bytes + RepoDigest, so anything omitted is
+  re-obtainable. Result: 87 files, largest 152 KB, 13 MB working tree.
+  (b) AGENT ORIENTATION: `AGENTS.md` (points at CLAUDE.md, plus the five things that have actually
+  gone wrong here) and a repo-root `CLAUDE.md` covering what the project is, the document-ownership
+  table, the sync topology, the eight hard rules, the configuration facts that are counter-intuitive
+  on this stack, current state, and a TODO through total completion. It is a project guide and does
+  NOT duplicate multivac's `~/CLAUDE.md`, which remains the machine doc of record.
+  (c) UNATTENDED EXECUTION: `supervisor.sh` replaces the fail-fast chain. Contract: **a failing step
+  is logged, marked `.failed` and SKIPPED — the chain continues** so the plan gets as far as it can
+  without a human. Every step writes its own log under `logs/` and an outcome row in
+  `state/progress.json`; results are committed and pushed to the hub after every step, so nothing
+  depends on the process surviving. Steps are idempotent (`.done` markers), so a restart resumes.
+  The one deliberate exception to continue-on-failure is the SSA S0 smoke gate: if the 4-chunk
+  smoke fails, S1-S4 are skipped (small-tests-first is a hard rule) but the supervisor still runs
+  its reporting and sync steps rather than dying.
+  (d) `keepalive.sh` restarts the supervisor if it dies before `finished_utc` appears. There is no
+  cron on this host and systemd user lingering is OFF — enabling it is a system setting and was NOT
+  changed while the owner is away, so a plain detached flock-guarded sleep loop is used instead.
+  A `supervisor-watchdog.sh` is deployed for the cron case should cron ever be installed.
+Result: The remainder of Wave 1 and all of SSA S0-S4 now run without a human and without this
+  agent. The supervisor cleanly superseded the earlier `finish_wave1.sh` / `ssa_runner.sh` chain
+  (which was fail-fast) and is waiting on the live sweep. Verified working, not assumed:
+  git push/pull in both directions, `progress.json` being written, the multivac-side commit+push
+  path, and the supervisor's takeover of the old chain.
+Verified: `git remote -v` = one ssh remote, no origin; hub at 19 commits; laptop pulled multivac's
+  commit; `ls -ld ~/repos/multivac-paper.git` = drwx------; supervisor pid 1846476 and keepalive
+  pid 1846870 both alive at 04:31:41Z with the sweep (pid 1498430, Q6_K) untouched;
+  `progress.json` initialised.
+Next: unattended — sweep finishes -> summarize -> verify-sweep --stage 1a -> SSA S0 gate ->
+  S1-S4 -> final report, with per-step logs and git pushes throughout. On return read
+  `state/progress.json` first: it names every step, its rc, and its log. Still needing a human:
+  S5/S6 harnesses (not written), the S7 owner call, T6 close-out, and Waves 2 and 4.

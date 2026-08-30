@@ -138,24 +138,24 @@ Live checklist — update it as things land. `[~]` = running unattended.
 ### Wave 1 — context & speed (Phases 1–3)
 - [x] T1 quiesce legacy orchestrator · [x] T2 harness gate · [x] T3a manifest + delete-1a
 - [x] T4 Q5_K_XL sweep · [x] T5 Q6_K_XL G21 bracket
-- [~] T4 Q6_K sweep (includes the D3 `-ctxcp` 4-vs-32 A/B → closes A8)
-- [~] T4 Q4_K_XL sweep — climbs 212,992 → 262,144; highest expected value in the wave
-- [~] `summarize_wave1.py` → `wave1-summary.json/.md`
-- [~] `verify-sweep.sh --stage 1a`
+- [x] T4 Q6_K sweep — 262,144 @ `-ts 58,42`; **A8 closed: adopt `-ctxcp 32`** (+6.8 % decode, same VRAM)
+- [x] T4 Q4_K_XL sweep — **262,144 @ `-ts 56,44`, 13.33 tok/s — fastest arm at the full window**
+- [x] `summarize_wave1.py` → all four arms in `wave1-summary.md`
+- [!] `verify-sweep.sh --stage 1a` **FAILED** — 7 empty serverlogs, all 02:55Z = D6 race residue, not new. Needs acknowledge-and-clean + a check that distinguishes race residue from real evidence loss
 - [ ] ~~T3b delete-1b~~ **cancelled, DEC-9**
 - [ ] T6 close-out: ledger entry, paper notes, findings register, status block
 
 ### Wave 3 — accuracy (SSA, ~3.5 h) — *runs before Wave 2, DEC-10*
-- [~] S0 smoke gate (4 chunks; chain stops here if it fails)
-- [~] S1 reference logits from Q6_K_XL, both domains
-- [~] S2 wikitext-2 KLD — Q6_K, Q5_K_XL, Q4_K_XL
-- [~] S3 django-code KLD — same three arms *(carries the weight for the conclusion)*
-- [~] S4 **E2 KV fidelity**, f16 vs q4_0 — gates every existing number
+- [x] S0 smoke gate
+- [x] S1 reference logits
+- [x] S2 wikitext-2 KLD — 0.00332 / 0.00447 / 0.00821
+- [x] S3 code KLD — 0.00583 / 0.01029 / 0.02153 — **~2x prose, gap widens with quantization**
+- [x] S4 **E2 closed** — q4_0 KV costs 0.00296 KLD = 51 % of a quant level; defensible, not free
 - [ ] S5 HumanEval+ prompt-KLD, forced completions — **harness not written**
 - [ ] S6 generative HumanEval+, Q4_K_XL vs Q6_K_XL, paired per-problem — **harness not written**
 - [ ] S7 *(optional, owner call)* `--hellaswag` / `--winogrande` — built into `llama-perplexity`,
       logprob-scored, near-zero GPU cost, gives comparability with published task tables
-- [ ] Delete the `*.kld` logits files (~11 GB each) once results are pulled
+- [!] Delete the `*.kld` logits — **50 GB, `/` at 87 %**, results extracted, safe; root-owned, owner call
 
 ### Wave 2 — MTP/DFlash sweeps (Phases 4–5), *deferred behind Wave 3*
 - [ ] G17 `reasoning_effort` equivalence · [ ] G8 MTP losslessness at temp>0 · [ ] presence-penalty probe
@@ -173,6 +173,7 @@ Live checklist — update it as things land. `[~]` = running unattended.
       `quiesce-state.json`) — it stays quiesced through Waves 2–4 by design
 - [ ] Resolve or retire the halted conductor's stale reviewer task
 - [ ] Owner call on S7
+- [ ] Re-parse defect fixed in `ssa_kld.py`; `ssa_reparse.py` recovers metrics from serverlogs if it recurs
 
 ## 8. Autonomy
 
