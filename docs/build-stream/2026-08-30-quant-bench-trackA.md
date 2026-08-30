@@ -1535,3 +1535,35 @@ Verified: ssa-s5-results.json all 4 cells ok with populated metrics; the three-d
   harness, provenance and serverlogs mirrored to data/raw/e12/ and pushed.
 Next: owner scope call on S7. Then the remaining optional work: S6 (generative HumanEval+, harness
   unwritten), Wave 2 (MTP/DFlash), Wave 4 speed/energy curve. All optional — Track A is decided.
+
+
+### L-12 | 2026-08-30T13:45:00Z | S2-execute | claude-opus-5 | conductor-manager | S7 complete — the control that validates the method <!-- bsc-ledger:qbench-t1-S7 -->
+Did: S7 ran to completion at the owner-scoped size (HellaSwag, 400 tasks, all four arms) in
+  ~32 min, well under the 99 min the pilot-derived cost model predicted — the model reloads faster
+  in the steady state than the cold pilot implied, and the cost note in the artifact records both
+  figures rather than quietly replacing one with the other.
+  Scores: Q6_K_XL 82.75, Q6_K 82.25, Q5_K_XL 82.75, Q4_K_XL 83.25 % — a 1.0-point spread inside
+  ~7.4-point independent intervals, with the MOST heavily quantized arm scoring nominally HIGHEST.
+  Then extracted considerably more from the same data at zero extra GPU cost: because every arm ran
+  at seed 20260830 the tool selects the SAME 400 tasks each time, so these are PAIRED observations
+  and the tool's independent intervals waste that structure. Recovered per-task outcome vectors by
+  differencing the cumulative accuracy table (`experiments/s7_paired.py`) and ran McNemar —
+  Miller/Anthropic's paired-difference recommendation (METHOD-REFERENCES R6) applied to data
+  already on disk. Result: **UD-Q6_K_XL and UD-Q5_K_XL answer all 400 items IDENTICALLY** (b=0,
+  c=0); every other pair disagrees on 2-4 items; no pair distinguishable (all p >= 0.13).
+Result: S7 is the CONTROL that validates DEC-11's whole design, and it is a stronger result than a
+  bare null. The same four arms are separated at 3.7-11.8 sigma by divergence, and UD-Q4_K_XL
+  alters about one token in 24 under greedy decoding — yet a multiple-choice battery cannot see any
+  of it, and ranks the arms backwards. The cause is structural rather than statistical: such
+  scoring depends only on an argmax over a few candidate continuations, so it is robust to exactly
+  the distribution shift that changes free-form generated code. More tasks would narrow the
+  intervals and fix nothing. **Had Track A been decided the conventional way — on a task battery —
+  it would have concluded "no meaningful difference" and selected the cheapest arm.**
+  Recorded as PN-22 and added to TRACK-A-DECISION.md as the check that changed nothing.
+Verified: 4/4 cells scored with parsed accuracies and tool-emitted CIs; per-task vectors recovered
+  for all four arms with correct counts (333/331/329/331 of 400) reconciling exactly to the printed
+  accuracies; McNemar b/c counts and p-values computed from the paired vectors; artifacts, paired
+  analysis, harness and all four serverlogs pulled to data/raw/e12/ and pushed to the hub.
+Next: S8 (merged spec-decode test) running — phase 1 humaneval in progress, then score, then the
+  descending at-depth ladder. Remaining after that: Wave 2's wider MTP/DFlash setting sweeps and
+  Wave 4's speed/energy curve, both optional; Track A is decided.
