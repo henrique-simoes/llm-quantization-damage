@@ -161,9 +161,9 @@ Live checklist — update it as things land. `[~]` = running unattended.
 - [x] S4 **E2 closed** — q4_0 KV costs 0.00296 KLD = 51 % of a quant level; defensible, not free
 - [~] S5 HumanEval+ prompt-KLD — harness written (`ssa_s5.py`), running: 164 prompts, 18,432 tokens
 - [ ] S6 generative HumanEval+, Q4_K_XL vs Q6_K_XL, paired per-problem — **harness not written**
-- [!] S7 *(owner call)* `--hellaswag` / `--winogrande` — the FLAGS are built in but the DATAFILES
-      are not on disk and are not in the image; needs two external downloads. I described this as
-      "free" when recommending it, which was wrong about the data
+- [~] S7 `--hellaswag` / `--winogrande` — datafiles fetched with sha256 provenance
+      (`data/raw/e12/s7-data-provenance.json`); harness `ssa_s7.py` deployed with a pilot gate,
+      chained to start when S5 releases the GPU. **Face validity only — cannot rank the arms**
 - [x] Deleted the `*.kld` logits — 50 GB reclaimed, `/` 87 % -> 63 %; serverlogs pulled locally first
 
 ### Wave 2 — MTP/DFlash sweeps (Phases 4–5), *deferred behind Wave 3*

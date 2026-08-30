@@ -1459,3 +1459,43 @@ Next: no autonomous work remains — every queued step has run. Outstanding item
   paired), S7 (owner call on the free `--hellaswag`/`--winogrande` anchors), Wave 2 (MTP/DFlash
   sweeps), Wave 4 (speed/energy curve, Track A decision procedure, docs graduation into CLAUDE.md
   and PAPER-REFERENCES.md). The halted conductor's stale reviewer task also remains open.
+
+
+### L-10 | 2026-08-30T12:50:00Z | S2-execute | claude-opus-5 | conductor-manager | TRACK A DECIDED + repo reorganisation <!-- bsc-ledger:qbench-t1-TRACKA -->
+Did: (a) REPO ORGANISATION, owner-raised: two files named `CLAUDE.md` existed — the root agent
+  guide and `data/CLAUDE.md`, which md5 confirms was a byte-identical mirror of multivac's 79 KB
+  MACHINE log. Claude Code discovers `CLAUDE.md` **by name** anywhere in a tree and merges what it
+  finds into an agent's instructions, so an agent working under `data/` could have loaded an
+  engineering log as governing instructions. Moved to `data/multivac-src/multivac-CLAUDE.md`;
+  the root file is now the only `CLAUDE.md` in the repository, by rule. The same audit found
+  `PAPER-REFERENCES.md` existing THREE times (root, `data/`, `data/multivac-src/`) with the root
+  copy silently 25 KB stale — consolidated to the single `multivac-src/` mirror. `sync-multivac.sh`
+  rewritten to the new paths and re-verified end-to-end; `data/README.md` added stating both naming
+  rules and why they are load-bearing.
+  (b) TRACK A DECIDED — `docs/paper/TRACK-A-DECISION.md`. Produced with **zero additional GPU
+  time** from Wave-1 and SSA data. Primary: **UD-Q6_K** at `-ts 58,42 -ctxcp 32`, full 262,144
+  window. Fallback A (max fidelity): UD-Q6_K_XL at 212,992. Fallback B (min VRAM): UD-Q4_K_XL.
+  **UD-Q5_K_XL is DOMINATED and recommended against** — same ceiling as Q6_K, 1.76x the code
+  divergence, speed inside noise, only 1.1 GB smaller.
+  (c) THE FINDING THAT DROVE IT, and it required correcting our own summary. `wave1-summary.md`'s
+  decode column mixed THREE estimators: Q4_K_XL's figure was its last repetition (13.33, not its
+  median-of-six 12.61), Q5_K_XL's was its FIRST repetition (10.82, not its median 12.70), Q6_K's
+  was correctly a median-of-three. Recomputed on one statistic for all arms, the medians are 12.70
+  / 12.61 / 11.90 — a **6.7 % span against within-arm repetition noise reaching 32.9 %**. The arms
+  are INDISTINGUISHABLE on decode throughput; accuracy separates them at 3.7-11.8 sigma. So the
+  decision rule's first criterion is the only one that resolves anything, and the usual "smaller
+  quant buys speed" trade does not hold on this host — the cheaper arm is not faster, only less
+  accurate. Recorded as PN-19 (the finding) and PN-20 (the reporting defect). The summary file is
+  left on disk unedited and superseded by the note, per the append-never-rewrite rule.
+Result: The project's primary deliverable exists. Track A has a defended answer with its evidence
+  trail, its conditions, and its honest limits. Catching the mixed-estimator defect mattered: taken
+  at face value the summary reversed the apparent speed ranking of two arms and would have argued
+  for a different configuration.
+Verified: one `CLAUDE.md` in the repo (`find` confirms); one `PAPER-REFERENCES.md` mirror;
+  `sync-multivac.sh pull` green against the new paths with both mirrors landing correctly; decode
+  repetitions enumerated per arm from the tsweep artifacts and medians recomputed independently of
+  the summary; TRACK-A-DECISION.md cites only artifact-backed numbers.
+Next: S5 in flight. S7 blocked on an owner call — it needs two external datafile downloads
+  (HellaSwag and Winogrande), which I wrongly described as "free/built-in" when recommending it;
+  the flags are built in, the data is not. S6 needs an unwritten generative harness. Wave 2 and
+  Wave 4's speed/energy curve are both optional — the Track A decision does not depend on either.
