@@ -1,0 +1,6 @@
+[2026-08-30T08:18:50Z] S0 smoke: 4 chunks, reference arm, both domains
+[2026-08-30T08:18:50Z] RUN ssa-Q6_K_XL-wikitext2-base: -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -f /corpus/wikitext2-test.txt -c 2048 --chunks 4 -ngl 99 -fa on -ctk q4_0 -ctv q4_0 -s 20260830 --kl-divergence-base /ssa/smoke-wikitext2.kld
+[2026-08-30T08:23:19Z]   base rc=0 metrics={"ppl": 5.5717, "ppl_err": 0.19774}
+[2026-08-30T08:23:19Z] RUN ssa-Q6_K_XL-code-base: -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -f /e12/corpus.txt -c 2048 --chunks 4 -ngl 99 -fa on -ctk q4_0 -ctv q4_0 -s 20260830 --kl-divergence-base /ssa/smoke-code.kld
+[2026-08-30T08:30:15Z]   base rc=0 metrics={"ppl": 1.5049, "ppl_err": 0.03522}
+[2026-08-30T08:30:15Z] SSA S0 done: 2/2 cells ok -> /srv/bench/e12/ssa/ssa-smoke.json

@@ -33,3 +33,7 @@
       verify-ok: 6 state/*.done markers intact
       VERIFY-FAIL: 7 empty e12 serverlogs
       verify-sweep stage 1a: rc=1
+[2026-08-30T08:18:50Z]   git: pushed (after verify_1a)
+[2026-08-30T08:18:50Z] === STEP ssa_S0 START ===
+[2026-08-30T08:18:50Z]     cmd: /srv/bench/.venv-evalplus/bin/python /srv/bench/e12/experiments/ssa_kld.py --step S0 --out /srv/bench/e12/ssa/ssa-smoke.json
+[2026-08-30T08:30:16Z] === STEP ssa_S0 OK (rc=0) -> /srv/bench/e12/logs/ssa_S0.log ===
