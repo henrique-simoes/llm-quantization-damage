@@ -10,7 +10,7 @@ stage: S2-execute
 status: in-progress
 blocked_on: null
 last: { agent: claude-opus-5, at: 2026-08-30T03:40:00Z, ledger: L-5 }
-next_action: "AUTONOMOUS until the sweep ends. T4/T5 running detached (runner_wave1.sh sweep Q6_K_XL Q6_K Q4_K_XL, pid 1498430); finish_wave1.sh (pid 1661639) waits on it and then runs summarize_wave1.py + verify-sweep.sh --stage 1a. D3/A8 is automatic inside the Q6_K sweep. Do NOT start a second runner (flock, exit 3) and do NOT run verify-sweep.sh by hand while the GPU work is live. OWNER STEPS REMAINING: T3b delete-1b (Q6_K_XL) after its bracket reaches the ledger, then T6 close-out."
+next_action: "AUTONOMOUS until the sweep ends. T4/T5 running detached (runner_wave1.sh sweep Q6_K_XL Q6_K Q4_K_XL, pid 1498430); finish_wave1.sh (pid 1661639) waits on it and then runs summarize_wave1.py + verify-sweep.sh --stage 1a. D3/A8 is automatic inside the Q6_K sweep. Do NOT start a second runner (flock, exit 3) and do NOT run verify-sweep.sh by hand while the GPU work is live. T3b delete-1b is CANCELLED (DEC-9 — Q6_K_XL is kept as the 4th accuracy arm and the fidelity reference); Phase 1 closes on stage-1a + the A3 /srv/models waiver. AFTER Wave 1: T6 close-out, then WAVE 3 (accuracy, four arms, Stage A first) ahead of Wave 2 per DEC-10."
 conductor: { run: qbench-t1, shape: solo-architect, waves: 4, manifest: docs/build-stream/qbench-t1-waves.json, state: HALTED-verdict-repair-exhausted-2026-08-30T01:57Z, execution: hand-driven per DEC-8 }
 ```
 <!-- /STATUS BLOCK -->
