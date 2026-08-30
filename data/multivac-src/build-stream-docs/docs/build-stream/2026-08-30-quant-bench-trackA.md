@@ -829,6 +829,9 @@ Owner directive: the four-arm program above is days of GPU. Replace it with some
 or ML-engineering reader would accept as a sound sample, in **hours**. This section is that
 protocol, with its methodology grounded in what the relevant labs and tools actually do.
 
+> **Sources of record for everything in this section: `docs/paper/METHOD-REFERENCES.md`** (R1-R7),
+> which states what each source contributes and which SSA element it constrains.
+
 ### The single fact the design turns on
 
 **Divergence instruments draw their statistical power from TOKEN count; task benchmarks draw theirs
@@ -1263,3 +1266,44 @@ Addendum 2026-08-30T03:41Z: `runner_wave1.sh` stops after its tsweeps — nothin
   deliberately before T3b delete-1b: that deletion is irreversible, is gated on the Q6_K_XL
   bracket results reaching this ledger, and stays an owner action. A8 needs no step here — the
   D3 `-ctxcp` 4-vs-32 A/B runs inside the Q6_K sweep automatically (`tsweep_v2.run_d3`).
+
+
+### L-6 | 2026-08-30T04:15:00Z | S2-execute | claude-opus-5 | conductor-manager | Wave-1 continuation, accuracy-scope decisions, host telemetry <!-- bsc-ledger:qbench-t1-SSA -->
+Did: (a) OWNER DECISIONS recorded: DEC-9 (Q6_K_XL is NOT deleted — its measured 212,992 ceiling
+  falsified the premise behind DEC-4's delete; it becomes the 4th arm AND the fidelity reference;
+  T3b delete-1b cancelled; A3's `/srv/models` limb waived with reasons, `/` limb kept),
+  DEC-10 (Wave 3 moves ahead of Wave 2 — accuracy is priority (1) and MTP/DFlash tuning gates
+  nothing), DEC-11 (owner cut the 35-47 h four-arm accuracy program to the ~3.5 h **Small-Sample
+  Accuracy protocol**). OPEN-1 marked resolved.
+  (b) SSA DESIGNED AND GROUNDED, not invented: researched llama.cpp's own perplexity/KLD tool,
+  the llama.cpp contributors' PPL-vs-KLD argument, Unsloth's Dynamic-GGUF KLD methodology (the
+  provenance of the quants under test), Fireworks' production quantization evaluation, LocalBench's
+  GGUF quality benchmark, Miller/Anthropic's *Adding Error Bars to Evals*, and the recent unified
+  llama.cpp quantization paper. Written up as `docs/paper/METHOD-REFERENCES.md` (R1-R7) with a table
+  mapping each SSA element to the source that constrains it. Design rests on one fact: divergence
+  instruments draw power from TOKEN count (n = 65,536/domain/arm, SE = sigma/256) while task
+  benchmarks draw it from PROBLEM count (n = 164, CI +/-4.6 pts against arms separated by 1-3 pts).
+  Verified `llama-perplexity` is present in `llamacpp-mtp:latest` and both corpora are on disk.
+  (c) HOST TELEMETRY extracted from the 1 Hz power log and written up as PN-11 (power envelope) and
+  PN-12 (thermal asymmetry). This partially closes the "energy extraction from power-log.csv" item
+  PAPER-REFERENCES.md itself lists as open.
+  (d) SECOND STALE-COPY TRAP found and fixed: the repo-root `PAPER-REFERENCES.md` is a 51,904 B
+  snapshot from 2026-08-28 while multivac's doc of record is 76,779 B. Unlike `docs/`, this file is
+  NOT carried by `sync-multivac.sh push` (push sends `docs/` and `experiments/` only), so
+  PAPER-REFERENCES.md is multivac-owned and must be appended THERE; the repo copies are read-only
+  mirrors. Root copy refreshed from the mirror and the ownership rule recorded here so the next
+  agent does not append to a copy that never syncs.
+Result: The accuracy question the owner raised is answered and costed at ~3.5 h against 35-47 h,
+  with academic and industry precedent cited rather than asserted. Q6_K_XL is preserved. Wave 1 is
+  untouched by any of it and still running. What the cut costs is recorded, not hidden: no
+  comparability against Qwen's official LiveCodeBench 90.3, no SWE-bench or agentic evidence, and
+  divergence measured against Q6_K_XL rather than FP16 (no FP16 on the host; a 27B F16 GGUF at
+  ~54 GB exceeds free space on `/srv/models`).
+Verified: `nvidia-smi` and `sensors` read live at 04:11:04Z; power log 43,182 consecutive 1 Hz
+  samples over exactly 12.00 h differenced on its cumulative-Wh columns; `/app/llama-perplexity`
+  listed inside the engine image; `wikitext2-test.txt` (1,256,449 B) and `corpus.txt` (9,097,163 B)
+  present; `/` free 82,936,868,864 B against a ~11 GB per-domain logits file; sweep alive at
+  04:13:38Z with Q6_K 3 cells / 1 ok, Q4_K_XL queued.
+Next: let Wave 1 finish (Q6_K incl. the automatic D3/A8 A/B, then Q4_K_XL), then finish_wave1.sh
+  closes it (summarize + verify-sweep --stage 1a). Then build and run SSA S0-S6 against a free GPU.
+  T6 close-out and the PAPER-REFERENCES graduation follow.
