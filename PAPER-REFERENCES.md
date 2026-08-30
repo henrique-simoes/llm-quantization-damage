@@ -309,7 +309,7 @@ Three independent stacks hit the SAME failure class on 2x16GB when adding a sepa
 - RULE: no test result or research data is ever deleted; excluded data is retained and labeled.
 
 ## OPEN ITEMS / NOT YET MEASURED
-- NVFP4 perplexity -- DONE 2026-08-28, see "NVFP4 PERPLEXITY -- COMPLETE" below
+- NVFP4 perplexity (needs custom vLLM logprob script; llama-perplexity is GGUF-only) -- DECISION PENDING
 - mtp-IQ4_XS SWE-bench thinking: 2/3 instances failed to infra 503s -> re-run pending
 - Bootstrap 95% CIs (B=10,000) for pass@1 and resolve rate -- REQUIRED before any ordering claims
 - KL divergence: cite Unsloth published per-quant numbers (not measured locally)
@@ -469,80 +469,596 @@ IQ4_XS, layer split, n_ctx 180K, identical task (django-37278-prefix-edits-c40k)
   into the report; decide whether to re-download Q3_K_XL/Q4_K_M for a complete quant x context matrix.
 
 # ============================================================
-# SESSION UPDATE 2026-08-28 -- NVFP4 PERPLEXITY COMPLETE,
-# PHASE-4 QUANT x METHOD SPEED MATRIX COMPLETE
+# SECOND MAJOR RECOVERY (2026-08-27): ~40 experiment reports at /srv/bench/*.txt + /srv/bench/rigor/
+# These substantially SUPERSEDE several earlier headline numbers. Read this section first.
 # ============================================================
 
-## NVFP4 PERPLEXITY -- COMPLETE (2026-08-28 18:00 UTC)
-| metric | value |
-|---|---|
-| PPL (WikiText-2-raw-v1 test) | **8.5848** (avg NLL 2.149994) |
-| tokens / chunks | 77,621 tokens, 160 chunks |
-| protocol | seq_len 512, stride 512, NON-OVERLAPPING (Protocol 2) |
-| engine | vLLM nightly 0.26.1rc1.dev1219+g46638857f, image vllm/vllm-openai:nightly |
-| config | TP=2, kv-cache-dtype fp8, gpu-memory-utilization 0.85, max-model-len 4096, enforce-eager, HF_HUB_OFFLINE=1 |
-| checkpoint | unsloth/Qwen3.8-27B-NVFP4 (checkpoint-calibrated static FP8 E4M3 KV scales) |
-| decoding | greedy (temp 0), max_tokens 1, echo=True, logprobs=1 (prompt-logprobs) |
-| result file | /srv/bench/perplexity/nvfp4-vllm-ppl.json (+ /srv/bench/perplexity/nvfp4-vllm.log) |
-| engine log | /srv/bench/server-timings/nvfp4-ppl.serverlog |
+## *** PEAK THROUGHPUT IS 116.9 tok/s, NOT 71.6 ***
+q3-depth100-20260821-2247 (Q3_K_XL, tensor, kv=q4_0, ctx=131072, thinking off, greedy):
+| MTP depth | tok/s | acceptance |
+|---|---|---|
+| n=4 | 92.6 / 84.6 | 0.892 |
+| n=6 | 102.3 / 89.5 | 0.837 |
+| n=8 | **116.9 / 117.5** | 0.868 |
+n8-repeat-20260822-0008 (Q3_K_XL, n=8, three COLD repeats): 116.77 / 116.62 / 116.58 tok/s -> spread 0.16%.
+=> Highest verified decode rate in the study. Reproducible across cold restarts.
 
-### PROTOCOL COMPARABILITY (IMPORTANT for the PPL table)
-- llama.cpp ladder (IQ4_XS 6.6839 / Q4_K_XL 6.6617 / Q5_K_XL 6.6556 / Q6_K_XL 6.6511) was measured with
-  llama-perplexity --ctx-size 512 --batch-size 512 (run-perplexity.sh) => SAME 512/512 non-overlapping
-  protocol as the NVFP4 run. Numbers are comparable.
-- Inherent backend difference to document: NVFP4 run uses FP8 KV cache (checkpoint-calibrated) + W4A4
-  compute; llama.cpp runs use FP16 KV default. NVFP4 PPL 8.58 vs Q6_K_XL 6.65 is a REAL degradation
-  (W4A4 + FP8-KV vs GGUF K-quants), consistent with the NVFP4-as-speed-tradeoff narrative.
-- Spec-decode note stands: PPL under MTP/DFlash2 == base quant PPL (lossless under greedy); no separate runs.
+## *** MTP DEPTH OPTIMUM DEPENDS ON CONTEXT AND TASK *** (headline finding)
+mtpdepth-coding-20260821-2213 (coding task, ctx=131072, kv=q4_0):
+| depth | tok/s | acceptance |
+|---|---|---|
+| n=0 | 21.58 | - |
+| n=2 | 53.59 | 0.966 |
+| n=3 | 62.70 | 0.926 |
+| n=4 | 64.50 | 0.890 |
+| n=6 | 67.11 | 0.829 |
+| n=8 | 92.63 | 0.793 |
+=> monotonically FASTER to n=8 (4.29x over no-spec) despite falling acceptance.
 
-### PROMPT-LOGPROBS OOM FINDINGS (the 1.19-GiB-wall sibling; citable engineering finding)
-- vLLM's prompt_logprobs path (echo=True + logprobs, or prompt_logprobs>0) allocates a full-vocab
-  logits buffer per scheduled forward step AND computes fp32 log_softmax over the full ~152K vocab:
-  ~0.78 MiB per scheduled token on this model (measured 1.45 GiB alloc for a 1906-token step; secondary
-  TP all_gather of prompt hidden states needed 744 MiB). On 2x16GB with NVFP4 weights at 11.3 GiB/GPU
-  this path OOMs at any config that served SWE-bench/HumanEval fine (those never request logprobs --
-  which is why all previous NVFP4 deployments ran clean at gmu 0.97 / ctx 98K).
-- WORKING CONFIG (validated end-to-end): gmu 0.85 (KV avail ~0.87 GiB; 0.80 starves KV -> init-time
-  ValueError "0.09 GiB < 0.29 GiB needed"), max-model-len 4096, 512-token non-overlapping chunks,
-  expandable_segments:True, HF_HUB_OFFLINE=1 (tokenizer/config fetch to HF Hub is another intermittent
-  init-failure source when unauthenticated/rate-limited).
-- OFFICIAL RECIPE alignment: vLLM's own perplexity test suite
-  (tests/models/language/generation_ppl_test/ppl_utils.py) prescribes max_num_seqs=1 ("to avoid OOM"),
-  small max_model_len (1024), gmu 0.7, WikiText-2-raw-v1 test via prompt_logprobs, non-overlapping
-  stride=max_length chunks. Our config follows the same shape.
-- General escape hatch for longer chunks (untested here): --max-num-batched-tokens caps tokens per
-  forward step, bounding the logits temp allocation independently of chunk size.
-- Script: /srv/bench/orchestrator/nvfp4-perplexity.sh (fixed); dataset pre-extracted to
-  /srv/bench/perplexity/wikitext-2-test.txt (parquet sha256 5f1bea06..., converted via pyarrow in-container;
-  host python3 has NO pip/datasets -- Ubuntu 26.04 externally-managed).
+mtpdepth-tensor-tensor-20260820-1346 (Q4_K_M, tensor, ctx=32768, kv=q4_0):
+| depth | tok/s | acceptance |
+|---|---|---|
+| no-spec | 36.59 | - |
+| n=2 | 48.58 | 0.601 |
+| n=4 | 40.64 | 0.386 |
+| n=6 | 30.10 | 0.274 |
+| n=8 | 44.67 | 0.212 |
+| n=12 | 36.95 | 0.142 |
+=> n=2 is OPTIMAL; deeper is WORSE. Variants tested: +backend-sampling 44.86, +f16 draft KV 44.65 (no effect).
+=> CONCLUSION: optimal speculative depth is NOT a constant. Short context/general task -> n=2.
+   Long context coding task -> n=8. Any paper recommending a single depth would be wrong.
 
-## PHASE-4 QUANT x METHOD SPEED MATRIX -- COMPLETE (2026-08-28 02:50 UTC)
-Controlled probe (speed-probe2.py), 3-run medians, llama.cpp family, greedy, seed 20260825,
-ctx 32768, layer split, same 1024-tok AVL prompt as all other speed tables.
-Image: llamacpp-mtp:latest (nospec/mtp) + llama-dflash2:latest fork f7aadef (dflash2).
-| quant | nospec | MTP n2 (accept) | DFlash2 n4 (accept) |
+## *** QUANT x CONTEXT MATRIX AT NATIVE 262,144 (this closes the "missing quant axis") ***
+matrix-q3q6-20260821-2125 (tensor split, MTP n=2, greedy, img llamacpp-dflash2-pr27342:1deefcc):
+| quant | KV | ctx | tok/s | VRAM/GPU |
+|---|---|---|---|---|
+| Q3_K_XL | q4_0 | 262,144 | 54.64 | 10,786 MiB |
+| IQ4_XS | q4_0 | 262,144 | 51.15 | 11,312 MiB |
+| Q4_K_M | q4_0 | 262,144 | 48.61 | 12,286 MiB |
+| Q6_K | q4_0 | 262,144 | 41.29 | 14,760 MiB |
+| Q6_K | f16 | 32,768 | 43.23 | 11,818 MiB |
+| Q5_K_XL | f16 | 32,768 | 40.43 | 11,292 MiB |
+| Q6_K | q8_0 | 262,144 | FAIL out of memory | - |
+=> Clean monotonic speed ladder by bit-width AT FULL 256K CONTEXT: Q3 54.64 > IQ4 51.15 > Q4_K_M 48.61 > Q6 41.29.
+=> ALL FIVE QUANTS FIT 262,144 CONTEXT on 2x16GB when KV is q4_0.
+
+n8-ctx-ceiling-20260822-0938 (Q6_K, tensor, q4_0):
+| ctx | depth | tok/s | VRAM |
 |---|---|---|---|
-| IQ4_XS | 27.17 | 46.89 (0.72 / 2.44) | 57.52 (0.69 / 3.76) |
-| Q4_K_XL | 22.84 | 32.64 (0.731 / 2.46) | 38.43 (0.714 / 3.86) |
-| Q5_K_XL | 19.76 | 29.77 (0.713 / 2.42) | 31.55 (0.556 / 3.22) |
-| Q6_K_XL | 16.48 | 31.74 (0.72 / 2.44) | 44.70 (0.69 / 3.76) |
-(tok/s; acceptance values from serverlog where captured; full cells in /srv/bench/spec-speed-metrics.jsonl,
-labels <QUANT>__<method>, and /srv/bench/server-timings/<QUANT>__<method>.serverlog)
-Findings:
-- Quant axis: smaller quants are faster at every method (IQ4_XS 27.2 nospec -> Q6_K_XL 16.5, -39%).
-- Speculation compensates quant size: Q6_K_XL+DFlash2 (44.70) beats IQ4_XS nospec (27.17) by 1.65x --
-  i.e. with a drafter you can run the HIGHEST-accuracy quant and still be fastest. Paper-worthy headline.
-- MTP acceptance is quant-independent (~0.71-0.73 @ n2, mean len 2.42-2.46) => acceptance tracks the
-  base model, not the quant.
-- OUTLIER: Q5_K_XL+DFlash2 acceptance collapses to 0.556 (mean len 3.22 vs 3.76-3.86 for all other
-  quants) -> its 31.55 tok/s is NOT representative of DFlash2's quant trend (IQ4 57.5 / Q4 38.4 /
-  Q6 44.7). Re-run recommended before treating the quant x DFlash2 row as monotonic.
-- This closes the "SPEED-DATA COVERAGE GAP" (probe previously only on Q4_K_XL).
+| 262,144 | n=8 | 37.53 | 15,182 MiB |
+| 196,608 | n=8 | 37.50 | 14,158 MiB |
+| 131,072 | n=8 | 37.64 | 13,134 MiB |
+| 262,144 | n=2 | 40.90 | 14,734 MiB |
+=> Decode is FLAT vs context window size when the prompt is short (37.5-37.6). Cost comes from FILLED context, not allocated window.
 
-## ORCHESTRATOR STATE after this session (2026-08-28)
-- nvfp4-ppl: DONE (was crash-looping ~15x since 06:54 UTC on the three failure classes above).
-- Worker queue: "ALL QUEUED JOBS COMPLETE" (worker.log). phase4, bootstrap-ci, score-thinking,
-  score-verified50, agentic-steps all done (state markers in /srv/bench/orchestrator/state/).
-- 12 stale `tail -f` watcher processes cleaned up (no orchestrator processes touched).
-- Remaining open: mtp-IQ4_XS SWE re-run; energy extraction from power-log.csv; Q3_K_XL GGUF re-download
-  (optional); report writing.
+## *** KV-CACHE QUANTIZATION IS WHAT UNLOCKS 256K ***
+kvquant-ctx-20260821-2106 (Q5_K_XL, tensor, MTP n=2):
+| KV dtype | ctx | result |
+|---|---|---|
+| q8_0 | 262,144 | FAIL: failed to allocate |
+| q4_0 | 262,144 | OK 39.33 tok/s, 14,234 MiB |
+| f16 | 147,456 | OK 40.28 tok/s, 15,198 MiB |
+=> q4_0 KV buys 1.78x more context for a 2.4% throughput cost.
+kvhyp-20260820-1335 (Q4_K_M, tensor): f16 KV OK to ctx=131,072 (36.60 tok/s, 12,322 MiB); ctx=262,144 OOM.
+   q8_0 KV at c4096 FAILED with "illegal memory access" -> q8_0 KV is buggy on this stack; q4_0 and f16 are the usable options.
+bisect-20260820-1416 (IQ4_XS, f16 KV): max stable ctx ~245,760 (55.99 tok/s, 15,636 MiB).
+iq4tensor-20260820-1403: IQ4_XS ctx=262,144 + MTP FAILS to allocate, but no-MTP at 262,144 OK (39.75 tok/s).
+   => confirms MTP's KV cost; with MTP the ceiling drops to 196,608 (55.90 tok/s).
+
+## *** SPECULATION-STACK ABLATION (combining methods HURTS) ***
+specstack-20260820-1523 (Q3_K_XL, tensor, f16 KV, ctx=32768):
+| variant | tok/s | acceptance |
+|---|---|---|
+| MTP n=2 (reference) | 63.81 | 0.671 |
+| MTP n=1 | 58.24 | 0.780 |
+| ngram-cache alone | 34.67 | 0.386 |
+| MTP n=2 + ngram-cache | 49.12 | 0.563 |
+| MTP n=2 + ngram-map-k | 62.05 | 0.671 |
+| MTP n=3 + ngram-cache | 44.17 | 0.399 |
+| MTP n=2, p-min 0.1 | 63.01 | 0.671 |
+| MTP n=2, n-min 1 | 63.70 | 0.671 |
+=> Stacking ngram-cache onto MTP COSTS 23% throughput (63.81 -> 49.12). MTP alone is best.
+=> p-min and n-min tuning had no meaningful effect at this depth.
+
+## *** A SECOND PERPLEXITY SET -- DIFFERENT PROTOCOL, AND NON-MONOTONIC ***
+ppl-allquants-20260821-2213 (wikitext2, 20 chunks, c4096, tensor, f16 KV):
+| quant | PPL | +/- |
+|---|---|---|
+| Q3_K_XL | 5.5474 | 0.06200 |
+| IQ4_XS | 5.5250 | 0.06184 |
+| Q4_K_M | **5.5031** | 0.06154 |
+| Q5_K_XL | 5.5110 | 0.06177 |
+| Q6_K | 5.5073 | 0.06171 |
+=> NOT monotonic: Q4_K_M beats BOTH Q5_K_XL and Q6_K. All within +/-0.062 of each other -> differences are noise.
+=> DIFFERENT ABSOLUTE VALUES from the perplexity-results set (6.65-6.68) because of a different protocol
+   (20 chunks @ c4096, tensor, f16 KV vs the full-corpus run). *** THE TWO PPL SETS MUST NEVER BE MIXED. ***
+   Report one protocol, state it explicitly, or report both separately with their protocols.
+
+## OTHER RECOVERED RUNS
+- q3full-20260820-1422: Q3_K_XL ctx=262,144 62.67 tok/s (15,668 MiB) vs ctx=32,768 63.28 tok/s -> window size alone is nearly free.
+- tensor-ctx-20260820-1328: Q4_K_M tensor at ctx=4096 START-FAIL CUDA error -> the Aug-20 tensor instability was context/build dependent.
+- nvfp4-20260822-1029: "NVFP4 ctx=32768 n=2 52.89 tok/s (9,052 MiB); ctx=262,144 n=2 52.58 tok/s (12,622 MiB)" with tensor+q4_0 flags.
+  *** VERIFY ENGINE: flags look like llama.cpp, but NVFP4 is a vLLM format. Do not publish until the engine is confirmed. ***
+- ctxcurve-20260820-1500 (CALIBRATED, prefix-cached -- the authoritative context curve):
+| target | prompt_n | cache_n | FILLED | prefill t/s | decode t/s | TTFT s |
+|---|---|---|---|---|---|---|
+| 32,768 | 32,561 | 1,997 | 34,558 | 887.2 | 65.47 | 36.7 |
+| 65,536 | 34,754 | 34,298 | 69,052 | 743.0 | 61.12 | 46.8 |
+| 131,072 | 69,250 | 68,792 | 138,042 | 599.6 | 52.18 | 115.5 |
+| 196,608 | 69,255 | 137,782 | 207,037 | 471.0 | 45.02 | 147.0 |
+| 245,760 | 52,002 | 206,777 | 258,779 | 400.5 | 41.92 | 129.9 |
+  => decode 65.47 -> 41.92 (-36%), prefill 887 -> 401 (-55%) from 34K to 259K FILLED context. TTFT up to 147 s.
+  => Earlier curves (1426, 1436) were UNDERFILLED/uncalibrated -- superseded by the 1500 run. Use 1500 only.
+
+## /srv/bench/rigor/ -- NOT YET MINED
+deep-131072.txt, deep-32768.txt (7.8 KB each, the context-control evals), evalplus-Q3_K_XL.txt, evalplus-Q5_K_XL.txt,
+recalib-newbuild.txt, T3-INTERROMPIDO.txt (interrupted run), swebench-q3.txt (1.1 MB -- a full Q3 SWE-bench run).
+
+## *** CORRECTION: SWE-bench "thinking" configs were NEVER SCORED ***
+exit_statuses_*.yaml lists instances under "Submitted", which means A PATCH WAS PRODUCED, not that tests passed.
+An earlier summary misread this as "3/3 resolved" and that error propagated into the ledger. Corrected 2026-08-27.
+Unscored-but-evaluable runs (have preds.json with patches, no eval.log):
+  thinking/{mtp-IQ4_XS(1 patch), mtp-Q4_K_XL, mtp-Q5_K_XL, mtp-Q6_K_XL, dflash-IQ4_XS, dflash-Q4_K_XL} (3 patches each)
+  verified50 (50 instances, 49 patches) <- a FULL 50-instance run never scored
+  q3-verified50 (49 dirs, 5 patches), mtp-n1, mtp-n8, plumbing, vllm-calib
+Scored runs: iq4_xs-verified50 36/47, q5_k_xl-verified50 35/48, dflash2-calibration 2/2,
+  mtp-n1-calib 2/3, mtp-n8-calib 3/3, thinking/vllm-NVFP4 2/3, thinking/vllm-NVFP4-mtp 1/1.
+NOTE: scoring the 3-instance thinking runs is cheap (all 3 eval images present locally).
+      Scoring verified50 needs ~50 SWE-bench images (~4 GB each) -> not feasible at 25 GB free without batching.
+
+# ============================================================
+# THIRD RECOVERY (2026-08-27): /srv/bench/rigor/ -- AGENTIC BEHAVIOUR DATA
+# This section contains the single most decision-relevant finding in the study.
+# ============================================================
+
+## *** T3: Q3_K_XL CANNOT COMPLETE AGENTIC TASKS *** (rigor/T3-INTERROMPIDO.txt)
+Run deliberately stopped at 6/50 instances, with the conclusion already determined:
+| model | mean steps | median | max | hit 250-step limit |
+|---|---|---|---|---|
+| Q6_K | 45 | 37 | 132 | **0 of 6** |
+| Q3_K_XL | 250 | 250 | 250 | **6 of 6 (ALL)** |
+Corroborated by rigor/swebench-q3.txt (1.1 MB): exit status "LimitsExceeded: 6" instances.
+Decision recorded at the time: the remaining 44 instances would have cost ~88 h for zero new information.
+=> Q3_K_XL is the FASTEST quant in raw tok/s (54.64 @262K, 116.9 with MTP n=8) but is USELESS for agentic
+   coding: it loops until the step limit and never converges. Raw throughput is not a proxy for agentic utility.
+=> THIS DISQUALIFIES Q3 for agentic work regardless of its speed, and is a headline result for the report:
+   *** a quantization can be fast, score acceptably on HumanEval (84.1/81.7), and still fail completely
+   on multi-step agentic tasks. Single-shot benchmarks do not predict agentic competence. ***
+
+## COMPLETE Q6 INVENTORY (the user asked; there IS more Q6 data than was in the ledger)
+| source | measurement |
+|---|---|
+| matrix-q3q6-20260821-2125 | Q6_K kv=f16 ctx=32,768 -> 43.23 tok/s, 11,818 MiB |
+| matrix-q3q6-20260821-2125 | Q6_K kv=q4_0 ctx=262,144 -> 41.29 tok/s, 14,760 MiB |
+| matrix-q3q6-20260821-2125 | Q6_K kv=q8_0 ctx=262,144 -> FAIL out of memory |
+| n8-ctx-ceiling-20260822-0938 | Q6_K n=8: 262,144 -> 37.53 / 196,608 -> 37.50 / 131,072 -> 37.64 tok/s |
+| n8-ctx-ceiling-20260822-0938 | Q6_K n=2 @262,144 -> 40.90 tok/s (n=2 BEATS n=8 for Q6) |
+| ppl-allquants-20260821-2213 | Q6_K PPL 5.5073 +/- 0.06171 (protocol 2) |
+| perplexity-results/ppl-Q6_K_XL | PPL 6.6511 +/- 0.04111 (protocol 1) |
+| rigor/recalib-newbuild.txt | Q6_K 9 reps: mean 50.77, median 43.53, min 27.82, max 97.02 tok/s (sd 23.81) -> HIGH prompt-dependent variance |
+| evalplus humaneval Q6Kfix | HumanEval 93.9 / HumanEval+ 91.5, 0% empty (BEST accuracy of any quant) |
+| evalplus humaneval Q6_K (old) | 43.3/43.3, 51% empty -> DIRTY, excluded |
+| rigor/T3 | mean 45 agentic steps, median 37, zero limit hits (BEST agentic behaviour) |
+| humaneval-thinking-v2/mtp-Q6_K_XL | in progress at time of writing |
+NOTE: MTP depth optimum is QUANT-DEPENDENT too -- Q6_K is faster at n=2 (40.90) than n=8 (37.53),
+while Q3_K_XL is much faster at n=8 (116.9) than n=4 (92.6). Depth must be tuned per quant AND per workload.
+
+## rigor/ EVALPLUS + CONTEXT CONTROL (confirms existing numbers, adds provenance)
+- rigor/evalplus-Q3_K_XL.txt: pass@1 0.841 / 0.817  (matches humaneval Q3_K_XL)
+- rigor/evalplus-Q5_K_XL.txt: pass@1 0.933 / 0.909  (matches humaneval Q5_K_XL)
+- rigor/deep-32768.txt:  pass@1 0.933 / 0.902
+- rigor/deep-131072.txt: pass@1 0.933 / 0.902  -> identical: the context-length control, now with provenance
+- rigor/recalib-newbuild.txt: build 10588 commit 70adb1b4c, endpoint 127.0.0.1:8080
+
+## =========== WHAT IS ACTUALLY LOST (definitive audit) ===========
+IRRECOVERABLE:
+1. Per-config llama.cpp server timings for humaneval-thinking-v2 mtp-IQ4_XS / mtp-Q4_K_XL / mtp-Q5_K_XL.
+   Containers were destroyed before `docker logs` was captured; raw.jsonl stores only task_id+solution
+   (reasoning text discarded) so token counts cannot be reconstructed. FIXED going forward (script patched);
+   mtp-Q6_K_XL was rescued mid-run.
+2. Exact reproducibility of the 2026-08-20 ablations: image llamacpp-nccl231:latest and models
+   Qwen3.8-27B-UD-Q4_K_M.gguf and mtp-Qwen3.8-27B-Q4_0.gguf are no longer on disk. Results retained.
+3. Q3_K_XL and Q4_K_M GGUFs absent from /srv/models -> their runs cannot be repeated without re-download.
+4. The 2026-08-25 DFlash2 benchmark: truncated mid-run by disk exhaustion. Partial data only.
+DELIBERATELY STOPPED (not lost):
+5. T3 agentic run stopped at 6/50 with the conclusion already established (documented reasoning).
+NOT LOST, MERELY UNSCORED (recoverable by running evaluation only -- no GPU time):
+6. swebench verified50 (50 instances, 49 patches) <- a FULL 50-instance run
+7. swebench thinking/{mtp-IQ4_XS, mtp-Q4_K_XL, mtp-Q5_K_XL, mtp-Q6_K_XL, dflash-IQ4_XS, dflash-Q4_K_XL}
+8. swebench q3-verified50 (5 patches), mtp-n1, mtp-n8, plumbing, vllm-calib
+=> Item 6 is the single biggest recoverable win: a 50-instance SWE-bench Verified result already generated.
+
+# ============================================================
+# DURABLE BENCHMARK WORKER (deployed 2026-08-27 20:58 UTC)
+# /srv/bench/orchestrator/ -- survives client disconnects, session cycles, crashes and reboots.
+# ============================================================
+
+## Components
+| file | role |
+|---|---|
+| orchestrator/worker.sh | main loop; runs the job queue in priority order, forever, re-checking every 5 min |
+| orchestrator/lib.sh | shared helpers; encodes the rules that were learned from data loss |
+| orchestrator/watchdog.sh | restarts the worker within 2 min if it dies; VERIFIED by kill test |
+| orchestrator/state/<job>.{started,done,failed} | idempotency markers -- restart is always safe |
+| orchestrator/worker.log | one line per event, per job |
+| orchestrator/logs/<job>.log | full per-job log |
+| server-timings/<label>.serverlog | llama.cpp server logs, ALWAYS captured before container teardown |
+| /srv/bench/ledger-data.json | machine-readable snapshot of every metric (refreshed each cycle) |
+| /srv/bench/champion-timings.json | 30 recovered agentic runs, structured |
+| /srv/bench/bootstrap-ci.json | bootstrap 95% CIs, B=10,000, seed 20260825 |
+
+## Rules encoded in lib.sh (each exists because something was lost)
+1. kill_server() ALWAYS runs `docker logs > server-timings/<label>.serverlog` BEFORE `docker rm`.
+   (Per-config timings for 3 HumanEval configs were lost exactly this way.)
+2. gpu_busy() checks for run-humaneval-thinking-v2.sh, phase4-quant-speed.sh, phase34-waiter.sh and a
+   lock file, so the worker never contends with the pipelines already running.
+3. Every job is idempotent: job_done() short-circuits, and per-item checks skip already-scored configs.
+4. snapshot_metrics() refreshes ledger-data.json + champion-timings.json every cycle, so the UI/report
+   can always be regenerated from disk without re-deriving anything.
+5. Nothing is ever deleted; scoring only ADDS eval.log files next to existing predictions.
+
+## Job queue (priority order, as deployed)
+1. score-thinking      -- CPU only. Scores the 6 SWE-bench "thinking" runs that had patches but were never
+                          evaluated ("Submitted" != resolved). All 3 eval images already local.
+2. bootstrap-ci        -- CPU only. B=10,000 CIs for every HumanEval and SWE-bench result.
+3. agentic-steps       -- GPU. T3-style step-count profile for IQ4_XS and Q5_K_XL at ctx 131072, q4_0 KV,
+                          MTP n=2. THE decisive missing datum for the model recommendation
+                          (Q3 loops to 250 steps; Q6 converges in ~45; IQ4/Q5 unknown).
+4. score-verified50    -- CPU only, but defers itself unless >=40 GB free (needs ~50 eval images).
+                          A FULL 50-instance SWE-bench Verified run with 49 patches, never scored.
+
+## Verification performed
+- bash -n syntax check on all three shell files; ast.parse on bootstrap-ci.py. All passed.
+- Kill test: `kill -9` the worker -> watchdog revived it in <2 min with a new pid, and it resumed the
+  in-flight job correctly. Confirmed durable.
+
+## How to operate
+- status:    tail /srv/bench/orchestrator/worker.log ; ls /srv/bench/orchestrator/state/
+- stop all:  pkill -f orchestrator/watchdog.sh && pkill -f orchestrator/worker.sh
+- re-run a job: rm /srv/bench/orchestrator/state/<job>.done   (worker picks it up next cycle)
+- data for the report/UI: /srv/bench/ledger-data.json, champion-timings.json, bootstrap-ci.json,
+  PAPER-REFERENCES.md. All mirrored to ~/Documents/multivac-paper/data/ on the Mac.
+
+## Still NOT automated (needs a human decision)
+- NVFP4 perplexity (llama-perplexity is GGUF-only; needs a custom vLLM logprob script).
+- Re-download of Q3_K_XL / Q4_K_M GGUFs to complete the quant x context matrix (~30 GB).
+- Deciding which perplexity protocol the report will use (the two sets disagree and must not be mixed).
+
+# ============================================================
+# SESSION UPDATE 2026-08-28 00:20 UTC
+# ============================================================
+
+## Phase 3 HumanEval+ thinking v2: COMPLETE (6/6 llama.cpp configs done, 1 running)
+| config | HumanEval | HumanEval+ | empty % | wall time |
+|---|---|---|---|---|
+| mtp-IQ4_XS | 86.6 | 86.0 | 12.8% | 88 min |
+| mtp-Q4_K_XL | 87.8 | 86.0 | 12.2% | 154 min |
+| mtp-Q5_K_XL | 89.0 | 86.0 | 11.0% | 154 min |
+| **mtp-Q6_K_XL** | **90.9** | **88.4** | **7.9%** | 149 min |
+| dflash-IQ4_XS | 89.0 | 87.8 | 10.4% | 80 min |
+| dflash-Q4_K_XL | running (65/164) | — | — | — |
+| NVFP4 (vLLM) | 85.4 | 84.1 | 12.8% | — |
+=> Q6_K_XL BREAKS THE CEILING at 88.4 HumanEval+ (vs 86.0 plateau for IQ4/Q4/Q5).
+   Also lowest empty rate (7.9% vs 10-13%).
+   DFlash2 IQ4_XS at 87.8 is slightly above MTP IQ4_XS (86.0) but bootstrap CI overlaps.
+
+## SWE-bench thinking: NOW SCORED (worker job score-thinking DONE)
+| config | completed | resolved | unresolved | errors |
+|---|---|---|---|---|
+| mtp-IQ4_XS | 1 | 1 | 0 | 0 |
+| mtp-Q4_K_XL | 3 | 2 | 1 | 0 |
+| mtp-Q5_K_XL | 3 | 2 | 1 | 0 |
+| **mtp-Q6_K_XL** | **3** | **3** | **0** | **0** |
+| dflash-IQ4_XS | 3 | 2 | 1 | 0 |
+| dflash-Q4_K_XL | 3 | 2 | 1 | 0 |
+=> Q6_K_XL is the ONLY quant resolving all 3 instances under reasoning. Consistent with T3 agentic finding.
+   CORRECTION: the earlier "3/3 for 5 configs" was wrong; actual scores are 2/3 for 4 configs, 3/3 for Q6 only.
+
+## Bootstrap 95% CIs computed (worker job bootstrap-ci DONE, B=10,000, seed 20260825)
+Key intervals (HumanEval+ thinking): all at n=164
+- Q6_K_XL: 88.4 [skip] -- needs re-running (completed after bootstrap; will update)
+- Q5_K_XL: 86.0 [80.5-90.9]
+- Q4_K_XL: 86.0 [80.5-90.9]
+- IQ4_XS: 86.0 [80.5-90.9]
+=> Q4/Q5/IQ4 have IDENTICAL intervals: they are statistically indistinguishable.
+Key intervals (SWE-bench 50-instance):
+- IQ4_XS: 76.6% [63.8-87.2]
+- Q5_K_XL: 72.9% [60.4-85.4]
+=> Intervals overlap completely. No ordering claim is warranted.
+
+## Worker system operational
+- score-thinking: DONE
+- bootstrap-ci: DONE
+- agentic-steps: waiting (GPU busy with Phase 3 dflash-Q4_K_XL)
+- score-verified50: deferred (25 GB free, needs 40)
+- Watchdog verified: revived worker after kill -9 within 2 min
+
+## Phase 3 COMPLETE — dflash-Q4_K_XL (2026-08-28 01:49 UTC)
+Wall time: 8110s (135 min)
+HumanEval base: 148/164 (90.2%)
+HumanEval+:     143/164 (87.2%)
+Empty rate:      14/164 (8.5%)
+=> DFlash2 Q4_K_XL vs MTP Q4_K_XL: +1.2pp HE+ (87.2 vs 86.0), lower empty (8.5% vs 12.2%), 12% faster wall.
+=> Both within bootstrap CI overlap — not statistically significant.
+=> ALL 7 Phase 3 thinking configs now complete.
+
+## Phase 4 STARTED (2026-08-28 01:49 UTC)
+4 quants × 3 methods = 12 cells speed matrix.
+Container: llamacpp-mtp:latest (already up).
+
+## Phase 4 COMPLETE — Speed Matrix (2026-08-28 02:50 UTC)
+4 quants × 3 methods = 12 cells. ctx=32768, 1024 gen tokens, 3 cold repeats.
+| Config | tok/s | TTFT | Power W | VRAM MB | J/tok | Spread |
+|---|---|---|---|---|---|---|
+| IQ4_XS nospec | 27.2 | 0.497s | 202.7 | 8532 | 7.46 | 6.6% |
+| IQ4_XS MTP n=2 | 46.9 | 0.879s | 204.0 | 9486 | 4.35 | 6.7% |
+| IQ4_XS DFlash2 n=4 | 57.5 | 0.449s | 213.8 | 9822 | 3.70 | 13.1% |
+| Q4_K_XL nospec | 22.8 | 0.678s | 204.7 | 10062 | 8.96 | 8.1% |
+| Q4_K_XL MTP n=2 | 32.6 | 1.747s | 207.0 | 11014 | 6.41 | 13.5% |
+| Q4_K_XL DFlash2 n=4 | 38.4 | 0.456s | 217.0 | 11356 | 5.65 | 11.2% |
+| Q5_K_XL nospec | 19.8 | 0.456s | 207.4 | 11454 | 10.50 | 7.6% |
+| Q5_K_XL MTP n=2 | 29.8 | 0.483s | 210.4 | 12408 | 7.07 | 6.8% |
+| Q5_K_XL DFlash2 n=4 | 31.5 | 0.483s | 220.6 | 12746 | 6.99 | 11.9% |
+| Q6_K_XL nospec | 16.5 | 0.442s | 194.2 | 13696 | 11.78 | 3.9% |
+| Q6_K_XL MTP n=2 | 31.7 | 0.440s | 199.7 | 14648 | 6.29 | 12.5% |
+| Q6_K_XL DFlash2 n=4 | 44.7 | 0.443s | 214.0 | 14992 | 4.79 | 7.5% |
+=> DFlash2 wins EVERY cell at short context (32K).
+=> Q6_K_XL has the biggest DFlash2 advantage: 2.71× over baseline, +41% over MTP.
+=> IQ4_XS DFlash2 is throughput champion at 57.5 tok/s.
+=> Combined with long-context finding: method ranking FLIPS — DFlash2 wins short, MTP wins long.
+=> VRAM: DFlash2 adds ~350 MiB (draft model), MTP adds ~950 MiB (replicated MTP buffers).
+
+## Worker agentic-steps STARTED (2026-08-28 02:52 UTC)
+GPU free after Phase 4. Running T3-style step-count for IQ4_XS and Q5_K_XL.
+
+## Agentic steps COMPLETE (2026-08-28 04:00 UTC)
+T3-style step-count profile for IQ4_XS and Q5_K_XL:
+| Instance | IQ4_XS | Q5_K_XL | Q6_K_XL (ref) | Q3_K_XL (ref) |
+|---|---|---|---|---|
+| astropy-12907 | 25 | 32 | ~45 mean | 250 (limit) |
+| django-10880 | 19 | 32 | ~45 mean | 250 (limit) |
+| django-10973 | 25 | 23 | ~45 mean | 250 (limit) |
+| Mean | 23 | 29 | ~45 | 250 |
+=> ALL four usable quants converge. IQ4_XS is the FASTEST stepper (mean 23).
+=> Q3_K_XL remains DISQUALIFIED (all hit 250-step limit).
+=> This settles the model recommendation: Q6_K_XL for best accuracy,
+   IQ4_XS for best speed + efficiency. Both converge cleanly in agentic work.
+=> Server logs captured: IQ4_XS 293 samples, Q5_K_XL 680 samples.
+
+## Worker updated (2026-08-28 04:06 UTC)
+- score-verified50: now uses batch processing (8 instances at a time, prune images between batches)
+- nvfp4-ppl: NEW JOB added — vLLM logprobs-based perplexity (Protocol 2, WikiText-2, 20 chunks @4096)
+- Disk freed: removed unused Docker images (vllm:latest, cuda-devel, old dflash2 build, llama-perplexity)
+- 25 GB -> 65 GB free
+
+## *** E11 — TENSOR-SPLIT REBALANCING: THE DUAL-GPU FINDING (2026-08-29, paper-grade) ***
+
+Setup: host multivac, img `llamacpp-mtp:latest` id `sha256:feb0231976b6…` (0.3.0-dev, build 1,
+commit d222767), `-sm layer`, `-ctk/-ctv q4_0`, `-fit off -ctxcp 4 -np 1`, seed 20260829, greedy,
+`--spec-type draft-mtp --spec-draft-n-max 2`. Model `Qwen3.8-27B-UD-Q6_K.gguf`
+(21,983,677,344 B, HF `unsloth/Qwen3.8-27B-GGUF`), on `/srv/bench/models/`.
+Artifacts: `/srv/bench/e11/ceiling-*.json`, `/srv/bench/e11/tsweep-*.json`.
+
+### THE RESULT
+| Q6_K + MTP n=2, q4_0, layer split | ctx | decode @ full depth | MTP acc | VRAM GPU0 / GPU1 | idle GPU0 |
+|---|---|---|---|---|---|
+| default split (no `-ts`) | 196,608 | 7.19 tok/s | n/r | 12,978 / 15,640 | 3,333 MiB |
+| **`-ts 58,42`** | **262,144** | **13.85 tok/s** | 0.889 | **15,320 / 15,080** | 991 MiB |
+| `-ts 54,46` | 262,144 | FAIL (load) | — | — | — |
+
+=> **Rebalancing the layer split bought +65,536 tokens of context (+33 %) AND +93 % decode speed
+at the same time.** The default split left 3,333 MiB stranded on GPU0 while GPU1 OOMed 671 MiB
+from its wall; it also gave GPU1 disproportionate attention work, which is why decode was slow.
+=> This is a **citable systems finding**: on 2×16 GB without NVLink, llama.cpp's default
+`-sm layer` placement is both capacity- and throughput-suboptimal, and a one-flag change recovers
+both. It is not a quantization or speculation effect.
+
+### Mechanism (why the two cards are not a pool)
+With `--split-mode layer`, each layer's weights **and its slice of the KV cache** live on a single
+device; there is no NVLink on RTX 5060 Ti. The binding constraint is therefore **per-card
+16,311 MiB**, never the 32,622 MiB aggregate: a run OOMs when the heavier card fills while the
+other still holds unreachable free memory. Measured peaks (E11a) show GPU1 binding in **every**
+configuration, with 1,955–3,829 MiB idle on GPU0:
+
+| config | ctx | GPU0 | GPU1 | idle GPU0 | free GPU1 |
+|---|---|---|---|---|---|
+| Q5_K_XL + MTP n2 | 196,608 | 12,482 | 15,792 | 3,829 | 519 |
+| Q6_K + MTP n2 | 196,608 | 12,978 | 15,640 | 3,333 | 671 |
+| Q6_K + no-spec | 262,144 | 13,910 | 15,192 | 2,401 | 1,119 |
+| Q6_K_XL + no-spec | 245,760 | 14,356 | 15,838 | 1,955 | 473 |
+
+Contributing cause, confirmed in the serverlog: MTP creates a **separate draft context against the
+target model** (`common_speculative_init_result`), which costs Q6_K_XL 114,688 tokens of window
+(245,760 no-spec → 131,072 with MTP). That draft context plus the output/embedding layer land on
+the last device. (Placement is inferred from the consistent asymmetry; the log does not state it.)
+
+### E11a — functional context ceilings (supersedes E1's VRAM-gated ceilings)
+Success rule: healthy + `/props n_ctx` == requested + a real ~95 %-of-window prefill + a 64-token
+generation. VRAM recorded, **never gated**.
+| config | ceiling | prefill tok/s | decode @ full depth | MTP acc |
+|---|---|---|---|---|
+| Q5_K_XL + MTP n2 | 196,608 | 621 | 15.47 | 0.848 |
+| Q6_K + MTP n2 | 196,608 | 569 | 7.19 | n/r |
+| Q6_K + no-spec | **262,144** | 627 | 3.45 | — |
+| Q6_K_XL + no-spec | 245,760 | 650 | 3.53 | — |
+
+1. **UD-Q6_K (21.98 GB) reaches windows the XL tier cannot.** +50 % over Q6_K_XL with MTP
+   (196,608 vs 131,072); the full native 262,144 without MTP, which Q6_K_XL cannot reach
+   (`failed to allocate compute pp buffers` at 262,144 — a genuine error, so E1 was right there).
+2. **E1's Q5_K_XL ceiling (163,840) is WRONG; the true ceiling is 196,608.** E1 rejected the rung
+   on a `peak ≤ 15,700 MiB/GPU` gate at 15,794 MiB — yet Q6_K_XL ran correctly at 15,838 MiB.
+   The gate sat inside the ±100–200 MiB layer-split noise it was trying to measure and rejected
+   working configurations. ⚠️ **Every E1 rung failed on VRAM alone must be re-tested**; E1
+   rejections backed by a real error are confirmed.
+
+### ⚠️ MEASUREMENT CORRECTION — decode at depth vs decode into an empty window
+Same server, same flags (`Q6_K + MTP n2 @196,608`): **37.22 tok/s at depth 0** (median of 40
+HumanEval+ tasks, acceptance 0.986) vs **7.19 tok/s at depth 186,265** — a −81 % penalty.
+The `ctx=32768` speed matrix (57.5 / 46.9 / 31.7 …) and E1's ladder (26–32 tok/s) are decode into
+a nearly **empty** KV cache in a large *allocated* window. They must never be quoted as
+long-context throughput. The 57.5 tok/s headline additionally differs on three axes: IQ4_XS +
+DFlash2 n=4 at ctx 32,768.
+Historical long-context curves are milder (Q3-embedded 71.6 @40K → 44.6 @250K, −38 %) but were
+measured on the **deleted** tensor-split image. E11c now shows a large part of the layer-split
+penalty was **imbalance**, not depth: rebalancing took Q6_K from 7.19 → 13.85 tok/s at a *larger*
+window. Remaining open question for the paper: how much of the residual gap is `-sm tensor` vs
+`-sm layer` attention distribution.
+
+### Method notes required to reproduce (paper appendix)
+- **Thinking must be disabled explicitly.** This model reasons by default and returns EMPTY
+  content under small `max_tokens`; the widely-cited `/no_think` suffix **does not work** on this
+  chat template (130 reasoning chars, empty content). Only
+  `"chat_template_kwargs": {"enable_thinking": false}` works.
+- **Prefix caching makes depth benchmarking tractable**: `prompt_n 8223 → 516, cache_n 7749`.
+  Pads are built to an exact token count via `/tokenize` and cached per depth so every
+  configuration sees a byte-identical prompt.
+- **VRAM must be read after a deep prefill**, not after load; compute buffers grow with the batch.
+- Padding uses **real repository source** (django worktree, `/srv/bench/e11/corpus.txt`); never
+  repeated filler, which makes attention trivially easy and inflates results.
+
+## OFFICIAL REFERENCES — Qwen3.8-27B (fetched 2026-08-29, both URLs)
+
+Sources: `https://huggingface.co/Qwen/Qwen3.8-27B` (model card) and
+`https://unsloth.ai/docs/models/qwen3.8` (Unsloth llama.cpp guide).
+
+### Published benchmark scores (the ONLY official numbers for this model)
+| benchmark | official score |
+|---|---|
+| LiveCodeBench v6 | **90.3** |
+| SWE-bench Pro | **61.7** |
+| Terminal Bench 2.1 (Terminus) | **73.0** |
+| HumanEval / HumanEval+ | **NOT PUBLISHED** |
+
+⚠️ Our SWE-bench work is **Verified**, not **Pro** — 75.5 % is *not* comparable to 61.7.
+⚠️ Neither LiveCodeBench v6 nor SWE-bench Pro is set up on this host. See G19.
+
+### Official sampling settings (Qwen card and Unsloth agree exactly)
+| mode | temp | top_p | top_k | min_p | presence_penalty | repetition_penalty |
+|---|---|---|---|---|---|---|
+| **Thinking** | 1.0 | 0.95 | 20 | 0.0 | 0.0 | 1.0 |
+| **Instruct / non-thinking** | 0.7 | 0.80 | 20 | 0.0 | **1.5** | 1.0 |
+
+⚠️ **Every benchmark on this host used greedy `temperature 0`** — neither setting. Greedy is still
+the right instrument for *controlled quant comparison* (no sampling variance), but absolute scores
+under it are not comparable to published numbers. State both facts in the paper. See G16.
+
+### Context
+- Native **262,144**; extensible to ~1,000,000 via **YaRN, scaling factor 4.0** (untested here).
+- Recommended max output: reasoning 262,144; final response 131,072.
+
+### Thinking control (documented knob — we have been using a different one)
+`--chat-template-kwargs '{"reasoning_effort":"medium"}'`, options **`xhigh` | `medium` | `low` |
+`none`**. We validated `{"enable_thinking": false}` instead; `reasoning_effort: none` is the
+documented equivalent and is untested here. See G17.
+
+### Unsloth quantization guidance
+- Unsloth's **recommended default for Qwen3.8-27B is `UD-Q4_K_XL`**, on the claim that Dynamic 3.0
+  GGUFs give "10 % more accuracy at the same size". `UD-Q3_K_XL` is their tighter-VRAM fallback.
+- ⚠️ That recommendation is a **general** one, not specific to a 2×16 GB full-native-context target;
+  our own measurements put `UD-Q6_K` at the full 262,144 window, so the Unsloth default is not
+  automatically the right pick here.
+
+### Full Q4–Q6 ladder available in `unsloth/Qwen3.8-27B-GGUF` (sizes from the HF API, 2026-08-29)
+| quant | size | status on this host |
+|---|---|---|
+| UD-IQ4_XS | 14.25 GB | tested — 262,144 (default split) |
+| UD-Q4_K_S | 15.36 GB | **untested** |
+| UD-Q4_K_M | 16.46 GB | historical only — GGUF deleted |
+| UD-Q4_K_XL | 17.56 GB | tested — 196,608 (default split); **Unsloth's recommended default** |
+| UD-Q5_K_S | 18.67 GB | **untested** |
+| UD-Q5_K_M | 19.77 GB | **untested** |
+| UD-Q5_K_XL | 20.88 GB | tested — 262,144 @ `-ts 54,46`, 8.22 tok/s (ratio-confounded, G13) |
+| **UD-Q6_K** | **21.98 GB** | tested — **262,144 @ `-ts 58,42`, 13.85 tok/s** ← current best |
+| UD-Q6_K_M | 23.09 GB | **untested** — closest untried step UP in fidelity |
+| UD-Q6_K_L | 24.19 GB | **untested** |
+| UD-Q6_K_XL | 25.30 GB | tested — 131,072 MTP / 245,760 no-spec; rebalance incomplete (G21) |
+
+# ============================================================
+# E12 / WAVE 1 + ACCURACY-METHOD DECISIONS (2026-08-30)
+# Appended by the build-stream lifecycle. Full record and evidence trail:
+#   data/build-stream-docs/docs/build-stream/2026-08-30-quant-bench-trackA.md (ledger L-5, L-6)
+#   data/build-stream-docs/docs/paper/PAPER-NOTES.md (PN-1..PN-12)
+#   data/build-stream-docs/docs/paper/METHOD-REFERENCES.md (R1..R7, external sources)
+# ============================================================
+
+## *** TENSOR SPLIT SETS THE CONTEXT CEILING (supersedes E11a and E1 ceilings) ***
+Measured 2026-08-29/30 on llamacpp-mtp:latest (engine 0.3.0-dev d222767, image feb0231976b6...),
+q4_0 KV, MTP n=2, -fit off, -ctxcp 4, -np 1, official DEC-2 non-thinking sampling (NOT greedy --
+these rows must never share a table with the temp-0 e11 corpus). Prefill to >=0.90 of the window
+is now ENFORCED IN CODE (was documented-only; see the pad defect below).
+
+- UD-Q5_K_XL reaches the FULL NATIVE 262,144 window at five ratios (54,46 / 56,44 / 58,42 /
+  60,40 / 62,38) and FAILS TO LOAD at the engine default split (compute-buffer-oom, imbalance
+  1,530 MiB). Best 54,46: 10.82 tok/s decode at 0.948 depth (median-of-3 12.70), VRAM
+  14,660/15,402 MiB, imbalance 742 MiB, MTP acceptance 0.516. 9 of 10 cells ok.
+  => Supersedes E11a's 196,608 and E1's 163,840 for this quant. The ceiling is a property of the
+  SPLIT, not of the quant. A ceiling published without its -ts value is not reproducible.
+- UD-Q6_K_XL rebalanced ceiling = 212,992 at -ts 56,44 (12.98 tok/s at 0.9469 depth); 196,608 at
+  the same ratio gives 17.26 tok/s, MTP acceptance 0.8971, VRAM 15,416/15,840, imbalance 424 MiB.
+  229,376 failed both attempts. => Against the previously published 131,072 MTP ceiling this is
+  +81,920 tokens (+62.5%). CLOSES G21 POSITIVELY.
+- METHOD WARNING: the -ts optimum is NOT portable across quants. Q6_K's optimum is 58,42, but on
+  Q6_K_XL that ratio OVERSHOOTS (GPU0 15,036 / GPU1 12,276, 2,760 MiB GPU0-heavy) while the
+  default split is 1,482 MiB GPU1-heavy; the balance point lies between them and only 56,44 loads.
+  Re-sweep -ts on any change of quant, KV dtype or spec setting.
+- Balance is NOT speed: on Q5_K_XL the most balanced ratio (58,42, 28 MiB) is the SLOWEST
+  (8.50 tok/s) while 54,46 (742 MiB) is the fastest. "Keep the fastest that loads" is the correct
+  selection rule; "keep the most balanced" would have cost 21% of decode.
+- Q6_K and Q4_K_XL were still sweeping when this was written.
+
+## *** MEASUREMENT DEFECT FOUND AND FIXED -- affects any e12 cell before 2026-08-30T02:46Z ***
+The pad builder bisected inside a FIXED bracket using chars-per-token calibrated on the first
+200 kB of a corpus that runs ~2.9 chars/tok there and ~4.45 chars/tok after; the true cut fell
+outside the bracket, the loop pinned at the edge and kept the LAST probe rather than the CLOSEST,
+and returned short WITHOUT RAISING. pad_201830 delivered 169,823 tokens instead of 201,830
+(-15.9%). Q4_K_XL cells recorded prefill_frac 0.7973 against Q5_K_XL's 0.948 -- both its speed row
+and its ceiling verdict were optimistic AND the two quants were not comparable to each other.
+The documented ">=90% of window" gate existed only as a docstring and was never compared to 0.90,
+which is why this was invisible. Both are fixed; all 9 ladder pads rebuilt and verified at ~0.945.
+Affected cells are QUARANTINED under /srv/bench/e12/quarantine/, not deleted.
+=> Any e12 artifact predating 2026-08-30T02:46Z must be checked for prefill_frac before reuse.
+
+## *** ENERGY + THERMAL EXTRACTION (closes the "energy extraction from power-log.csv" open item) ***
+/srv/bench/power-log.csv, 1 Hz (nvidia-smi + kernel RAPL powercap), 43,182 consecutive samples,
+2026-08-29T16:11:40Z -> 2026-08-30T04:11:41Z (12.00 h, 26% GPU-busy).
+- System: mean 149.2 W, median 79.8 W, peak 408.9 W; 1.791 kWh over the window.
+  Under GPU load: mean 334.1 W, peak 408.9 W -- an idle-to-loaded swing of ~4.2x.
+- GPUs: 1.078 kWh (60% of system). GPU0 mean 47.1 W / GPU1 42.8 W; medians 10.7 / 10.8 W;
+  peaks 183.7 / 178.8 W against a 180 W card limit.
+- CPU package: 0.172 kWh (10%); mean 14.4 W, peak 142.1 W.
+- THERMAL ASYMMETRY: GPU0 peaked 90 C vs GPU1 76 C on physically identical cards (means 46.8 /
+  43.6 C) -- the signature of GPU0-weighted -ts ratios, i.e. the ratio chosen for context or
+  throughput also selects a thermal operating point. OBSERVATIONAL AND CONFOUNDED: the window mixes
+  quants, ratios and rungs, and case airflow asymmetry is an equally plausible contributor.
+- CAVEAT: est_system_w is a MODELLED total (GPU telemetry + RAPL + fixed platform allowance), not
+  a wall-socket measurement. Only the GPU and CPU-package limbs are directly instrumented. This
+  characterises the HOST across a mixed window; per-run J/tok must still be integrated over that
+  run's own interval (method 13.73), never derived from this mean.
+
+## *** ACCURACY EVALUATION METHOD -- decision and precedent (2026-08-30) ***
+Q6_K_XL is NO LONGER on the delete list: its measured 212,992 ceiling falsified the premise behind
+the deletion, and it is the only quant on the ladder whose accuracy has never been measured against
+the others. It is retained as the 4th arm and as the FIDELITY REFERENCE for divergence work.
+Accuracy will be measured by the Small-Sample Accuracy protocol (~3.5 h, not the 35-47 h task
+battery). Rationale, with sources in METHOD-REFERENCES.md:
+- Divergence instruments draw statistical power from TOKEN count; task benchmarks from PROBLEM
+  count. At n=65,536 tokens/domain/arm the standard error on mean KLD is sigma/256; HumanEval+ at
+  n=164 carries +/-4.6 points against arms separated by 1-3 points. The task batteries never could
+  rank these quants.
+- llama.cpp ships the instrument (llama-perplexity --kl-divergence-base / --kl-divergence, emitting
+  mean KLD with uncertainty, PPL ratio, dp percentiles, RMS dp, top-token agreement). Unsloth ranks
+  its released Dynamic GGUFs -- the very models under test -- on mean KL divergence. Fireworks uses
+  KLD + rejection rate for production quantization with a published threshold of KLD < 0.007, and
+  documents perplexity's AVERAGING BIAS (tokens made worse cancelled by tokens made better) as the
+  reason not to rank on PPL alone. LocalBench's GGUF benchmark uses ~250k tokens over 6 domains
+  reporting KLD on prompt tokens plus top-1 agreement, observing 0.01-0.03 for Q4_K_M.
+- Two domains: wikitext-2 (published convention, comparability) and the django code corpus (the
+  target workload -- published quant tables measure prose; this measures code). The code domain
+  carries the weight for the conclusion because Unsloth warns that wikitext-like evaluation data
+  overfits imatrix quants calibrated on wikitext-like data, and these GGUFs' calibration set is
+  not published in detail.
+- LIMITS TO STATE IN THE PAPER: divergence is measured against Q6_K_XL, not FP16 (no FP16 on the
+  host; a 27B F16 GGUF at ~54 GB exceeds free space) -- it is a ladder-relative measure; prompt-
+  token divergence is not generation quality; only two domains, no multilingual or tool-calling
+  coverage; the single generative task anchor is deliberately small (2 arms, paired per-problem
+  per Miller/Anthropic) and reported with its power.

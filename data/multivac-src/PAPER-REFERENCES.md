@@ -972,3 +972,93 @@ documented equivalent and is untested here. See G17.
 | UD-Q6_K_M | 23.09 GB | **untested** — closest untried step UP in fidelity |
 | UD-Q6_K_L | 24.19 GB | **untested** |
 | UD-Q6_K_XL | 25.30 GB | tested — 131,072 MTP / 245,760 no-spec; rebalance incomplete (G21) |
+
+# ============================================================
+# E12 / WAVE 1 + ACCURACY-METHOD DECISIONS (2026-08-30)
+# Appended by the build-stream lifecycle. Full record and evidence trail:
+#   data/build-stream-docs/docs/build-stream/2026-08-30-quant-bench-trackA.md (ledger L-5, L-6)
+#   data/build-stream-docs/docs/paper/PAPER-NOTES.md (PN-1..PN-12)
+#   data/build-stream-docs/docs/paper/METHOD-REFERENCES.md (R1..R7, external sources)
+# ============================================================
+
+## *** TENSOR SPLIT SETS THE CONTEXT CEILING (supersedes E11a and E1 ceilings) ***
+Measured 2026-08-29/30 on llamacpp-mtp:latest (engine 0.3.0-dev d222767, image feb0231976b6...),
+q4_0 KV, MTP n=2, -fit off, -ctxcp 4, -np 1, official DEC-2 non-thinking sampling (NOT greedy --
+these rows must never share a table with the temp-0 e11 corpus). Prefill to >=0.90 of the window
+is now ENFORCED IN CODE (was documented-only; see the pad defect below).
+
+- UD-Q5_K_XL reaches the FULL NATIVE 262,144 window at five ratios (54,46 / 56,44 / 58,42 /
+  60,40 / 62,38) and FAILS TO LOAD at the engine default split (compute-buffer-oom, imbalance
+  1,530 MiB). Best 54,46: 10.82 tok/s decode at 0.948 depth (median-of-3 12.70), VRAM
+  14,660/15,402 MiB, imbalance 742 MiB, MTP acceptance 0.516. 9 of 10 cells ok.
+  => Supersedes E11a's 196,608 and E1's 163,840 for this quant. The ceiling is a property of the
+  SPLIT, not of the quant. A ceiling published without its -ts value is not reproducible.
+- UD-Q6_K_XL rebalanced ceiling = 212,992 at -ts 56,44 (12.98 tok/s at 0.9469 depth); 196,608 at
+  the same ratio gives 17.26 tok/s, MTP acceptance 0.8971, VRAM 15,416/15,840, imbalance 424 MiB.
+  229,376 failed both attempts. => Against the previously published 131,072 MTP ceiling this is
+  +81,920 tokens (+62.5%). CLOSES G21 POSITIVELY.
+- METHOD WARNING: the -ts optimum is NOT portable across quants. Q6_K's optimum is 58,42, but on
+  Q6_K_XL that ratio OVERSHOOTS (GPU0 15,036 / GPU1 12,276, 2,760 MiB GPU0-heavy) while the
+  default split is 1,482 MiB GPU1-heavy; the balance point lies between them and only 56,44 loads.
+  Re-sweep -ts on any change of quant, KV dtype or spec setting.
+- Balance is NOT speed: on Q5_K_XL the most balanced ratio (58,42, 28 MiB) is the SLOWEST
+  (8.50 tok/s) while 54,46 (742 MiB) is the fastest. "Keep the fastest that loads" is the correct
+  selection rule; "keep the most balanced" would have cost 21% of decode.
+- Q6_K and Q4_K_XL were still sweeping when this was written.
+
+## *** MEASUREMENT DEFECT FOUND AND FIXED -- affects any e12 cell before 2026-08-30T02:46Z ***
+The pad builder bisected inside a FIXED bracket using chars-per-token calibrated on the first
+200 kB of a corpus that runs ~2.9 chars/tok there and ~4.45 chars/tok after; the true cut fell
+outside the bracket, the loop pinned at the edge and kept the LAST probe rather than the CLOSEST,
+and returned short WITHOUT RAISING. pad_201830 delivered 169,823 tokens instead of 201,830
+(-15.9%). Q4_K_XL cells recorded prefill_frac 0.7973 against Q5_K_XL's 0.948 -- both its speed row
+and its ceiling verdict were optimistic AND the two quants were not comparable to each other.
+The documented ">=90% of window" gate existed only as a docstring and was never compared to 0.90,
+which is why this was invisible. Both are fixed; all 9 ladder pads rebuilt and verified at ~0.945.
+Affected cells are QUARANTINED under /srv/bench/e12/quarantine/, not deleted.
+=> Any e12 artifact predating 2026-08-30T02:46Z must be checked for prefill_frac before reuse.
+
+## *** ENERGY + THERMAL EXTRACTION (closes the "energy extraction from power-log.csv" open item) ***
+/srv/bench/power-log.csv, 1 Hz (nvidia-smi + kernel RAPL powercap), 43,182 consecutive samples,
+2026-08-29T16:11:40Z -> 2026-08-30T04:11:41Z (12.00 h, 26% GPU-busy).
+- System: mean 149.2 W, median 79.8 W, peak 408.9 W; 1.791 kWh over the window.
+  Under GPU load: mean 334.1 W, peak 408.9 W -- an idle-to-loaded swing of ~4.2x.
+- GPUs: 1.078 kWh (60% of system). GPU0 mean 47.1 W / GPU1 42.8 W; medians 10.7 / 10.8 W;
+  peaks 183.7 / 178.8 W against a 180 W card limit.
+- CPU package: 0.172 kWh (10%); mean 14.4 W, peak 142.1 W.
+- THERMAL ASYMMETRY: GPU0 peaked 90 C vs GPU1 76 C on physically identical cards (means 46.8 /
+  43.6 C) -- the signature of GPU0-weighted -ts ratios, i.e. the ratio chosen for context or
+  throughput also selects a thermal operating point. OBSERVATIONAL AND CONFOUNDED: the window mixes
+  quants, ratios and rungs, and case airflow asymmetry is an equally plausible contributor.
+- CAVEAT: est_system_w is a MODELLED total (GPU telemetry + RAPL + fixed platform allowance), not
+  a wall-socket measurement. Only the GPU and CPU-package limbs are directly instrumented. This
+  characterises the HOST across a mixed window; per-run J/tok must still be integrated over that
+  run's own interval (method 13.73), never derived from this mean.
+
+## *** ACCURACY EVALUATION METHOD -- decision and precedent (2026-08-30) ***
+Q6_K_XL is NO LONGER on the delete list: its measured 212,992 ceiling falsified the premise behind
+the deletion, and it is the only quant on the ladder whose accuracy has never been measured against
+the others. It is retained as the 4th arm and as the FIDELITY REFERENCE for divergence work.
+Accuracy will be measured by the Small-Sample Accuracy protocol (~3.5 h, not the 35-47 h task
+battery). Rationale, with sources in METHOD-REFERENCES.md:
+- Divergence instruments draw statistical power from TOKEN count; task benchmarks from PROBLEM
+  count. At n=65,536 tokens/domain/arm the standard error on mean KLD is sigma/256; HumanEval+ at
+  n=164 carries +/-4.6 points against arms separated by 1-3 points. The task batteries never could
+  rank these quants.
+- llama.cpp ships the instrument (llama-perplexity --kl-divergence-base / --kl-divergence, emitting
+  mean KLD with uncertainty, PPL ratio, dp percentiles, RMS dp, top-token agreement). Unsloth ranks
+  its released Dynamic GGUFs -- the very models under test -- on mean KL divergence. Fireworks uses
+  KLD + rejection rate for production quantization with a published threshold of KLD < 0.007, and
+  documents perplexity's AVERAGING BIAS (tokens made worse cancelled by tokens made better) as the
+  reason not to rank on PPL alone. LocalBench's GGUF benchmark uses ~250k tokens over 6 domains
+  reporting KLD on prompt tokens plus top-1 agreement, observing 0.01-0.03 for Q4_K_M.
+- Two domains: wikitext-2 (published convention, comparability) and the django code corpus (the
+  target workload -- published quant tables measure prose; this measures code). The code domain
+  carries the weight for the conclusion because Unsloth warns that wikitext-like evaluation data
+  overfits imatrix quants calibrated on wikitext-like data, and these GGUFs' calibration set is
+  not published in detail.
+- LIMITS TO STATE IN THE PAPER: divergence is measured against Q6_K_XL, not FP16 (no FP16 on the
+  host; a 27B F16 GGUF at ~54 GB exceeds free space) -- it is a ladder-relative measure; prompt-
+  token divergence is not generation quality; only two domains, no multilingual or tool-calling
+  coverage; the single generative task anchor is deliberately small (2 arms, paired per-problem
+  per Miller/Anthropic) and reported with its power.

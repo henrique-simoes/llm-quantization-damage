@@ -10,7 +10,7 @@ stage: S2-execute
 status: in-progress
 blocked_on: null
 last: { agent: claude-opus-5, at: 2026-08-30T03:40:00Z, ledger: L-5 }
-next_action: "AUTONOMOUS until the sweep ends. T4/T5 running detached (runner_wave1.sh sweep Q6_K_XL Q6_K Q4_K_XL, pid 1498430); finish_wave1.sh (pid 1661639) waits on it and then runs summarize_wave1.py + verify-sweep.sh --stage 1a. D3/A8 is automatic inside the Q6_K sweep. Do NOT start a second runner (flock, exit 3) and do NOT run verify-sweep.sh by hand while the GPU work is live. OWNER STEPS REMAINING: T3b delete-1b (Q6_K_XL) after its bracket reaches the ledger, then T6 close-out."
+next_action: "AUTONOMOUS until the sweep ends. T4/T5 running detached (runner_wave1.sh sweep Q6_K_XL Q6_K Q4_K_XL, pid 1498430); finish_wave1.sh (pid 1661639) waits on it and then runs summarize_wave1.py + verify-sweep.sh --stage 1a. D3/A8 is automatic inside the Q6_K sweep. Do NOT start a second runner (flock, exit 3) and do NOT run verify-sweep.sh by hand while the GPU work is live. T3b delete-1b is CANCELLED (DEC-9 — Q6_K_XL is kept as the 4th accuracy arm and the fidelity reference); Phase 1 closes on stage-1a + the A3 /srv/models waiver. AFTER Wave 1: T6 close-out, then WAVE 3 (accuracy, four arms, Stage A first) ahead of Wave 2 per DEC-10."
 conductor: { run: qbench-t1, shape: solo-architect, waves: 4, manifest: docs/build-stream/qbench-t1-waves.json, state: HALTED-verdict-repair-exhausted-2026-08-30T01:57Z, execution: hand-driven per DEC-8 }
 ```
 <!-- /STATUS BLOCK -->
@@ -758,6 +758,177 @@ the G18 untested quants · any deletion not on the DEC-4 list.
 
 <!-- /consensus-winning-plan:qbench-t1-8f05db1f10552b03a1beda52c51944302348a299695c65f02ac5aaaf34a64849 -->
 
+## Accuracy program — four-quant amendment (2026-08-30, DEC-9 + DEC-10)
+
+This section amends the §Benchmarks table for the four-arm active set. It does not redesign the
+suite: the instruments, the sweet spot and the order were approved under DEC-4 and are kept. What
+changes is the arm count, the comparison depth, and where accuracy sits in the wave order.
+
+### The rule that makes a four-quant comparison legitimate
+
+**COMMON-DEPTH RULE.** Q6_K_XL tops out at 212,992 while Q5_K_XL and Q6_K reach 262,144. Comparing
+each quant "at its own ceiling" confounds the quant with the depth it was measured at — and decode
+and fidelity are both strongly depth-dependent on this host. Therefore:
+
+> Every cross-quant accuracy cell runs at ONE common depth: `D_common = min(ceiling of the four
+> actives)`, provisionally **212,992** pending Q4_K_XL's ceiling from the running sweep. Each
+> quant's own ceiling is reported separately as a **context-axis** result, never mixed into an
+> accuracy table. A quant is never credited with accuracy at a depth another arm cannot reach.
+
+Each arm runs at its own winning `-ts` ratio (the ratio is a loading property, not a treatment):
+Q5_K_XL `54,46` · Q6_K_XL `56,44` · Q6_K and Q4_K_XL per the running sweep. All arms keep the
+Wave-1 configuration otherwise — `-sm layer`, q4_0 KV, MTP n=2, `-fit off`, `-ctxcp 4`, `-np 1`,
+DEC-2 official sampling for task benchmarks, greedy for logprob instruments.
+
+### Stage A — instruments that can actually rank the four quants (run FIRST)
+
+Cheap, sensitive, and the only things that answer "which quant is most accurate".
+
+| # | Instrument | Arms | Why it goes first | Est. |
+|---|---|---|---|---|
+| A1 | **E2 KV fidelity** — code-NLL f16 vs q4_0 at `D_common` and 32K | 4 | **Gates everything.** Every number this project has produced depends on q4_0 KV and nothing has ever validated it. If q4_0 costs fidelity, every config line changes. Decision rule already fixed: ΔNLL ≤ 3 % + divergence ≤ 6/256 | ~3-4 h |
+| A2 | **PPL Protocol 1**, full WikiText-2, 602 windows | 4 | most sensitive discriminator available (±0.041 SE, G22); Q6_K cell missing, Q6_K_XL cell new; comparable to Unsloth's published tables | ~30 min/arm |
+| A3 | **Code-NLL ladder (protocol-4)** at {32K, 64K, 128K, `D_common`} | 4 | the target-workload analogue — a coding agent's accuracy at depth, which is the actual Track A question | ~3-4 h |
+| A4 | **KL divergence vs Q6_K_XL** as reference arm | 3 vs ref | direct quant-degradation measure, the instrument Unsloth publishes; DEC-9(c) makes Q6_K_XL the natural reference | ~1-2 h |
+
+**Stage A output: a defensible accuracy ranking of the four quants, with CIs, in ~8-12 h.**
+This is the deliverable that has been missing.
+
+### Stage B — validators, not rankers (run after Stage A)
+
+These answer "is this configuration sane, and does it reproduce published numbers" — they do NOT
+rank the arms, and the plan must say so wherever they appear.
+
+| # | Instrument | Arms | n | What it can and cannot say | Est. |
+|---|---|---|---|---|---|
+| B1 | HumanEval+ non-thinking, full set | 4 | 164 | ±4.6 pts — sanity + empty-rate only | ~1 h/arm |
+| B2 | LiveCodeBench v6 subset (5-problem pilot first) | 4 | 100 | ±9-10 pts — validates against Qwen's official 90.3 | ~2 h setup + ~4 h |
+| B3 | SWE-bench Verified, 25-smoke → 50 stratified | 4 | 25/50 | ±12 pts at n=50 — config validator; eval images land on `/` | ~14-18 h |
+| B4 | Code-NIAH at depth + agentic steps | 4 | 36/arm | per-depth Wilson CIs; loop-vs-converge signal | ~8-10 h |
+
+Smoke-before-deploy stays a hard gate on every one of these, and `validate_v2.py` must pass at the
+launched configuration before any full run.
+
+### Why this order, in one line
+
+The four quants differ by 1-3 accuracy points. Stage B's instruments carry ±4.6 to ±12 points of
+uncertainty; Stage A's carry ±0.041. **Running Stage B first would spend 25-35 h of GPU to produce
+four overlapping intervals and no answer.**
+
+### What this costs and what it does not
+
+- Four arms instead of three: **+33 % on every accuracy cell**.
+- Nothing in Wave 1 is invalidated — the `-ts` ceilings and speed rows stand as measured.
+- No re-download, no new corpus: `wikitext2-test.txt` and the django corpus are both on disk, and
+  the `.venv-evalplus` / `.venv-swebench` environments already exist.
+- Wave 2 (MTP/DFlash) is not cancelled, only re-ordered after Wave 3.
+
+## Small-Sample Accuracy protocol (SSA) — supersedes the Stage A/B program (2026-08-30, DEC-11)
+
+Owner directive: the four-arm program above is days of GPU. Replace it with something an academic
+or ML-engineering reader would accept as a sound sample, in **hours**. This section is that
+protocol, with its methodology grounded in what the relevant labs and tools actually do.
+
+### The single fact the design turns on
+
+**Divergence instruments draw their statistical power from TOKEN count; task benchmarks draw theirs
+from PROBLEM count.** A coding benchmark has 164 problems and cannot be made bigger cheaply. A
+divergence measurement over the same wall-clock has tens of thousands of per-token observations, so
+its CLT standard error is smaller by orders of magnitude. That is why 30 minutes of KL divergence
+can rank four quants that 20 hours of task benchmarking cannot — and it is the accepted practice,
+not a shortcut:
+
+- **llama.cpp** ships this exact instrument: `llama-perplexity --kl-divergence-base <file>` records
+  reference logits, `--kl-divergence` scores a quant against them. One pass emits mean KLD with
+  uncertainty, PPL ratio, mean Δp for correct tokens, Δp percentiles, RMS Δp, and the frequency of
+  identical top-token assignments. Wikitext-2 is the stated convention.
+- **Unsloth** ranks its Dynamic GGUFs on **mean KL divergence** — 150+ benchmarks — and explicitly
+  warns that calibrating and evaluating on the same Wikipedia-like data overfits the metric.
+- **Fireworks** evaluates production quantization on KLD + token rejection rate, splits prefill from
+  generation, forces the quantized model to follow reference completions, and publishes a usable
+  threshold: **KLD < 0.007 for high-quality deployments**. They also state the reason to prefer KLD
+  over perplexity: PPL has an **averaging bias** — tokens made worse are cancelled by tokens made
+  better, so real degradation hides inside an unchanged mean.
+- **LocalBench's** GGUF quality benchmark uses **~250,000 tokens across 6 task domains**, reports
+  **KLD on prompt tokens only** plus **top-1 agreement %**, and observes KLD ≈ 0.01–0.03 for Q4_K_M.
+- **Miller (Anthropic), "Adding Error Bars to Evals"** supplies the statistics: CLT standard errors,
+  **paired per-question differences between models** rather than independent means, and power
+  analysis to size a comparison.
+
+### The protocol
+
+**Reference arm: UD-Q6_K_XL.** No FP16 exists on the host and a 27B F16 GGUF (~54 GB) exceeds free
+space on `/srv/models`. Every divergence figure is therefore **relative to the least-quantized
+available arm**, and must be labelled that way in every table — it measures ladder degradation, not
+absolute distance from the unquantized model. DEC-9(c) already assigned Q6_K_XL this role.
+
+**Sample: 65,536 tokens per domain per arm** (32 chunks × 2,048-token context, matching the ~2,048
+convention). Against LocalBench's 250k across 6 domains, this is 131k across the 2 domains that
+matter here. At n = 65,536 per-token observations the standard error on mean KLD is σ/256.
+
+| Step | What | Arms | Est. |
+|---|---|---|---|
+| **S0** | Smoke: 4-chunk run end-to-end, assert the KLD fields are populated and `validate_v2` passes at the launched config (hard gate, small-before-big) | 1 | ~10 min |
+| **S1** | Record reference logits from Q6_K_XL on both domains | ref | ~15 min |
+| **S2** | **D1 wikitext-2** — KLD + top-1 agreement + PPL, the published convention, gives comparability with Unsloth/llama.cpp tables | 3 | ~20 min |
+| **S3** | **D2 django code corpus** — same instrument on the target workload. This is the contribution: quant degradation measured on *code*, where the published tables measure prose | 3 | ~20 min |
+| **S4** | **E2 KV fidelity** — same instrument, `-ctk/-ctv f16` vs `q4_0`, on the reference arm. Non-negotiable: every number this project has produced rests on q4_0 KV and nothing has validated it | 1 | ~20 min |
+| **S5** | **HumanEval+ prompt-KLD** — the divergence instrument over the 164 task prompts with forced reference completions (the Fireworks method). Pure prefill, no generation | 3 | ~15 min |
+| **S6** | **Generative HumanEval+ on the two extremes only** (Q4_K_XL vs Q6_K_XL), scored as **paired per-problem differences**, seed-matched, official DEC-2 non-thinking sampling | 2 | ~2 h |
+| | | **total** | **~3.5 h** |
+
+### Why S6 is two arms and not four
+
+At n=164 the independent-comparison CI is ±4.6 points and the arms differ by 1–3 — four arms would
+buy four overlapping intervals. Two arms at the ladder's extremes, analysed **paired**, answers the
+only question a task benchmark can answer here: *is there a detectable task-level difference at all
+between the cheapest and the most faithful quant?* A null result is a publishable finding, not a
+failure — it is the empirical justification for ranking on divergence, and it is reported as such
+with its power stated.
+
+### What this yields for the paper
+
+Per arm, on two domains: mean KLD ± uncertainty, top-1 agreement %, Δp percentiles, RMS Δp, PPL and
+PPL ratio — plus a KV-dtype fidelity verdict and a paired task-level anchor. Pre-registered
+interpretation bands from the sources: **KLD < 0.007 high-quality (Fireworks)**; **0.01–0.03 the
+observed Q4_K_M range (LocalBench)**. Bands are cited as external reference points, not adopted as
+this project's pass/fail rule.
+
+### Honest limits, to be stated in the paper
+
+1. Divergence is measured against Q6_K_XL, not FP16 — a ladder-relative measure.
+2. Prompt-token divergence is not generation quality; S6 is the only generative evidence and it is
+   deliberately small and reported with its power.
+3. Both corpora are single-domain (English prose, Python/django). No multilingual or tool-calling
+   coverage, unlike LocalBench's 6 categories.
+4. Unsloth's calibration-contamination warning applies: these GGUFs' imatrix calibration data is not
+   published in detail, so a wikitext-favourable bias cannot be excluded — which is exactly why D2
+   (code) carries the weight for the Track A conclusion.
+5. Logits files are ~11 GB per domain; they land on `/` (82.9 GB free) and are deleted after use.
+
+### What SSA replaces and what it does not
+
+Replaces: Stage A's PPL/code-NLL/KLD program and Stage B's LCB v6, SWE-bench, NIAH and agentic runs
+**for the purpose of ranking quant accuracy**. Those remain in the plan as Phase 6-8 work if the
+owner ever wants published-anchor comparability; they are no longer on the critical path.
+Does not replace: Wave 1's context ceilings and speed rows (a different axis), or E2 (kept, as S4).
+
+DEC-11 | 2026-08-30 | S2-execute | owner | scope cut on the accuracy program
+Context: DEC-10's Stage A + Stage B program is 35-47 h of GPU across four arms. Owner: "we need a
+much, much smaller version... something that academia and AI Engineers and Researchers would accept
+as a good sample, but that won't take 3 or 4 entire days... hours, not days, and not many hours."
+Decision: adopt the **Small-Sample Accuracy protocol (SSA)** above — ~3.5 h, four arms, divergence-
+first, with a two-arm paired task anchor. Stage B's LCB v6 / SWE-bench / NIAH / agentic batteries
+come OFF the critical path; they stay in the plan as optional Phase 6-8 work.
+Why: the ranking question is answerable by KL divergence at a fraction of the cost, and doing so is
+established practice rather than a compromise — llama.cpp ships the instrument, Unsloth ranks its
+released quants on it, and Fireworks uses it for production quantization decisions with a published
+quality threshold. The task batteries were never able to rank arms separated by 1-3 points; keeping
+them on the critical path spent days to produce overlapping confidence intervals.
+Cost of the cut, stated: no comparability against Qwen's official LiveCodeBench 90.3 anchor, no
+agentic/SWE evidence, and no absolute-vs-FP16 distance (reference is Q6_K_XL). All four are
+recorded as paper limitations rather than silently dropped.
+
 ## Decision log
 
 <!-- consensus-winner-decision:qbench-t1-8f05db1f10552b03a1beda52c51944302348a299695c65f02ac5aaaf34a64849 -->
@@ -864,7 +1035,7 @@ longer reflects the work; read this file, not the watcher, for Wave-1 status. Th
 (pid 88692) is left running — its only remaining function is the 10-minute docs pull, which is
 harmless and keeps the mirror fresh.
 
-OPEN-1 | 2026-08-30T03:44Z | raised by agent, OWNER DECISION REQUIRED before T3b delete-1b
+OPEN-1 | 2026-08-30T03:44Z | RESOLVED 2026-08-30 by owner -> DEC-9 (KEEP Q6_K_XL). Original text kept below.
 Context: DEC-4 approved deleting the Q6_K_XL GGUF (25,299,061,664 B). At the time, Q6_K_XL was
 recorded as "best raw accuracy but 131,072 MTP ceiling" — the low ceiling was part of why it could
 go. That premise is now measured false. Under the DEC-7 ratio correction, Q6_K_XL loads at
@@ -879,6 +1050,45 @@ Consequences either way: deleting it frees the 25.3 GB that carries `/srv/models
 >=60x10^9 B A3 gate (38.9 + 25.3 = 64.2 GB) and the file is re-downloadable but not cheaply;
 keeping it means the A3 gate needs a different 25 GB or an owner waiver, and Phase 1 does not
 close. Nothing is deleted until this is answered — the sweep is not blocked by it.
+
+DEC-9 | 2026-08-30 | S2-execute | owner | resolves OPEN-1; supersedes DEC-4's delete of Q6_K_XL
+Context: DEC-4 approved deleting the Q6_K_XL GGUF while its ceiling was believed to be 131,072.
+Wave 1 measured 212,992 at `-ts 56,44` (G21 closed). Owner: "Do not delete Q6_K_XL, it became
+interesting with this new test, but we do need to test its accuracy in the official benchmarks
+against the others."
+Decision: (a) Q6_K_XL is NOT deleted; T3b delete-1b is cancelled. (b) The active set becomes FOUR
+quants — UD-Q4_K_XL, UD-Q5_K_XL, UD-Q6_K, UD-Q6_K_XL — for the accuracy program. (c) Q6_K_XL
+additionally serves as the fidelity REFERENCE arm for divergence-based instruments (it is the
+least-quantized model on the ladder).
+Why: the premise behind its deletion was measured false, and it is the only quant on the ladder
+whose accuracy has never been measured against the others — deleting it would have made that
+permanently unanswerable without a 25 GB re-download.
+Consequences, stated plainly:
+- **A3's `/srv/models` limb cannot be met** and is hereby WAIVED. Free space stays 38,924,001,280 B
+  against a >=60x10^9 B gate. The waiver is safe because that gate existed to leave room for model
+  downloads, and no further downloads are planned; the four actives are all resident. **A3's `/`
+  limb (>=55x10^9 B) is NOT waived** — it currently passes at 83,012,120,576 B and it is the limb
+  that matters, because SWE-bench eval images land on `/`. `verify-sweep.sh --stage 1b` and the
+  Phase-1 byte gate are re-scoped to the `/` limb only.
+- **Every accuracy cell costs +33 %** (4 arms instead of 3).
+- Phase 1 closes on the stage-1a verification plus this waiver, not on delete-1b.
+
+DEC-10 | 2026-08-30 | S2-execute | agent recommendation, owner may veto | wave order + accuracy design
+Context: Owner asked where the accuracy requirement went. It was never dropped: accuracy is Wave 3
+(Phases 6-8) in `qbench-t1-waves.json`, with the sweet-spot suite approved under DEC-4. Wave 1
+(running) measures context and speed only, by design — an accuracy benchmark at depth cannot be
+configured until the `-ts` sweep says what loads at what context. But Wave 2 (MTP/DFlash setting
+sweeps, ~6-10 h GPU) sits in front of Wave 3 without gating it.
+Decision: (a) **Run Wave 3 BEFORE Wave 2.** Accuracy is Track A priority (1); MTP/DFlash tuning is
+a speed optimisation that changes no accuracy verdict, and Wave 3's own gate (E2) must be answered
+before any config line is published anyway. Wave 2 keeps its content and moves after.
+(b) Within Wave 3, run the SENSITIVE instruments before the validators — see the accuracy program
+section below. (c) Adopt the common-depth rule below for all cross-quant accuracy comparison.
+Why: G22 is already in this plan and it is decisive — HumanEval+ at n=164 carries +/-4.6 pts,
+LCB v6 at n=100 carries +/-9-10, SWE-bench at n=50 carries +/-12, while the quants differ by 1-3
+points. **The task benchmarks cannot rank these four quants and were never able to.** PPL, code-NLL
+and KL divergence can. Running the expensive validators first would spend ~10-16 h of GPU to
+produce four overlapping confidence intervals and no ranking.
 
 ## Ledger
 
