@@ -823,6 +823,112 @@ four overlapping intervals and no answer.**
   the `.venv-evalplus` / `.venv-swebench` environments already exist.
 - Wave 2 (MTP/DFlash) is not cancelled, only re-ordered after Wave 3.
 
+## Small-Sample Accuracy protocol (SSA) — supersedes the Stage A/B program (2026-08-30, DEC-11)
+
+Owner directive: the four-arm program above is days of GPU. Replace it with something an academic
+or ML-engineering reader would accept as a sound sample, in **hours**. This section is that
+protocol, with its methodology grounded in what the relevant labs and tools actually do.
+
+### The single fact the design turns on
+
+**Divergence instruments draw their statistical power from TOKEN count; task benchmarks draw theirs
+from PROBLEM count.** A coding benchmark has 164 problems and cannot be made bigger cheaply. A
+divergence measurement over the same wall-clock has tens of thousands of per-token observations, so
+its CLT standard error is smaller by orders of magnitude. That is why 30 minutes of KL divergence
+can rank four quants that 20 hours of task benchmarking cannot — and it is the accepted practice,
+not a shortcut:
+
+- **llama.cpp** ships this exact instrument: `llama-perplexity --kl-divergence-base <file>` records
+  reference logits, `--kl-divergence` scores a quant against them. One pass emits mean KLD with
+  uncertainty, PPL ratio, mean Δp for correct tokens, Δp percentiles, RMS Δp, and the frequency of
+  identical top-token assignments. Wikitext-2 is the stated convention.
+- **Unsloth** ranks its Dynamic GGUFs on **mean KL divergence** — 150+ benchmarks — and explicitly
+  warns that calibrating and evaluating on the same Wikipedia-like data overfits the metric.
+- **Fireworks** evaluates production quantization on KLD + token rejection rate, splits prefill from
+  generation, forces the quantized model to follow reference completions, and publishes a usable
+  threshold: **KLD < 0.007 for high-quality deployments**. They also state the reason to prefer KLD
+  over perplexity: PPL has an **averaging bias** — tokens made worse are cancelled by tokens made
+  better, so real degradation hides inside an unchanged mean.
+- **LocalBench's** GGUF quality benchmark uses **~250,000 tokens across 6 task domains**, reports
+  **KLD on prompt tokens only** plus **top-1 agreement %**, and observes KLD ≈ 0.01–0.03 for Q4_K_M.
+- **Miller (Anthropic), "Adding Error Bars to Evals"** supplies the statistics: CLT standard errors,
+  **paired per-question differences between models** rather than independent means, and power
+  analysis to size a comparison.
+
+### The protocol
+
+**Reference arm: UD-Q6_K_XL.** No FP16 exists on the host and a 27B F16 GGUF (~54 GB) exceeds free
+space on `/srv/models`. Every divergence figure is therefore **relative to the least-quantized
+available arm**, and must be labelled that way in every table — it measures ladder degradation, not
+absolute distance from the unquantized model. DEC-9(c) already assigned Q6_K_XL this role.
+
+**Sample: 65,536 tokens per domain per arm** (32 chunks × 2,048-token context, matching the ~2,048
+convention). Against LocalBench's 250k across 6 domains, this is 131k across the 2 domains that
+matter here. At n = 65,536 per-token observations the standard error on mean KLD is σ/256.
+
+| Step | What | Arms | Est. |
+|---|---|---|---|
+| **S0** | Smoke: 4-chunk run end-to-end, assert the KLD fields are populated and `validate_v2` passes at the launched config (hard gate, small-before-big) | 1 | ~10 min |
+| **S1** | Record reference logits from Q6_K_XL on both domains | ref | ~15 min |
+| **S2** | **D1 wikitext-2** — KLD + top-1 agreement + PPL, the published convention, gives comparability with Unsloth/llama.cpp tables | 3 | ~20 min |
+| **S3** | **D2 django code corpus** — same instrument on the target workload. This is the contribution: quant degradation measured on *code*, where the published tables measure prose | 3 | ~20 min |
+| **S4** | **E2 KV fidelity** — same instrument, `-ctk/-ctv f16` vs `q4_0`, on the reference arm. Non-negotiable: every number this project has produced rests on q4_0 KV and nothing has validated it | 1 | ~20 min |
+| **S5** | **HumanEval+ prompt-KLD** — the divergence instrument over the 164 task prompts with forced reference completions (the Fireworks method). Pure prefill, no generation | 3 | ~15 min |
+| **S6** | **Generative HumanEval+ on the two extremes only** (Q4_K_XL vs Q6_K_XL), scored as **paired per-problem differences**, seed-matched, official DEC-2 non-thinking sampling | 2 | ~2 h |
+| | | **total** | **~3.5 h** |
+
+### Why S6 is two arms and not four
+
+At n=164 the independent-comparison CI is ±4.6 points and the arms differ by 1–3 — four arms would
+buy four overlapping intervals. Two arms at the ladder's extremes, analysed **paired**, answers the
+only question a task benchmark can answer here: *is there a detectable task-level difference at all
+between the cheapest and the most faithful quant?* A null result is a publishable finding, not a
+failure — it is the empirical justification for ranking on divergence, and it is reported as such
+with its power stated.
+
+### What this yields for the paper
+
+Per arm, on two domains: mean KLD ± uncertainty, top-1 agreement %, Δp percentiles, RMS Δp, PPL and
+PPL ratio — plus a KV-dtype fidelity verdict and a paired task-level anchor. Pre-registered
+interpretation bands from the sources: **KLD < 0.007 high-quality (Fireworks)**; **0.01–0.03 the
+observed Q4_K_M range (LocalBench)**. Bands are cited as external reference points, not adopted as
+this project's pass/fail rule.
+
+### Honest limits, to be stated in the paper
+
+1. Divergence is measured against Q6_K_XL, not FP16 — a ladder-relative measure.
+2. Prompt-token divergence is not generation quality; S6 is the only generative evidence and it is
+   deliberately small and reported with its power.
+3. Both corpora are single-domain (English prose, Python/django). No multilingual or tool-calling
+   coverage, unlike LocalBench's 6 categories.
+4. Unsloth's calibration-contamination warning applies: these GGUFs' imatrix calibration data is not
+   published in detail, so a wikitext-favourable bias cannot be excluded — which is exactly why D2
+   (code) carries the weight for the Track A conclusion.
+5. Logits files are ~11 GB per domain; they land on `/` (82.9 GB free) and are deleted after use.
+
+### What SSA replaces and what it does not
+
+Replaces: Stage A's PPL/code-NLL/KLD program and Stage B's LCB v6, SWE-bench, NIAH and agentic runs
+**for the purpose of ranking quant accuracy**. Those remain in the plan as Phase 6-8 work if the
+owner ever wants published-anchor comparability; they are no longer on the critical path.
+Does not replace: Wave 1's context ceilings and speed rows (a different axis), or E2 (kept, as S4).
+
+DEC-11 | 2026-08-30 | S2-execute | owner | scope cut on the accuracy program
+Context: DEC-10's Stage A + Stage B program is 35-47 h of GPU across four arms. Owner: "we need a
+much, much smaller version... something that academia and AI Engineers and Researchers would accept
+as a good sample, but that won't take 3 or 4 entire days... hours, not days, and not many hours."
+Decision: adopt the **Small-Sample Accuracy protocol (SSA)** above — ~3.5 h, four arms, divergence-
+first, with a two-arm paired task anchor. Stage B's LCB v6 / SWE-bench / NIAH / agentic batteries
+come OFF the critical path; they stay in the plan as optional Phase 6-8 work.
+Why: the ranking question is answerable by KL divergence at a fraction of the cost, and doing so is
+established practice rather than a compromise — llama.cpp ships the instrument, Unsloth ranks its
+released quants on it, and Fireworks uses it for production quantization decisions with a published
+quality threshold. The task batteries were never able to rank arms separated by 1-3 points; keeping
+them on the critical path spent days to produce overlapping confidence intervals.
+Cost of the cut, stated: no comparability against Qwen's official LiveCodeBench 90.3 anchor, no
+agentic/SWE evidence, and no absolute-vs-FP16 distance (reference is Q6_K_XL). All four are
+recorded as paper limitations rather than silently dropped.
+
 ## Decision log
 
 <!-- consensus-winner-decision:qbench-t1-8f05db1f10552b03a1beda52c51944302348a299695c65f02ac5aaaf34a64849 -->
