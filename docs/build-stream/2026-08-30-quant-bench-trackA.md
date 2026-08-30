@@ -1267,6 +1267,30 @@ Addendum 2026-08-30T03:41Z: `runner_wave1.sh` stops after its tsweeps — nothin
   bracket results reaching this ledger, and stays an owner action. A8 needs no step here — the
   D3 `-ctxcp` 4-vs-32 A/B runs inside the Q6_K sweep automatically (`tsweep_v2.run_d3`).
 
+Addendum 2026-08-30T04:19Z (autonomous chain built out): the box now runs the remainder of the
+  plan unattended in three stages, each waiting on the one before —
+  `runner_wave1.sh` (T4/T5 sweeps) -> `finish_wave1.sh` (summarize + verify-sweep --stage 1a)
+  -> `ssa_runner.sh` (SSA S0 gate, then S1-S4). Harness `experiments/ssa_kld.py` written and
+  deployed; mirrored to `data/raw/e12/harness-src/`.
+  Two safety properties were built in deliberately and both are verified:
+  (i) `ssa_kld.py` REFUSES to start while any GPU experiment is live (`pgrep` on the sweep and
+  on `llamasrv-e12`) — confirmed by running it during the sweep, which exited 4 without touching
+  the GPU; and it exits 2 rather than 0 when no cell succeeded (Wave-1 defect D5).
+  (ii) `ssa_runner.sh` waits on a CONDITION, not a pid. The first version waited on a pid from
+  `pgrep`, which returned the setsid PARENT (1661575) rather than the working child (1661639) —
+  the same parent/child split behind Wave-1 defect D6. Had the parent exited first, SSA would
+  have started during the finisher's ~60 GB sha256 pass. Rewritten to require that no
+  `finish_wave1.sh` process of any kind remains AND that the log carries the completion marker
+  the finisher writes only on a clean exit; if the marker is missing it aborts (exit 6) for a
+  human rather than proceeding. Caught before it could fire.
+  S0 is a real gate: a 4-chunk end-to-end run must exit 0 with populated KLD fields before the
+  full budget is spent; on failure the chain stops and does NOT fall through.
+  Still requiring a harness that does not exist: S5 (HumanEval+ prompt-KLD) and S6 (generative
+  HumanEval+, 2 arms, paired). Also noted from `llama-perplexity --help`: `--hellaswag`,
+  `--winogrande` and `--multiple-choice` are built into the same binary and are logprob-scored
+  (no generation), so a standard task anchor is available at near-zero GPU cost — proposed as an
+  optional S7, not adopted without an owner call.
+
 
 ### L-6 | 2026-08-30T04:15:00Z | S2-execute | claude-opus-5 | conductor-manager | Wave-1 continuation, accuracy-scope decisions, host telemetry <!-- bsc-ledger:qbench-t1-SSA -->
 Did: (a) OWNER DECISIONS recorded: DEC-9 (Q6_K_XL is NOT deleted — its measured 212,992 ceiling
