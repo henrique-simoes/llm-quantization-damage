@@ -1,0 +1,17 @@
+verify-ok: gone: /srv/models/Qwen3.8-27B-UD-IQ4_XS.gguf
+verify-ok: gone: /srv/models/.hf-cache/models--unsloth--Qwen3.8-27B-NVFP4
+verify-ok: no vLLM images
+verify-ok: sha256 Qwen3.8-27B-UD-Q4_K_XL.gguf
+verify-ok: sha256 Qwen3.8-27B-UD-Q5_K_XL.gguf
+verify-ok: sha256 Qwen3.8-27B-UD-Q6_K.gguf
+verify-ok: keep /srv/models/dflash2/Qwen3.8-27B-DFlash2-Q4_K_M.gguf
+verify-ok: keep /srv/engines/nvfp4
+verify-ok: keep /srv/models/.hf-cache/hub
+verify-ok: keep /srv/models/.hf-cache/models--z-lab--Qwen3.8-27B-DFlash2
+verify-ok: keep /srv/bench/champion-20260821
+verify-ok: keep /srv/bench/e11
+verify-ok: llama.cpp engine images present
+verify-ok: 6 telemetry containers Up
+verify-ok: 6 state/*.done markers intact
+VERIFY-FAIL: 7 empty e12 serverlogs
+verify-sweep stage 1a: rc=1

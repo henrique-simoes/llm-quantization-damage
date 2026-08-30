@@ -1,5 +1,5 @@
 {
- "updated_utc": "2026-08-30T08:15:43Z",
+ "updated_utc": "2026-08-30T08:18:49Z",
  "supervisor_pid": 1846476,
  "steps": [
   {
@@ -9,6 +9,14 @@
    "log": "/srv/bench/e12/logs/summarize.log",
    "note": "",
    "at": "2026-08-30T08:15:43Z"
+  },
+  {
+   "name": "verify_1a",
+   "status": "failed",
+   "rc": 1,
+   "log": "/srv/bench/e12/logs/verify_1a.log",
+   "note": "skipped, continuing",
+   "at": "2026-08-30T08:18:49Z"
   }
  ],
  "started_utc": "2026-08-30T04:31:27Z"
