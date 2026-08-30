@@ -38,3 +38,7 @@ SWEEP Q6_K DONE in 118.1 min, 7 ok cells -> /srv/bench/e12/tsweep-v2-Q6_K.json
    {"ok": true, "stage": "done", "failure_mode": null, "decode_tok_s": 11.806777572488205, "prefill_tok_s": 606.9699352226893, "prefill_frac": 0.9467, "mtp_acceptance": 0.4948, "vram_peak_mib": [12754, 14016], "imbalance_mib": 1262, "error": ""}
    {"ok": true, "stage": "done", "failure_mode": null, "decode_tok_s": 11.825158042308557, "prefill_tok_s": 606.6695191738105, "prefill_frac": 0.9467, "mtp_acceptance": 0.4948, "vram_peak_mib": [11574, 15198], "imbalance_mib": 3624, "error": ""}
 === climb: 229376 -> 245760 with winner None
+   {"ok": true, "stage": "done", "failure_mode": null, "decode_tok_s": 12.018184835026503, "prefill_tok_s": 585.0692521124902, "prefill_frac": 0.9478, "mtp_acceptance": 0.5642, "vram_peak_mib": [11844, 15598], "imbalance_mib": 3754, "error": ""}
+   {"ok": true, "stage": "done", "failure_mode": null, "decode_tok_s": 12.0074622291445, "prefill_tok_s": 582.1198894421796, "prefill_frac": 0.9478, "mtp_acceptance": 0.5642, "vram_peak_mib": [13042, 14398], "imbalance_mib": 1356, "error": ""}
+=== climb: 245760 -> 262144 with winner None
+   {"ok": true, "stage": "done", "failure_mode": null, "decode_tok_s": 12.137190155328073, "prefill_tok_s": 544.9817022966895, "prefill_frac": 0.948, "mtp_acceptance": 0.6176, "vram_peak_mib": [12116, 15094], "imbalance_mib": 2978, "error": ""}
