@@ -76,46 +76,70 @@ def parse(out, bench):
     return m
 
 def main():
+    """Owner-scoped 2026-08-30: HellaSwag only, 400 tasks, all four arms (~99 min measured).
+
+    Winogrande is dropped -- its 1,267 tasks cost ~69 min/arm on their own, disproportionate for a
+    second general-reasoning benchmark that, like HellaSwag, cannot rank these arms. HellaSwag is
+    the one the arXiv llama.cpp quantization paper (METHOD-REFERENCES R7) used, so it carries the
+    comparability argument.
+
+    Measured cost basis: 250 s fixed model load per cell + 3.08 s per task.
+
+    Resumable: a cell already scored in the results file is skipped, so a restart resumes.
+    The FIRST cell acts as the gate -- if it does not produce a parsed accuracy, stop rather than
+    spend the remaining budget (the parser was already verified against the pilot log, but a gate
+    that costs nothing when it passes is worth keeping).
+    """
     if K.gpu_busy():
         print("REFUSING: a GPU experiment is running"); sys.exit(4)
     os.makedirs("/srv/bench/e12/ssa", exist_ok=True)
 
+    TASKS = 400
     prov = json.load(open(f"{CORPUS}/s7-data-provenance.json"))
     data = {"experiment": "ssa-s7", "source": "e12-ssa", "run_ids": ["ssa-s7"],
-            "protocol": "SSA S7 — logprob-scored multiple-choice anchors (HellaSwag, Winogrande)",
-            "purpose": "face validity and comparability with published tables; NOT a quant ranker",
-            "data_provenance": prov, "seed": K.SEED, "kv": "q4_0",
+            "protocol": "SSA S7 - HellaSwag, logprob-scored, 400 tasks x 4 arms",
+            "scope_note": ("owner-scoped to HellaSwag only; Winogrande dropped as disproportionate "
+                           "(~69 min/arm) for a second benchmark that also cannot rank the arms"),
+            "purpose": "FACE VALIDITY and comparability with published tables; NOT a quant ranker",
+            "power_note": ("at n=400 the binomial 95% interval is roughly +/-4-5 points while the "
+                           "arms are separated by 1-3 points on task benchmarks -- this design "
+                           "CANNOT rank them and is not intended to. PN-13/PN-21 rank them."),
+            "cost_basis": {"model_load_seconds": 250, "seconds_per_task": 3.08,
+                           "source": "measured from the 25-task pilot, not estimated"},
+            "data_provenance": prov, "tasks": TASKS, "seed": K.SEED, "kv": "q4_0",
             "image_id": K.image_id(),
             "started_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
             "cells": []}
+    if os.path.exists(OUT):
+        try:
+            prev = json.load(open(OUT))
+            if prev.get("tasks") == TASKS:
+                data = prev; data["cells"] = prev.get("cells", [])
+        except Exception:
+            pass
+    done = {c["arm"] for c in data["cells"]
+            if c.get("bench") == "hellaswag" and c.get("tasks") == TASKS and c.get("ok")}
 
-    # --- PILOT (small-tests-first is a hard gate) -------------------------------
-    print("=== pilot: HellaSwag 25 tasks on the reference arm ===", flush=True)
-    pilot = run("Q6_K_XL", "hellaswag", 25)
-    data["cells"].append(pilot); data["pilot"] = pilot
-    json.dump(data, open(OUT, "w"), indent=1)
-    print(f"pilot rc={pilot['rc']} {pilot['seconds']}s score={pilot['score']}", flush=True)
-    if not pilot["ok"] or "acc_pct" not in pilot["score"]:
-        print("PILOT GATE FAILED — not spending the budget. Inspect", pilot["serverlog"])
-        sys.exit(2)
-
-    # size the real run from what the pilot actually cost (~10 min/arm budget)
-    per_task = max(pilot["seconds"] / 25.0, 0.01)
-    hs_tasks = int(max(200, min(2000, 600 / per_task)))
-    print(f"pilot: {per_task:.2f}s/task -> HellaSwag n={hs_tasks} per arm", flush=True)
-    data["sizing"] = {"pilot_seconds_per_task": round(per_task, 3), "hellaswag_tasks": hs_tasks}
-
-    for arm in ARMS:
-        for bench, n in (("hellaswag", hs_tasks), ("winogrande", 1267)):
-            c = run(arm, bench, n)
-            data["cells"].append(c)
+    for i, arm in enumerate(ARMS):
+        if arm in done:
+            print(f"skip {arm} (already scored)", flush=True); continue
+        c = run(arm, "hellaswag", TASKS)
+        data["cells"].append(c)
+        json.dump(data, open(OUT, "w"), indent=1)
+        sc = c["score"]
+        print(f"  {arm:<9} rc={c['rc']} {c['seconds']:>6.0f}s  acc_norm="
+              f"{sc.get('acc_pct')}  CI95=[{sc.get('ci95_lo_pct')}, {sc.get('ci95_hi_pct')}]",
+              flush=True)
+        if i == 0 and not c["ok"]:
+            print("GATE: first cell produced no parsed accuracy - stopping, budget not spent.")
+            print("      inspect", c["serverlog"])
+            data["finished_utc"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
             json.dump(data, open(OUT, "w"), indent=1)
-            print(f"  {arm:<9} {bench:<11} n={n:<5} rc={c['rc']} {c['seconds']:>6.0f}s "
-                  f"score={c['score'].get('acc_pct')}", flush=True)
+            sys.exit(2)
 
     data["finished_utc"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     json.dump(data, open(OUT, "w"), indent=1)
-    nok = sum(1 for c in data["cells"] if c["ok"] and "acc_pct" in c["score"])
+    nok = sum(1 for c in data["cells"] if c.get("ok"))
     print(f"S7 done: {nok}/{len(data['cells'])} cells scored -> {OUT}")
     sys.exit(0 if nok else 2)
 
