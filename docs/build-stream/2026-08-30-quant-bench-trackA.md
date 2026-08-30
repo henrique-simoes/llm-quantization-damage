@@ -1416,3 +1416,46 @@ Verified: progress.json summary ok=6 failed=[verify_1a] skipped=[]; finished_utc
   autonomous pushes; the 7 empty serverlogs enumerated with timestamps confirming the race window.
 Next: T6 close-out for Wave 1 + SSA. Then the two human items above, the S5/S6 harnesses, and the
   S7 owner call (`--hellaswag`/`--winogrande`, free in the same binary). Waves 2 and 4 remain.
+
+
+### L-9 | 2026-08-30T12:30:00Z | S2-execute | claude-opus-5 | conductor-manager | T6 CLOSE-OUT — Wave 1 + SSA closed, all acceptance criteria met <!-- bsc-ledger:qbench-t1-T6 -->
+Did: (a) EVIDENCE SECURED BEFORE ANY DELETION, in that order. Pulled all 9 SSA serverlogs to
+  `data/raw/e12/serverlogs/` — the raw source every published number was recovered from (PN-17) —
+  and verified locally that all 7 kld cells carry `mean_kld` and all 3 base cells carry `ppl`
+  before touching anything.
+  (b) 50 GB RECLAIMED. Deleted the five `*.kld` reference-logit files after four checks: no GPU or
+  eval process running, 7/7 kld cells' metrics extracted, 9 serverlogs intact on the host, and no
+  remaining consumer — every arm is measured, and S5 needs a base over the HumanEval+ prompt
+  corpus, which these files are not. `/` went 87 % -> 63 % used, 28 GB -> 77 GB free.
+  (c) A2 / verify_1a RESOLVED HONESTLY, not silenced. All 7 empty serverlogs fall inside
+  02:55:04-02:55:52Z — the D6 double-runner race window — and 4 are the recovery path's own
+  `e12-stale-recover-*` artifacts. These are the D4 "stillborn container" class: killed between
+  `docker run -d` and start, so they never produced output and no evidence was lost, which is
+  categorically different from a started container whose log went missing. They were MOVED to
+  `quarantine/empty-serverlogs/` with a `REGISTER.json` recording each file, its timestamp, its
+  class, cause, and an explicit `evidence_lost: false`. **A2's check itself was left exactly as
+  strict as it was** — it will still fail on a genuinely empty log from a container that ran.
+  `verify-sweep.sh --stage 1a` re-run: **rc=0**.
+  (d) ACCEPTANCE CRITERIA, checked rather than asserted: A1 harness gate green (C1-C4 + F1-F4);
+  A2 green (above); A3 `/` limb 77 GB >= 55e9 B, `/srv/models` limb waived under DEC-9 with reasons
+  recorded; A4 provenance repaired (UD-Q6_K sha256 pinned, RepoDigests present); A5 G13 closed —
+  all six ratio cells present for Q4_K_XL, Q5_K_XL and Q6_K, and the DEC-7-corrected five for
+  Q6_K_XL, with `imbalance_mib` on every cell in all four artifacts; A6 ceilings bracketed with a
+  failed rung above attempted twice; A7 G21 closed positively at 212,992; A8 answered — adopt
+  `-ctxcp 32`; A9 this entry plus PN-13..PN-18 and the sync below.
+  (e) MINOR DEFECT RECORDED, not repaired: `ssa_kld.py`'s serverlog label omits the KV dtype, so
+  the f16 base run overwrote the q4_0 base run's log for the same arm+domain (both are
+  `ssa-Q6_K_XL-code-base`). Only 9 of 10 logs survive as distinct files. No number is affected —
+  both PPL values are in the JSON — but the label should include `kv` before any re-run.
+Result: **Wave 1 and SSA are CLOSED.** Track A has all three axes for the first time: accuracy
+  (SSA divergence ranking, both domains, E2 closed), context (four bracketed ceilings) and speed.
+  Nothing is running on the GPU. No data was lost anywhere in the deletion or the quarantine.
+Verified: `verify-sweep.sh --stage 1a` rc=0 with "no empty e12 serverlogs"; `df -h /` 77 G avail;
+  `ls /srv/bench/e12/ssa/` = 3 JSON files, no `.kld`; quarantine REGISTER.json holds 7 entries;
+  9 serverlogs present locally with the raw `Mean KLD` line confirmed in a spot-check; A5 cell and
+  ratio counts enumerated per quant; git hub and tar sync both updated.
+Next: no autonomous work remains — every queued step has run. Outstanding items ALL need a human
+  decision or unwritten code: S5 (HumanEval+ prompt-KLD harness), S6 (generative HumanEval+, 2 arms
+  paired), S7 (owner call on the free `--hellaswag`/`--winogrande` anchors), Wave 2 (MTP/DFlash
+  sweeps), Wave 4 (speed/energy curve, Track A decision procedure, docs graduation into CLAUDE.md
+  and PAPER-REFERENCES.md). The halted conductor's stale reviewer task also remains open.

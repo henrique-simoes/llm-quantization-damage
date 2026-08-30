@@ -1,0 +1,78 @@
+{
+ "register": "empty-serverlogs",
+ "created_utc": "2026-08-30T12:15:38Z",
+ "acceptance_criterion": "A2",
+ "count": 7,
+ "disposition": "moved to quarantine, NOT deleted; A2's check left unchanged",
+ "window": "all entries fall inside 2026-08-30T02:55:04Z-02:55:52Z",
+ "related": [
+  "WAVE1-REVIEW.md defect D4 (stillborn containers)",
+  "WAVE1-REVIEW.md defect D6 (no single-instance guard)",
+  "PN-10 (unattended-runner defects)"
+ ],
+ "entries": [
+  {
+   "file": "e12-Q4_K_XL-c196608-tsdefault.serverlog",
+   "bytes": 0,
+   "mtime_utc": "2026-08-30T02:55:52Z",
+   "class": "stillborn-container (D4)",
+   "cause": "D6 double-runner race, 2026-08-30T02:55Z window",
+   "evidence_lost": false,
+   "reason": "container killed between `docker run -d` and start; it never produced output, so no evidence was lost. Distinct from a started container whose log went missing, which A2 must still fail on."
+  },
+  {
+   "file": "e12-Q6_K_XL-c163840-ts54_46.serverlog",
+   "bytes": 0,
+   "mtime_utc": "2026-08-30T02:55:32Z",
+   "class": "stillborn-container (D4)",
+   "cause": "D6 double-runner race, 2026-08-30T02:55Z window",
+   "evidence_lost": false,
+   "reason": "container killed between `docker run -d` and start; it never produced output, so no evidence was lost. Distinct from a started container whose log went missing, which A2 must still fail on."
+  },
+  {
+   "file": "e12-Q6_K_XL-c163840-ts56_44.serverlog",
+   "bytes": 0,
+   "mtime_utc": "2026-08-30T02:55:32Z",
+   "class": "stillborn-container (D4)",
+   "cause": "D6 double-runner race, 2026-08-30T02:55Z window",
+   "evidence_lost": false,
+   "reason": "container killed between `docker run -d` and start; it never produced output, so no evidence was lost. Distinct from a started container whose log went missing, which A2 must still fail on."
+  },
+  {
+   "file": "e12-stale-recover-1788058504.serverlog",
+   "bytes": 0,
+   "mtime_utc": "2026-08-30T02:55:04Z",
+   "class": "stillborn-container (D4)",
+   "cause": "D6 double-runner race, 2026-08-30T02:55Z window",
+   "evidence_lost": false,
+   "reason": "container killed between `docker run -d` and start; it never produced output, so no evidence was lost. Distinct from a started container whose log went missing, which A2 must still fail on."
+  },
+  {
+   "file": "e12-stale-recover-1788058531.serverlog",
+   "bytes": 0,
+   "mtime_utc": "2026-08-30T02:55:31Z",
+   "class": "stillborn-container (D4)",
+   "cause": "D6 double-runner race, 2026-08-30T02:55Z window",
+   "evidence_lost": false,
+   "reason": "container killed between `docker run -d` and start; it never produced output, so no evidence was lost. Distinct from a started container whose log went missing, which A2 must still fail on."
+  },
+  {
+   "file": "e12-stale-recover-1788058532.serverlog",
+   "bytes": 0,
+   "mtime_utc": "2026-08-30T02:55:32Z",
+   "class": "stillborn-container (D4)",
+   "cause": "D6 double-runner race, 2026-08-30T02:55Z window",
+   "evidence_lost": false,
+   "reason": "container killed between `docker run -d` and start; it never produced output, so no evidence was lost. Distinct from a started container whose log went missing, which A2 must still fail on."
+  },
+  {
+   "file": "e12-stale-recover-1788058551.serverlog",
+   "bytes": 0,
+   "mtime_utc": "2026-08-30T02:55:51Z",
+   "class": "stillborn-container (D4)",
+   "cause": "D6 double-runner race, 2026-08-30T02:55Z window",
+   "evidence_lost": false,
+   "reason": "container killed between `docker run -d` and start; it never produced output, so no evidence was lost. Distinct from a started container whose log went missing, which A2 must still fail on."
+  }
+ ]
+}

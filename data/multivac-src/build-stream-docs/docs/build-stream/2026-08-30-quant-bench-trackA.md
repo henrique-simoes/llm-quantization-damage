@@ -1374,3 +1374,45 @@ Next: unattended — sweep finishes -> summarize -> verify-sweep --stage 1a -> S
   S1-S4 -> final report, with per-step logs and git pushes throughout. On return read
   `state/progress.json` first: it names every step, its rc, and its log. Still needing a human:
   S5/S6 harnesses (not written), the S7 owner call, T6 close-out, and Waves 2 and 4.
+
+
+### L-8 | 2026-08-30T12:00:00Z | S2-execute | claude-opus-5 | conductor-manager | Wave 1 COMPLETE + SSA accuracy ranking obtained <!-- bsc-ledger:qbench-t1-SSA-RESULTS -->
+Did: Reviewed the unattended run (04:31Z-10:27Z, no human, no agent). The supervisor completed
+  6 of 7 steps green, skipped the one failure exactly as designed, and pushed to the git hub after
+  every step (35 commits). keepalive exited having made 0 restarts — the supervisor never died.
+  (a) WAVE 1 COMPLETE, all four arms. Every quant reaches the full native 262,144 window once
+  rebalanced except Q6_K_XL at 212,992; all four gained over their default-split ceilings
+  (+65,536 x3, +81,920 for Q6_K_XL). Fastest at 262,144 is Q4_K_XL @ `-ts 56,44`, 13.33 tok/s.
+  A8/D3 CLOSED: `-ctxcp 32` gains 6.8 % decode and 7.6 % prefill at identical VRAM -> adopt (PN-18).
+  (b) SSA S0-S4 COMPLETE — the accuracy ranking this project has never had. Non-overlapping CIs,
+  monotone in both domains, 3.7-11.8 sigma between adjacent arms (PN-13). Headline: **code
+  degrades ~2x more than prose and the gap widens with more aggressive quantization** (1.75x /
+  2.30x / 2.62x) — prose-corpus quant tables understate the cost for coding work (PN-14).
+  E2 CLOSED: q4_0 KV costs 0.002955 KLD, 51 % of a whole quant level, top-1 99.401 % — defensible
+  but not free, and PPL moved only +0.15 % on the identical pair, a clean demonstration of the
+  averaging bias that disqualifies PPL as the ranker (PN-15).
+  (c) HARNESS DEFECT found, diagnosed and fixed WITHOUT re-running anything. All ten KLD cells
+  exited 0, were marked ok, and parsed EMPTY: the patterns expected ASCII "+/-" and llama.cpp
+  emits Unicode "±"/"Δ". Recovered every cell from the serverlogs via `ssa_reparse.py` — which
+  was possible only because hard rule 2 had persisted full stdout before each teardown. Fixed at
+  source in `ssa_kld.py`: patterns accept either form, and a kld cell without `mean_kld` is no
+  longer reported ok. Written up as method, PN-17.
+Result: Track A now has all three axes for the first time — accuracy (SSA), context and speed
+  (Wave 1). The ~3.5 h estimate for SSA was accurate: S0-S4 ran 08:22-10:27Z. DEC-11's bet paid
+  off — divergence separated the arms decisively in the time a single HumanEval+ arm would have
+  taken, and would still have been unable to rank them.
+  TWO ITEMS NEED A HUMAN, neither urgent, both deliberately left alone: (1) `verify_1a` failed on
+  "7 empty e12 serverlogs" — all seven are timestamped 02:55:04-02:55:52Z, exactly the D6
+  double-runner race window, and four are named `e12-stale-recover-*`. This is residue of a defect
+  already found, fixed and documented, NOT a new fault; it wants an acknowledge-and-clean plus a
+  verify-sweep amendment that distinguishes race residue from live evidence loss, not a re-run.
+  (2) `/srv/bench/e12/ssa` holds 50 GB of `*.kld` logits (3 x 16.26 GB + 2 x 2.03 GB smoke) with
+  `/` at 87 % (28 GB free). Results are fully extracted, so they are safe to delete and doing so
+  returns `/` to ~78 GB — but they are root-owned and deletion is irreversible, so it stays an
+  owner call.
+Verified: progress.json summary ok=6 failed=[verify_1a] skipped=[]; finished_utc 10:27:39Z;
+  keepalive log "0 restart(s)"; all 10 SSA cells recovered by ssa_reparse.py; patched ssa_kld.py
+  compiles and both fixes present at lines 98 and 110; git hub at 35 commits with per-step
+  autonomous pushes; the 7 empty serverlogs enumerated with timestamps confirming the race window.
+Next: T6 close-out for Wave 1 + SSA. Then the two human items above, the S5/S6 harnesses, and the
+  S7 owner call (`--hellaswag`/`--winogrande`, free in the same binary). Waves 2 and 4 remain.

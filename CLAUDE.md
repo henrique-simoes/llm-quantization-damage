@@ -141,9 +141,9 @@ Live checklist — update it as things land. `[~]` = running unattended.
 - [x] T4 Q6_K sweep — 262,144 @ `-ts 58,42`; **A8 closed: adopt `-ctxcp 32`** (+6.8 % decode, same VRAM)
 - [x] T4 Q4_K_XL sweep — **262,144 @ `-ts 56,44`, 13.33 tok/s — fastest arm at the full window**
 - [x] `summarize_wave1.py` → all four arms in `wave1-summary.md`
-- [!] `verify-sweep.sh --stage 1a` **FAILED** — 7 empty serverlogs, all 02:55Z = D6 race residue, not new. Needs acknowledge-and-clean + a check that distinguishes race residue from real evidence loss
-- [ ] ~~T3b delete-1b~~ **cancelled, DEC-9**
-- [ ] T6 close-out: ledger entry, paper notes, findings register, status block
+- [x] `verify-sweep.sh --stage 1a` **rc=0 green** — 7 race-residue empty logs quarantined with a register; the check itself was left as strict as it was
+- [x] ~~T3b delete-1b~~ cancelled (DEC-9); `/srv/models` A3 limb waived, `/` limb passes
+- [x] T6 close-out — all acceptance criteria A1-A9 met (L-9)
 
 ### Wave 3 — accuracy (SSA, ~3.5 h) — *runs before Wave 2, DEC-10*
 - [x] S0 smoke gate
@@ -155,7 +155,7 @@ Live checklist — update it as things land. `[~]` = running unattended.
 - [ ] S6 generative HumanEval+, Q4_K_XL vs Q6_K_XL, paired per-problem — **harness not written**
 - [ ] S7 *(optional, owner call)* `--hellaswag` / `--winogrande` — built into `llama-perplexity`,
       logprob-scored, near-zero GPU cost, gives comparability with published task tables
-- [!] Delete the `*.kld` logits — **50 GB, `/` at 87 %**, results extracted, safe; root-owned, owner call
+- [x] Deleted the `*.kld` logits — 50 GB reclaimed, `/` 87 % -> 63 %; serverlogs pulled locally first
 
 ### Wave 2 — MTP/DFlash sweeps (Phases 4–5), *deferred behind Wave 3*
 - [ ] G17 `reasoning_effort` equivalence · [ ] G8 MTP losslessness at temp>0 · [ ] presence-penalty probe
