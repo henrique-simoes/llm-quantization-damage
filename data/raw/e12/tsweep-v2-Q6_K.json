@@ -604,16 +604,114 @@
    "mtp_acceptance": 0.6105,
    "truncated": false,
    "finished_utc": "2026-08-30T05:30:18Z"
+  },
+  {
+   "key": "262144:58,42:1:ctxcp32",
+   "ctx_requested": 262144,
+   "ts": "58,42",
+   "rep": 1,
+   "tag": "ctxcp32",
+   "ctxcp": 32,
+   "ok": true,
+   "stage": "done",
+   "failure_mode": null,
+   "error": "",
+   "n_ctx_reported": 262144,
+   "command": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 58,42 -c 262144 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --spec-type draft-mtp --spec-draft-n-max 2 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "prefill_tokens": 248522,
+   "prefill_frac": 0.948,
+   "prefill_tok_s": 504.3399235580491,
+   "decode_tok_s": 11.481635304670002,
+   "n_predict": 192,
+   "seed": 20260831,
+   "sampling": {
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "top_k": 20,
+    "min_p": 0.0,
+    "presence_penalty": 1.5,
+    "repeat_penalty": 1.0
+   },
+   "spec_live": true,
+   "draft_n": 174,
+   "draft_n_accepted": 103,
+   "vram_peak_mib": [
+    15322,
+    15082
+   ],
+   "vram_prefill_end_mib": [
+    15320,
+    15080
+   ],
+   "imbalance_mib": 240,
+   "imbalance_timealigned_mib": 2518,
+   "load_seconds": 260,
+   "serverlog": "/srv/bench/server-timings/e12-Q6_K-c262144-ts58_42-ctxcp32.serverlog",
+   "serverlog_bytes": 21580,
+   "free_bytes": {
+    "/srv/models": {
+     "available": 38924001280
+    },
+    "/": {
+     "available": 82778886144
+    }
+   },
+   "when_utc": "2026-08-30T05:30:19Z",
+   "prefill_target_tokens": 248524,
+   "mtp_acceptance": 0.592,
+   "truncated": false,
+   "finished_utc": "2026-08-30T05:43:28Z"
   }
  ],
- "best": null,
+ "best": {
+  "ctx": 262144,
+  "ts": "58,42",
+  "decode_tok_s": 10.749014396982263,
+  "decode_tok_s_rep1": 10.749014396982263,
+  "decode_tok_s_median3": 11.902286341964402,
+  "selected_on": "median_of_3",
+  "imbalance_mib": 240,
+  "mtp_acceptance": 0.592,
+  "key": "262144:58,42:1:base",
+  "rule": "max decode_tok_s; D2 median-of-3 on contest; ties: smaller |imbalance|, then ratio nearer default"
+ },
  "best_speed": 262144,
  "best_at_ceiling": null,
  "ceiling": {
   "ctx": 262144,
   "note": "262,144 is the engine/native maximum \u2014 no rung above exists to bracket; historical failed rungs BELOW it are recorded per-cell with classified modes"
  },
- "d3": null,
+ "d3": {
+  "ctxcp4": {
+   "key": "262144:58,42:1:base",
+   "vram_peak_mib": [
+    15322,
+    15082
+   ],
+   "imbalance_mib": 240,
+   "decode_tok_s": 10.749014396982263,
+   "prefill_tok_s": 468.65476961321923,
+   "n_ctx_reported": 262144
+  },
+  "ctxcp32": {
+   "key": "262144:58,42:1:ctxcp32",
+   "vram_peak_mib": [
+    15322,
+    15082
+   ],
+   "imbalance_mib": 240,
+   "decode_tok_s": 11.481635304670002,
+   "prefill_tok_s": 504.3399235580491,
+   "n_ctx_reported": 262144
+  },
+  "delta_vram_mib": [
+   0,
+   0
+  ],
+  "delta_decode_frac": 0.0682,
+  "verdict": "adopt ctxcp 32 for Waves 2-4 (delta within R2 noise: |dv|<=200 MiB and |d_decode|<=10%)"
+ },
  "g21": null,
  "env": {
   "source": "e12-wave1",
@@ -669,6 +767,20 @@
   },
   "extra": {
    "mode": "speed"
+  }
+ },
+ "d2": {
+  "contested": [
+   "58,42",
+   "56,44"
+  ],
+  "base": {
+   "58,42": 10.749014396982263,
+   "56,44": 10.219966861623682
+  },
+  "median_of_3": {
+   "58,42": 11.902286341964402,
+   "56,44": 11.714199535627051
   }
  }
 }

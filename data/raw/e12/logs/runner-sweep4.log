@@ -23,3 +23,10 @@ SWEEP Q6_K_XL DONE in 48.3 min, 2 ok cells -> /srv/bench/e12/tsweep-v2-Q6_K_XL.j
    {"ok": true, "stage": "done", "failure_mode": null, "decode_tok_s": 11.902286341964402, "prefill_tok_s": 501.9354959265168, "prefill_frac": 0.948, "mtp_acceptance": 0.6105, "vram_peak_mib": [15322, 15082], "imbalance_mib": 240, "error": ""}
    {"ok": true, "stage": "done", "failure_mode": null, "decode_tok_s": 14.992202484843746, "prefill_tok_s": 506.14894533620304, "prefill_frac": 0.948, "mtp_acceptance": 0.9111, "vram_peak_mib": [15528, 15586], "imbalance_mib": 58, "error": ""}
    {"ok": true, "stage": "done", "failure_mode": null, "decode_tok_s": 11.714199535627051, "prefill_tok_s": 507.553336447876, "prefill_frac": 0.948, "mtp_acceptance": 0.6105, "vram_peak_mib": [15528, 15586], "imbalance_mib": 58, "error": ""}
+   {"ok": true, "stage": "done", "failure_mode": null, "decode_tok_s": 11.481635304670002, "prefill_tok_s": 504.3399235580491, "prefill_frac": 0.948, "mtp_acceptance": 0.592, "vram_peak_mib": [15322, 15082], "imbalance_mib": 240, "error": ""}
+D3: {"ctxcp4": {"key": "262144:58,42:1:base", "vram_peak_mib": [15322, 15082], "imbalance_mib": 240, "decode_tok_s": 10.749014396982263, "prefill_tok_s": 468.65476961321923, "n_ctx_reported": 262144}, "ctxcp32": {"key": "262144:58,42:1:ctxcp32", "vram_peak_mib": [15322, 15082], "imbalance_mib": 240, "decode_tok_s": 11.481635304670002, "prefill_tok_s": 504.3399235580491, "n_ctx_reported": 262144}, "del
+SWEEP Q6_K DONE in 118.1 min, 7 ok cells -> /srv/bench/e12/tsweep-v2-Q6_K.json
+[2026-08-30T05:43:33Z] starting tsweep Q4_K_XL
+=== Q4_K_XL rung 212992: full ratio sweep
+   {"ok": true, "stage": "done", "failure_mode": null, "decode_tok_s": 15.699197458669806, "prefill_tok_s": 628.5936776165601, "prefill_frac": 0.9469, "mtp_acceptance": 0.7905, "vram_peak_mib": [11298, 14796], "imbalance_mib": 3498, "error": ""}
+   {"ok": true, "stage": "done", "failure_mode": null, "decode_tok_s": 15.854087939222564, "prefill_tok_s": 628.9862057709884, "prefill_frac": 0.9469, "mtp_acceptance": 0.7905, "vram_peak_mib": [12216, 13878], "imbalance_mib": 1662, "error": ""}
