@@ -159,10 +159,11 @@ Live checklist — update it as things land. `[~]` = running unattended.
 - [x] S2 wikitext-2 KLD — 0.00332 / 0.00447 / 0.00821
 - [x] S3 code KLD — 0.00583 / 0.01029 / 0.02153 — **~2x prose, gap widens with quantization**
 - [x] S4 **E2 closed** — q4_0 KV costs 0.00296 KLD = 51 % of a quant level; defensible, not free
-- [ ] S5 HumanEval+ prompt-KLD, forced completions — **harness not written**
+- [~] S5 HumanEval+ prompt-KLD — harness written (`ssa_s5.py`), running: 164 prompts, 18,432 tokens
 - [ ] S6 generative HumanEval+, Q4_K_XL vs Q6_K_XL, paired per-problem — **harness not written**
-- [ ] S7 *(optional, owner call)* `--hellaswag` / `--winogrande` — built into `llama-perplexity`,
-      logprob-scored, near-zero GPU cost, gives comparability with published task tables
+- [!] S7 *(owner call)* `--hellaswag` / `--winogrande` — the FLAGS are built in but the DATAFILES
+      are not on disk and are not in the image; needs two external downloads. I described this as
+      "free" when recommending it, which was wrong about the data
 - [x] Deleted the `*.kld` logits — 50 GB reclaimed, `/` 87 % -> 63 %; serverlogs pulled locally first
 
 ### Wave 2 — MTP/DFlash sweeps (Phases 4–5), *deferred behind Wave 3*
@@ -170,8 +171,8 @@ Live checklist — update it as things land. `[~]` = running unattended.
 - [ ] MTP depth sweep · [ ] draft-KV dtype · [ ] DFlash2 n-max
 
 ### Wave 4 — decision & graduation (Phases 9–10)
-- [ ] Speed + energy curve at the chosen config (J/tok; PN-11 is the host baseline)
-- [ ] Track A decision: config line + fallback ladder per quant
+- [x] **Track A DECIDED** → `docs/paper/TRACK-A-DECISION.md`. Primary **UD-Q6_K** `-ts 58,42 -ctxcp 32` @262,144; Q5_K_XL dominated; Q4_K_XL for VRAM not speed
+- [ ] Speed + energy curve at the chosen config (J/tok; PN-11 is the host baseline) — *optional, decision does not depend on it*
 - [ ] Track B assembly: provenance fields on every artifact, protocols segregated
 - [ ] Graduate into multivac's `~/CLAUDE.md` and `PAPER-REFERENCES.md`
 - [ ] Every headline number has a PN entry
