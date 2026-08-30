@@ -1,3 +1,52 @@
+# ── Compass Forge / local state ────────────────────────────────────────────
 .compass-forge/
 *.swp
 .DS_Store
+._*
+
+# ── NEVER COMMIT: model weights ────────────────────────────────────────────
+# GGUFs live on multivac at /srv/models and /srv/bench/models. They are pinned
+# by sha256 + bytes in data/raw/e12/env-manifest.json, which is what belongs in
+# git. A single one of these is 17-25 GB.
+*.gguf
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.onnx
+
+# ── NEVER COMMIT: logits / KV dumps ────────────────────────────────────────
+# SSA KL-divergence base files are ~11 GB each.
+*.kld
+*.logits
+
+# ── NEVER COMMIT: container / image material ───────────────────────────────
+# Images are pinned by RepoDigest in env-manifest.json — that is the provenance
+# record; the layers themselves are re-pullable and must not enter git.
+*.tar
+*.oci
+*.squashfs
+Dockerfile.lock
+images/
+containers/
+
+# ── NEVER COMMIT: bulk corpora and generated pads ──────────────────────────
+# Regenerate with experiments/prebuild_pads.py; manifests ARE tracked.
+corpus.txt
+pads/
+*.pad
+wikitext2-*.txt
+
+# ── Large / regenerable run output ─────────────────────────────────────────
+# Server logs can reach hundreds of MB. The per-cell metadata in the tsweep and
+# ssa JSONs records each log's path and byte count, which is the durable record.
+*.serverlog
+server-timings/
+power-log.csv
+*.log.gz
+__pycache__/
+*.pyc
+.venv*/
+
+# Anything above 5 MB should be justified in a commit message before being
+# force-added. Check with:  git ls-files | xargs du -k | sort -rn | head
