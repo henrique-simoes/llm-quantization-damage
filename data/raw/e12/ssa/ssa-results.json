@@ -55,7 +55,70 @@
     "ppl_err": 0.0061
    },
    "ok": true
+  },
+  {
+   "label": "ssa-Q6_K-wikitext2-kld",
+   "arm": "Q6_K",
+   "domain": "wikitext2",
+   "mode": "kld",
+   "kv": "q4_0",
+   "n_ctx": 2048,
+   "chunks": 32,
+   "tokens": 65536,
+   "rc": 0,
+   "seconds": 552.4,
+   "serverlog": "/srv/bench/server-timings/ssa-Q6_K-wikitext2-kld.serverlog",
+   "serverlog_bytes": 7324,
+   "command": "docker run --rm --name ssa-perplexity --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro -v /srv/bench/corpus:/corpus:ro -v /srv/bench/e12:/e12:ro -v /srv/bench/e12/ssa:/ssa --entrypoint /app/llama-perplexity llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -f /corpus/wikitext2-test.txt -c 2048 --chunks 32 -ngl 99 -fa on -ctk q4_0 -ctv q4_0 -s 20260830 --kl-divergence --kl-divergence-base /ssa/base-wikitext2.kld",
+   "metrics": {
+    "max_kld": 2.639075,
+    "kld_99p": 0.028639,
+    "kld_95p": 0.010549
+   },
+   "ok": true
+  },
+  {
+   "label": "ssa-Q5_K_XL-wikitext2-kld",
+   "arm": "Q5_K_XL",
+   "domain": "wikitext2",
+   "mode": "kld",
+   "kv": "q4_0",
+   "n_ctx": 2048,
+   "chunks": 32,
+   "tokens": 65536,
+   "rc": 0,
+   "seconds": 332.4,
+   "serverlog": "/srv/bench/server-timings/ssa-Q5_K_XL-wikitext2-kld.serverlog",
+   "serverlog_bytes": 7324,
+   "command": "docker run --rm --name ssa-perplexity --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro -v /srv/bench/corpus:/corpus:ro -v /srv/bench/e12:/e12:ro -v /srv/bench/e12/ssa:/ssa --entrypoint /app/llama-perplexity llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q5_K_XL.gguf -f /corpus/wikitext2-test.txt -c 2048 --chunks 32 -ngl 99 -fa on -ctk q4_0 -ctv q4_0 -s 20260830 --kl-divergence --kl-divergence-base /ssa/base-wikitext2.kld",
+   "metrics": {
+    "max_kld": 6.849877,
+    "kld_99p": 0.037323,
+    "kld_95p": 0.013936
+   },
+   "ok": true
+  },
+  {
+   "label": "ssa-Q4_K_XL-wikitext2-kld",
+   "arm": "Q4_K_XL",
+   "domain": "wikitext2",
+   "mode": "kld",
+   "kv": "q4_0",
+   "n_ctx": 2048,
+   "chunks": 32,
+   "tokens": 65536,
+   "rc": 0,
+   "seconds": 324.8,
+   "serverlog": "/srv/bench/server-timings/ssa-Q4_K_XL-wikitext2-kld.serverlog",
+   "serverlog_bytes": 7324,
+   "command": "docker run --rm --name ssa-perplexity --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro -v /srv/bench/corpus:/corpus:ro -v /srv/bench/e12:/e12:ro -v /srv/bench/e12/ssa:/ssa --entrypoint /app/llama-perplexity llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -f /corpus/wikitext2-test.txt -c 2048 --chunks 32 -ngl 99 -fa on -ctk q4_0 -ctv q4_0 -s 20260830 --kl-divergence --kl-divergence-base /ssa/base-wikitext2.kld",
+   "metrics": {
+    "max_kld": 7.600239,
+    "kld_99p": 0.069578,
+    "kld_95p": 0.025546
+   },
+   "ok": true
   }
  ],
- "finished_utc": "2026-08-30T09:19:07Z"
+ "finished_utc": "2026-08-30T09:39:20Z"
 }

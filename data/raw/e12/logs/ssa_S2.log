@@ -1,0 +1,7 @@
+[2026-08-30T09:19:09Z] RUN ssa-Q6_K-wikitext2-kld: -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -f /corpus/wikitext2-test.txt -c 2048 --chunks 32 -ngl 99 -fa on -ctk q4_0 -ctv q4_0 -s 20260830 --kl-divergence --kl-divergence-base /ssa/base-wikitext2.kld
+[2026-08-30T09:28:23Z]   -> ok=True {"max_kld": 2.639075, "kld_99p": 0.028639, "kld_95p": 0.010549}
+[2026-08-30T09:28:23Z] RUN ssa-Q5_K_XL-wikitext2-kld: -m /models/Qwen3.8-27B-UD-Q5_K_XL.gguf -f /corpus/wikitext2-test.txt -c 2048 --chunks 32 -ngl 99 -fa on -ctk q4_0 -ctv q4_0 -s 20260830 --kl-divergence --kl-divergence-base /ssa/base-wikitext2.kld
+[2026-08-30T09:33:55Z]   -> ok=True {"max_kld": 6.849877, "kld_99p": 0.037323, "kld_95p": 0.013936}
+[2026-08-30T09:33:55Z] RUN ssa-Q4_K_XL-wikitext2-kld: -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -f /corpus/wikitext2-test.txt -c 2048 --chunks 32 -ngl 99 -fa on -ctk q4_0 -ctv q4_0 -s 20260830 --kl-divergence --kl-divergence-base /ssa/base-wikitext2.kld
+[2026-08-30T09:39:20Z]   -> ok=True {"max_kld": 7.600239, "kld_99p": 0.069578, "kld_95p": 0.025546}
+[2026-08-30T09:39:20Z] SSA S2 done: 5/5 cells ok -> /srv/bench/e12/ssa/ssa-results.json
