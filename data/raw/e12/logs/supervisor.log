@@ -37,3 +37,8 @@
 [2026-08-30T08:18:50Z] === STEP ssa_S0 START ===
 [2026-08-30T08:18:50Z]     cmd: /srv/bench/.venv-evalplus/bin/python /srv/bench/e12/experiments/ssa_kld.py --step S0 --out /srv/bench/e12/ssa/ssa-smoke.json
 [2026-08-30T08:30:16Z] === STEP ssa_S0 OK (rc=0) -> /srv/bench/e12/logs/ssa_S0.log ===
+[2026-08-30T08:30:17Z]   git: pushed (after ssa_S0)
+[2026-08-30T08:30:17Z] S0 gate GREEN — running the SSA budget
+[2026-08-30T08:30:17Z] === STEP ssa_S1 START ===
+[2026-08-30T08:30:17Z]     cmd: /srv/bench/.venv-evalplus/bin/python /srv/bench/e12/experiments/ssa_kld.py --step S1 --out /srv/bench/e12/ssa/ssa-results.json
+[2026-08-30T09:19:08Z] === STEP ssa_S1 OK (rc=0) -> /srv/bench/e12/logs/ssa_S1.log ===

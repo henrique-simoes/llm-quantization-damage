@@ -1,0 +1,61 @@
+{
+ "experiment": "ssa",
+ "source": "e12-ssa",
+ "run_ids": [
+  "ssa-v1"
+ ],
+ "protocol": "Small-Sample Accuracy (SSA), DEC-11",
+ "reference_arm": "Q6_K_XL",
+ "reference_note": "divergence is LADDER-RELATIVE: measured against the least-quantized available arm, not FP16 (no FP16 on host; a 27B F16 GGUF at ~54 GB exceeds free space)",
+ "split": "engine default (-ts unset): at n_ctx 2048 VRAM pressure is negligible and a per-arm ratio would add an uncontrolled variable",
+ "n_ctx": 2048,
+ "chunks": 32,
+ "tokens_per_cell": 65536,
+ "seed": 20260830,
+ "kv_default": "q4_0",
+ "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+ "started_utc": "2026-08-30T08:30:18Z",
+ "cells": [
+  {
+   "label": "ssa-Q6_K_XL-wikitext2-base",
+   "arm": "Q6_K_XL",
+   "domain": "wikitext2",
+   "mode": "base",
+   "kv": "q4_0",
+   "n_ctx": 2048,
+   "chunks": 32,
+   "tokens": 65536,
+   "rc": 0,
+   "seconds": 1411.4,
+   "serverlog": "/srv/bench/server-timings/ssa-Q6_K_XL-wikitext2-base.serverlog",
+   "serverlog_bytes": 2665,
+   "command": "docker run --rm --name ssa-perplexity --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro -v /srv/bench/corpus:/corpus:ro -v /srv/bench/e12:/e12:ro -v /srv/bench/e12/ssa:/ssa --entrypoint /app/llama-perplexity llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -f /corpus/wikitext2-test.txt -c 2048 --chunks 32 -ngl 99 -fa on -ctk q4_0 -ctv q4_0 -s 20260830 --kl-divergence-base /ssa/base-wikitext2.kld",
+   "metrics": {
+    "ppl": 5.7898,
+    "ppl_err": 0.07421
+   },
+   "ok": true
+  },
+  {
+   "label": "ssa-Q6_K_XL-code-base",
+   "arm": "Q6_K_XL",
+   "domain": "code",
+   "mode": "base",
+   "kv": "q4_0",
+   "n_ctx": 2048,
+   "chunks": 32,
+   "tokens": 65536,
+   "rc": 0,
+   "seconds": 1516.4,
+   "serverlog": "/srv/bench/server-timings/ssa-Q6_K_XL-code-base.serverlog",
+   "serverlog_bytes": 2660,
+   "command": "docker run --rm --name ssa-perplexity --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro -v /srv/bench/corpus:/corpus:ro -v /srv/bench/e12:/e12:ro -v /srv/bench/e12/ssa:/ssa --entrypoint /app/llama-perplexity llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -f /e12/corpus.txt -c 2048 --chunks 32 -ngl 99 -fa on -ctk q4_0 -ctv q4_0 -s 20260830 --kl-divergence-base /ssa/base-code.kld",
+   "metrics": {
+    "ppl": 1.1809,
+    "ppl_err": 0.0061
+   },
+   "ok": true
+  }
+ ],
+ "finished_utc": "2026-08-30T09:19:07Z"
+}

@@ -1,5 +1,5 @@
 {
- "updated_utc": "2026-08-30T08:30:16Z",
+ "updated_utc": "2026-08-30T09:19:08Z",
  "supervisor_pid": 1846476,
  "steps": [
   {
@@ -25,6 +25,14 @@
    "log": "/srv/bench/e12/logs/ssa_S0.log",
    "note": "",
    "at": "2026-08-30T08:30:16Z"
+  },
+  {
+   "name": "ssa_S1",
+   "status": "ok",
+   "rc": 0,
+   "log": "/srv/bench/e12/logs/ssa_S1.log",
+   "note": "",
+   "at": "2026-08-30T09:19:08Z"
   }
  ],
  "started_utc": "2026-08-30T04:31:27Z"
