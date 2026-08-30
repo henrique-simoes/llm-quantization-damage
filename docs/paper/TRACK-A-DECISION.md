@@ -105,6 +105,19 @@ Two consequences for the ladder above:
 is **not meaningfully faster** — it is only less accurate. Q4_K_XL earns its place on VRAM
 footprint alone.
 
+### The task-benchmark check, and why it changed nothing
+
+HellaSwag at n=400 across all four arms (SSA S7) scores 82.75 / 82.25 / 82.75 / 83.25 % — a
+**1.0-point spread**, the most-quantized arm nominally **highest**, and a paired McNemar test on
+the identical task set finding Q6_K_XL and Q5_K_XL answering **all 400 items identically**, with
+no pair differing on more than 4 items (all p >= 0.13).
+
+This is the control that validates the method. The same four arms are separated at 3.7-11.8 sigma
+by divergence. A multiple-choice battery cannot see it, because such scoring depends only on an
+argmax over a few candidates and is robust to exactly the distribution shift that alters generated
+code. Had the decision been made on a task battery — the conventional approach — it would have
+concluded "no meaningful difference between quantizations" and picked the cheapest arm.
+
 ## Conditions every line above is contingent on
 
 - **q4_0 KV throughout.** Validated, not assumed: it costs 0.002955 ± 0.000127 KLD versus f16 —

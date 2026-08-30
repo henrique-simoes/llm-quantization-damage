@@ -1,0 +1,70 @@
+{
+ "arms": {
+  "Q4_K_XL": {
+   "n": 400,
+   "correct": 333
+  },
+  "Q5_K_XL": {
+   "n": 400,
+   "correct": 331
+  },
+  "Q6_K": {
+   "n": 400,
+   "correct": 329
+  },
+  "Q6_K_XL": {
+   "n": 400,
+   "correct": 331
+  }
+ },
+ "paired": {
+  "Q6_K_XL_vs_Q6_K": {
+   "b": 2,
+   "c": 0,
+   "diff_pts": 0.5,
+   "chi2": 0.5,
+   "p": 0.4795,
+   "verdict": "not distinguishable"
+  },
+  "Q6_K_XL_vs_Q5_K_XL": {
+   "b": 0,
+   "c": 0,
+   "diff_pts": 0.0,
+   "chi2": 0.0,
+   "p": 1.0,
+   "verdict": "IDENTICAL on every task"
+  },
+  "Q6_K_XL_vs_Q4_K_XL": {
+   "b": 0,
+   "c": 2,
+   "diff_pts": -0.5,
+   "chi2": 0.5,
+   "p": 0.4795,
+   "verdict": "not distinguishable"
+  },
+  "Q6_K_vs_Q5_K_XL": {
+   "b": 0,
+   "c": 2,
+   "diff_pts": -0.5,
+   "chi2": 0.5,
+   "p": 0.4795,
+   "verdict": "not distinguishable"
+  },
+  "Q6_K_vs_Q4_K_XL": {
+   "b": 0,
+   "c": 4,
+   "diff_pts": -1.0,
+   "chi2": 2.25,
+   "p": 0.1336,
+   "verdict": "not distinguishable"
+  },
+  "Q5_K_XL_vs_Q4_K_XL": {
+   "b": 0,
+   "c": 2,
+   "diff_pts": -0.5,
+   "chi2": 0.5,
+   "p": 0.4795,
+   "verdict": "not distinguishable"
+  }
+ }
+}
