@@ -864,6 +864,22 @@ longer reflects the work; read this file, not the watcher, for Wave-1 status. Th
 (pid 88692) is left running — its only remaining function is the 10-minute docs pull, which is
 harmless and keeps the mirror fresh.
 
+OPEN-1 | 2026-08-30T03:44Z | raised by agent, OWNER DECISION REQUIRED before T3b delete-1b
+Context: DEC-4 approved deleting the Q6_K_XL GGUF (25,299,061,664 B). At the time, Q6_K_XL was
+recorded as "best raw accuracy but 131,072 MTP ceiling" — the low ceiling was part of why it could
+go. That premise is now measured false. Under the DEC-7 ratio correction, Q6_K_XL loads at
+**212,992** at `-ts 56,44` (12.98 tok/s at 0.9469 depth; 196,608 gives 17.26 tok/s at 0.9474),
+with 229,376 bracketing above. That is +81,920 tokens (+62.5 %) over the published ceiling, on the
+highest-fidelity quant on the ladder.
+Question: does DEC-4's deletion still stand? The trade has changed shape — Q6_K_XL is now
+"best accuracy, 212,992 context" rather than "best accuracy, 131,072 context", and it sits against
+plain Q6_K's 262,144. It remains the only quant on the ladder whose accuracy has never been
+measured against the others (Phase 6 has no NLL/PPL data for it).
+Consequences either way: deleting it frees the 25.3 GB that carries `/srv/models` past the
+>=60x10^9 B A3 gate (38.9 + 25.3 = 64.2 GB) and the file is re-downloadable but not cheaply;
+keeping it means the A3 gate needs a different 25 GB or an owner waiver, and Phase 1 does not
+close. Nothing is deleted until this is answered — the sweep is not blocked by it.
+
 ## Ledger
 
 ### L-3 | 2026-08-29T21:14:13Z | S1-plan | claude-opus-5 | architect | Phase 0 -> Wave 1 draft <!-- bsc-ledger:qbench-t1-PLAN-A -->
