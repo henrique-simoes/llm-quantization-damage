@@ -5,3 +5,4 @@
 [2026-08-30T04:31:27Z] superseding finish_wave1.sh (pid 1661575)
 [2026-08-30T04:31:27Z] superseding finish_wave1.sh (pid 1661639)
 [2026-08-30T04:31:30Z] waiting for GPU work to finish (sweep / llamasrv-e12)
+[2026-08-30T05:01:33Z]   still waiting (1800s)
