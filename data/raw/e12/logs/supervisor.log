@@ -54,3 +54,9 @@
 [2026-08-30T09:58:32Z] === STEP ssa_S4 START ===
 [2026-08-30T09:58:32Z]     cmd: /srv/bench/.venv-evalplus/bin/python /srv/bench/e12/experiments/ssa_kld.py --step S4 --out /srv/bench/e12/ssa/ssa-results.json
 [2026-08-30T10:27:38Z] === STEP ssa_S4 OK (rc=0) -> /srv/bench/e12/logs/ssa_S4.log ===
+[2026-08-30T10:27:39Z]   git: pushed (after ssa_S4)
+[2026-08-30T10:27:39Z] === disk check (SSA .kld logits are ~11 GB each) ===
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/sdb2       218G  180G   28G  87% /
+/dev/sda        110G   68G   37G  66% /srv/models
+50G	/srv/bench/e12/ssa
