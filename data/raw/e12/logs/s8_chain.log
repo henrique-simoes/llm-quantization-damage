@@ -3,3 +3,6 @@
 [2026-08-30T13:37:21Z] GPU free after 1140s
 [2026-08-30T13:37:51Z] === PHASE humaneval START ===
 [2026-08-30T15:16:47Z] === PHASE humaneval OK ===
+[2026-08-30T15:16:48Z]   git: pushed (after s8 humaneval)
+[2026-08-30T15:16:48Z] === PHASE score START ===
+[2026-08-30T15:18:32Z] === PHASE score OK ===

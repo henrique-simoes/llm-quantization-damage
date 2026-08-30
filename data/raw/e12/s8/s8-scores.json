@@ -1,0 +1,54 @@
+{
+ "nospec": {
+  "raw_tail": "Load from ground-truth from /home/multivac/.cache/evalplus/fe585eb4df8c88d844eeb463ea4d0302.pkl\nReading samples...\nhumaneval (base tests)\npass@1:\t0.945\nhumaneval+ (base + extra tests)\npass@1:\t0.915\n",
+  "parsed": [
+   [
+    "humaneval",
+    "1"
+   ],
+   [
+    "humaneval+",
+    "1"
+   ]
+  ]
+ },
+ "mtp2": {
+  "raw_tail": "Load from ground-truth from /home/multivac/.cache/evalplus/fe585eb4df8c88d844eeb463ea4d0302.pkl\nReading samples...\nhumaneval (base tests)\npass@1:\t0.939\nhumaneval+ (base + extra tests)\npass@1:\t0.902\n",
+  "parsed": [
+   [
+    "humaneval",
+    "1"
+   ],
+   [
+    "humaneval+",
+    "1"
+   ]
+  ]
+ },
+ "mtp4": {
+  "raw_tail": "Load from ground-truth from /home/multivac/.cache/evalplus/fe585eb4df8c88d844eeb463ea4d0302.pkl\nReading samples...\nhumaneval (base tests)\npass@1:\t0.939\nhumaneval+ (base + extra tests)\npass@1:\t0.909\n",
+  "parsed": [
+   [
+    "humaneval",
+    "1"
+   ],
+   [
+    "humaneval+",
+    "1"
+   ]
+  ]
+ },
+ "dflash4": {
+  "raw_tail": "Load from ground-truth from /home/multivac/.cache/evalplus/fe585eb4df8c88d844eeb463ea4d0302.pkl\nReading samples...\nhumaneval (base tests)\npass@1:\t0.000\nhumaneval+ (base + extra tests)\npass@1:\t0.000\n",
+  "parsed": [
+   [
+    "humaneval",
+    "1"
+   ],
+   [
+    "humaneval+",
+    "1"
+   ]
+  ]
+ }
+}
