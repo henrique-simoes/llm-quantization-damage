@@ -118,7 +118,70 @@
     "kld_95p": 0.025546
    },
    "ok": true
+  },
+  {
+   "label": "ssa-Q6_K-code-kld",
+   "arm": "Q6_K",
+   "domain": "code",
+   "mode": "kld",
+   "kv": "q4_0",
+   "n_ctx": 2048,
+   "chunks": 32,
+   "tokens": 65536,
+   "rc": 0,
+   "seconds": 469.9,
+   "serverlog": "/srv/bench/server-timings/ssa-Q6_K-code-kld.serverlog",
+   "serverlog_bytes": 7325,
+   "command": "docker run --rm --name ssa-perplexity --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro -v /srv/bench/corpus:/corpus:ro -v /srv/bench/e12:/e12:ro -v /srv/bench/e12/ssa:/ssa --entrypoint /app/llama-perplexity llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -f /e12/corpus.txt -c 2048 --chunks 32 -ngl 99 -fa on -ctk q4_0 -ctv q4_0 -s 20260830 --kl-divergence --kl-divergence-base /ssa/base-code.kld",
+   "metrics": {
+    "max_kld": 1.659922,
+    "kld_99p": 0.142839,
+    "kld_95p": 0.016109
+   },
+   "ok": true
+  },
+  {
+   "label": "ssa-Q5_K_XL-code-kld",
+   "arm": "Q5_K_XL",
+   "domain": "code",
+   "mode": "kld",
+   "kv": "q4_0",
+   "n_ctx": 2048,
+   "chunks": 32,
+   "tokens": 65536,
+   "rc": 0,
+   "seconds": 363.7,
+   "serverlog": "/srv/bench/server-timings/ssa-Q5_K_XL-code-kld.serverlog",
+   "serverlog_bytes": 7325,
+   "command": "docker run --rm --name ssa-perplexity --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro -v /srv/bench/corpus:/corpus:ro -v /srv/bench/e12:/e12:ro -v /srv/bench/e12/ssa:/ssa --entrypoint /app/llama-perplexity llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q5_K_XL.gguf -f /e12/corpus.txt -c 2048 --chunks 32 -ngl 99 -fa on -ctk q4_0 -ctv q4_0 -s 20260830 --kl-divergence --kl-divergence-base /ssa/base-code.kld",
+   "metrics": {
+    "max_kld": 5.568441,
+    "kld_99p": 0.250389,
+    "kld_95p": 0.026311
+   },
+   "ok": true
+  },
+  {
+   "label": "ssa-Q4_K_XL-code-kld",
+   "arm": "Q4_K_XL",
+   "domain": "code",
+   "mode": "kld",
+   "kv": "q4_0",
+   "n_ctx": 2048,
+   "chunks": 32,
+   "tokens": 65536,
+   "rc": 0,
+   "seconds": 310.4,
+   "serverlog": "/srv/bench/server-timings/ssa-Q4_K_XL-code-kld.serverlog",
+   "serverlog_bytes": 7325,
+   "command": "docker run --rm --name ssa-perplexity --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro -v /srv/bench/corpus:/corpus:ro -v /srv/bench/e12:/e12:ro -v /srv/bench/e12/ssa:/ssa --entrypoint /app/llama-perplexity llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -f /e12/corpus.txt -c 2048 --chunks 32 -ngl 99 -fa on -ctk q4_0 -ctv q4_0 -s 20260830 --kl-divergence --kl-divergence-base /ssa/base-code.kld",
+   "metrics": {
+    "max_kld": 5.54476,
+    "kld_99p": 0.562891,
+    "kld_95p": 0.0558
+   },
+   "ok": true
   }
  ],
- "finished_utc": "2026-08-30T09:39:20Z"
+ "finished_utc": "2026-08-30T09:58:29Z"
 }

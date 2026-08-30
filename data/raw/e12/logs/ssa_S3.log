@@ -1,0 +1,7 @@
+[2026-08-30T09:39:24Z] RUN ssa-Q6_K-code-kld: -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -f /e12/corpus.txt -c 2048 --chunks 32 -ngl 99 -fa on -ctk q4_0 -ctv q4_0 -s 20260830 --kl-divergence --kl-divergence-base /ssa/base-code.kld
+[2026-08-30T09:47:14Z]   -> ok=True {"max_kld": 1.659922, "kld_99p": 0.142839, "kld_95p": 0.016109}
+[2026-08-30T09:47:14Z] RUN ssa-Q5_K_XL-code-kld: -m /models/Qwen3.8-27B-UD-Q5_K_XL.gguf -f /e12/corpus.txt -c 2048 --chunks 32 -ngl 99 -fa on -ctk q4_0 -ctv q4_0 -s 20260830 --kl-divergence --kl-divergence-base /ssa/base-code.kld
+[2026-08-30T09:53:18Z]   -> ok=True {"max_kld": 5.568441, "kld_99p": 0.250389, "kld_95p": 0.026311}
+[2026-08-30T09:53:18Z] RUN ssa-Q4_K_XL-code-kld: -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -f /e12/corpus.txt -c 2048 --chunks 32 -ngl 99 -fa on -ctk q4_0 -ctv q4_0 -s 20260830 --kl-divergence --kl-divergence-base /ssa/base-code.kld
+[2026-08-30T09:58:29Z]   -> ok=True {"max_kld": 5.54476, "kld_99p": 0.562891, "kld_95p": 0.0558}
+[2026-08-30T09:58:29Z] SSA S3 done: 8/8 cells ok -> /srv/bench/e12/ssa/ssa-results.json
