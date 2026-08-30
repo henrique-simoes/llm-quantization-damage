@@ -18,3 +18,8 @@
 [2026-08-30T07:31:50Z]   still waiting (10800s)
 [2026-08-30T07:31:51Z]   git: pushed (heartbeat)
 [2026-08-30T08:01:53Z]   still waiting (12600s)
+[2026-08-30T08:01:54Z]   git: pushed (heartbeat)
+[2026-08-30T08:14:58Z] GPU work finished after 13380s
+[2026-08-30T08:15:43Z] === STEP summarize START ===
+[2026-08-30T08:15:43Z]     cmd: /srv/bench/.venv-evalplus/bin/python /srv/bench/e12/experiments/summarize_wave1.py --md
+[2026-08-30T08:15:43Z] === STEP summarize OK (rc=0) -> /srv/bench/e12/logs/summarize.log ===

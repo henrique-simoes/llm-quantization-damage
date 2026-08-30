@@ -2,7 +2,9 @@
  "artifact": "e12-wave1-summary",
  "source": "e12-wave1",
  "run_ids": [
+  "tsweep-v2-Q4_K_XL",
   "tsweep-v2-Q5_K_XL",
+  "tsweep-v2-Q6_K",
   "tsweep-v2-Q6_K_XL"
  ],
  "question": "After a full -ts rebalance sweep, what context ceiling and what decode rate at ~95 % window depth does each quant reach on a surviving image?",
@@ -14,22 +16,34 @@
   "(1) accuracy \u2014 a quant property this wave does not measure; no NLL/KV-fidelity/NIAH data is produced here, so this summary MUST NOT be read as a Track A config selection"
  ],
  "complete_quants": [
-  "Q5_K_XL"
- ],
- "incomplete_or_missing": [
   "Q4_K_XL",
+  "Q5_K_XL",
   "Q6_K",
   "Q6_K_XL"
  ],
+ "incomplete_or_missing": [],
  "reach_native_262144": [
-  "Q5_K_XL"
+  "Q4_K_XL",
+  "Q5_K_XL",
+  "Q6_K"
  ],
  "fastest_at_native_window": {
-  "quant": "Q5_K_XL",
-  "ts": "54,46",
-  "decode_tok_s": 10.823706137851742
+  "quant": "Q4_K_XL",
+  "ts": "56,44",
+  "decode_tok_s": 13.330713720131088
  },
  "context_speed_frontier": [
+  {
+   "quant": "Q4_K_XL",
+   "ceiling": 262144,
+   "ts": "56,44",
+   "decode_tok_s": 13.330713720131088,
+   "prefill_tok_s": 630.1644608879479,
+   "vram_peak_mib": [
+    12460,
+    13632
+   ]
+  },
   {
    "quant": "Q5_K_XL",
    "ceiling": 262144,
@@ -42,12 +56,26 @@
    ]
   },
   {
+   "quant": "Q6_K",
+   "ceiling": 262144,
+   "ts": "58,42",
+   "decode_tok_s": 11.902286341964402,
+   "prefill_tok_s": 468.65476961321923,
+   "vram_peak_mib": [
+    15322,
+    15082
+   ]
+  },
+  {
    "quant": "Q6_K_XL",
-   "ceiling": null,
+   "ceiling": 212992,
    "ts": null,
    "decode_tok_s": null,
-   "prefill_tok_s": null,
-   "vram_peak_mib": null
+   "prefill_tok_s": 559.3084514529419,
+   "vram_peak_mib": [
+    15656,
+    15414
+   ]
   }
  ],
  "caveats": [
@@ -63,6 +91,141 @@
   "n": 9
  },
  "quants": {
+  "Q4_K_XL": {
+   "quant": "Q4_K_XL",
+   "model": "/srv/models/Qwen3.8-27B-UD-Q4_K_XL.gguf",
+   "mode": "ceiling_and_speed",
+   "complete": true,
+   "cells_total": 16,
+   "cells_ok": 16,
+   "rebalanced_ceiling_ctx": 262144,
+   "reaches_native_262144": true,
+   "ceiling_note": "ladder top (262,144) reached",
+   "default_split_ceiling": 196608,
+   "ceiling_gain_tokens": 65536,
+   "best_ts": "56,44",
+   "best_decode_tok_s": 15.958839229233185,
+   "best_decode_tok_s_median3": 13.330713720131088,
+   "selected_on": "median_of_3",
+   "decode_gain_vs_default_split": 0.0165,
+   "best_prefill_tok_s": 630.1644608879479,
+   "best_vram_peak_mib": [
+    12460,
+    13632
+   ],
+   "best_imbalance_mib": 1172,
+   "best_mtp_acceptance": 0.7905,
+   "best_prefill_frac": 0.9469,
+   "depth_gate_ok": true,
+   "depth_gate_violations": [],
+   "d2": {
+    "contested": [
+     "56,44",
+     "58,42"
+    ],
+    "base": {
+     "56,44": 15.958839229233185,
+     "58,42": 15.879983903848776
+    },
+    "median_of_3": {
+     "56,44": 13.330713720131088,
+     "58,42": 13.326195330068577
+    }
+   },
+   "d3": null,
+   "g21": null,
+   "ratio_table_at_ceiling": [
+    {
+     "ts": "56,44",
+     "ok": true,
+     "decode_tok_s": 15.958839229233185,
+     "prefill_tok_s": 630.1644608879479,
+     "vram_peak_mib": [
+      12460,
+      13632
+     ],
+     "imbalance_mib": 1172,
+     "prefill_frac": 0.9469,
+     "mtp_acceptance": 0.7905,
+     "failure_mode": null
+    },
+    {
+     "ts": "58,42",
+     "ok": true,
+     "decode_tok_s": 15.879983903848776,
+     "prefill_tok_s": 625.773567549407,
+     "vram_peak_mib": [
+      12948,
+      13148
+     ],
+     "imbalance_mib": 200,
+     "prefill_frac": 0.9469,
+     "mtp_acceptance": 0.7905,
+     "failure_mode": null
+    },
+    {
+     "ts": "62,38",
+     "ok": true,
+     "decode_tok_s": 15.876947835498196,
+     "prefill_tok_s": 612.6544941372003,
+     "vram_peak_mib": [
+      13670,
+      12418
+     ],
+     "imbalance_mib": 1252,
+     "prefill_frac": 0.9469,
+     "mtp_acceptance": 0.7905,
+     "failure_mode": null
+    },
+    {
+     "ts": "54,46",
+     "ok": true,
+     "decode_tok_s": 15.854087939222564,
+     "prefill_tok_s": 628.9862057709884,
+     "vram_peak_mib": [
+      12216,
+      13878
+     ],
+     "imbalance_mib": 1662,
+     "prefill_frac": 0.9469,
+     "mtp_acceptance": 0.7905,
+     "failure_mode": null
+    },
+    {
+     "ts": "default",
+     "ok": true,
+     "decode_tok_s": 15.699197458669806,
+     "prefill_tok_s": 628.5936776165601,
+     "vram_peak_mib": [
+      11298,
+      14796
+     ],
+     "imbalance_mib": 3498,
+     "prefill_frac": 0.9469,
+     "mtp_acceptance": 0.7905,
+     "failure_mode": null
+    },
+    {
+     "ts": "60,40",
+     "ok": true,
+     "decode_tok_s": 15.60343550070771,
+     "prefill_tok_s": 615.5678542488963,
+     "vram_peak_mib": [
+      13420,
+      12672
+     ],
+     "imbalance_mib": 748,
+     "prefill_frac": 0.9469,
+     "mtp_acceptance": 0.7905,
+     "failure_mode": null
+    }
+   ],
+   "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "prior": {
+    "default_split_ceiling": 196608,
+    "source": "E1b /srv/bench/ctx-ceilings.json"
+   }
+  },
   "Q5_K_XL": {
    "quant": "Q5_K_XL",
    "model": "/srv/models/Qwen3.8-27B-UD-Q5_K_XL.gguf",
@@ -198,34 +361,284 @@
     "source": "E11a (supersedes E1's 163,840, which was a VRAM-gate artifact)"
    }
   },
+  "Q6_K": {
+   "quant": "Q6_K",
+   "model": "/srv/bench/models/Qwen3.8-27B-UD-Q6_K.gguf",
+   "mode": "speed",
+   "complete": true,
+   "cells_total": 11,
+   "cells_ok": 7,
+   "rebalanced_ceiling_ctx": 262144,
+   "reaches_native_262144": true,
+   "ceiling_note": "262,144 is the engine/native maximum \u2014 no rung above exists to bracket; historical failed rungs BELOW it are recorded per-cell with classified modes",
+   "default_split_ceiling": 196608,
+   "ceiling_gain_tokens": 65536,
+   "best_ts": "58,42",
+   "best_decode_tok_s": 10.749014396982263,
+   "best_decode_tok_s_median3": 11.902286341964402,
+   "selected_on": "median_of_3",
+   "decode_gain_vs_default_split": null,
+   "best_prefill_tok_s": 468.65476961321923,
+   "best_vram_peak_mib": [
+    15322,
+    15082
+   ],
+   "best_imbalance_mib": 240,
+   "best_mtp_acceptance": 0.592,
+   "best_prefill_frac": 0.948,
+   "depth_gate_ok": true,
+   "depth_gate_violations": [],
+   "d2": {
+    "contested": [
+     "58,42",
+     "56,44"
+    ],
+    "base": {
+     "58,42": 10.749014396982263,
+     "56,44": 10.219966861623682
+    },
+    "median_of_3": {
+     "58,42": 11.902286341964402,
+     "56,44": 11.714199535627051
+    }
+   },
+   "d3": {
+    "ctxcp4": {
+     "key": "262144:58,42:1:base",
+     "vram_peak_mib": [
+      15322,
+      15082
+     ],
+     "imbalance_mib": 240,
+     "decode_tok_s": 10.749014396982263,
+     "prefill_tok_s": 468.65476961321923,
+     "n_ctx_reported": 262144
+    },
+    "ctxcp32": {
+     "key": "262144:58,42:1:ctxcp32",
+     "vram_peak_mib": [
+      15322,
+      15082
+     ],
+     "imbalance_mib": 240,
+     "decode_tok_s": 11.481635304670002,
+     "prefill_tok_s": 504.3399235580491,
+     "n_ctx_reported": 262144
+    },
+    "delta_vram_mib": [
+     0,
+     0
+    ],
+    "delta_decode_frac": 0.0682,
+    "verdict": "adopt ctxcp 32 for Waves 2-4 (delta within R2 noise: |dv|<=200 MiB and |d_decode|<=10%)"
+   },
+   "g21": null,
+   "ratio_table_at_ceiling": [
+    {
+     "ts": "58,42",
+     "ok": true,
+     "decode_tok_s": 10.749014396982263,
+     "prefill_tok_s": 468.65476961321923,
+     "vram_peak_mib": [
+      15322,
+      15082
+     ],
+     "imbalance_mib": 240,
+     "prefill_frac": 0.948,
+     "mtp_acceptance": 0.592,
+     "failure_mode": null
+    },
+    {
+     "ts": "56,44",
+     "ok": true,
+     "decode_tok_s": 10.219966861623682,
+     "prefill_tok_s": 490.3175792694275,
+     "vram_peak_mib": [
+      15528,
+      15586
+     ],
+     "imbalance_mib": 58,
+     "prefill_frac": 0.948,
+     "mtp_acceptance": 0.592,
+     "failure_mode": null
+    },
+    {
+     "ts": "54,46",
+     "ok": false,
+     "decode_tok_s": null,
+     "prefill_tok_s": null,
+     "vram_peak_mib": [
+      15188,
+      15848
+     ],
+     "imbalance_mib": 660,
+     "prefill_frac": null,
+     "mtp_acceptance": null,
+     "failure_mode": "compute-buffer-oom"
+    },
+    {
+     "ts": "60,40",
+     "ok": false,
+     "decode_tok_s": null,
+     "prefill_tok_s": null,
+     "vram_peak_mib": [
+      11330,
+      8914
+     ],
+     "imbalance_mib": 2416,
+     "prefill_frac": null,
+     "mtp_acceptance": null,
+     "failure_mode": "compute-buffer-oom"
+    },
+    {
+     "ts": "62,38",
+     "ok": false,
+     "decode_tok_s": null,
+     "prefill_tok_s": null,
+     "vram_peak_mib": [
+      11626,
+      8616
+     ],
+     "imbalance_mib": 3010,
+     "prefill_frac": null,
+     "mtp_acceptance": null,
+     "failure_mode": "compute-buffer-oom"
+    },
+    {
+     "ts": "default",
+     "ok": false,
+     "decode_tok_s": null,
+     "prefill_tok_s": null,
+     "vram_peak_mib": [
+      14024,
+      15624
+     ],
+     "imbalance_mib": 1600,
+     "prefill_frac": null,
+     "mtp_acceptance": null,
+     "failure_mode": "compute-buffer-oom"
+    }
+   ],
+   "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "prior": {
+    "default_split_ceiling": 196608,
+    "rebalanced_prior": 262144,
+    "prior_decode_tok_s": 13.85,
+    "prior_ts": "58,42",
+    "source": "E11a/E11c (CLAUDE.md E11 EXECUTION LOG)"
+   }
+  },
   "Q6_K_XL": {
    "quant": "Q6_K_XL",
    "model": "/srv/models/Qwen3.8-27B-UD-Q6_K_XL.gguf",
    "mode": "g21",
-   "complete": false,
-   "cells_total": 1,
-   "cells_ok": 0,
-   "rebalanced_ceiling_ctx": null,
+   "complete": true,
+   "cells_total": 8,
+   "cells_ok": 2,
+   "rebalanced_ceiling_ctx": 212992,
    "reaches_native_262144": false,
-   "ceiling_note": null,
+   "ceiling_note": "rung 229376 failed; winning config attempted 2 times (R2 two-attempt rule)",
    "default_split_ceiling": 131072,
-   "ceiling_gain_tokens": null,
+   "ceiling_gain_tokens": 81920,
    "best_ts": null,
    "best_decode_tok_s": null,
    "best_decode_tok_s_median3": null,
    "selected_on": "rep1 (pre-2026-08-30 artifact)",
    "decode_gain_vs_default_split": null,
-   "best_prefill_tok_s": null,
-   "best_vram_peak_mib": null,
-   "best_imbalance_mib": null,
-   "best_mtp_acceptance": null,
-   "best_prefill_frac": null,
+   "best_prefill_tok_s": 559.3084514529419,
+   "best_vram_peak_mib": [
+    15656,
+    15414
+   ],
+   "best_imbalance_mib": 242,
+   "best_mtp_acceptance": 0.5886,
+   "best_prefill_frac": 0.9469,
    "depth_gate_ok": true,
    "depth_gate_violations": [],
    "d2": null,
    "d3": null,
-   "g21": null,
-   "ratio_table_at_ceiling": [],
+   "g21": {
+    "verdict": "Q6_K_XL MTP ceiling rebalanced to 212992 (published default-split: 131,072)",
+    "best_ts": "56,44",
+    "ceiling": {
+     "ctx": 212992,
+     "failed_rung_above": 229376,
+     "failed_rung_attempts": 2,
+     "note": "rung 229376 failed; winning config attempted 2 times (R2 two-attempt rule)"
+    }
+   },
+   "ratio_table_at_ceiling": [
+    {
+     "ts": "56,44",
+     "ok": true,
+     "decode_tok_s": 17.259924614794176,
+     "prefill_tok_s": 591.9500895930515,
+     "vram_peak_mib": [
+      15416,
+      15840
+     ],
+     "imbalance_mib": 424,
+     "prefill_frac": 0.9474,
+     "mtp_acceptance": 0.8971,
+     "failure_mode": null
+    },
+    {
+     "ts": "52,48",
+     "ok": false,
+     "decode_tok_s": null,
+     "prefill_tok_s": null,
+     "vram_peak_mib": [
+      15090,
+      15538
+     ],
+     "imbalance_mib": 448,
+     "prefill_frac": null,
+     "mtp_acceptance": null,
+     "failure_mode": "compute-buffer-oom"
+    },
+    {
+     "ts": "54,46",
+     "ok": false,
+     "decode_tok_s": null,
+     "prefill_tok_s": null,
+     "vram_peak_mib": [
+      15644,
+      14986
+     ],
+     "imbalance_mib": 658,
+     "prefill_frac": null,
+     "mtp_acceptance": null,
+     "failure_mode": "compute-buffer-oom"
+    },
+    {
+     "ts": "58,42",
+     "ok": false,
+     "decode_tok_s": null,
+     "prefill_tok_s": null,
+     "vram_peak_mib": [
+      12810,
+      10594
+     ],
+     "imbalance_mib": 2216,
+     "prefill_frac": null,
+     "mtp_acceptance": null,
+     "failure_mode": "compute-buffer-oom"
+    },
+    {
+     "ts": "default",
+     "ok": false,
+     "decode_tok_s": null,
+     "prefill_tok_s": null,
+     "vram_peak_mib": [
+      13810,
+      15616
+     ],
+     "imbalance_mib": 1806,
+     "prefill_frac": null,
+     "mtp_acceptance": null,
+     "failure_mode": "compute-buffer-oom"
+    }
+   ],
    "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
    "prior": {
     "default_split_ceiling": 131072,

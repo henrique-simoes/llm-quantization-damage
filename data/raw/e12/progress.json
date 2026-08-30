@@ -1,6 +1,15 @@
 {
- "updated_utc": "2026-08-30T04:31:27Z",
+ "updated_utc": "2026-08-30T08:15:43Z",
  "supervisor_pid": 1846476,
- "steps": [],
+ "steps": [
+  {
+   "name": "summarize",
+   "status": "ok",
+   "rc": 0,
+   "log": "/srv/bench/e12/logs/summarize.log",
+   "note": "",
+   "at": "2026-08-30T08:15:43Z"
+  }
+ ],
  "started_utc": "2026-08-30T04:31:27Z"
 }

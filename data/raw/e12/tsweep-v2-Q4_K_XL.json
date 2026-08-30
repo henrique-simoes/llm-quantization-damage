@@ -860,9 +860,136 @@
    "mtp_acceptance": 0.592,
    "truncated": false,
    "finished_utc": "2026-08-30T07:55:13Z"
+  },
+  {
+   "key": "212992:58,42:2:base",
+   "ctx_requested": 212992,
+   "ts": "58,42",
+   "rep": 2,
+   "tag": null,
+   "ctxcp": 4,
+   "ok": true,
+   "stage": "done",
+   "failure_mode": null,
+   "error": "",
+   "n_ctx_reported": 212992,
+   "command": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -ts 58,42 -c 212992 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 4 --spec-type draft-mtp --spec-draft-n-max 2 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "prefill_tokens": 201672,
+   "prefill_frac": 0.9469,
+   "prefill_tok_s": 577.536702069093,
+   "decode_tok_s": 12.871332032587517,
+   "n_predict": 192,
+   "seed": 20260832,
+   "sampling": {
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "top_k": 20,
+    "min_p": 0.0,
+    "presence_penalty": 1.5,
+    "repeat_penalty": 1.0
+   },
+   "spec_live": true,
+   "draft_n": 174,
+   "draft_n_accepted": 103,
+   "vram_peak_mib": [
+    12948,
+    13148
+   ],
+   "vram_prefill_end_mib": [
+    12948,
+    13146
+   ],
+   "imbalance_mib": 200,
+   "imbalance_timealigned_mib": 1712,
+   "load_seconds": 175,
+   "serverlog": "/srv/bench/server-timings/e12-Q4_K_XL-c212992-ts58_42-rep2.serverlog",
+   "serverlog_bytes": 17818,
+   "free_bytes": {
+    "/srv/models": {
+     "available": 38924001280
+    },
+    "/": {
+     "available": 82772324352
+    }
+   },
+   "when_utc": "2026-08-30T07:55:13Z",
+   "prefill_target_tokens": 201830,
+   "mtp_acceptance": 0.592,
+   "truncated": false,
+   "finished_utc": "2026-08-30T08:05:05Z"
+  },
+  {
+   "key": "212992:58,42:3:base",
+   "ctx_requested": 212992,
+   "ts": "58,42",
+   "rep": 3,
+   "tag": null,
+   "ctxcp": 4,
+   "ok": true,
+   "stage": "done",
+   "failure_mode": null,
+   "error": "",
+   "n_ctx_reported": 212992,
+   "command": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -ts 58,42 -c 212992 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 4 --spec-type draft-mtp --spec-draft-n-max 2 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "prefill_tokens": 201672,
+   "prefill_frac": 0.9469,
+   "prefill_tok_s": 628.491741547088,
+   "decode_tok_s": 13.326195330068577,
+   "n_predict": 192,
+   "seed": 20260833,
+   "sampling": {
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "top_k": 20,
+    "min_p": 0.0,
+    "presence_penalty": 1.5,
+    "repeat_penalty": 1.0
+   },
+   "spec_live": true,
+   "draft_n": 174,
+   "draft_n_accepted": 103,
+   "vram_peak_mib": [
+    12948,
+    13148
+   ],
+   "vram_prefill_end_mib": [
+    12948,
+    13146
+   ],
+   "imbalance_mib": 200,
+   "imbalance_timealigned_mib": 8586,
+   "load_seconds": 172,
+   "serverlog": "/srv/bench/server-timings/e12-Q4_K_XL-c212992-ts58_42-rep3.serverlog",
+   "serverlog_bytes": 17818,
+   "free_bytes": {
+    "/srv/models": {
+     "available": 38924001280
+    },
+    "/": {
+     "available": 82758152192
+    }
+   },
+   "when_utc": "2026-08-30T08:05:05Z",
+   "prefill_target_tokens": 201830,
+   "mtp_acceptance": 0.592,
+   "truncated": false,
+   "finished_utc": "2026-08-30T08:13:57Z"
   }
  ],
- "best": null,
+ "best": {
+  "ctx": 212992,
+  "ts": "56,44",
+  "decode_tok_s": 15.958839229233185,
+  "decode_tok_s_rep1": 15.958839229233185,
+  "decode_tok_s_median3": 13.330713720131088,
+  "selected_on": "median_of_3",
+  "imbalance_mib": 1172,
+  "mtp_acceptance": 0.7905,
+  "key": "212992:56,44:1:base",
+  "rule": "max decode_tok_s; D2 median-of-3 on contest; ties: smaller |imbalance|, then ratio nearer default"
+ },
  "best_speed": 212992,
  "best_at_ceiling": {
   "key": "262144:default:1:base",
@@ -982,6 +1109,20 @@
   },
   "extra": {
    "mode": "ceiling_and_speed"
+  }
+ },
+ "d2": {
+  "contested": [
+   "56,44",
+   "58,42"
+  ],
+  "base": {
+   "56,44": 15.958839229233185,
+   "58,42": 15.879983903848776
+  },
+  "median_of_3": {
+   "56,44": 13.330713720131088,
+   "58,42": 13.326195330068577
   }
  }
 }

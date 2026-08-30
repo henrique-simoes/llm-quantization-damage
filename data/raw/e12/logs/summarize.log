@@ -1,3 +1,5 @@
+
+-> /srv/bench/e12/wave1-summary.json
 # Wave 1 — tensor-split rebalance: context ceilings and decode at depth
 
 **Question:** After a full -ts rebalance sweep, what context ceiling and what decode rate at ~95 % window depth does each quant reach on a surviving image?
