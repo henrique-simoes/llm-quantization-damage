@@ -10,7 +10,7 @@ stage: S2-execute
 status: in-progress
 blocked_on: null
 last: { agent: claude-opus-5, at: 2026-08-30T03:40:00Z, ledger: L-5 }
-next_action: "T4/T5 sweep running DETACHED on multivac: runner_wave1.sh sweep Q6_K_XL Q6_K Q4_K_XL (pid 1498430). Do NOT start a second runner (flock refuses, exit 3) and do NOT run verify-sweep.sh while it runs (sha256 of ~60 GB perturbs the live measurement). On completion: summarize_wave1.py -> verify-sweep.sh --stage 1a -> T3b delete-1b (Q6_K_XL) -> T6 close-out."
+next_action: "AUTONOMOUS until the sweep ends. T4/T5 running detached (runner_wave1.sh sweep Q6_K_XL Q6_K Q4_K_XL, pid 1498430); finish_wave1.sh (pid 1661639) waits on it and then runs summarize_wave1.py + verify-sweep.sh --stage 1a. D3/A8 is automatic inside the Q6_K sweep. Do NOT start a second runner (flock, exit 3) and do NOT run verify-sweep.sh by hand while the GPU work is live. OWNER STEPS REMAINING: T3b delete-1b (Q6_K_XL) after its bracket reaches the ledger, then T6 close-out."
 conductor: { run: qbench-t1, shape: solo-architect, waves: 4, manifest: docs/build-stream/qbench-t1-waves.json, state: HALTED-verdict-repair-exhausted-2026-08-30T01:57Z, execution: hand-driven per DEC-8 }
 ```
 <!-- /STATUS BLOCK -->
@@ -1027,3 +1027,13 @@ Next: let the sweep finish (Q6_K_XL bracket -> Q6_K -> Q4_K_XL; ~2-5 h at 14-16 
   = 64.2 GB, matching F-C's arithmetic) -> D3 `-ctxcp` 4-vs-32 A/B at Q6_K's winner (A8) -> T6
   close-out. Owner calls waiting at the wave boundary: DEC-7 acknowledgement, and what to do with
   the halted conductor's stale reviewer task (DEC-8).
+
+Addendum 2026-08-30T03:41Z: `runner_wave1.sh` stops after its tsweeps — nothing chained to the
+  closing steps, so the wave would have idled until a human noticed. Added
+  `/srv/bench/e12/finish_wave1.sh` (pid 1661639, flock-guarded per D6): it waits for runner pid
+  1498430 to exit, sleeps 45 s for the last container teardown and serverlog flush, then runs
+  `summarize_wave1.py --md` and `verify-sweep.sh --stage 1a` — the two REVERSIBLE closing steps,
+  in the only order that is safe (the sha256 pass cannot overlap a live measurement). It stops
+  deliberately before T3b delete-1b: that deletion is irreversible, is gated on the Q6_K_XL
+  bracket results reaching this ledger, and stays an owner action. A8 needs no step here — the
+  D3 `-ctxcp` 4-vs-32 A/B runs inside the Q6_K sweep automatically (`tsweep_v2.run_d3`).
