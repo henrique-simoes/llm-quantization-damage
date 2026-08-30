@@ -1,0 +1,13 @@
+total 1452
+drwxrwxr-x 2 multivac multivac   4096 Aug 30 02:56 .
+drwxrwxr-x 6 multivac multivac   4096 Aug 30 03:25 ..
+-rw-rw-r-- 1 multivac multivac 649618 Aug 29 23:34 pad_201830_0.txt.bisection-bug
+-rw-rw-r-- 1 multivac multivac 699657 Aug 29 23:42 pad_217395_0.txt.bisection-bug
+-rwxr-xr-x 1 multivac multivac   3301 Aug 29 22:02 pad_e12.py.orig
+-rw-rw-r-- 1 multivac multivac  13691 Aug 30 02:55 tsweep-v2-Q4_K_XL.json.race-025630
+-rw-rw-r-- 1 multivac multivac   9466 Aug 30 02:36 tsweep-v2-Q4_K_XL.json.shallow-prefill-79pct
+-rw-rw-r-- 1 multivac multivac   9466 Aug 30 02:36 tsweep-v2-Q4_K_XL.json.superseded-shallow
+-rw-rw-r-- 1 multivac multivac  12836 Aug 30 02:55 tsweep-v2-Q6_K.json.race-025630
+-rw-rw-r-- 1 multivac multivac   4849 Aug 30 02:51 tsweep-v2-Q6_K_XL.json.badratios
+-rw-rw-r-- 1 multivac multivac  27113 Aug 30 02:55 tsweep-v2-Q6_K_XL.json.race-025630
+-rwxr-xr-x 1 multivac multivac  24805 Aug 30 00:06 tsweep_v2.py.orig

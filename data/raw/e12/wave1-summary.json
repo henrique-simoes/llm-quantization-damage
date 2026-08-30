@@ -1,0 +1,236 @@
+{
+ "artifact": "e12-wave1-summary",
+ "source": "e12-wave1",
+ "run_ids": [
+  "tsweep-v2-Q5_K_XL",
+  "tsweep-v2-Q6_K_XL"
+ ],
+ "question": "After a full -ts rebalance sweep, what context ceiling and what decode rate at ~95 % window depth does each quant reach on a surviving image?",
+ "answers_track_a_priorities": [
+  "(2) usable context",
+  "(3) tok/s"
+ ],
+ "does_not_answer": [
+  "(1) accuracy \u2014 a quant property this wave does not measure; no NLL/KV-fidelity/NIAH data is produced here, so this summary MUST NOT be read as a Track A config selection"
+ ],
+ "complete_quants": [
+  "Q5_K_XL"
+ ],
+ "incomplete_or_missing": [
+  "Q4_K_XL",
+  "Q6_K",
+  "Q6_K_XL"
+ ],
+ "reach_native_262144": [
+  "Q5_K_XL"
+ ],
+ "fastest_at_native_window": {
+  "quant": "Q5_K_XL",
+  "ts": "54,46",
+  "decode_tok_s": 10.823706137851742
+ },
+ "context_speed_frontier": [
+  {
+   "quant": "Q5_K_XL",
+   "ceiling": 262144,
+   "ts": "54,46",
+   "decode_tok_s": 10.823706137851742,
+   "prefill_tok_s": 522.2541609401716,
+   "vram_peak_mib": [
+    14660,
+    15402
+   ]
+  },
+  {
+   "quant": "Q6_K_XL",
+   "ceiling": null,
+   "ts": null,
+   "decode_tok_s": null,
+   "prefill_tok_s": null,
+   "vram_peak_mib": null
+  }
+ ],
+ "caveats": [
+  "SAMPLING: every request carries the DEC-2 official non-thinking block (temp 0.7 / top_p 0.80 / top_k 20 / presence 1.5), NOT greedy. Decode and acceptance rows are therefore NOT comparable to the e11 / ctx=32768 tables, which were measured at temperature 0.",
+  "DEPTH: decode is measured after a real prefill to >=0.90 of the window (actual ~0.945). Published 'ctx=32768' speed tables decode into a nearly EMPTY KV cache and are 3-5x faster; the two must never share a table.",
+  "PAD DEFECT (2026-08-30): the first Q4_K_XL pass prefilled only 0.797 of the window because the pad builder's fixed-bracket bisection returned short. Those cells are quarantined under e12/quarantine/ and were re-run; the >=0.90 gate is now enforced in code and covered by regression tests.",
+  "RATIO CHOICE IS NOT MONOTONE-SAFE: a ratio that loads at one ctx may fail at another, and the winner differs per quant. Re-sweep -ts on any change of quant, KV dtype or spec setting.",
+  "ALL CELLS: -sm layer, q4_0 KV, MTP n=2, -fit off, -ctxcp 4, -np 1 on llamacpp-mtp:latest. -sm tensor is dead on both surviving images (E6)."
+ ],
+ "pads": {
+  "all_ok": true,
+  "rule": "target = int(ctx*0.95)-512; a pad is valid iff |actual-target| <= max(64, 0.005*target) AND actual/ctx >= 0.90",
+  "n": 9
+ },
+ "quants": {
+  "Q5_K_XL": {
+   "quant": "Q5_K_XL",
+   "model": "/srv/models/Qwen3.8-27B-UD-Q5_K_XL.gguf",
+   "mode": "speed",
+   "complete": true,
+   "cells_total": 10,
+   "cells_ok": 9,
+   "rebalanced_ceiling_ctx": 262144,
+   "reaches_native_262144": true,
+   "ceiling_note": "262,144 is the engine/native maximum \u2014 no rung above exists to bracket; historical failed rungs BELOW it are recorded per-cell with classified modes",
+   "default_split_ceiling": 196608,
+   "ceiling_gain_tokens": 65536,
+   "best_ts": "54,46",
+   "best_decode_tok_s": 10.823706137851742,
+   "best_decode_tok_s_median3": null,
+   "selected_on": "rep1 (pre-2026-08-30 artifact)",
+   "decode_gain_vs_default_split": null,
+   "best_prefill_tok_s": 522.2541609401716,
+   "best_vram_peak_mib": [
+    14660,
+    15402
+   ],
+   "best_imbalance_mib": 742,
+   "best_mtp_acceptance": 0.516,
+   "best_prefill_frac": 0.948,
+   "depth_gate_ok": true,
+   "depth_gate_violations": [],
+   "d2": {
+    "contested": [
+     "54,46",
+     "56,44"
+    ],
+    "base": {
+     "54,46": 10.823706137851742,
+     "56,44": 10.77693034994047
+    },
+    "median_of_3": {
+     "54,46": 12.70430230865109,
+     "56,44": 12.51396847161334
+    }
+   },
+   "d3": null,
+   "g21": null,
+   "ratio_table_at_ceiling": [
+    {
+     "ts": "54,46",
+     "ok": true,
+     "decode_tok_s": 10.823706137851742,
+     "prefill_tok_s": 522.2541609401716,
+     "vram_peak_mib": [
+      14660,
+      15402
+     ],
+     "imbalance_mib": 742,
+     "prefill_frac": 0.948,
+     "mtp_acceptance": 0.516,
+     "failure_mode": null
+    },
+    {
+     "ts": "56,44",
+     "ok": true,
+     "decode_tok_s": 10.77693034994047,
+     "prefill_tok_s": 521.1180236790291,
+     "vram_peak_mib": [
+      14946,
+      15112
+     ],
+     "imbalance_mib": 166,
+     "prefill_frac": 0.948,
+     "mtp_acceptance": 0.516,
+     "failure_mode": null
+    },
+    {
+     "ts": "60,40",
+     "ok": true,
+     "decode_tok_s": 10.667038393407747,
+     "prefill_tok_s": 499.1787338619306,
+     "vram_peak_mib": [
+      15260,
+      14084
+     ],
+     "imbalance_mib": 1176,
+     "prefill_frac": 0.948,
+     "mtp_acceptance": 0.516,
+     "failure_mode": null
+    },
+    {
+     "ts": "62,38",
+     "ok": true,
+     "decode_tok_s": 10.440129628147725,
+     "prefill_tok_s": 470.48545281648273,
+     "vram_peak_mib": [
+      15546,
+      13796
+     ],
+     "imbalance_mib": 1750,
+     "prefill_frac": 0.948,
+     "mtp_acceptance": 0.516,
+     "failure_mode": null
+    },
+    {
+     "ts": "58,42",
+     "ok": true,
+     "decode_tok_s": 8.50272792886591,
+     "prefill_tok_s": 530.7556930233725,
+     "vram_peak_mib": [
+      15498,
+      15470
+     ],
+     "imbalance_mib": 28,
+     "prefill_frac": 0.948,
+     "mtp_acceptance": 0.516,
+     "failure_mode": null
+    },
+    {
+     "ts": "default",
+     "ok": false,
+     "decode_tok_s": null,
+     "prefill_tok_s": null,
+     "vram_peak_mib": [
+      13540,
+      15070
+     ],
+     "imbalance_mib": 1530,
+     "prefill_frac": null,
+     "mtp_acceptance": null,
+     "failure_mode": "compute-buffer-oom"
+    }
+   ],
+   "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "prior": {
+    "default_split_ceiling": 196608,
+    "source": "E11a (supersedes E1's 163,840, which was a VRAM-gate artifact)"
+   }
+  },
+  "Q6_K_XL": {
+   "quant": "Q6_K_XL",
+   "model": "/srv/models/Qwen3.8-27B-UD-Q6_K_XL.gguf",
+   "mode": "g21",
+   "complete": false,
+   "cells_total": 1,
+   "cells_ok": 0,
+   "rebalanced_ceiling_ctx": null,
+   "reaches_native_262144": false,
+   "ceiling_note": null,
+   "default_split_ceiling": 131072,
+   "ceiling_gain_tokens": null,
+   "best_ts": null,
+   "best_decode_tok_s": null,
+   "best_decode_tok_s_median3": null,
+   "selected_on": "rep1 (pre-2026-08-30 artifact)",
+   "decode_gain_vs_default_split": null,
+   "best_prefill_tok_s": null,
+   "best_vram_peak_mib": null,
+   "best_imbalance_mib": null,
+   "best_mtp_acceptance": null,
+   "best_prefill_frac": null,
+   "depth_gate_ok": true,
+   "depth_gate_violations": [],
+   "d2": null,
+   "d3": null,
+   "g21": null,
+   "ratio_table_at_ceiling": [],
+   "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "prior": {
+    "default_split_ceiling": 131072,
+    "source": "E1 /srv/bench/q6-ceiling.json (MTP n2, q4_0, layer)"
+   }
+  }
+ }
+}

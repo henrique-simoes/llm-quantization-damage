@@ -1,0 +1,202 @@
+{
+ "experiment": "e12-validate-v2-selftest",
+ "when_utc": "2026-08-29T22:53:17Z",
+ "faults": [
+  {
+   "id": "F2",
+   "injected": "no chat_template_kwargs (thinking ON by default)",
+   "caught": true,
+   "caught_by": "C3",
+   "detail": {
+    "content_head": "",
+    "reasoning_len": 8,
+    "finish_reason": "length"
+   }
+  },
+  {
+   "id": "F3",
+   "injected": "request carries no sampling fields",
+   "caught": true,
+   "caught_by": "C2",
+   "detail": {
+    "readback": {
+     "seed": 20260830,
+     "temperature": 1.0,
+     "dynatemp_range": 0.0,
+     "dynatemp_exponent": 1.0,
+     "top_k": 20,
+     "top_p": 0.949999988079071,
+     "min_p": 0.05000000074505806,
+     "top_n_sigma": -1.0,
+     "xtc_probability": 0.0,
+     "xtc_threshold": 0.10000000149011612,
+     "typical_p": 1.0,
+     "repeat_last_n": 64,
+     "repeat_penalty": 1.0,
+     "presence_penalty": 0.0,
+     "frequency_penalty": 0.0,
+     "dry_multiplier": 0.0,
+     "dry_base": 1.75,
+     "dry_allowed_length": 2,
+     "dry_penalty_last_n": 64,
+     "dry_sequence_breakers": [
+      "\n",
+      ":",
+      "\"",
+      "*"
+     ],
+     "mirostat": 0,
+     "mirostat_tau": 5.0,
+     "mirostat_eta": 0.10000000149011612,
+     "adaptive_target": -1.0,
+     "adaptive_decay": 0.8999999761581421,
+     "stop": [],
+     "max_tokens": 1,
+     "n_predict": 1,
+     "n_keep": 0,
+     "n_discard": 0,
+     "ignore_eos": false,
+     "stream": false,
+     "logit_bias": [],
+     "n_probs": 0,
+     "min_keep": 0,
+     "grammar": "",
+     "grammar_lazy": false,
+     "grammar_triggers": [],
+     "preserved_tokens": [],
+     "chat_format": "Content-only",
+     "reasoning_format": "deepseek",
+     "reasoning_in_content": false,
+     "generation_prompt": "",
+     "samplers": [
+      "penalties",
+      "dry",
+      "top_n_sigma",
+      "top_k",
+      "typ_p",
+      "top_p",
+      "min_p",
+      "xtc",
+      "temperature"
+     ],
+     "speculative.types": "none,draft-mtp",
+     "timings_per_token": false,
+     "post_sampling_probs": false,
+     "backend_sampling": false,
+     "lora": []
+    },
+    "expected_defaults_F_D": {
+     "temperature": 1.0,
+     "top_k": 20,
+     "top_p": 0.95,
+     "min_p": 0.05,
+     "presence_penalty": 0.0,
+     "repeat_penalty": 1.0
+    }
+   }
+  },
+  {
+   "id": "F4",
+   "injected": "requested-model mismatch (Q5_K_XL requested vs Q4_K_XL served) + manifest-absent GGUF lookup",
+   "caught": true,
+   "caught_by": "C4",
+   "detail": {
+    "mismatch_rejected": true,
+    "absence_rejected": true,
+    "absent_probe": {
+     "file": "/srv/bench/models/Qwen3.8-27B-UD-Q6_K.gguf",
+     "bytes": 21983677344,
+     "sha256": null,
+     "source": "missing"
+    },
+    "http": {
+     "http_200_without_model_field": true,
+     "note": "llama.cpp ignores the client model field (HTTP 200) \u2014 protection lives in C4 provenance, by design (plan F4 note)"
+    }
+   }
+  },
+  {
+   "id": "F1",
+   "injected": "-fit on above the ceiling (262,144, then 999,999,999 if unshrunk)",
+   "caught": true,
+   "caught_by": "C1",
+   "detail": {
+    "stages": [
+     {
+      "stage": "fit-on-262144",
+      "caught": false,
+      "n_ctx_reported": 262144,
+      "note": "FAULT DID NOT MATERIALIZE: this engine loaded and reported 262,144 with -fit on (e11 saw init-hang at fit-off) \u2014 recorded as a Wave-1 finding"
+     },
+     {
+      "stage": "health-999999999",
+      "caught": true,
+      "error": "0.00.341.113 I cmn  common_param: common_params_print_info: verbosity = 3 (adjust with the `-lv N` CLI arg)\n0.00.349.977 W srv  llama_server: -----------------\n0.00.349.980 W srv  llama_server: CORS is set to allow all origins ('*') and no API key is set\n0.00.349.980 W srv  llama_server: this can be"
+     }
+    ]
+   }
+  }
+ ],
+ "ok": true,
+ "control_command": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -c 32768 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 4 --spec-type draft-mtp --spec-draft-n-max 2 --seed 20260830 -lv 5 --host 0.0.0.0 --port 8080",
+ "teardown": {
+  "serverlog": "/srv/bench/server-timings/e12-selftest-control.serverlog",
+  "serverlog_bytes": 212743,
+  "tg_samples": 8,
+  "removed_utc": "2026-08-29T22:56:06Z"
+ },
+ "env": {
+  "source": "e12-wave1",
+  "run_ids": [],
+  "recorded_utc": "2026-08-29T22:55:57Z",
+  "image": {
+   "image": "llamacpp-mtp:latest",
+   "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "manifest_image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "version_string": "version: 0.3.0-dev (build 1, commit d222767); built with GNU 13.3.0 for Linux x86_64",
+   "matches_manifest": true
+  },
+  "model": {
+   "file": "/srv/models/Qwen3.8-27B-UD-Q4_K_XL.gguf",
+   "bytes": 17559178144,
+   "sha256": "3f227079003add2511437e5b1e94812e363385225bf6a9b47b0054a72bc8b01e",
+   "source": "env-manifest"
+  },
+  "seed": 20260830,
+  "sampling_non_thinking": {
+   "temperature": 0.7,
+   "top_p": 0.8,
+   "top_k": 20,
+   "min_p": 0.0,
+   "presence_penalty": 1.5,
+   "repeat_penalty": 1.0
+  },
+  "sampling_thinking": {
+   "temperature": 1.0,
+   "top_p": 0.95,
+   "top_k": 20,
+   "min_p": 0.0,
+   "presence_penalty": 0.0,
+   "repeat_penalty": 1.0
+  },
+  "server_defaults_measured": {
+   "temperature": 1.0,
+   "top_k": 20,
+   "top_p": 0.95,
+   "min_p": 0.05,
+   "presence_penalty": 0.0,
+   "repeat_penalty": 1.0
+  },
+  "kv_dtype": "q4_0",
+  "spec": "mtp2",
+  "split_mode": "layer",
+  "ctx_requested": 32768,
+  "ts": null,
+  "ctxcp": 4,
+  "free_bytes": {
+   "/srv/models": 1226551296,
+   "/": 23360675840
+  },
+  "extra": {}
+ }
+}

@@ -1,0 +1,11 @@
+{
+ "experiment": "e12-phase1-disk-sweep",
+ "phases": [
+  {
+   "phase": "delete-1a",
+   "docs_commit": "f157896",
+   "df_after_utc": "2026-08-29T23:27:07Z",
+   "df": "Filesystem        1B-blocks         Used   Available Use% Mounted on\n/dev/sda       117549133824  72606650368 38924001280  66% /srv/models\n/dev/sdb2      234039422976 138883813376 83192459264  63% /\n"
+  }
+ ]
+}

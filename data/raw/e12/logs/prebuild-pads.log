@@ -1,0 +1,13 @@
+launch rc 0 docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/
+tokenizer server up in 162s
+  ctx 262144  target 248524  actual 248522  err    -2 frac 0.9480 gate OK (19s)
+  ctx 245760  target 232960  actual 232933  err   -27 frac 0.9478 gate OK (0s)
+  ctx 229376  target 217395  actual 217140  err  -255 frac 0.9467 gate OK (1s)
+  ctx 212992  target 201830  actual 201672  err  -158 frac 0.9469 gate OK (1s)
+  ctx 196608  target 186265  actual 186265  err    +0 frac 0.9474 gate OK (0s)
+  ctx 180224  target 170700  actual 170481  err  -219 frac 0.9459 gate OK (1s)
+  ctx 163840  target 155136  actual 155098  err   -38 frac 0.9466 gate OK (1s)
+  ctx 147456  target 139571  actual 139336  err  -235 frac 0.9449 gate OK (1s)
+  ctx 131072  target 124006  actual 123666  err  -340 frac 0.9435 gate OK (1s)
+
+all_ok: True -> /srv/bench/e12/pads-manifest.json

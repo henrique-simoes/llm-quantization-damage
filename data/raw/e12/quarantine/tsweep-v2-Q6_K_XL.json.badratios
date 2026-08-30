@@ -1,0 +1,164 @@
+{
+ "experiment": "e12-tensor-split-rebalance-v2",
+ "quant": "Q6_K_XL",
+ "model": "/srv/models/Qwen3.8-27B-UD-Q6_K_XL.gguf",
+ "mode": "g21",
+ "source": "e12-wave1",
+ "run_ids": [
+  "tsweep-v2-Q6_K_XL"
+ ],
+ "sm": "layer",
+ "kv": "q4_0",
+ "spec": "mtp2",
+ "ctxcp": 4,
+ "decode_tokens": 192,
+ "sampling": {
+  "temperature": 0.7,
+  "top_p": 0.8,
+  "top_k": 20,
+  "min_p": 0.0,
+  "presence_penalty": 1.5,
+  "repeat_penalty": 1.0
+ },
+ "sampling_note": "DEC-2 non-thinking block on every request (owner 2026-08-30); speed/acceptance rows are NOT directly comparable to e11 rows measured at temperature 0; ceiling brackets are VRAM-based and unaffected; per-quant comparisons are internal to this wave.",
+ "ratios": [
+  "58,42",
+  "62,38",
+  "60,40"
+ ],
+ "ladder": [
+  262144,
+  245760,
+  229376,
+  212992,
+  196608,
+  180224,
+  163840,
+  147456,
+  131072,
+  114688,
+  98304
+ ],
+ "policy": {
+  "climb": "winner+runner-up per rung; failed rung attempted twice with the winning ratio (R2)",
+  "d2": "top-two decode medians within 10% -> median-of-3; ties: smaller |imbalance|, then ratio nearer default",
+  "d3": "one -ctxcp 4 vs 32 A/B pair at the Q6_K winning cell",
+  "prefill_gate": "a cell FAILS as 'pad-too-short' unless the measured prefill reaches >=0.90 of the requested ctx (enforced 2026-08-30; previously documented only)"
+ },
+ "cells": [
+  {
+   "key": "196608:58,42:1:base",
+   "ctx_requested": 196608,
+   "ts": "58,42",
+   "rep": 1,
+   "tag": null,
+   "ctxcp": 4,
+   "ok": false,
+   "stage": "health",
+   "failure_mode": "compute-buffer-oom",
+   "error": "load hang / died: llocate compute buffers 3.20.089.143 E llama_init_from_model: failed to initialize the context: failed to allocate compute pp buffers 3.20.089.169 E cmn  common_init_: failed to create context with model '/models/Qwen3.8-27B-UD-Q6_K_XL.gguf' 3.20.106.273 E cmn  common_init_: failed to create context with model '/models/Qwen3.8-27B-UD-Q6_K_XL.gguf' 3.20.120.439 E srv    load_model",
+   "n_ctx_reported": 0,
+   "command": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -ngl 99 -sm layer -ts 58,42 -c 196608 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 4 --spec-type draft-mtp --spec-draft-n-max 2 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "prefill_tokens": 0,
+   "prefill_frac": null,
+   "prefill_tok_s": null,
+   "decode_tok_s": null,
+   "n_predict": 192,
+   "seed": 20260831,
+   "sampling": {
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "top_k": 20,
+    "min_p": 0.0,
+    "presence_penalty": 1.5,
+    "repeat_penalty": 1.0
+   },
+   "spec_live": null,
+   "draft_n": null,
+   "draft_n_accepted": null,
+   "vram_peak_mib": [
+    15036,
+    12276
+   ],
+   "vram_prefill_end_mib": [],
+   "imbalance_mib": 2760,
+   "imbalance_timealigned_mib": 12670,
+   "load_seconds": 228,
+   "serverlog": "/srv/bench/server-timings/e12-Q6_K_XL-c196608-ts58_42.serverlog",
+   "serverlog_bytes": 1826,
+   "free_bytes": {
+    "/srv/models": {
+     "available": 38924001280
+    },
+    "/": {
+     "available": 82854731776
+    }
+   },
+   "when_utc": "2026-08-30T02:47:27Z",
+   "finished_utc": "2026-08-30T02:51:22Z"
+  }
+ ],
+ "best": null,
+ "best_speed": null,
+ "best_at_ceiling": null,
+ "ceiling": null,
+ "d3": null,
+ "g21": null,
+ "env": {
+  "source": "e12-wave1",
+  "run_ids": [],
+  "recorded_utc": "2026-08-30T02:47:27Z",
+  "image": {
+   "image": "llamacpp-mtp:latest",
+   "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "manifest_image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "version_string": "version: 0.3.0-dev (build 1, commit d222767); built with GNU 13.3.0 for Linux x86_64",
+   "matches_manifest": true
+  },
+  "model": {
+   "file": "/srv/models/Qwen3.8-27B-UD-Q6_K_XL.gguf",
+   "bytes": 25299061664,
+   "sha256": "701d8fa9ed214ab21bfc130cd2a7df19ca89bbef7713e2dfb19f3c63696aa917",
+   "source": "env-manifest"
+  },
+  "seed": 20260830,
+  "sampling_non_thinking": {
+   "temperature": 0.7,
+   "top_p": 0.8,
+   "top_k": 20,
+   "min_p": 0.0,
+   "presence_penalty": 1.5,
+   "repeat_penalty": 1.0
+  },
+  "sampling_thinking": {
+   "temperature": 1.0,
+   "top_p": 0.95,
+   "top_k": 20,
+   "min_p": 0.0,
+   "presence_penalty": 0.0,
+   "repeat_penalty": 1.0
+  },
+  "server_defaults_measured": {
+   "temperature": 1.0,
+   "top_k": 20,
+   "top_p": 0.95,
+   "min_p": 0.05,
+   "presence_penalty": 0.0,
+   "repeat_penalty": 1.0
+  },
+  "kv_dtype": "q4_0",
+  "spec": "mtp2",
+  "split_mode": "layer",
+  "ctx_requested": 196608,
+  "ts": null,
+  "ctxcp": 4,
+  "free_bytes": {
+   "/srv/models": 38924001280,
+   "/": 82859151360
+  },
+  "extra": {
+   "mode": "g21"
+  }
+ }
+}

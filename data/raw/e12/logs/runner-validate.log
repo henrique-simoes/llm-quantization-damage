@@ -1,0 +1,7 @@
+[2026-08-29T22:53:17Z] runner phase=validate pid=616410
+positive run already green — skipping to selftest
+[CAUGHT] F2 by C3: {"content_head": "", "reasoning_len": 8, "finish_reason": "length"}
+[CAUGHT] F3 by C2: {"readback": {"seed": 20260830, "temperature": 1.0, "dynatemp_range": 0.0, "dynatemp_exponent": 1.0, "top_k": 20, "top_p": 0.949999988079071, "min_p": 0.05000000074505806, "top_n_sigma": -1.0, "xtc_pr
+[CAUGHT] F4 by C4: {"mismatch_rejected": true, "absence_rejected": true, "absent_probe": {"file": "/srv/bench/models/Qwen3.8-27B-UD-Q6_K.gguf", "bytes": 21983677344, "sha256": null, "source": "missing"}, "http": {"http_
+[CAUGHT] F1 by C1: {"stages": [{"stage": "fit-on-262144", "caught": false, "n_ctx_reported": 262144, "note": "FAULT DID NOT MATERIALIZE: this engine loaded and reported 262,144 with -fit on (e11 saw init-hang at fit-off
+SELFTEST: all faults caught -> /srv/bench/e12/validate-v2-selftest.json

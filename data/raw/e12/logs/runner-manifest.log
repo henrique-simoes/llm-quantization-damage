@@ -1,0 +1,12 @@
+[2026-08-29T23:23:50Z] runner phase=manifest pid=721266
+== manifest phase (no deletion happens here) ==
+manifest: iq4_xs-gguf already present — skip
+manifest: nvfp4-hf-cache already present — skip
+manifest: vllm-nightly-image image_id=sha256:22d3b1217fda5… repodigest=vllm/vllm-openai@sha256:22d3b1217fda569653f32f1e00a2a4e64119c1601c67ff94cc72d7ca5ef352c8
+manifest: vllm-v0.27.1-image image_id=sha256:0a51ea5b4ae2d… repodigest=vllm/vllm-openai@sha256:0a51ea5b4ae2dc5d81890e5173f54203d2a3ae0cfffe51b8fd2afd4391bfd967
+manifest: q6kxl-gguf already present — skip
+F-B repair: UD-Q6_K already pinned — skip
+Traceback (most recent call last):
+  File "<stdin>", line 6, in <module>
+NameError: name 'sys' is not defined. Did you forget to import 'sys'?
+manifest phase complete: 5 items manifested (deletion timestamps still NULL)

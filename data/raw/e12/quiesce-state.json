@@ -1,0 +1,9 @@
+{
+ "quiesced_utc": "2026-08-29T22:16:49Z",
+ "watchdog": {"pid": 2810112, "cmdline": "bash /srv/bench/orchestrator/watchdog.sh "},
+ "worker": {"pid": 3818720, "cmdline": "bash /srv/bench/orchestrator/worker.sh "},
+ "state_done_markers_intact": 6,
+ "restore_command": "setsid nohup bash /srv/bench/orchestrator/watchdog.sh >/dev/null 2>&1 < /dev/null &",
+ "restore_script": "/srv/bench/e12/experiments/restore_legacy.sh",
+ "note": "watchdog stopped FIRST, then worker. state/*.done untouched (KEEP). gpu.lock held by the e12 runner while experiments run (legacy gpu_busy() yields on a live pid)."
+}

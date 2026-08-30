@@ -1,0 +1,123 @@
+{
+ "experiment": "e12-pads-prebuild",
+ "source": "e12-wave1",
+ "run_ids": [
+  "prebuild-pads"
+ ],
+ "when_utc": "2026-08-30T02:46:16Z",
+ "tokenizer_model": "/srv/models/Qwen3.8-27B-UD-Q4_K_XL.gguf",
+ "image": {
+  "image": "llamacpp-mtp:latest",
+  "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+  "manifest_image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+  "version_string": "version: 0.3.0-dev (build 1, commit d222767); built with GNU 13.3.0 for Linux x86_64",
+  "matches_manifest": true
+ },
+ "corpus": {
+  "path": "/srv/bench/e12/corpus.txt",
+  "bytes": 9097163
+ },
+ "rule": "target = int(ctx*0.95)-512; a pad is valid iff |actual-target| <= max(64, 0.005*target) AND actual/ctx >= 0.90",
+ "all_ok": true,
+ "pads": [
+  {
+   "ctx": 262144,
+   "target_tokens": 248524,
+   "actual_tokens": 248522,
+   "chars": 1000208,
+   "prefill_frac": 0.948,
+   "err_tokens": -2,
+   "tol": 1242,
+   "gate_0p90_ok": true,
+   "build_s": 19.4
+  },
+  {
+   "ctx": 245760,
+   "target_tokens": 232960,
+   "actual_tokens": 232933,
+   "chars": 935425,
+   "prefill_frac": 0.9478,
+   "err_tokens": -27,
+   "tol": 1164,
+   "gate_0p90_ok": true,
+   "build_s": 0.3
+  },
+  {
+   "ctx": 229376,
+   "target_tokens": 217395,
+   "actual_tokens": 217140,
+   "chars": 864938,
+   "prefill_frac": 0.9467,
+   "err_tokens": -255,
+   "tol": 1086,
+   "gate_0p90_ok": true,
+   "build_s": 1.1
+  },
+  {
+   "ctx": 212992,
+   "target_tokens": 201830,
+   "actual_tokens": 201672,
+   "chars": 794918,
+   "prefill_frac": 0.9469,
+   "err_tokens": -158,
+   "tol": 1009,
+   "gate_0p90_ok": true,
+   "build_s": 0.9
+  },
+  {
+   "ctx": 196608,
+   "target_tokens": 186265,
+   "actual_tokens": 186265,
+   "chars": 721749,
+   "prefill_frac": 0.9474,
+   "err_tokens": 0,
+   "tol": 931,
+   "gate_0p90_ok": true,
+   "build_s": 0.2
+  },
+  {
+   "ctx": 180224,
+   "target_tokens": 170700,
+   "actual_tokens": 170481,
+   "chars": 651701,
+   "prefill_frac": 0.9459,
+   "err_tokens": -219,
+   "tol": 853,
+   "gate_0p90_ok": true,
+   "build_s": 0.8
+  },
+  {
+   "ctx": 163840,
+   "target_tokens": 155136,
+   "actual_tokens": 155098,
+   "chars": 581691,
+   "prefill_frac": 0.9466,
+   "err_tokens": -38,
+   "tol": 775,
+   "gate_0p90_ok": true,
+   "build_s": 0.7
+  },
+  {
+   "ctx": 147456,
+   "target_tokens": 139571,
+   "actual_tokens": 139336,
+   "chars": 510980,
+   "prefill_frac": 0.9449,
+   "err_tokens": -235,
+   "tol": 697,
+   "gate_0p90_ok": true,
+   "build_s": 0.6
+  },
+  {
+   "ctx": 131072,
+   "target_tokens": 124006,
+   "actual_tokens": 123666,
+   "chars": 441898,
+   "prefill_frac": 0.9435,
+   "err_tokens": -340,
+   "tol": 620,
+   "gate_0p90_ok": true,
+   "build_s": 0.5
+  }
+ ]
+}

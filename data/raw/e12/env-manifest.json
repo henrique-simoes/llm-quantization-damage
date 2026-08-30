@@ -1,0 +1,123 @@
+{
+ "artifact": "env-manifest",
+ "generated_utc": "2026-08-29T06:20:00Z",
+ "purpose": "E0 environment truth pass. Every experiment artifact must reference the image id recorded here, because the historical image that produced every tensor-split / 262K result (llamacpp-dflash2-pr27342:1deefcc-sm120-cuda128-abi) is no longer on disk.",
+ "docker_images": {
+  "llamacpp-mtp:latest": {
+   "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "created": "2026-08-25T22:35:04Z",
+   "version_string": "version: 0.3.0-dev (build 1, commit d222767); built with GNU 13.3.0 for Linux x86_64"
+  },
+  "llama-dflash2:latest": {
+   "image_id": "sha256:22bb8b7fed8b3cfc8edb28ab5c4e1db0575670b35619da19693830a8d2952354",
+   "created": "2026-08-25T11:12:54Z",
+   "version_string": "version: 0.1.2-dev (build 50, commit f7aadef); built with GNU 13.3.0 for Linux x86_64"
+  },
+  "DELETED_llamacpp-dflash2-pr27342:1deefcc-sm120-cuda128-abi": {
+   "status": "GONE from disk. Produced every tensor-split result and every 262,144-token result in the champion corpus. Irreproducible until E6 re-proves -sm tensor on a surviving image."
+  }
+ },
+ "gguf_models": [
+  {
+   "file": "/srv/models/Qwen3.8-27B-UD-IQ4_XS.gguf",
+   "bytes": 14252845984,
+   "sha256": "40fac4050e940397dbf13087afd50f4734a11805bf9d65ef8ddd7483470e6199"
+  },
+  {
+   "file": "/srv/models/Qwen3.8-27B-UD-Q4_K_XL.gguf",
+   "bytes": 17559178144,
+   "sha256": "3f227079003add2511437e5b1e94812e363385225bf6a9b47b0054a72bc8b01e"
+  },
+  {
+   "file": "/srv/models/Qwen3.8-27B-UD-Q5_K_XL.gguf",
+   "bytes": 20876938144,
+   "sha256": "8601193d3d5760c37fb8ce1b43afebc69df5fb24e1fbc5a547c32e2200305276"
+  },
+  {
+   "file": "/srv/models/Qwen3.8-27B-UD-Q6_K_XL.gguf",
+   "bytes": 25299061664,
+   "sha256": "701d8fa9ed214ab21bfc130cd2a7df19ca89bbef7713e2dfb19f3c63696aa917"
+  },
+  {
+   "file": "/srv/models/dflash2/Qwen3.8-27B-DFlash2-Q4_K_M.gguf",
+   "bytes": 1143006752,
+   "sha256": "18a380efc9b7ed8d88677fc895f5c11ae170653434ee378f7348f715c14d0594",
+   "role": "DFlash2 drafter sidecar"
+  },
+  {
+   "file": "/srv/bench/models/Qwen3.8-27B-UD-Q6_K.gguf",
+   "bytes": 21983677344,
+   "sha256": "c9c206812fbe4ac7b76a729e25928b63f2ae89d37f69da7a71c20aec763cd436",
+   "added_by": "e12-wave1-T3a (F-B repair)",
+   "role": "champion quant"
+  }
+ ],
+ "gpu_hardware": {
+  "gpus": "2x NVIDIA RTX 5060 Ti 16GB (sm120)",
+  "usable_vram_per_gpu_mib": 15650,
+  "card_total_mib": 16311,
+  "power_limit_w": 180
+ },
+ "notes": "llama-server --version emits a harmless CUDA-init warning when run without --gpus; version string is still authoritative. q8_0 KV is broken on this stack (3 independent failures) - only {f16, q4_0} are viable KV dtypes.",
+ "deleted_items": [
+  {
+   "id": "iq4_xs-gguf",
+   "path": "/srv/models/Qwen3.8-27B-UD-IQ4_XS.gguf",
+   "bytes": 14252845984,
+   "sha256": "40fac4050e940397dbf13087afd50f4734a11805bf9d65ef8ddd7483470e6199",
+   "kind": "gguf",
+   "findings_citation": "DEC-4: out of scope; PPL 6.6839, HE+ 87.8/86.0, ceilings 262,144/245,760(f16), KLD ~0.019 documented",
+   "recovery": "hf download unsloth/Qwen3.8-27B-GGUF Qwen3.8-27B-UD-IQ4_XS.gguf -> verify sha256",
+   "manifested_utc": "2026-08-29T23:14:03Z",
+   "deleted_utc": "2026-08-29T23:27:44Z"
+  },
+  {
+   "id": "q6kxl-gguf",
+   "path": "/srv/models/Qwen3.8-27B-UD-Q6_K_XL.gguf",
+   "bytes": 25299061664,
+   "sha256": "701d8fa9ed214ab21bfc130cd2a7df19ca89bbef7713e2dfb19f3c63696aa917",
+   "kind": "gguf",
+   "findings_citation": "DEC-4 + Q-A1: deleted only AFTER the G21 -ts bracket ran; PPL 6.6511, HE+ 93.9/91.5, SWE-V 75.5%, KLD 0.0016 documented",
+   "recovery": "hf download unsloth/Qwen3.8-27B-GGUF Qwen3.8-27B-UD-Q6_K_XL.gguf -> verify sha256",
+   "manifested_utc": "2026-08-29T23:16:00Z",
+   "deleted_utc": null
+  },
+  {
+   "id": "nvfp4-hf-cache",
+   "path": "/srv/models/.hf-cache/models--unsloth--Qwen3.8-27B-NVFP4",
+   "bytes": 23444505588,
+   "files": 19,
+   "sha256_tree": "5c15917b963255db09e07e98e29073496bc1cdb8a637f660469c513266218745",
+   "kind": "dir",
+   "root_owned_files_read_via_sudo": 1,
+   "findings_citation": "DEC-4: duplicate of /srv/engines/nvfp4 (KEEP, E9 option preserved); PPL/HE/SWE findings documented",
+   "recovery": "local copy from /srv/engines/nvfp4 (byte-identical duplicate) \u2014 0-byte network cost",
+   "manifested_utc": "2026-08-29T23:22:18Z",
+   "deleted_utc": "2026-08-29T23:27:44Z"
+  },
+  {
+   "id": "vllm-nightly-image",
+   "path": "vllm/vllm-openai:nightly",
+   "kind": "docker-image",
+   "image_id": "sha256:22d3b1217fda569653f32f1e00a2a4e64119c1601c67ff94cc72d7ca5ef352c8",
+   "repodigest": "vllm/vllm-openai@sha256:22d3b1217fda569653f32f1e00a2a4e64119c1601c67ff94cc72d7ca5ef352c8",
+   "bytes": 8642650217,
+   "findings_citation": "DEC-4: vLLM/SGLang eliminated from Track A; E9 cross-backend re-run would re-pull by digest",
+   "recovery": "docker pull vllm/vllm-openai@<repodigest> (byte-exact only because the digest is recorded)",
+   "manifested_utc": "2026-08-29T23:23:50Z",
+   "deleted_utc": "2026-08-29T23:27:44Z"
+  },
+  {
+   "id": "vllm-v0.27.1-image",
+   "path": "vllm/vllm-openai:v0.27.1",
+   "kind": "docker-image",
+   "image_id": "sha256:0a51ea5b4ae2dc5d81890e5173f54203d2a3ae0cfffe51b8fd2afd4391bfd967",
+   "repodigest": "vllm/vllm-openai@sha256:0a51ea5b4ae2dc5d81890e5173f54203d2a3ae0cfffe51b8fd2afd4391bfd967",
+   "bytes": 9110698465,
+   "findings_citation": "DEC-4: vLLM/SGLang eliminated from Track A; E9 cross-backend re-run would re-pull by digest",
+   "recovery": "docker pull vllm/vllm-openai@<repodigest> (byte-exact only because the digest is recorded)",
+   "manifested_utc": "2026-08-29T23:23:51Z",
+   "deleted_utc": "2026-08-29T23:27:44Z"
+  }
+ ]
+}

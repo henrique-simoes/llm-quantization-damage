@@ -3,26 +3,76 @@
 Protocol: `docs/paper/PAPER-NOTES-PROTOCOL.md`. Append-only. Global monotonic PN-<n>.
 Every entry: Finding / Evidence (artifact path) / Use-as (paper section) / Caveat.
 
+> **Evidence-path remap (2026-08-30, L-5).** PN-1..PN-4 cite `data/bench/e12/…`. That tree stopped
+> syncing under DEC-5 (documentation-only sync) and never existed in this repo. The same artifacts
+> now live at **`data/raw/e12/…`** — same filenames, pulled from `/srv/bench/e12/` on multivac and
+> listed with their provenance in `data/raw/e12/README.md`. Read `data/bench/` as `data/raw/` in any
+> entry predating this note. Old entries are not edited (protocol: supersede, never rewrite).
+
 ## §Sampling & protocol
-*(empty — no entries yet)*
+- PN-1 | 2026-08-29T23:30:00Z | S2-execute/Wave1-T2 | zai/glm-5.3-flash | L-4
+  Finding: The llama.cpp server default sampling configuration on the surviving engine image (llamacpp-mtp:latest, engine 0.3.0-dev commit d222767, image sha256:feb0231976b6…) was measured at temperature 1.0, top_k 20, top_p 0.95, min_p 0.05, presence_penalty 0.0 — this matches NEITHER the upstream llama.cpp-documented launch defaults (temp 0.80 / top_k 40 / top_p 0.95 / min_p 0.05) NOR the Qwen3.8-27B official thinking or non-thinking presets, so any server launched without an explicit per-request sampling block runs an undocumented fourth configuration; the hazard is directly assertable because /completion echoes the effective per-request sampling back in generation_settings.
+  Evidence: data/bench/e12/validate-v2-selftest.json fault F3 (request without sampling fields reads back exactly the measured defaults); data/bench/e12/validate-v2.json C2 (DEC-2 official non-thinking and thinking blocks read back field-exact modulo f32 storage rounding, e.g. 0.7 → 0.699999988079071); n=1 launch per run, image id in artifact env block.
+  Use as: §Sampling & protocol (silent-misconfiguration hazard) + correction to the multivac lifecycle file R1 (which documents the upstream 0.80/40/0.95/0.05 set as if it were the measured server default).
+  Caveat: single-image measurement (llamacpp-mtp:latest feb0231976b6…); the historical corpus image (llamacpp-dflash2-pr27342, 1deefcc) is gone — defaults may differ across engine versions; f32 readback needs 1e-3 tolerance in any re-implementation.
+- PN-2 | 2026-08-29T23:30:00Z | S2-execute/Wave1-T2 | zai/glm-5.3-flash | L-4
+  Finding: A 2-token /v1/chat/completions probe is a reliable ~1 s discriminator of the thinking-mode state on Qwen3.8-27B GGUFs served by this engine: with no thinking control the model thinks by default (content empty, reasoning_content non-empty, finish_reason "length" at max_tokens 2), while chat_template_kwargs {"enable_thinking": false} yields non-empty content and empty reasoning_content — measured on UD-Q4_K_XL at 32,768 context.
+  Evidence: data/bench/e12/validate-v2.json check C3 (both directions green); data/bench/e12/validate-v2-selftest.json fault F2 caught by C3 (omitting the control reproduces the leak exactly: content "", reasoning_len 8, finish_reason length).
+  Use as: §Sampling & protocol (thinking-control validation method for every future run).
+  Caveat: template- and engine-specific (llamacpp-mtp:latest feb0231976b6…); Track B must re-verify on its serving stack before relying on it.
+- PN-3 | 2026-08-29T23:30:00Z | S2-execute/Wave1-T2 | zai/glm-5.3-flash | L-4
+  Finding: The chat template on the surviving engine rejects chat_template_kwargs {"reasoning_effort": "none"} with a Jinja exception ("Unexpected reasoning effort none. Supported types are xhigh (default), medium, and low."), while {"enable_thinking": false} works — the G17 equivalence question (whether reasoning_effort:none is a valid no-think mechanism on this stack) is answered NEGATIVELY for the 'none' value at the template level, though the equivalence verdict itself remains Wave 2's.
+  Evidence: data/bench/e12/validate-v2.json C3.reasoning_effort_none_F_E (response body recorded verbatim); earlier corroborating capture /srv/bench/server-timings/arch-recon-props-20260829.serverlog (500 Jinja Exception, same message).
+  Use as: §Sampling & protocol (G17 signal feeding the Wave-2 pilot design).
+  Caveat: n=1 template version on image feb0231976b6…; error body recorded verbatim so the Wave-2 verdict can cite the exact failure mode; not a measurement of no-think equivalence itself.
 
 ## §Context axis
-*(empty)*
+- PN-6 | 2026-08-30T03:40:00Z | S2-execute/Wave1-T4 | claude-opus-5 | L-5
+  Finding: Tensor-split rebalancing, not the quantization level, sets the usable context ceiling on this two-GPU host: Qwen3.8-27B UD-Q5_K_XL reaches the full native 262,144-token window on the surviving engine image at five different `-ts` ratios (54,46 / 56,44 / 58,42 / 60,40 / 62,38) while the SAME configuration fails to load at the engine's default layer split with a CUDA compute-buffer allocation failure (peak 13,540/15,070 MiB, 1,530 MiB imbalance) — so a ceiling published without its tensor-split is a property of the split, not of the quant, and this result supersedes the previously recorded Q5_K_XL ceilings of 196,608 (E11a) and 163,840 (E1).
+  Evidence: data/raw/e12/tsweep-v2-Q5_K_XL.json — 10 cells, 9 ok, every successful cell at prefill depth 0.948 of the window (248,522 of 262,144 tokens); best `-ts 54,46` decode 10.82 tok/s at depth (D2 median-of-3 12.70 tok/s over reps 1-3: 10.82/12.70/12.94), VRAM peak 14,660/15,402 MiB, imbalance 742 MiB, MTP acceptance 0.516; the single failing cell is the default split. n=1 launch per ratio, 3 reps on the D2 contest pair.
+  Use as: §Context axis (headline: the ceiling is a split property) — serves Track A (2) and Track B.
+  Caveat: llamacpp-mtp:latest, image sha256:feb0231976b6…, engine 0.3.0-dev d222767; q4_0 KV throughout — every number on this ladder depends on q4_0 KV and E2 (f16 vs q4_0 fidelity) is still the gating experiment; DEC-2 official non-thinking sampling (temp 0.7 / top_p 0.80 / top_k 20 / presence 1.5), NOT greedy, so these rows must never share a table with the temperature-0 e11 corpus; 262,144 is the native maximum, so there is no rung above it to bracket and the ceiling is "reaches the maximum", not "was bracketed".
+- PN-7 | 2026-08-30T03:40:00Z | S2-execute/Wave1-T5 | claude-opus-5 | L-5
+  Finding: The optimal tensor-split ratio is quant-specific and does not transfer between neighbouring quants even on the same host, model and KV dtype: UD-Q6_K's optimum is `-ts 58,42`, but on UD-Q6_K_XL that same ratio OVERSHOOTS (GPU0 15,036 / GPU1 12,276 MiB, 2,760 MiB GPU0-heavy) while the default split is 1,482 MiB GPU1-heavy — the balance point lies between them, and `56,44` loads a 196,608-token window at 17.26 tok/s where every other ratio tested fails, against a previously published Q6_K_XL ceiling of 131,072.
+  Evidence: data/raw/e12/tsweep-v2-Q6_K_XL.json — 196,608 rung, 5 cells: default (imbalance 1,806 MiB), 52,48 (448), 54,46 (658) and 58,42 (2,216) all compute-buffer-oom; 56,44 ok at decode 17.26 tok/s, prefill 591.95 tok/s, prefill_frac 0.9474, MTP acceptance 0.8971, VRAM peak 15,416/15,840 MiB, imbalance 424 MiB. Comparison row for 58,42 measured at 196,608 in the same session; E11a default-split reference at 245,760 no-spec. n=1 per ratio at time of writing; the rung above (212,992) is bracketing with 2 attempts per A6.
+  Use as: §Context axis and §Systems findings (a `-ts` value must be re-swept on any change of quant, KV dtype or speculative-decoding setting — it is not monotone-safe and not portable).
+  Caveat: llamacpp-mtp:latest feb0231976b6…, q4_0 KV, MTP n=2, `-fit off`, `-ctxcp 4`, `-np 1`, DEC-2 sampling; the Q6_K_XL sweep was IN FLIGHT when this note was written — the ceiling above 196,608 is not yet bracketed, so cite 196,608 as a demonstrated lower bound, not as the ceiling. Physical reading (larger layers move more MiB per unit of split shift) is an interpretation, not a measurement.
 
 ## §Speculative decoding
-*(empty)*
+- PN-9 | 2026-08-30T03:40:00Z | S2-execute/Wave1-T4 | claude-opus-5 | L-5
+  Finding: MTP draft acceptance at near-full context depth varies strongly across quantization levels of the same model on the same engine and speculative setting — 0.897 on UD-Q6_K_XL, 0.564 on UD-Q4_K_XL and 0.516 on UD-Q5_K_XL — so speculative-decoding speedups measured on one quant cannot be carried across the quant ladder, and acceptance should be reported per quant alongside every tok/s figure.
+  Evidence: data/raw/e12/tsweep-v2-Q6_K_XL.json cell 196608:56,44 (mtp_acceptance 0.8971 at prefill_frac 0.9474); data/raw/e12/tsweep-v2-Q5_K_XL.json cell 262144:54,46 (0.516 at 0.948); data/raw/e12/logs/wave1-supervisor.log Q4_K_XL 212,992 cells (0.5642). All at `--spec-type draft-mtp --spec-draft-n-max 2`, q4_0 KV, DEC-2 sampling. n=1 launch per cell.
+  Use as: §Speculative decoding (acceptance is a per-quant property) — informs the Phase-5 MTP/DFlash sweep design.
+  Caveat: SINGLE OBSERVATION PER QUANT and the three cells differ in context depth (262,144 vs 212,992 vs 196,608) and in `-ts` ratio, so depth and split are confounded with quant here — this is a signal that the Phase-5 sweep must resolve at matched depth, NOT a measured quant ranking. Q4_K_XL's figure comes from cells later quarantined for shallow prefill (PN-5); its acceptance value is reported as indicative only.
 
 ## §Quant ladder
 *(empty)*
 
 ## §Systems findings
-*(empty)*
+- PN-4 | 2026-08-29T23:30:00Z | S2-execute/Wave1-T2 | zai/glm-5.3-flash | L-4
+  Finding: On the surviving engine (0.3.0-dev d222767, image feb0231976b6…), launching UD-Q4_K_XL with -fit on at a requested context of 262,144 loaded successfully and /props reported the FULL requested 262,144 within the 600 s health window — the "-fit silently shrinks context" failure class documented in E1 did NOT reproduce at this rung on this engine (the E1 observation was made on the now-deleted historical image), so the silent-shrink negative control had to be injected via an un-fittable request (999,999,999 tokens) instead, which the context contract check catches via the reported-vs-requested comparison.
+  Evidence: data/bench/e12/validate-v2-selftest.json fault F1 stage "fit-on-262144" (n_ctx_reported 262,144, caught=false) and stage "fit-on-999999999" (caught=true, named by C1); n=1 per stage.
+  Use as: §Systems findings (-fit behavior change between engine images) and as a hazard note for Wave 2+: -fit on is NOT trustworthy to bound allocation even when it does not shrink n_ctx — always launch measurement runs with -fit off and assert reported == requested.
+  Caveat: fit-on load success does NOT prove the context is usable at depth (deep prefill may still fail); the Wave-1 sweep's fit-off behavioral brackets are the ceiling evidence of record.
 
 ## §Efficiency
-*(empty)*
+- PN-8 | 2026-08-30T03:40:00Z | S2-execute/Wave1-T4 | claude-opus-5 | L-5
+  Finding: Minimizing VRAM imbalance between the two GPUs does not maximize decode throughput, and on this host the two objectives point in opposite directions: on UD-Q5_K_XL at the full 262,144-token window the most balanced ratio tested (`-ts 58,42`, 28 MiB imbalance) is the SLOWEST at 8.50 tok/s, while the least balanced ratio that still loads (`54,46`, 742 MiB imbalance) is the fastest at 10.82 tok/s — a 27 % decode difference across ratios that all load the same window.
+  Evidence: data/raw/e12/tsweep-v2-Q5_K_XL.json, 262,144 rung, all cells at prefill depth 0.948 — 54,46: 10.82 tok/s / 742 MiB; 56,44: 10.78 / 166; 58,42: 8.50 / 28; 60,40: 10.67 / 1,176; 62,38: 10.44 / 1,750. n=1 per ratio, with reps 2-3 on the top-two contest pair (54,46 → 12.70 median-of-3; 56,44 → 12.51).
+  Use as: §Efficiency and §Results/tok-s — selection rule justification: "keep the fastest that loads" is correct, and "keep the most balanced" would have cost 21 % of decode throughput here.
+  Caveat: llamacpp-mtp:latest feb0231976b6…, q4_0 KV, MTP n=2, DEC-2 sampling (not greedy); at-depth decode only — depth-0 tables are 3-5x faster and must never share a table with these rows; the reps 1 vs 2-3 spread on the same cell (10.82 → 12.94 tok/s) is itself larger than several inter-ratio gaps, so single-rep ratio comparisons on this host are within noise and the D2 median-of-3 contest is doing real work.
 
 ## §Agentic behavior
 *(empty)*
 
 ## §Reproducibility & provenance
-*(empty)*
+- PN-5 | 2026-08-30T03:40:00Z | S2-execute/Wave1-review | claude-opus-5 | L-5
+  Finding: A measurement contract that is documented but not asserted in code is not a contract — a context-depth gate written as "deep prefill: >=90 % of the window" in the harness docstring, recorded per cell as `prefill_frac`, but never compared against 0.90 anywhere, allowed a separate pad-generation defect to prefill only 79.7 % of the window on UD-Q4_K_XL while the harness reported success, silently making both its decode figure and its context-ceiling verdict optimistic and making it incomparable to UD-Q5_K_XL measured at 94.8 % in the same sweep.
+  Evidence: data/raw/e12/quarantine/tsweep-v2-Q4_K_XL.json.shallow-prefill-79pct (`prefill_frac` 0.7973 across cells) vs data/raw/e12/tsweep-v2-Q5_K_XL.json (0.948); root cause in the pad builder — a bisection over the FIXED bracket [0.9, 1.15] × chars-per-token × target, where chars-per-token was calibrated on the first 200 kB of a corpus that runs ~2.9 chars/token there and ~4.45 chars/token thereafter, so the true cut fell outside the bracket, the loop pinned at the bracket edge and assigned the LAST probe rather than the CLOSEST, then returned short without raising: pad_201830 delivered 169,823 tokens instead of 201,830 (−15.9 %). Fix verified in data/raw/e12/pads-manifest.json — all 9 ladder pads rebuilt, every one within tolerance at ~0.945 of its window. Full defect register: data/raw/e12/WAVE1-REVIEW.md.
+  Use as: §Reproducibility & provenance (methodology note: publish the enforced gate, not the intended one) and as the justification for quarantining rather than deleting the affected cells.
+  Caveat: two of five pads on disk were affected (pad_201830, pad_217395); the other three were inherited from the e11 builder, whose unbounded proportional seek was correct — so the defect is partial across the corpus and any e12 cell dated before 2026-08-30T02:46Z must be checked for `prefill_frac` before reuse. Decode at depth is strongly depth-dependent on this host (37.22 → 7.19 tok/s across depth on UD-Q6_K), which is why a 15 % depth shortfall is a first-order error and not a rounding detail.
+- PN-10 | 2026-08-30T03:40:00Z | S2-execute/Wave1-review | claude-opus-5 | L-5
+  Finding: Three orchestration defects in an autonomous benchmark runner each produced plausible-looking but wrong output rather than an obvious failure, and all three are cheap to guard: a container killed between `docker run -d` and start sits in docker state `created` with no log, which a log-preservation rule correctly refuses to delete and which then wedges every subsequent cell on the same corpse; a sweep in which every cell failed still exited 0 and had a `.done` marker written for it; and a `nohup setsid` runner with no single-instance lock allowed two runners to race over the same GPU lock and container name, producing 32 junk cells across three quants.
+  Evidence: data/raw/e12/WAVE1-REVIEW.md defects D4-D6; data/raw/e12/quarantine/ (`*.race-025630` artifacts for Q4_K_XL, Q6_K and Q6_K_XL, LISTING.txt); observed live — all 6 UD-Q6_K cells failed on lock contention and the quant was nevertheless marked done. Guards now in place: a stillborn-container discriminator that records the stillbirth in the serverlog before removal (log-preservation rule intact for containers that DID start), a non-zero exit when no cell succeeded, and an flock-based single-instance guard verified to refuse a second runner with exit 3.
+  Use as: §Reproducibility & provenance (what an unattended multi-hour GPU sweep must assert about itself before its numbers can be trusted).
+  Caveat: no valid data was lost to any of the three — the affected cells are quarantined and re-running; the race was triggered during the review pass itself, so it is a demonstrated failure mode on this host, not a hypothetical one.

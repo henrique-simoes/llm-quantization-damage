@@ -1,0 +1,337 @@
+{
+ "experiment": "e12-validate-v2-positive",
+ "when_utc": "2026-08-29T22:33:12Z",
+ "ok": true,
+ "checks": {
+  "C1": true,
+  "C2": true,
+  "C3": true,
+  "C4": true
+ },
+ "C1": {
+  "requested_ctx": 32768,
+  "health_ok": true,
+  "health_seconds": 145,
+  "health": "server healthy",
+  "n_ctx_reported": 32768,
+  "fit_off_n_ctx_matches": true,
+  "total_slots": 1,
+  "serverlog_slots_echo": [
+   "1",
+   "32768"
+  ],
+  "serverlog_echo_ok": true,
+  "single_slot": true,
+  "single_slot_source": "props",
+  "argv_missing_flags": [],
+  "argv_ok": true,
+  "fa_evidence": "behavioural: -ctv q4_0 loaded (FA is REQUIRED for quantized V cache)",
+  "fa_on": true,
+  "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+  "image_matches_manifest": true,
+  "response_truncated": false
+ },
+ "C2": {
+  "non_thinking": {
+   "ok": true,
+   "fields": {
+    "temperature": {
+     "want": 0.7,
+     "got": 0.699999988079071,
+     "ok": true
+    },
+    "top_p": {
+     "want": 0.8,
+     "got": 0.800000011920929,
+     "ok": true
+    },
+    "top_k": {
+     "want": 20,
+     "got": 20,
+     "ok": true
+    },
+    "min_p": {
+     "want": 0.0,
+     "got": 0.0,
+     "ok": true
+    },
+    "presence_penalty": {
+     "want": 1.5,
+     "got": 1.5,
+     "ok": true
+    },
+    "repeat_penalty": {
+     "want": 1.0,
+     "got": 1.0,
+     "ok": true
+    }
+   },
+   "echo": {
+    "seed": 20260830,
+    "temperature": 0.699999988079071,
+    "dynatemp_range": 0.0,
+    "dynatemp_exponent": 1.0,
+    "top_k": 20,
+    "top_p": 0.800000011920929,
+    "min_p": 0.0,
+    "top_n_sigma": -1.0,
+    "xtc_probability": 0.0,
+    "xtc_threshold": 0.10000000149011612,
+    "typical_p": 1.0,
+    "repeat_last_n": 64,
+    "repeat_penalty": 1.0,
+    "presence_penalty": 1.5,
+    "frequency_penalty": 0.0,
+    "dry_multiplier": 0.0,
+    "dry_base": 1.75,
+    "dry_allowed_length": 2,
+    "dry_penalty_last_n": 64,
+    "dry_sequence_breakers": [
+     "\n",
+     ":",
+     "\"",
+     "*"
+    ],
+    "mirostat": 0,
+    "mirostat_tau": 5.0,
+    "mirostat_eta": 0.10000000149011612,
+    "adaptive_target": -1.0,
+    "adaptive_decay": 0.8999999761581421,
+    "stop": [],
+    "max_tokens": 1,
+    "n_predict": 1,
+    "n_keep": 0,
+    "n_discard": 0,
+    "ignore_eos": false,
+    "stream": false,
+    "logit_bias": [],
+    "n_probs": 0,
+    "min_keep": 0,
+    "grammar": "",
+    "grammar_lazy": false,
+    "grammar_triggers": [],
+    "preserved_tokens": [],
+    "chat_format": "Content-only",
+    "reasoning_format": "deepseek",
+    "reasoning_in_content": false,
+    "generation_prompt": "",
+    "samplers": [
+     "penalties",
+     "dry",
+     "top_n_sigma",
+     "top_k",
+     "typ_p",
+     "top_p",
+     "min_p",
+     "xtc",
+     "temperature"
+    ],
+    "speculative.types": "none,draft-mtp",
+    "timings_per_token": false,
+    "post_sampling_probs": false,
+    "backend_sampling": false,
+    "lora": []
+   },
+   "not_server_defaults": true
+  },
+  "thinking": {
+   "ok": true,
+   "fields": {
+    "temperature": {
+     "want": 1.0,
+     "got": 1.0,
+     "ok": true
+    },
+    "top_p": {
+     "want": 0.95,
+     "got": 0.949999988079071,
+     "ok": true
+    },
+    "top_k": {
+     "want": 20,
+     "got": 20,
+     "ok": true
+    },
+    "min_p": {
+     "want": 0.0,
+     "got": 0.0,
+     "ok": true
+    },
+    "presence_penalty": {
+     "want": 0.0,
+     "got": 0.0,
+     "ok": true
+    },
+    "repeat_penalty": {
+     "want": 1.0,
+     "got": 1.0,
+     "ok": true
+    }
+   },
+   "echo": {
+    "seed": 20260831,
+    "temperature": 1.0,
+    "dynatemp_range": 0.0,
+    "dynatemp_exponent": 1.0,
+    "top_k": 20,
+    "top_p": 0.949999988079071,
+    "min_p": 0.0,
+    "top_n_sigma": -1.0,
+    "xtc_probability": 0.0,
+    "xtc_threshold": 0.10000000149011612,
+    "typical_p": 1.0,
+    "repeat_last_n": 64,
+    "repeat_penalty": 1.0,
+    "presence_penalty": 0.0,
+    "frequency_penalty": 0.0,
+    "dry_multiplier": 0.0,
+    "dry_base": 1.75,
+    "dry_allowed_length": 2,
+    "dry_penalty_last_n": 64,
+    "dry_sequence_breakers": [
+     "\n",
+     ":",
+     "\"",
+     "*"
+    ],
+    "mirostat": 0,
+    "mirostat_tau": 5.0,
+    "mirostat_eta": 0.10000000149011612,
+    "adaptive_target": -1.0,
+    "adaptive_decay": 0.8999999761581421,
+    "stop": [],
+    "max_tokens": 1,
+    "n_predict": 1,
+    "n_keep": 0,
+    "n_discard": 0,
+    "ignore_eos": false,
+    "stream": false,
+    "logit_bias": [],
+    "n_probs": 0,
+    "min_keep": 0,
+    "grammar": "",
+    "grammar_lazy": false,
+    "grammar_triggers": [],
+    "preserved_tokens": [],
+    "chat_format": "Content-only",
+    "reasoning_format": "deepseek",
+    "reasoning_in_content": false,
+    "generation_prompt": "",
+    "samplers": [
+     "penalties",
+     "dry",
+     "top_n_sigma",
+     "top_k",
+     "typ_p",
+     "top_p",
+     "min_p",
+     "xtc",
+     "temperature"
+    ],
+    "speculative.types": "none,draft-mtp",
+    "timings_per_token": false,
+    "post_sampling_probs": false,
+    "backend_sampling": false,
+    "lora": []
+   },
+   "not_server_defaults": true
+  }
+ },
+ "C3": {
+  "enable_thinking_false": {
+   "ok": true,
+   "content_head": "OK",
+   "reasoning_len": 0,
+   "finish_reason": "stop"
+  },
+  "no_control": {
+   "ok": true,
+   "content_head": "",
+   "reasoning_len": 8,
+   "finish_reason": "length"
+  },
+  "reasoning_effort_none_F_E": {
+   "recorded": true,
+   "status": "error",
+   "body": "HTTP Error 500: Internal Server Error"
+  }
+ },
+ "C4": {
+  "requested_model": {
+   "file": "/srv/models/Qwen3.8-27B-UD-Q4_K_XL.gguf",
+   "bytes": 17559178144,
+   "sha256": "3f227079003add2511437e5b1e94812e363385225bf6a9b47b0054a72bc8b01e",
+   "source": "env-manifest"
+  },
+  "served_resolution": {
+   "props_model_path_inner": "/models/Qwen3.8-27B-UD-Q4_K_XL.gguf",
+   "props_model_path_host": "/srv/models/Qwen3.8-27B-UD-Q4_K_XL.gguf",
+   "response_model": "/models/Qwen3.8-27B-UD-Q4_K_XL.gguf"
+  },
+  "props_model_matches_requested": true,
+  "response_model_matches_requested": true,
+  "env_block_missing": []
+ },
+ "env": {
+  "source": "e12-wave1",
+  "run_ids": [],
+  "recorded_utc": "2026-08-29T22:35:44Z",
+  "image": {
+   "image": "llamacpp-mtp:latest",
+   "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "manifest_image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "version_string": "version: 0.3.0-dev (build 1, commit d222767); built with GNU 13.3.0 for Linux x86_64",
+   "matches_manifest": true
+  },
+  "model": {
+   "file": "/srv/models/Qwen3.8-27B-UD-Q4_K_XL.gguf",
+   "bytes": 17559178144,
+   "sha256": "3f227079003add2511437e5b1e94812e363385225bf6a9b47b0054a72bc8b01e",
+   "source": "env-manifest"
+  },
+  "seed": 20260830,
+  "sampling_non_thinking": {
+   "temperature": 0.7,
+   "top_p": 0.8,
+   "top_k": 20,
+   "min_p": 0.0,
+   "presence_penalty": 1.5,
+   "repeat_penalty": 1.0
+  },
+  "sampling_thinking": {
+   "temperature": 1.0,
+   "top_p": 0.95,
+   "top_k": 20,
+   "min_p": 0.0,
+   "presence_penalty": 0.0,
+   "repeat_penalty": 1.0
+  },
+  "server_defaults_measured": {
+   "temperature": 1.0,
+   "top_k": 20,
+   "top_p": 0.95,
+   "min_p": 0.05,
+   "presence_penalty": 0.0,
+   "repeat_penalty": 1.0
+  },
+  "kv_dtype": "q4_0",
+  "spec": "mtp2",
+  "split_mode": "layer",
+  "ctx_requested": 32768,
+  "ts": null,
+  "ctxcp": 4,
+  "free_bytes": {
+   "/srv/models": 1226551296,
+   "/": 23386947584
+  },
+  "extra": {}
+ },
+ "command": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -c 32768 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 4 --spec-type draft-mtp --spec-draft-n-max 2 --seed 20260830 -lv 5 --host 0.0.0.0 --port 8080",
+ "teardown": {
+  "serverlog": "/srv/bench/server-timings/e12-validate-positive.serverlog",
+  "serverlog_bytes": 224798,
+  "tg_samples": 10,
+  "removed_utc": "2026-08-29T22:35:50Z"
+ },
+ "elapsed_s": 158
+}
