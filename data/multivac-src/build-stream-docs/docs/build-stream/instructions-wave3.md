@@ -25,11 +25,9 @@ logprob-based instruments.
 ## Finish contract additions
 Ledger + PN notes (§Quant ladder, §Agentic behavior, §Context axis, §Reproducibility).
 
-## Standing rule — synchronization (owner directive 2026-08-30, narrowed same day)
-`tools/sync-multivac.sh` synchronizes DOCUMENTATION ONLY: CLAUDE.md, PAPER-REFERENCES.md,
-the multivac paper-data folder, and this repo's docs. It does NOT sync artifact trees,
-models, or containers (owner clarification 2026-08-30). Run `bash tools/sync-multivac.sh
-both` at every stage end (result goes in the ledger Verified field). Individual artifacts
-needed as paper evidence are pulled selectively:
-`bash tools/sync-multivac.sh artifact /srv/bench/e12/<file>.json data/raw/<phase>/`.
-Always run it BEFORE any deletion or container teardown (docs first, then manifest, then delete).
+## Standing rule — synchronization (owner directive 2026-08-30)
+Everything produced on multivac MUST exist in this repo's `data/` tree, always. At the end
+of every stage: `bash tools/sync-multivac.sh both` (pushes `experiments/` to
+multivac:/srv/bench/e12/, pulls docs + artifacts + server logs into `data/`). Include the
+sync result in your ledger entry's Verified field. The detached watcher also pulls every
+10 minutes, but the worker-side sync at stage end is the contract — never rely on it.

@@ -4,3 +4,18 @@
 2026-08-29T21:21:59Z | watcher started pid 88692
 2026-08-29T21:40:02Z | PLAN READY — owner approval required (conductor paused at the gate)
 2026-08-29T21:40:48Z | stage transition: - -> qbench-t1-implementer
+2026-08-29T23:53:35Z | stage transition: qbench-t1-implementer -> -
+2026-08-29T23:55:05Z | stage transition: - -> qbench-t1-implementer
+2026-08-30T00:50:00Z | PROBLEM: 1 task(s) BLOCKED [qbench-t1-IMPL] — needs human
+2026-08-30T00:50:00Z | PROBLEM: rate-limited role blocked — reset wait required
+2026-08-30T00:50:00Z | stage transition: qbench-t1-implementer -> -
+2026-08-30T00:58:16Z | stage transition: - -> qbench-t1-implementer
+2026-08-30T01:29:08Z | stage transition: qbench-t1-implementer -> qbench-t1-code-reviewer
+2026-08-30T01:32:08Z | PROBLEM: 1 task(s) BLOCKED [qbench-t1-REVIEW] — needs human
+2026-08-30T01:32:08Z | stage transition: qbench-t1-code-reviewer -> -
+2026-08-30T01:40:25Z | stage transition: - -> qbench-t1-code-reviewer
+2026-08-30T01:52:26Z | stage transition: qbench-t1-code-reviewer -> qbench-t1-code-reviewer,qbench-t1-fixer
+2026-08-30T01:53:57Z | stage transition: qbench-t1-code-reviewer,qbench-t1-fixer -> qbench-t1-fixer
+2026-08-30T01:55:27Z | stage transition: qbench-t1-fixer -> qbench-t1-code-reviewer
+2026-08-30T01:57:44Z | PROBLEM: conductor health=VERDICT-REPAIR-EXHAUSTED (possible WEDGED worker)
+2026-08-30T01:57:44Z | stage transition: qbench-t1-code-reviewer -> -

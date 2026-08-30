@@ -5,13 +5,13 @@
 item: quant-bench-trackA
 branch: main
 cf: { spec: CF-SPEC-1, tasks: [CF-1..] }
-phase: "Wave 1 — harness validation, disk sweep, -ts sweeps (lifecycle Phases 1-3)"
+phase: "Wave 1 — -ts rebalance sweeps in flight (lifecycle Phase 3); Phases 1-2 closed"
 stage: S2-execute
 status: in-progress
 blocked_on: null
-last: { agent: zai/glm-5.3-flash, at: 2026-08-29T23:40:00Z, ledger: L-4 }
-next_action: "Owner approved MECE master plan (slot a); conductor may dispatch implementation."
-conductor: { run: qbench-t1, shape: solo-architect, waves: 4, manifest: docs/build-stream/qbench-t1-waves.json }
+last: { agent: claude-opus-5, at: 2026-08-30T03:40:00Z, ledger: L-5 }
+next_action: "AUTONOMOUS until the sweep ends. T4/T5 running detached (runner_wave1.sh sweep Q6_K_XL Q6_K Q4_K_XL, pid 1498430); finish_wave1.sh (pid 1661639) waits on it and then runs summarize_wave1.py + verify-sweep.sh --stage 1a. D3/A8 is automatic inside the Q6_K sweep. Do NOT start a second runner (flock, exit 3) and do NOT run verify-sweep.sh by hand while the GPU work is live. OWNER STEPS REMAINING: T3b delete-1b (Q6_K_XL) after its bracket reaches the ledger, then T6 close-out."
+conductor: { run: qbench-t1, shape: solo-architect, waves: 4, manifest: docs/build-stream/qbench-t1-waves.json, state: HALTED-verdict-repair-exhausted-2026-08-30T01:57Z, execution: hand-driven per DEC-8 }
 ```
 <!-- /STATUS BLOCK -->
 
@@ -70,10 +70,10 @@ Documentation is never deleted — only appended.
 
 | Phase | Goal (one line) | Acceptance / verify | Status |
 |-------|-----------------|---------------------|--------|
-| 0 | Settings research consolidated into pinned config candidates + owner gates | owner approves DEC-1 set (this file) | in-progress |
-| 1 | Disk sweep under preservation rule; delete list executed; manifests written | `bash /srv/bench/sweep/verify-sweep.sh` green + free ≥ 60 GB on /srv/models | planned |
-| 2 | Harness-validation suite (validate-v2): launch contract, sampling contract, thinking control, provenance capture | `validate-v2.py` catches the 4 seeded fault configs (negative control) | planned |
-| 3 | Bring-up + `-ts` rebalance sweep per quant; bracket context ceilings | `tsweep-v2` full-ratio artifacts + bracketed ceilings re-tested | planned |
+| 0 | Settings research consolidated into pinned config candidates + owner gates | owner approves DEC-1 set (this file) | **done** (DEC-1..DEC-6) |
+| 1 | Disk sweep under preservation rule; delete list executed; manifests written | `bash /srv/bench/sweep/verify-sweep.sh` green + free ≥ 60 GB on /srv/models | **partial** — delete-1a executed 23:27:44Z (4 of 5 items, 65.4 GB); Q6_K_XL held for its bracket (D1); byte gate NOT yet met (38.9 GB free) and `verify-sweep.sh --stage 1a` deliberately deferred (L-5) |
+| 2 | Harness-validation suite (validate-v2): launch contract, sampling contract, thinking control, provenance capture | `validate-v2.py` catches the 4 seeded fault configs (negative control) | **done** — gate green 2026-08-29T23:01Z (C1–C4 pass; F1→C1, F2→C3, F3→C2, F4→C4); a fifth contract (≥0.90 depth gate) added 2026-08-30 after PN-5 |
+| 3 | Bring-up + `-ts` rebalance sweep per quant; bracket context ceilings | `tsweep-v2` full-ratio artifacts + bracketed ceilings re-tested | **in-progress** — Q5_K_XL complete+valid (262,144 @ `-ts 54,46`); Q6_K_XL/Q6_K/Q4_K_XL re-running under the repaired harness |
 | 4 | Official-settings validation pilots (G17 equivalence, G8 losslessness at temp>0, pp-behavior probe) | pilot artifacts; spec-decode accuracy-arm rule locked | planned |
 | 5 | MTP/DFlash setting sweep (depth, p-min, draft-KV dtype, DFlash n-max) | sweep JSONs at 32 K and full-depth; best-per-context recorded | planned |
 | 6 | Accuracy instruments: PPL(P1) for UD-Q6_K, code-NLL ladder, HumanEval+ gap-fills, LCB v6 n=100 setup+run | artifacts under /srv/bench/, CIs attached | planned |
@@ -559,10 +559,16 @@ choosing otherwise must record the choice.
 | **Q4_K_XL** | **212,992** (one rung above 196,608), then climb 229,376 → 245,760 → 262,144 while a ratio succeeds | all 6 | ceiling **and** speed | **highest expected value in the wave** — 3,348 MiB imbalance, never rebalanced |
 | **Q5_K_XL** | 262,144 (already the native max — nothing above it) | all 6 | **speed only** — de-confound G13 | 54,46 was the *first* ratio tried; 744 MiB residual imbalance |
 | **Q6_K** | 262,144 | all 6 | **speed only** — confirm 58,42 is the best, not merely the first success | + D3 `-ctxcp` 4-vs-32 A/B at the winner |
-| **Q6_K_XL** (T5) | 196,608, then bracket down 180,224 → 163,840 → 147,456 | 58,42 · 62,38 · 60,40 first (54,46 is already known-failed) | close **G21** | skip `default` — 131,072 is the known default-split ceiling |
+| ~~**Q6_K_XL** (T5)~~ | ~~196,608, then bracket down 180,224 → 163,840 → 147,456~~ | ~~58,42 · 62,38 · 60,40 first~~ | close **G21** | **SUPERSEDED 2026-08-30 by DEC-7 — the ratio list pointed the wrong way; see the corrected row below** |
+| **Q6_K_XL** (T5, corrected) | 196,608, then bracket **up** 212,992 → 229,376 → … while a ratio succeeds | `default` · 52,48 · 54,46 · 56,44 · 58,42 | close **G21** | 58,42 already **overshoots** on this quant (GPU0 heavy 2,760 MiB); the balance point lies between `default` and 58,42, so the list must bracket **both** sides — DEC-7 |
 
 All cells: `-sm layer`, `-ctk/-ctv q4_0`, `--spec-type draft-mtp --spec-draft-n-max 2`, `-fit off`,
 `-fa on`, `-np 1`, `-ctxcp 4` (D3), `--seed 20260830`, prefill ≥ 90 % of window, `n_predict 192` (D2).
+
+> **The ≥ 90 % prefill rule is now enforced in code, not merely documented** (2026-08-30). It was
+> a comment until PN-5: a cell below `prefill_frac 0.90` now FAILS as `pad-too-short`, the value is
+> printed per cell and recorded in the artifact's `policy` block. Every cell measured before that
+> change is quarantined, not trusted — see L-5.
 
 **Cost model from measured e11 timings** — load 181–306 s at depth (≈180 s at 32 K); prefill 248,522
 tok @ ≈502 tok/s = **8.3 min**; decode 192 tok @ 8–14 tok/s = 15–25 s ⇒ **successful deep cell
@@ -823,6 +829,57 @@ pi zai/glm-5.3-flash @ max). Updated in the routing registry and in the run cast
 Decision: APPROVE Plan A; reviewer role = opus-5 max; conductor released to implement Wave 1.
 Why: owner directives 2026-08-30.
 
+DEC-7 | 2026-08-30 | S2-execute | agent (recorded, owner-visible) | supersedes §5 Q6_K_XL row
+Context: The approved §5 matrix gave Q6_K_XL the ratio list `58,42 · 62,38 · 60,40`, all of which
+shift MORE model onto GPU0, on the reasoning that 54,46 was "already known-failed". Live
+measurement at 196,608 shows 58,42 already OVERSHOOTS on this quant: GPU0 15,036 / GPU1 12,276 MiB,
+2,760 MiB GPU0-heavy, while the default split is 1,482 MiB GPU1-heavy. The balance point lies
+BETWEEN default and 58,42 and the approved list contained no ratio there.
+Decision: Q6_K_XL's ratio list becomes `[default, 52,48, 54,46, 56,44, 58,42]` and the ladder
+brackets UP from 196,608, not down.
+Why: with the approved list every cell would have failed, the sweep would have descended rung by
+rung, and G21 would have concluded "rebalance does not lift the Q6_K_XL ceiling" — a FALSE NEGATIVE
+on the highest-fidelity quant, which is Track A priority (1). Physically, Q6_K_XL's layers are the
+largest on the ladder (25.30 GB), so a smaller layer-fraction shift moves the same MiB than on
+Q6_K (21.98 GB), whose optimum is 58,42. Confirmed by measurement: 52,48 cuts the imbalance from
+1,806 to 448 MiB, and 56,44 LOADS at 196,608 (17.26 tok/s at 0.9474 depth) against a published
+Q6_K_XL MTP ceiling of 131,072.
+Note: this is an agent correction to an owner-approved plan, made because the plan as written
+could not answer its own question. It widens no scope and spends no extra owner budget — the same
+cell count, pointed the right way. Flagged here for the owner rather than applied silently.
+
+DEC-8 | 2026-08-30 | S2-execute | agent (recorded, owner decision pending) | execution route
+Context: The Compass Forge conductor halted 2026-08-30T01:57Z with `VERDICT-REPAIR-EXHAUSTED`
+(`qbench-t1-code-reviewer`, task `REREV-NV2-REREV-NV1-REREV-qbench-t1-REVIEW-r1`, repair_count 2,
+verdict `fail` from zai/glm-5.3-xhigh; `conductor.pid` empty — the process is gone). Wave-1 work
+continued regardless, hand-driven on multivac via `runner_wave1.sh` plus a direct review pass.
+Decision: Wave 1 finishes HAND-DRIVEN. The conductor stays halted and is NOT restarted mid-sweep;
+this lifecycle file, its ledger, and PAPER-NOTES are the record of authority for the remainder of
+Wave 1. The stale reviewer task is left as-is for an owner call at the wave boundary.
+Why: the running measurement is the scarce resource — restarting the pipeline mid-sweep risks a
+second runner, `gpu.lock` contention and junk cells (exactly the D6 failure already observed).
+The conductor's own halt contract requires owner action anyway, so nothing is lost by deferring it.
+Consequence: `data/watch/state.json` health=VERDICT-REPAIR-EXHAUSTED describes a pipeline that no
+longer reflects the work; read this file, not the watcher, for Wave-1 status. The watcher itself
+(pid 88692) is left running — its only remaining function is the 10-minute docs pull, which is
+harmless and keeps the mirror fresh.
+
+OPEN-1 | 2026-08-30T03:44Z | raised by agent, OWNER DECISION REQUIRED before T3b delete-1b
+Context: DEC-4 approved deleting the Q6_K_XL GGUF (25,299,061,664 B). At the time, Q6_K_XL was
+recorded as "best raw accuracy but 131,072 MTP ceiling" — the low ceiling was part of why it could
+go. That premise is now measured false. Under the DEC-7 ratio correction, Q6_K_XL loads at
+**212,992** at `-ts 56,44` (12.98 tok/s at 0.9469 depth; 196,608 gives 17.26 tok/s at 0.9474),
+with 229,376 bracketing above. That is +81,920 tokens (+62.5 %) over the published ceiling, on the
+highest-fidelity quant on the ladder.
+Question: does DEC-4's deletion still stand? The trade has changed shape — Q6_K_XL is now
+"best accuracy, 212,992 context" rather than "best accuracy, 131,072 context", and it sits against
+plain Q6_K's 262,144. It remains the only quant on the ladder whose accuracy has never been
+measured against the others (Phase 6 has no NLL/PPL data for it).
+Consequences either way: deleting it frees the 25.3 GB that carries `/srv/models` past the
+>=60x10^9 B A3 gate (38.9 + 25.3 = 64.2 GB) and the file is re-downloadable but not cheaply;
+keeping it means the A3 gate needs a different 25 GB or an owner waiver, and Phase 1 does not
+close. Nothing is deleted until this is answered — the sweep is not blocked by it.
+
 ## Ledger
 
 ### L-3 | 2026-08-29T21:14:13Z | S1-plan | claude-opus-5 | architect | Phase 0 -> Wave 1 draft <!-- bsc-ledger:qbench-t1-PLAN-A -->
@@ -917,3 +974,82 @@ Verified: ssh multivac 'pgrep -af watchdog.sh|worker.sh' -> empty (quiesced); st
   RepoDigests, UD-Q6_K pinned True; sync-multivac.sh push rc=0.
 Next: T3a delete-1a + verify-sweep --stage 1a -> detached T4 tsweeps (Q4/Q5/Q6) -> T5 G21
   bracket (Q6_K_XL) -> T3b delete-1b + byte gate -> T6 sync/ledger/PN close-out.
+
+
+### L-5 | 2026-08-30T03:40:00Z | S2-execute | claude-opus-5 | conductor-manager | Wave-1 reconciliation (T3a-delete-1a, T4, T5 in flight) <!-- bsc-ledger:qbench-t1-RECONCILE -->
+Did: Reconciled the record after ~4 h of unrecorded Wave-1 work (23:27Z–03:40Z) executed on
+  multivac OUTSIDE the conductor. No GPU work was started, stopped or touched by this entry —
+  the T4/T5 sweep is live and was left alone (see Next).
+  (a) DOC-OF-RECORD REPAIR: this repo's `docs/` had fallen behind the multivac mirror by two
+  commits' worth of content (23.5 KB vs 69 KB — it was missing the winning consensus plan, L-3,
+  L-4 and PN-1..PN-4). A `sync-multivac.sh push` in that state would have CLOBBERED the multivac
+  copy with a stale ancestor. `docs/` fast-forwarded from `data/multivac-src/build-stream-docs/`,
+  verified byte-identical, AppleDouble `._*` junk (which matches the sync's `*.md` filter) deleted.
+  (b) T3a delete-1a IS DONE — executed 2026-08-29T23:27:44Z, never recorded: iq4_xs-gguf
+  14,252,845,984 B, nvfp4-hf-cache 23,444,505,588 B, vllm-nightly-image 8,642,650,217 B,
+  vllm-v0.27.1-image 9,110,698,465 B, all with `deleted_utc` stamped. q6kxl-gguf `deleted_utc`
+  correctly still NULL — held for its bracket under D1. `/srv/models` 1.2 GB -> 38,924,001,280 B
+  free; `/` 83,012,120,576 B free.
+  (c) REVIEW-AND-REPAIR PASS (02:30–03:10Z, Claude Code session on multivac) pulled in as evidence:
+  8 defects found and fixed. Three are material and are now recorded as PN-5..PN-7 —
+  the pad builder silently returning short pads (Q4_K_XL measured at 0.797 of window, not 0.948:
+  both its speed row and its ceiling verdict were optimistic AND it was not comparable to
+  Q5_K_XL); the >=0.90 depth gate documented but never enforced in code, which is why the first
+  defect was invisible; and the §5 Q6_K_XL ratio list pointing the wrong way (DEC-7). Three more
+  are process defects with no data consequence but real wedging risk: a never-started container
+  wedging every subsequent cell, a zero-successful-cell sweep exiting 0 and writing a `.done`
+  marker, and no single-instance guard — two runners raced and produced 32 junk cells across
+  three quants (now `quarantine/*.race-025630`). An aggregator (`summarize_wave1.py`) was written;
+  none existed, so nothing turned the tsweep JSONs into the wave's answer.
+  (d) ARTIFACTS PULLED to `data/raw/e12/` (11 JSON/MD + 8 logs + quarantine evidence + the 13-file
+  repaired harness under `harness-src/`), which also repairs the dangling `data/bench/e12/...`
+  evidence paths in PN-1..PN-4 — that tree stopped syncing under DEC-5 and never existed in this
+  repo; a remap note now heads PAPER-NOTES.md (old entries superseded, never rewritten). The
+  harness copy is deliberately NOT at `$REPO/experiments/`: `sync-multivac.sh push` copies that
+  path onto `/srv/bench/e12`, so creating it would let a later push overwrite the harness the
+  sweep is running against.
+  (e) §5 matrix corrected, phase table statuses updated (0 done, 1 partial, 2 done, 3 in-progress),
+  status block re-pointed, DEC-7 (ratio direction) and DEC-8 (hand-driven execution) recorded.
+Result: The record now matches the machine. One owner-visible item: DEC-7 is an AGENT correction to
+  an owner-approved plan — the approved Q6_K_XL ratio list could not have answered G21, and would
+  have returned a confident false negative on the highest-fidelity quant. Same cell count, opposite
+  direction. Nothing was deleted, restarted or re-run by this entry.
+  Results standing as of this entry:
+  - **Q5_K_XL COMPLETE AND VALID** — reaches the full native 262,144 window when rebalanced and
+    FAILS at the default split (compute-buffer-oom, imbalance 1,530 MiB). Best `-ts 54,46`,
+    decode 10.82 tok/s at 0.948 depth (median-of-3 12.70), imbalance 742 MiB, MTP acceptance 0.516.
+    9 of 10 cells ok, every one at depth 0.948. Supersedes E11a's 196,608 and E1's 163,840.
+    This is a clean causal demonstration that the REBALANCE, not the quant, sets the ceiling:
+    one identical configuration, five ratios that load, one that does not. Note the ratio with the
+    smallest imbalance (58,42, 28 MiB) is the SLOWEST (8.50 tok/s) — balance and speed are
+    different objectives, and G13's "keep the fastest that loads" is the right rule.
+  - **Q6_K_XL** — `56,44` LOADS at 196,608: 17.26 tok/s at 0.9474 depth, MTP acceptance 0.8971,
+    VRAM 15,416/15,840 MiB, imbalance 424 MiB. default/52,48/54,46/58,42 all compute-buffer-oom.
+    Against a published ceiling of 131,072 that is +65,536 tokens, and G21 is closing POSITIVELY —
+    the opposite of what the approved matrix would have concluded.
+  - **Q4_K_XL, Q6_K** — no valid data yet; first-pass cells quarantined (shallow prefill / runner
+    race), re-running under the repaired harness.
+Verified: `ssh multivac` 03:36:37Z — runner pid 1498430 + tsweep pid 1498435 alive, container
+  llamasrv-e12 up, currently on the G21 bracket above (212,992 @ 56,44, 2 attempts per A6);
+  env-manifest `deleted_utc` read back for all 5 items; `df -B1` byte counts as quoted;
+  multivac's docs of record untouched since 23:23–23:26Z (no concurrent writer — this session is
+  the sole writer of the lifecycle file); `docs/` vs mirror diff clean after fast-forward;
+  `data/raw/e12/` 20 files pulled, sizes logged. NOT verified and deliberately not run:
+  `verify-sweep.sh --stage 1a` (it sha256s ~60 GB — the disk I/O would perturb the live
+  measurement; it is the first thing to run when the sweep ends).
+Next: let the sweep finish (Q6_K_XL bracket -> Q6_K -> Q4_K_XL; ~2-5 h at 14-16 min/deep cell).
+  Then, in order: `summarize_wave1.py` -> `verify-sweep.sh --stage 1a` -> T3b delete-1b (Q6_K_XL,
+  25,299,061,664 B, which is what carries `/srv/models` past the >=60x10^9 B A3 gate; 38.9 + 25.3
+  = 64.2 GB, matching F-C's arithmetic) -> D3 `-ctxcp` 4-vs-32 A/B at Q6_K's winner (A8) -> T6
+  close-out. Owner calls waiting at the wave boundary: DEC-7 acknowledgement, and what to do with
+  the halted conductor's stale reviewer task (DEC-8).
+
+Addendum 2026-08-30T03:41Z: `runner_wave1.sh` stops after its tsweeps — nothing chained to the
+  closing steps, so the wave would have idled until a human noticed. Added
+  `/srv/bench/e12/finish_wave1.sh` (pid 1661639, flock-guarded per D6): it waits for runner pid
+  1498430 to exit, sleeps 45 s for the last container teardown and serverlog flush, then runs
+  `summarize_wave1.py --md` and `verify-sweep.sh --stage 1a` — the two REVERSIBLE closing steps,
+  in the only order that is safe (the sha256 pass cannot overlap a live measurement). It stops
+  deliberately before T3b delete-1b: that deletion is irreversible, is gated on the Q6_K_XL
+  bracket results reaching this ledger, and stays an owner action. A8 needs no step here — the
+  D3 `-ctxcp` 4-vs-32 A/B runs inside the Q6_K sweep automatically (`tsweep_v2.run_d3`).
