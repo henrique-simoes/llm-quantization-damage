@@ -1,0 +1,87 @@
+{
+ "experiment": "s8-atdepth",
+ "source": "e12-s8",
+ "quant": "UD-Q6_K",
+ "ts": "58,42",
+ "ctxcp": 32,
+ "kv": "q4_0",
+ "purpose": "does each spec method LOAD and how fast is it at the Track A deployment context; tests the 1.19 GiB draft-worker wall",
+ "ladder": [
+  262144,
+  212992,
+  163840,
+  131072
+ ],
+ "started_utc": "2026-08-30T15:18:33Z",
+ "cells": [
+  {
+   "config": "nospec",
+   "ctx": 262144,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 58,42 -c 262144 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "ok": true,
+   "failure_mode": null,
+   "decode_tok_s": 3.4312070857857524,
+   "prefill_tok_s": 594.5151418642243,
+   "prompt_n": 246176,
+   "prefill_frac": 0.9391,
+   "acceptance": null
+  },
+  {
+   "config": "mtp2",
+   "ctx": 262144,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 58,42 -c 262144 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 2 --host 0.0.0.0 --port 8080",
+   "ok": true,
+   "failure_mode": null,
+   "decode_tok_s": 11.481443475777382,
+   "prefill_tok_s": 506.08662832439336,
+   "prompt_n": 246176,
+   "prefill_frac": 0.9391,
+   "acceptance": 1.0
+  },
+  {
+   "config": "mtp4",
+   "ctx": 262144,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 58,42 -c 262144 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 4 --host 0.0.0.0 --port 8080",
+   "ok": true,
+   "failure_mode": null,
+   "decode_tok_s": 16.808205766054986,
+   "prefill_tok_s": 485.54865346973503,
+   "prompt_n": 246176,
+   "prefill_frac": 0.9391,
+   "acceptance": 1.0
+  },
+  {
+   "config": "dflash4",
+   "ctx": 262144,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 58,42 -c 262144 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-dflash --spec-draft-n-max 4 -md /models/dflash2/Qwen3.8-27B-DFlash2-Q4_K_M.gguf --host 0.0.0.0 --port 8080",
+   "ok": false,
+   "failure_mode": "generate-failed",
+   "error": "<urlopen error [Errno 111] Connection refused>"
+  },
+  {
+   "config": "dflash4",
+   "ctx": 212992,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 58,42 -c 212992 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-dflash --spec-draft-n-max 4 -md /models/dflash2/Qwen3.8-27B-DFlash2-Q4_K_M.gguf --host 0.0.0.0 --port 8080",
+   "ok": false,
+   "failure_mode": "generate-failed",
+   "error": "<urlopen error [Errno 111] Connection refused>"
+  },
+  {
+   "config": "dflash4",
+   "ctx": 163840,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 58,42 -c 163840 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-dflash --spec-draft-n-max 4 -md /models/dflash2/Qwen3.8-27B-DFlash2-Q4_K_M.gguf --host 0.0.0.0 --port 8080",
+   "ok": false,
+   "failure_mode": "generate-failed",
+   "error": "<urlopen error [Errno 111] Connection refused>"
+  },
+  {
+   "config": "dflash4",
+   "ctx": 131072,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 58,42 -c 131072 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-dflash --spec-draft-n-max 4 -md /models/dflash2/Qwen3.8-27B-DFlash2-Q4_K_M.gguf --host 0.0.0.0 --port 8080",
+   "ok": false,
+   "failure_mode": "generate-failed",
+   "error": "<urlopen error [Errno 111] Connection refused>"
+  }
+ ],
+ "finished_utc": "2026-08-30T16:16:02Z"
+}

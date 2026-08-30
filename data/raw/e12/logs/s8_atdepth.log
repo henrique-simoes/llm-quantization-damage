@@ -1,0 +1,14 @@
+[2026-08-30T15:18:33Z] === atdepth nospec @ 262144 ===
+[2026-08-30T15:30:24Z]     ok decode=3.4312070857857524 acc=None prefill_frac=0.9391
+[2026-08-30T15:30:28Z]     nospec: highest reachable rung is 262144 -- not testing lower
+[2026-08-30T15:30:28Z] === atdepth mtp2 @ 262144 ===
+[2026-08-30T15:43:19Z]     ok decode=11.481443475777382 acc=1.0 prefill_frac=0.9391
+[2026-08-30T15:43:23Z]     mtp2: highest reachable rung is 262144 -- not testing lower
+[2026-08-30T15:43:23Z] === atdepth mtp4 @ 262144 ===
+[2026-08-30T15:56:42Z]     ok decode=16.808205766054986 acc=1.0 prefill_frac=0.9391
+[2026-08-30T15:56:46Z]     mtp4: highest reachable rung is 262144 -- not testing lower
+[2026-08-30T15:56:46Z] === atdepth dflash4 @ 262144 ===
+[2026-08-30T16:00:50Z] === atdepth dflash4 @ 212992 ===
+[2026-08-30T16:06:55Z] === atdepth dflash4 @ 163840 ===
+[2026-08-30T16:11:09Z] === atdepth dflash4 @ 131072 ===
+[2026-08-30T16:16:02Z] phase atdepth done: 3/7 cells ok
