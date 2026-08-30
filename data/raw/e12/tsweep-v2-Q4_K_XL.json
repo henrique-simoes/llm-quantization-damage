@@ -164,6 +164,180 @@
    "mtp_acceptance": 0.7905,
    "truncated": false,
    "finished_utc": "2026-08-30T06:01:25Z"
+  },
+  {
+   "key": "212992:56,44:1:base",
+   "ctx_requested": 212992,
+   "ts": "56,44",
+   "rep": 1,
+   "tag": null,
+   "ctxcp": 4,
+   "ok": true,
+   "stage": "done",
+   "failure_mode": null,
+   "error": "",
+   "n_ctx_reported": 212992,
+   "command": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 212992 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 4 --spec-type draft-mtp --spec-draft-n-max 2 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "prefill_tokens": 201672,
+   "prefill_frac": 0.9469,
+   "prefill_tok_s": 630.1644608879479,
+   "decode_tok_s": 15.958839229233185,
+   "n_predict": 192,
+   "seed": 20260831,
+   "sampling": {
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "top_k": 20,
+    "min_p": 0.0,
+    "presence_penalty": 1.5,
+    "repeat_penalty": 1.0
+   },
+   "spec_live": true,
+   "draft_n": 148,
+   "draft_n_accepted": 117,
+   "vram_peak_mib": [
+    12460,
+    13632
+   ],
+   "vram_prefill_end_mib": [
+    12460,
+    13632
+   ],
+   "imbalance_mib": 1172,
+   "imbalance_timealigned_mib": 8118,
+   "load_seconds": 178,
+   "serverlog": "/srv/bench/server-timings/e12-Q4_K_XL-c212992-ts56_44.serverlog",
+   "serverlog_bytes": 17713,
+   "free_bytes": {
+    "/srv/models": {
+     "available": 38924001280
+    },
+    "/": {
+     "available": 82736689152
+    }
+   },
+   "when_utc": "2026-08-30T06:01:25Z",
+   "prefill_target_tokens": 201830,
+   "mtp_acceptance": 0.7905,
+   "truncated": false,
+   "finished_utc": "2026-08-30T06:10:22Z"
+  },
+  {
+   "key": "212992:58,42:1:base",
+   "ctx_requested": 212992,
+   "ts": "58,42",
+   "rep": 1,
+   "tag": null,
+   "ctxcp": 4,
+   "ok": true,
+   "stage": "done",
+   "failure_mode": null,
+   "error": "",
+   "n_ctx_reported": 212992,
+   "command": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -ts 58,42 -c 212992 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 4 --spec-type draft-mtp --spec-draft-n-max 2 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "prefill_tokens": 201672,
+   "prefill_frac": 0.9469,
+   "prefill_tok_s": 625.773567549407,
+   "decode_tok_s": 15.879983903848776,
+   "n_predict": 192,
+   "seed": 20260831,
+   "sampling": {
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "top_k": 20,
+    "min_p": 0.0,
+    "presence_penalty": 1.5,
+    "repeat_penalty": 1.0
+   },
+   "spec_live": true,
+   "draft_n": 148,
+   "draft_n_accepted": 117,
+   "vram_peak_mib": [
+    12948,
+    13148
+   ],
+   "vram_prefill_end_mib": [
+    12948,
+    13146
+   ],
+   "imbalance_mib": 200,
+   "imbalance_timealigned_mib": 1700,
+   "load_seconds": 170,
+   "serverlog": "/srv/bench/server-timings/e12-Q4_K_XL-c212992-ts58_42.serverlog",
+   "serverlog_bytes": 17708,
+   "free_bytes": {
+    "/srv/models": {
+     "available": 38924001280
+    },
+    "/": {
+     "available": 82722578432
+    }
+   },
+   "when_utc": "2026-08-30T06:10:23Z",
+   "prefill_target_tokens": 201830,
+   "mtp_acceptance": 0.7905,
+   "truncated": false,
+   "finished_utc": "2026-08-30T06:19:30Z"
+  },
+  {
+   "key": "212992:60,40:1:base",
+   "ctx_requested": 212992,
+   "ts": "60,40",
+   "rep": 1,
+   "tag": null,
+   "ctxcp": 4,
+   "ok": true,
+   "stage": "done",
+   "failure_mode": null,
+   "error": "",
+   "n_ctx_reported": 212992,
+   "command": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -ts 60,40 -c 212992 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 4 --spec-type draft-mtp --spec-draft-n-max 2 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+   "prefill_tokens": 201672,
+   "prefill_frac": 0.9469,
+   "prefill_tok_s": 615.5678542488963,
+   "decode_tok_s": 15.60343550070771,
+   "n_predict": 192,
+   "seed": 20260831,
+   "sampling": {
+    "temperature": 0.7,
+    "top_p": 0.8,
+    "top_k": 20,
+    "min_p": 0.0,
+    "presence_penalty": 1.5,
+    "repeat_penalty": 1.0
+   },
+   "spec_live": true,
+   "draft_n": 148,
+   "draft_n_accepted": 117,
+   "vram_peak_mib": [
+    13420,
+    12672
+   ],
+   "vram_prefill_end_mib": [
+    13420,
+    12672
+   ],
+   "imbalance_mib": 748,
+   "imbalance_timealigned_mib": 2644,
+   "load_seconds": 149,
+   "serverlog": "/srv/bench/server-timings/e12-Q4_K_XL-c212992-ts60_40.serverlog",
+   "serverlog_bytes": 17711,
+   "free_bytes": {
+    "/srv/models": {
+     "available": 38924001280
+    },
+    "/": {
+     "available": 82712928256
+    }
+   },
+   "when_utc": "2026-08-30T06:19:30Z",
+   "prefill_target_tokens": 201830,
+   "mtp_acceptance": 0.7905,
+   "truncated": false,
+   "finished_utc": "2026-08-30T06:28:11Z"
   }
  ],
  "best": null,
