@@ -230,7 +230,7 @@ def df_b1():
 
 # ---------------------------------------------------------------- launch (#2) ---
 def launch(model_path, ctx, kv="q4_0", spec="mtp2", sm="layer", ts=None, ctxcp=4,
-           fit="off", fa="on", extra="", image=IMAGE, health_env=""):
+           fit="off", fa="on", extra="", image=IMAGE, health_env="", entrypoint=""):
     """model_path is a HOST path; mapped to the container mount automatically.
     Returns (cmd, rc, stderr_head). The FULL contract is explicit here — callers must
     store the returned command verbatim in every record (G7)."""
@@ -250,7 +250,12 @@ def launch(model_path, ctx, kv="q4_0", spec="mtp2", sm="layer", ts=None, ctxcp=4
     # ratio was set (argv became "-ts 54,46-c 212992" -> the server swallowed "-c" into the
     # -ts value and died on the stray positional: error: invalid argument: 212992).
     # Every -ts cell of the first sweep run failed this way; only ts=default cells ran.
-    cmd = (f"docker run -d --name {CONT} --gpus all --network host {mounts} {image} "
+    # --entrypoint must precede the image name. llama-dflash2:latest ships
+    # /app/llama-cli as its entrypoint, which rejects --host and dies in ~19 s; every
+    # DFlash2 run needs entrypoint="/app/llama-server". Added 2026-08-31 after S8's five
+    # DFlash cells were voided for being launched on the wrong image entirely (PN-25).
+    ep_arg = f"--entrypoint {entrypoint}" if entrypoint else ""
+    cmd = (f"docker run -d --name {CONT} --gpus all --network host {mounts} {ep_arg} {image} "
            f"-m {inner} -ngl 99 -sm {sm} {ts_arg} -c {ctx} -fit {fit} "
            f"-fa {fa} -ctk {kv} -ctv {kv} -b 2048 -ub 512 -np 1 -ctxcp {ctxcp} "
            f"{spec_args} --seed {SEED} {health_env} {extra} --host 0.0.0.0 --port {PORT}")
