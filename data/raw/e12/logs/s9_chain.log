@@ -15,3 +15,14 @@
         File "/srv/bench/e12/experiments/lib_e12.py", line 145, in preflight
           raise RuntimeError("preflight FAILED: " + json.dumps(bad))
       RuntimeError: preflight FAILED: [{"check": "legacy_orchestrator_quiesced", "ok": false, "detail": ["2058965 /bin/bash -c source /home/multivac/.claude/shell-snapshots/snapshot-bash-1788209460648-j6s12l.sh 2>/dev/null || true && shopt -u extglob 2>/dev/null || true && { \\builtin unalias -- 'unsetenv'; \\builtin unset -f -- 'unsetenv'; } >/dev/null 2>&1 || true && eval 'bash /srv/bench/e12/campaign_watchdog.sh' < /dev/null && pwd -P >| /tmp/claude-b0d2-cwd", "2058967 bash /srv/bench/e12/campaign_watchdog.sh"]}]
+[2026-08-31T22:55:51Z]   git: pushed (after s9 s6)
+[2026-08-31T22:55:51Z] === PHASE dflash START ===
+[2026-08-31T22:55:51Z] === PHASE dflash FAILED rc=1 — logged and SKIPPED, chain continues ===
+          main()
+          ~~~~^^
+        File "/srv/bench/e12/experiments/s9_final.py", line 413, in main
+          L.preflight()
+          ~~~~~~~~~~~^^
+        File "/srv/bench/e12/experiments/lib_e12.py", line 145, in preflight
+          raise RuntimeError("preflight FAILED: " + json.dumps(bad))
+      RuntimeError: preflight FAILED: [{"check": "legacy_orchestrator_quiesced", "ok": false, "detail": ["2058965 /bin/bash -c source /home/multivac/.claude/shell-snapshots/snapshot-bash-1788209460648-j6s12l.sh 2>/dev/null || true && shopt -u extglob 2>/dev/null || true && { \\builtin unalias -- 'unsetenv'; \\builtin unset -f -- 'unsetenv'; } >/dev/null 2>&1 || true && eval 'bash /srv/bench/e12/campaign_watchdog.sh' < /dev/null && pwd -P >| /tmp/claude-b0d2-cwd", "2058967 bash /srv/bench/e12/campaign_watchdog.sh"]}]
