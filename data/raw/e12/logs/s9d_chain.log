@@ -12,3 +12,5 @@
         File "/srv/bench/e12/experiments/lib_e12.py", line 145, in preflight
           raise RuntimeError("preflight FAILED: " + json.dumps(bad))
       RuntimeError: preflight FAILED: [{"check": "legacy_orchestrator_quiesced", "ok": false, "detail": ["2058965 /bin/bash -c source /home/multivac/.claude/shell-snapshots/snapshot-bash-1788209460648-j6s12l.sh 2>/dev/null || true && shopt -u extglob 2>/dev/null || true && { \\builtin unalias -- 'unsetenv'; \\builtin unset -f -- 'unsetenv'; } >/dev/null 2>&1 || true && eval 'bash /srv/bench/e12/campaign_watchdog.sh' < /dev/null && pwd -P >| /tmp/claude-b0d2-cwd", "2058967 bash /srv/bench/e12/campaign_watchdog.sh"]}]
+[2026-08-31T22:57:00Z]   git: pushed (after s9d sweep)
+[2026-08-31T22:57:00Z] === S9D CHAIN COMPLETE ===
