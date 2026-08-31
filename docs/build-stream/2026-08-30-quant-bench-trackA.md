@@ -1853,3 +1853,40 @@ Next: no GPU work is queued and none is required — Track A stands, with its co
   attribute PN-23's divergence (~40 min). Everything else outstanding is report assembly: this
   repository is being reorganised around the arXiv technical report as its deliverable, with
   CLAUDE.md rewritten as the source of truth and a README added.
+
+### L-14 | 2026-08-31T23:35:00Z | S3-report | claude-opus-5 | conductor-manager | S9a answers PN-23; the campaign self-destructed and was repaired <!-- bsc-ledger:qbench-t1-S9A -->
+Did: launched the DEC-12/DEC-13/DEC-14 campaign as four detached chains sequenced by blocking
+  flock (S9 → S9d → S9e → S10, ~11 h), supervised by a sentinel emitting one line per new problem
+  plus an independent 20-minute check. S9's determinism phase completed. Then the campaign
+  cascaded to failure in 8 minutes and was diagnosed, repaired and relaunched.
+Result — the science (PN-26): **the S8 divergence is deterministic and systematic, not stochastic.**
+  Re-running S8's two configurations unchanged a day later, no-spec reproduced its own 164
+  completions byte-identically (md5 `37616d8911fb4792fb76cadf0806511c` on both runs; 18.463 vs
+  18.485 tok/s) and MTP n=2 reproduced itself byte-identically as well — while both still differ
+  from each other on exactly 33 of 164 problems. Speculation is therefore a **reproducibly
+  different decode path**, not an approximation that drifts.
+  ⚠️ **This refutes the mechanism PN-23's caveat proposed.** That note argued the partial n=2/n=4
+  set overlap (Jaccard 0.610) pointed at float nondeterminism from the changed decode batch shape.
+  It cannot: both arms are individually deterministic. The overlap is explained by n=2 and n=4
+  being different algorithms — different draft lengths put verification boundaries at different
+  token positions, so each diverges deterministically but at a different set of problems. PN-23's
+  numbers stand; its mechanistic speculation is withdrawn, and PN-26 supersedes it. Where in the
+  verification the difference arises needs engine-level instrumentation, not output comparison.
+Result — the incident (PN-27): `preflight()` refuses to launch while the legacy orchestrator runs,
+  implemented as `pgrep -af "watchdog.sh|worker.sh"` — unanchored, matching ANY such process. The
+  sentinel armed to supervise the campaign was named `campaign_watchdog.sh`. Every phase launched
+  after 22:32Z failed preflight; s6, dflash, the 24-cell sweep, the 262 K addendum and the S10
+  pilot all died between 22:55:51Z and 23:02:32Z. **The supervision killed the campaign it was
+  built to protect.** No data corrupted and no GPU consumed — the check worked correctly on a
+  false positive it could not distinguish from a true one.
+Verified: fixed two independent ways and both tested under the live failing condition — pattern
+  path-anchored to `orchestrator/watchdog[.]sh|orchestrator/worker[.]sh`, and the script renamed to
+  `campaign_sentinel.sh`. `preflight()` re-run with the sentinel armed: all five checks pass. A
+  second instance of the same family was found while fixing the first — the sentinel's own
+  `chains_alive()` used `[s]9_chain.sh`, whose unescaped `.` is a wildcard one character from
+  matching the monitor's `tail -f .../s9_chain.log`; escaped and path-anchored. Failed markers and
+  error logs archived under `state/*.preflight-selfmatch-20260831` and
+  `logs/preflight-selfmatch-20260831/` rather than deleted. All four chains relaunched 23:27:22Z;
+  the idempotence guards did their job — determinism and score were skipped as already done.
+Next: campaign re-running from S9's pilot; ~11 h. The determinism result is banked and does not
+  need re-running. On completion: ledger entries and paper notes per phase, then the report.
