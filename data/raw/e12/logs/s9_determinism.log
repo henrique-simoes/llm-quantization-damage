@@ -1,0 +1,17 @@
+[2026-08-31T21:41:32Z] 164 HumanEval+ problems
+[2026-08-31T21:41:32Z] === nospec-r2: launching (ctx=32768, image=llamacpp-mtp) ===
+[2026-08-31T21:56:36Z]     nospec-r2: 40/164 (497s)
+[2026-08-31T22:05:09Z]     nospec-r2: 80/164 (1011s)
+[2026-08-31T22:16:36Z]     nospec-r2: 120/164 (1698s)
+[2026-08-31T22:29:14Z]     nospec-r2: 160/164 (2455s)
+[2026-08-31T22:30:02Z] === nospec-r2: 2499.0s  decode_median=18.485 acceptance=None empties=0 ===
+[2026-08-31T22:30:03Z] === mtp2-r2: launching (ctx=32768, image=llamacpp-mtp) ===
+[2026-08-31T22:38:30Z]     mtp2-r2: 40/164 (223s)
+[2026-08-31T22:42:33Z]     mtp2-r2: 80/164 (466s)
+[2026-08-31T22:48:37Z]     mtp2-r2: 120/164 (830s)
+[2026-08-31T22:55:08Z]     mtp2-r2: 160/164 (1221s)
+[2026-08-31T22:55:35Z] === mtp2-r2: 1243.9s  decode_median=37.837 acceptance=0.9536 empties=0 ===
+[2026-08-31T22:55:35Z] VERDICT: ENGINE-DETERMINISTIC: both configurations reproduce themselves byte-exactly. PN-23's divergence is therefore CAUSED BY SPECULATION, not by run-to-run nondeterminism, and the partial n=2/n=4 set overlap means it is draft-depth-dependent rather than random.
+[2026-08-31T22:55:35Z] nospec self: {"a": "s8-nospec", "b": "s9-nospec-r2", "n": 164, "exact_match": 164, "differs": 0, "exact_match_pct": 100.0, "first_divergence_char_median": null, "identical": true}
+[2026-08-31T22:55:35Z] mtp2   self: {"a": "s8-mtp2", "b": "s9-mtp2-r2", "n": 164, "exact_match": 164, "differs": 0, "exact_match_pct": 100.0, "first_divergence_char_median": null, "identical": true}
+[2026-08-31T22:55:35Z] phase determinism done: 2 successful unit(s)
