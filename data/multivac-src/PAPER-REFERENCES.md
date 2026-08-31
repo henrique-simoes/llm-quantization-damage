@@ -1062,3 +1062,191 @@ battery). Rationale, with sources in METHOD-REFERENCES.md:
   token divergence is not generation quality; only two domains, no multilingual or tool-calling
   coverage; the single generative task anchor is deliberately small (2 arms, paired per-problem
   per Miller/Anthropic) and reported with its power.
+
+# ============================================================
+# E12 WAVE RESULTS — GRADUATED 2026-08-31
+# Source of record: ~/repos/multivac-paper (docs/paper/PAPER-NOTES.md PN-1..PN-25,
+# the plan's ledger L-1..L-13, artifacts under data/raw/e12/ and /srv/bench/e12/).
+# Everything below was measured on the SURVIVING image llamacpp-mtp:latest
+# (sha256:feb0231976b6..., 0.3.0-dev build 1, commit d222767), -sm layer, q4_0 KV
+# unless stated. These rows SUPERSEDE the pre-2026-08-29 ceiling and speed tables
+# above, which came from a deleted image and are irreproducible-on-current-images.
+# ============================================================
+
+## CONTEXT CEILINGS AFTER TENSOR-SPLIT REBALANCE (Wave 1, MTP n=2, q4_0 KV, -sm layer)
+Behavioural gate: server healthy + /props n_ctx == requested + >=90% window prefill + a real
+generation. VRAM recorded, never gated (E1's 15,700 MiB gate produced a FALSE ceiling for
+Q5_K_XL -- see below).
+
+| quant | ceiling | winning -ts | decode at depth | notes |
+|---|---|---|---|---|
+| UD-Q4_K_XL | 262,144 | 56,44 | 12.61 tok/s (median of 6) | fastest arm at the full window |
+| UD-Q5_K_XL | 262,144 | 54,46 | 12.70 tok/s (median of 3) | **FAILS TO LOAD at the default split** |
+| UD-Q6_K    | 262,144 | 58,42 | 11.90 tok/s (median of 3) | Track A primary |
+| UD-Q6_K_XL | 212,992 | 56,44 | 12.98 tok/s | vs a published 131,072 -- G21 CLOSED |
+
+FINDING (PN-6): **the usable context ceiling is a property of the SPLIT, not the quant.** Q5_K_XL
+reaches the full native window at five different ratios and fails at the engine default. A ceiling
+published without its tensor-split is not a property of the model.
+FINDING (PN-7): the optimum is **quant-specific and NOT monotone-safe**. Q6_K's optimum 58,42
+OVERSHOOTS on Q6_K_XL (2,760 MiB GPU0-heavy); only 56,44 loads. Re-sweep on any change of quant,
+KV dtype or spec setting.
+FINDING (PN-8): **balance and throughput are opposing objectives.** On Q5_K_XL the most balanced
+ratio tested (58,42, 28 MiB imbalance) is the SLOWEST at 8.50 tok/s; the least balanced that loads
+(54,46, 742 MiB) is fastest at 10.82. "Keep the fastest that loads" is the correct rule.
+CORRECTION: E1's Q5_K_XL ceiling of 163,840 was a VRAM-GATE ARTIFACT, not a real limit -- the gate
+sat inside the +/-100-200 MiB layer-split noise it was trying to measure. Any E1 rung failed on
+VRAM alone must be re-tested; rungs failed on a real error (Q6_K_XL @262,144) are confirmed.
+ADOPTED (PN-18, A8): -ctxcp 32 over the default 4 -- +6.8% decode, +7.6% prefill, IDENTICAL VRAM.
+
+## SPEED DOES NOT DISCRIMINATE THE LADDER (PN-19)
+At 262,144 filled to >=0.90, one statistic for every arm (median):
+Q5_K_XL 12.70 (n=3) > Q4_K_XL 12.61 (n=6) > Q6_K 11.90 (n=3) -- a 6.7% span, against WITHIN-ARM
+repetition noise reaching 32.9%. The arms are indistinguishable on decode throughput. The usual
+case for quantizing down ("faster for slightly less accurate") DOES NOT HOLD here: the cheaper arm
+is only less accurate. Q4_K_XL earns its place on VRAM footprint (17.56 vs 21.98 GB) alone.
+DEFECT (PN-20): the Wave-1 summary's decode column mixed THREE estimators (last rep / first rep /
+median), reversing the apparent ranking of two arms. Every comparison column must name its
+estimator and n IN THE TABLE. The decision was derived from recomputed medians, not the summary.
+
+## SMALL-SAMPLE ACCURACY PROTOCOL (SSA) -- RESULTS
+Instrument: llama-perplexity --kl-divergence, 65,536 tokens/domain/arm (32 chunks x n_ctx 2048),
+reference arm UD-Q6_K_XL, seed 20260830. LADDER-RELATIVE: no FP16 exists on the host.
+
+### Mean KL divergence vs the UD-Q6_K_XL reference (PN-13, PN-14, PN-21)
+| arm | wikitext-2 (prose) | django (code) | HumanEval+ prompts (task) | code/prose | task/prose |
+|---|---|---|---|---|---|
+| UD-Q6_K    | 0.003321 +/- 0.000126 | 0.005829 +/- 0.000233 | 0.010403 | 1.75x | 3.13x |
+| UD-Q5_K_XL | 0.004465 +/- 0.000281 | 0.010285 +/- 0.000458 | 0.017285 | 2.30x | 3.87x |
+| UD-Q4_K_XL | 0.008207 +/- 0.000340 | 0.021529 +/- 0.000834 | 0.036129 | 2.62x | 4.40x |
+Top-1 agreement, code: 99.142 / 98.870 / 98.430 %. Task prompts: 98.045 / 97.339 / 95.894 % --
+on UD-Q4_K_XL roughly ONE TOKEN IN 24 differs from the reference under greedy decoding.
+Monotone in every domain; adjacent arms separated at 3.7-11.8 sigma with non-overlapping intervals,
+in under 20 min of GPU per arm.
+
+**THE HEADLINE: quantization damage is DOMAIN-DEPENDENT and the published view is the flattering
+one.** Damage on code is ~2x damage on prose, and the ratio GROWS with aggressiveness. Against
+Fireworks' <0.007 threshold: two of three arms pass on prose, ONE on generic code, and NONE on the
+actual task distribution. Quantization-quality tables published on Wikipedia-like corpora
+systematically understate the cost for coding work, by a factor that is itself larger for the
+cheaper quants.
+
+### METRIC PAIRING IS MANDATORY (PN-16)
+Top-1 agreement and mean KLD DISAGREE about which domain is hurt more: on code every arm shows
+HIGHER top-1 agreement than on prose (98.4-99.4 vs 96.2-97.5 %, apparently better) while showing
+roughly DOUBLE the mean KLD (definitively worse). Reconciliation: the code corpus is far more
+predictable (PPL 1.18 vs 5.79), so the argmax survives quantization even as the distribution
+around it moves. A top-1-only table would have concluded the model quantizes BETTER for code.
+
+### E2 CLOSED -- q4_0 KV IS VALIDATED BUT NOT FREE (PN-15)
+q4_0 vs f16 KV, same model/corpus/seed: mean KLD **0.002955 +/- 0.000127**, top-1 agreement
+99.401 +/- 0.043 %. That is **51% of the divergence of dropping a whole quantization level**
+(Q6_K_XL -> Q6_K on code, 0.005829). Below the <0.007 band, so defensible -- but it must be
+declared alongside every accuracy claim. PPL on the IDENTICAL pair moves only 1.1791 -> 1.1809
+(+0.15%): a direct demonstration of the averaging bias that makes PPL a poor quantization metric.
+LIMIT: measured on the reference arm, code domain, at n_ctx 2048 -- NOT at the 212K-262K depths
+where the KV cache actually dominates memory.
+
+### THE CONTROL THAT VALIDATES THE METHOD (PN-22)
+HellaSwag, n=400, seed 20260830, all four arms: UD-Q6_K_XL 82.75 / UD-Q6_K 82.25 /
+UD-Q5_K_XL 82.75 / UD-Q4_K_XL 83.25 % -- a 1.0-point spread inside ~7.4-point intervals, with the
+MOST HEAVILY QUANTIZED ARM SCORING NOMINALLY HIGHEST. Paired McNemar on the identical task set
+(per-task vectors recovered by differencing the tool's cumulative accuracy table): UD-Q6_K_XL and
+UD-Q5_K_XL answer **all 400 items IDENTICALLY** (b=0, c=0); every other pair disagrees on 2-4
+items; no pair distinguishable (all p >= 0.13).
+**A multiple-choice battery is STRUCTURALLY INSENSITIVE to damage that divergence resolves at
+3.7-11.8 sigma** -- not merely underpowered. Such scoring depends only on an argmax over a few
+candidate continuations, so more tasks would narrow the intervals and fix nothing. Decided the
+conventional way, this study would have concluded "no meaningful difference" and picked the
+cheapest arm. HellaSwag is commonsense reasoning, NOT coding -- face validity only, never a
+Track A input.
+
+## S8 -- SPECULATIVE DECODING (2026-08-30, UD-Q6_K, -ts 58,42, -ctxcp 32, q4_0 KV, greedy)
+
+### *** CORRECTION OF RECORD: SPEC DECODE IS NOT GREEDY-LOSSLESS *** (PN-23)
+This file and ~/CLAUDE.md both asserted that accepted draft tokens are exactly the target's greedy
+output, so the spec method affects speed only and accuracy is purely a quant property. **MEASURED,
+THAT IS FALSE.** 164 HumanEval+ problems, temperature 0, top_p 1, fixed seed, max_tokens 1024:
+
+| config | exact match vs no-spec | first divergence (median char) | pass@1 HE / HE+ | decode @32K |
+|---|---|---|---|---|
+| no-spec  | -- (baseline)     | --  | 94.5 / 91.5 | 18.46 tok/s |
+| MTP n=2  | **131/164 (79.88%)** | 715 | 93.9 / 90.2 | 37.44 tok/s (acc 0.9536) |
+| MTP n=4  | **131/164 (79.88%)** | 730 | 93.9 / 90.9 | 47.03 tok/s (acc 0.8922) |
+
+About one generated function in five is not what the same configuration would produce without
+speculation. pass@1 differences are inside the +/-4.6-pt interval at n=164 and rank nothing -- the
+EQUIVALENCE result is the finding.
+**MECHANISM NOT ESTABLISHED.** Either the verification step is not exactly greedy-equivalent, or
+speculation changes the decode batch shape and float reductions are not associative so the logits
+are not bit-identical. Evidence leans to the second: the n=2 and n=4 divergence SETS overlap only
+partially (25 shared, 8 unique each, Jaccard 0.610), whereas a systematic rule error should give
+near-identical sets. **No no-spec-vs-no-spec repeat control was run** -- that control (~40 min GPU)
+is what would settle it and is the cheapest open experiment in the project.
+CONSEQUENCE EITHER WAY: **a speculative setting is part of the ACCURACY configuration, not a free
+speed knob.** For exactly reproducible output, run no-spec and accept 3.43 tok/s at full depth.
+This also invalidates the E2 method note above, which planned to attribute f16-vs-q4_0 divergence
+while running MTP -- that comparison must be run NO-SPEC on both arms or the KV effect is
+confounded with ~20% spec-induced divergence.
+
+### DRAFT DEPTH: n=4 BEATS n=2, AND THE MARGIN GROWS WITH DEPTH (PN-24)
+| depth | no-spec | MTP n=2 | MTP n=4 | n=4 vs n=2 |
+|---|---|---|---|---|
+| ctx 32,768 (median of 164) | 18.46 | 37.44 (2.03x) | **47.03 (2.55x)** | +25.6% |
+| ctx 262,144 filled to 93.9% | 3.43 | 11.48 (3.35x) | **16.81 (4.90x)** | **+46.4%** |
+Speculation is worth MORE at long context on this stack, not less -- the opposite of the historical
+DFlash2 behaviour. Lower acceptance at n=4 does not offset the larger tokens-per-accepted-draft
+term: **acceptance alone is a poor predictor of throughput.**
+CAVEATS: at-depth cells are n=1 with a 192-token generation against 32.9% within-arm noise; the
+reported acceptance of exactly 1.000 for BOTH arms at depth is not a stable estimate at that sample
+size and must not be quoted. The 32,768 medians (164 generations each) are the sturdier pair.
+
+### DFlash2 CELLS ARE VOID -- EXCLUDED DATA (PN-25)
+All five DFlash2 cells (1 HumanEval arm + 4 at-depth rungs) were launched against
+llamacpp-mtp:latest, which cannot parse the drafter:
+  `llama_model_load: error loading model: done_getting_tensors: wrong number of tensors;
+   expected 81, got 58`
+The required engine is the fork **llama-dflash2:latest** (v0.1.2-dev build 50, f7aadef), which also
+needs `--entrypoint /app/llama-server`. The cells recorded 0.000 pass@1 and generate-failed --
+values INDISTINGUISHABLE IN A TABLE from a model that ran and failed completely. The drafter file
+is intact (/srv/models/dflash2/Qwen3.8-27B-DFlash2-Q4_K_M.gguf, 1,143,006,752 B).
+**A drafter is bound to its engine build; a mis-bound one produces a clean, silent zero.**
+
+## TRACK A -- DECIDED 2026-08-30, AMENDED 2026-08-31
+```
+-m Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 58,42 -c 262144 -fit off -fa on \
+   -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 \
+   --spec-type draft-mtp --spec-draft-n-max 4
+```
+Full 262,144-token window at Q6 fidelity, 16.8 tok/s at 94% depth, code KLD 0.005829 +/- 0.000233.
+Fallback A (max fidelity): UD-Q6_K_XL -ts 56,44 @212,992. Fallback B (min VRAM): UD-Q4_K_XL
+-ts 56,44 @262,144, accepting 3.7x the code divergence. UD-Q5_K_XL is DOMINATED -- same ceiling as
+Q6_K, 1.76x its divergence, indistinguishable decode, only 1.1 GB smaller.
+Full reasoning, conditions and fallback ladder: ~/repos/multivac-paper/docs/paper/TRACK-A-DECISION.md
+
+## HARNESS / METHOD DEFECTS WORTH PUBLISHING (PN-5, PN-17, PN-20, PN-25)
+1. A documented contract not asserted in code is not a contract: a ">=90% of window" depth gate
+   lived in a docstring, was recorded per cell as prefill_frac, and was never compared to 0.90 --
+   letting a 79.7%-filled window report success and making that arm incomparable to one measured
+   at 94.8%. (Root cause: a pad-builder bisection over a fixed bracket with chars-per-token
+   calibrated on an unrepresentative prefix.)
+2. A harness that scores a subprocess by exit code alone will report a fully successful run that
+   MEASURED NOTHING: ten llama-perplexity cells consumed ~1.5 h of GPU, exited 0, were marked ok,
+   and carried empty metric fields -- the parser expected ASCII "+/-" while llama.cpp emits "±".
+   Every number was recoverable ONLY because the log-preservation rule wrote full stdout to disk
+   before each container was removed. A step's success criterion must assert the MEASUREMENT EXISTS.
+3. An aggregator that does not name its estimator will put three different statistics in one
+   comparison column, and it reversed a ranking here.
+4. A mis-bound drafter produces a clean 0.000 (see PN-25).
+
+## WHAT THE E12 WAVE DID NOT MEASURE (state these as limitations)
+- **Long-context task accuracy for ANY arm** (G1) -- still the largest hole; no 100K-250K task
+  outputs exist anywhere on this host.
+- **Generation quality**: all divergence is on PROMPT tokens. The paired two-arm generative anchor
+  (SSA S6) was never written.
+- **Absolute distance from FP16** (G20): ladder-relative only; no FP16 or Q8 reference fits the host.
+- **Comparability to published scores** (G16/G19): logprob instruments run greedy, not the official
+  temp 0.7/1.0 presets; Qwen publishes LiveCodeBench v6, SWE-bench Pro and Terminal Bench, none set
+  up here, and no HumanEval at all.
+- Six quants in the Q4-Q6 band remain untested (G18); DFlash2 remains unmeasured (PN-25);
+  reasoning_effort equivalence remains untested (G17).

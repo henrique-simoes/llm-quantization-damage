@@ -5,12 +5,12 @@
 item: quant-bench-trackA
 branch: main
 cf: { spec: CF-SPEC-1, tasks: [CF-1..] }
-phase: "Wave 1 — -ts rebalance sweeps in flight (lifecycle Phase 3); Phases 1-2 closed"
-stage: S2-execute
-status: in-progress
+phase: "Measurement COMPLETE. Wave 1 (Phases 1-3) closed; SSA accuracy program S0-S5+S7 closed; S8 spec-decode closed. Remaining scope is report assembly (Phase 10)."
+stage: S3-report
+status: measurement-complete
 blocked_on: null
-last: { agent: claude-opus-5, at: 2026-08-30T03:40:00Z, ledger: L-5 }
-next_action: "AUTONOMOUS until the sweep ends. T4/T5 running detached (runner_wave1.sh sweep Q6_K_XL Q6_K Q4_K_XL, pid 1498430); finish_wave1.sh (pid 1661639) waits on it and then runs summarize_wave1.py + verify-sweep.sh --stage 1a. D3/A8 is automatic inside the Q6_K sweep. Do NOT start a second runner (flock, exit 3) and do NOT run verify-sweep.sh by hand while the GPU work is live. T3b delete-1b is CANCELLED (DEC-9 — Q6_K_XL is kept as the 4th accuracy arm and the fidelity reference); Phase 1 closes on stage-1a + the A3 /srv/models waiver. AFTER Wave 1: T6 close-out, then WAVE 3 (accuracy, four arms, Stage A first) ahead of Wave 2 per DEC-10."
+last: { agent: claude-opus-5, at: 2026-08-31T00:00:00Z, ledger: L-13 }
+next_action: "No GPU work is queued and none is required for the Track A deliverable, which is DECIDED (docs/paper/TRACK-A-DECISION.md, amended by S8 to --spec-draft-n-max 4). The project objective is now the arXiv technical report (Track B). Outstanding: (1) assemble the report from PN-1..PN-25; (2) OPTIONAL 40-min no-spec-vs-no-spec determinism control to attribute PN-23's divergence between a verification-rule effect and float nondeterminism; (3) OPTIONAL Wave 2 breadth (G17 reasoning_effort equivalence, temp>0 losslessness, DFlash2 re-run on the CORRECT image llama-dflash2:latest) and Wave 4 energy curve — none of which the decision depends on. Do NOT restart the halted conductor."
 conductor: { run: qbench-t1, shape: solo-architect, waves: 4, manifest: docs/build-stream/qbench-t1-waves.json, state: HALTED-verdict-repair-exhausted-2026-08-30T01:57Z, execution: hand-driven per DEC-8 }
 ```
 <!-- /STATUS BLOCK -->
@@ -71,16 +71,16 @@ Documentation is never deleted — only appended.
 | Phase | Goal (one line) | Acceptance / verify | Status |
 |-------|-----------------|---------------------|--------|
 | 0 | Settings research consolidated into pinned config candidates + owner gates | owner approves DEC-1 set (this file) | **done** (DEC-1..DEC-6) |
-| 1 | Disk sweep under preservation rule; delete list executed; manifests written | `bash /srv/bench/sweep/verify-sweep.sh` green + free ≥ 60 GB on /srv/models | **partial** — delete-1a executed 23:27:44Z (4 of 5 items, 65.4 GB); Q6_K_XL held for its bracket (D1); byte gate NOT yet met (38.9 GB free) and `verify-sweep.sh --stage 1a` deliberately deferred (L-5) |
+| 1 | Disk sweep under preservation rule; delete list executed; manifests written | `bash /srv/bench/sweep/verify-sweep.sh` green + free ≥ 60 GB on /srv/models | **closed** (L-9) — delete-1a executed (4 of 5 items, 65.4 GB); delete-1b **cancelled** by DEC-9 (Q6_K_XL kept as the 4th arm and the divergence reference); the `/srv/models` byte gate was **waived** by the owner, the `/` limb passes; `verify-sweep.sh --stage 1a` rc=0 after 7 race-residue empty logs were quarantined with a register |
 | 2 | Harness-validation suite (validate-v2): launch contract, sampling contract, thinking control, provenance capture | `validate-v2.py` catches the 4 seeded fault configs (negative control) | **done** — gate green 2026-08-29T23:01Z (C1–C4 pass; F1→C1, F2→C3, F3→C2, F4→C4); a fifth contract (≥0.90 depth gate) added 2026-08-30 after PN-5 |
-| 3 | Bring-up + `-ts` rebalance sweep per quant; bracket context ceilings | `tsweep-v2` full-ratio artifacts + bracketed ceilings re-tested | **in-progress** — Q5_K_XL complete+valid (262,144 @ `-ts 54,46`); Q6_K_XL/Q6_K/Q4_K_XL re-running under the repaired harness |
-| 4 | Official-settings validation pilots (G17 equivalence, G8 losslessness at temp>0, pp-behavior probe) | pilot artifacts; spec-decode accuracy-arm rule locked | planned |
-| 5 | MTP/DFlash setting sweep (depth, p-min, draft-KV dtype, DFlash n-max) | sweep JSONs at 32 K and full-depth; best-per-context recorded | planned |
-| 6 | Accuracy instruments: PPL(P1) for UD-Q6_K, code-NLL ladder, HumanEval+ gap-fills, LCB v6 n=100 setup+run | artifacts under /srv/bench/, CIs attached | planned |
-| 7 | Agentic: SWE-bench Verified 25-smoke → 50 stratified; agentic steps; thinking arm | smoke green before 50-run; per-instance manifest + Wilson CIs | planned |
-| 8 | Context axis: Code-NIAH 6 depths × 2 needle classes × 3 seeds; E2 KV fidelity (f16 vs q4_0) | code-niah.json + kv-fidelity.json; decision rule applied | planned |
-| 9 | Speed + energy at chosen config (speed curve, J/tok, filled depths) | chosen-config-speed.json | planned |
-| 10 | Track A decision procedure + Track B data assembly; CLAUDE.md/PAPER-REFERENCES updates | config lines published with evidence trail | planned |
+| 3 | Bring-up + `-ts` rebalance sweep per quant; bracket context ceilings | `tsweep-v2` full-ratio artifacts + bracketed ceilings re-tested | **done** (L-8/L-9) — all four arms: Q4_K_XL 262,144 @ `-ts 56,44` · Q5_K_XL 262,144 @ `54,46` · Q6_K 262,144 @ `58,42` · Q6_K_XL 212,992 @ `56,44` (G21 closed). `-ctxcp 32` adopted (A8). Headline: the ceiling is a property of the SPLIT, not the quant (PN-6) |
+| 4 | Official-settings validation pilots (G17 equivalence, G8 losslessness at temp>0, pp-behavior probe) | pilot artifacts; spec-decode accuracy-arm rule locked | **partial** (L-13) — **G8 answered at greedy and NEGATIVELY**: MTP is not output-identical to no-spec, 131/164 exact match (PN-23). G17 answered negatively at the template level only (PN-3); `reasoning_effort` equivalence and the temp>0 arm remain unrun and are now optional |
+| 5 | MTP/DFlash setting sweep (depth, p-min, draft-KV dtype, DFlash n-max) | sweep JSONs at 32 K and full-depth; best-per-context recorded | **partial** (L-13) — draft depth swept {none, n=2, n=4} at 32 K **and** at the full 262,144 window: n=4 wins at both and the margin grows with depth (PN-24). DFlash2 **void** — wrong engine image, 5 cells excluded (PN-25). p-min and draft-KV dtype unrun, both optional |
+| 6 | Accuracy instruments: PPL(P1) for UD-Q6_K, code-NLL ladder, HumanEval+ gap-fills, LCB v6 n=100 setup+run | artifacts under /srv/bench/, CIs attached | **superseded by DEC-11** — replaced by the Small-Sample Accuracy protocol (SSA). Delivered: KLD on prose (S2), code (S3), task prompts (S5), q4_0-KV cost (S4 = E2 closed), HellaSwag control (S7), HumanEval+ generative at n=164 (S8). LiveCodeBench v6 never set up (G19, out of scope) |
+| 7 | Agentic: SWE-bench Verified 25-smoke → 50 stratified; agentic steps; thinking arm | smoke green before 50-run; per-instance manifest + Wilson CIs | **not run in this wave** — the historical SWE-bench corpus (verified50, 75.5 %) stands as prior work in PAPER-REFERENCES.md. G22 makes it structurally unable to rank these arms (±12 pts at n=50); S7 demonstrated the same limitation empirically |
+| 8 | Context axis: Code-NIAH 6 depths × 2 needle classes × 3 seeds; E2 KV fidelity (f16 vs q4_0) | code-niah.json + kv-fidelity.json; decision rule applied | **partial** — **E2 CLOSED** by SSA S4: q4_0 KV costs 0.002955 ± 0.000127 KLD vs f16, 51 % of a quant level (PN-15). Code-NIAH **not run**; long-context task accuracy (G1) remains the largest open hole and is stated as a limitation in the report |
+| 9 | Speed + energy at chosen config (speed curve, J/tok, filled depths) | chosen-config-speed.json | **partial** — host power envelope characterised (PN-11) and the thermal asymmetry of `-ts` recorded (PN-12); the per-config J/tok curve at the chosen configuration was never run. Optional: the decision does not depend on it (PN-19 shows speed does not discriminate the arms) |
+| 10 | Track A decision procedure + Track B data assembly; CLAUDE.md/PAPER-REFERENCES updates | config lines published with evidence trail | **in progress** — Track A **DECIDED** (docs/paper/TRACK-A-DECISION.md, L-10, amended by S8). Track B assembly is the remaining project scope: the arXiv technical report, drawn from PN-1..PN-25 |
 
 ## Benchmarks — sweet-spot proposal (owner approval required before deployment)
 
@@ -1567,3 +1567,52 @@ Verified: 4/4 cells scored with parsed accuracies and tool-emitted CIs; per-task
 Next: S8 (merged spec-decode test) running — phase 1 humaneval in progress, then score, then the
   descending at-depth ladder. Remaining after that: Wave 2's wider MTP/DFlash setting sweeps and
   Wave 4's speed/energy curve, both optional; Track A is decided.
+
+### L-13 | 2026-08-31T00:00:00Z | S2-execute | claude-opus-5 | conductor-manager | S8 complete — speculative decoding is NOT lossless; n=4 wins at depth <!-- bsc-ledger:qbench-t1-S8 -->
+Did: S8 ran to completion unattended on 2026-08-30 (13:37Z–16:16Z, three phases, all green) and
+  was then left undocumented for a day — the data was committed by the autonomous sync but no
+  ledger entry, paper note or decision amendment was written. This entry closes that gap and
+  records the finding that contradicts a premise the study had carried since E11.
+  Phase 1 (humaneval): 164 HumanEval+ problems on UD-Q6_K at ctx 32,768, greedy temp 0 / top_p 1 /
+  seed 20260830 — a DELIBERATE departure from DEC-2 official sampling, because exact-match
+  equivalence is only meaningful at greedy — across four spec configurations. Phase 2 scored them
+  through the standard evalplus sanitize/evaluate pipeline. Phase 3 (atdepth) re-measured each
+  configuration at the Track A deployment point: UD-Q6_K, `-ts 58,42`, `-ctxcp 32`, q4_0 KV,
+  262,144-token window filled to 93.9 % (prompt_n 246,176).
+Result: three findings, one of them a correction to the documentation of record.
+  1. **MTP is not output-identical to no-spec.** Both `--spec-draft-n-max 2` and `4` reproduce the
+     no-spec baseline byte-exactly on 131 of 164 problems (79.88 %), diverging on 33, first
+     difference at a median of 715/730 characters in. The standing claim in multivac's ~/CLAUDE.md
+     — headline finding 8 and LONG-CONTEXT structural fact 1, "spec decode is greedy-lossless ->
+     method affects speed only; accuracy is a quant property" — is **refuted as written** and is
+     corrected in that file by this entry. The mechanism is NOT established: the two arms'
+     divergence sets overlap only partially (25 shared, 8 unique each, Jaccard 0.610), which points
+     at numerical nondeterminism from the changed decode batch shape rather than a broken
+     verification rule, but no no-spec-vs-no-spec repeat control was run and that control is what
+     would settle it. pass@1 moves 94.5/91.5 -> 93.9/90.2 -> 93.9/90.9, entirely inside the
+     ±4.6-point interval at n=164, so it ranks nothing. Recorded as PN-23.
+  2. **Draft depth n=4 beats n=2 at every depth, and the gap widens with depth**: +25.6 % at
+     32,768 (47.03 vs 37.44 tok/s) and +46.4 % at the full window (16.81 vs 11.48), i.e. 4.90x vs
+     3.35x over no-spec's 3.43 tok/s. Since the two depths are equally non-lossless and reach the
+     same 262,144 ceiling, the accuracy and context criteria are tied and the tok/s tiebreaker
+     decides — which amends the Track A config line from n=2 to n=4. Recorded as PN-24 and as
+     Amendment 1 in TRACK-A-DECISION.md.
+  3. **All five DFlash2 cells are void** — launched against `llamacpp-mtp:latest`, which cannot
+     parse the DFlash2 drafter (`expected 81, got 58`); the fork `llama-dflash2:latest` is
+     required. They reported 0.000 pass@1 and `generate-failed`, which in a table is
+     indistinguishable from a model that ran and failed. Excluded data, not a DFlash2 result.
+     Recorded as PN-25.
+Verified: equivalence recomputed independently from the preserved per-problem completions in
+  s8-{nospec,mtp2,mtp4}.jsonl, reproducing 33/33 divergences per arm and yielding the set-overlap
+  statistic the artifact does not carry; all five dflash4 failures confirmed against their
+  serverlogs (identical loader error, server exited during load, hence the connection-refused
+  entries in s8-atdepth.json); drafter file confirmed intact on disk; at-depth generation length
+  read from the harness (max_tokens 192) and recorded as the caveat on the acceptance figures,
+  which read exactly 1.000 for both arms and are not stable estimates at that sample size.
+  Evidence pulled to data/raw/e12/s8/ (11 artifacts + 8 completion jsonl) and
+  data/raw/e12/harness-src/{s8_spec.py,s8_chain.sh}.
+Next: no GPU work is queued and none is required — Track A stands, with its config line amended.
+  The one cheap experiment worth running is the no-spec-vs-no-spec determinism control that would
+  attribute PN-23's divergence (~40 min). Everything else outstanding is report assembly: this
+  repository is being reorganised around the arXiv technical report as its deliverable, with
+  CLAUDE.md rewritten as the source of truth and a README added.

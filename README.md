@@ -1,0 +1,142 @@
+# multivac-paper
+
+**How much does quantization actually cost a coding model, and would you notice with the
+instruments the field usually reaches for?**
+
+A measurement study of **Qwen3.8-27B** across four Unsloth GGUF quantizations on **two consumer
+16 GB GPUs**, run on a single personal machine. Its deliverable is a technical report for arXiv.
+
+The short answer: quantization damage measured on **code** is roughly **twice** what the same
+instrument reports on **prose**, the gap widens as quantization gets more aggressive, and a
+standard multiple-choice benchmark **cannot see any of it** — it ranked the most heavily quantized
+arm nominally highest while a divergence measurement separated the same arms at 3.7–11.8 σ.
+
+- **Deliverable** — [`manuscript/`](manuscript/) · outline and evidence map in
+  [`manuscript/OUTLINE.md`](manuscript/OUTLINE.md). **Status: measurement complete, not yet drafted.**
+- **Findings, individually cited** — [`docs/paper/PAPER-NOTES.md`](docs/paper/PAPER-NOTES.md) (PN-1…PN-25)
+- **The deployment answer** — [`docs/paper/TRACK-A-DECISION.md`](docs/paper/TRACK-A-DECISION.md)
+- **How the work was run** — [`docs/build-stream/2026-08-30-quant-bench-trackA.md`](docs/build-stream/2026-08-30-quant-bench-trackA.md)
+
+---
+
+## The setup
+
+| | |
+|---|---|
+| Model | Qwen3.8-27B, Unsloth Dynamic GGUFs |
+| Arms | UD-Q4_K_XL (17.56 GB) · UD-Q5_K_XL (20.88 GB) · UD-Q6_K (21.98 GB) · UD-Q6_K_XL (25.30 GB, reference) |
+| Host | `multivac` — 2× RTX 5060 Ti 16 GB (Blackwell sm120, **no NVLink**, 180 W cap), Ryzen 5 8500G, 14 GiB RAM |
+| Engine | llama.cpp `llamacpp-mtp:latest`, 0.3.0-dev build 1 (`d222767`), image `sha256:feb0231976b6…` |
+| Instrument | `llama-perplexity --kl-divergence`, 65,536 tokens per domain per arm |
+
+Two GPUs of 16 GB are not a 32 GB pool. Under `--split-mode layer` each layer's weights *and its
+slice of the KV cache* live on one card, so the binding limit is per-card — and that fact turns out
+to drive more of the results than the quantization does.
+
+## What the study found
+
+**1 — Quantization damage is domain-dependent, and the published view is the flattering one.**
+Mean KL divergence against the UD-Q6_K_XL reference, 65,536 tokens per cell:
+
+| arm | WikiText-2 (prose) | django (code) | HumanEval+ prompts (task) | task ÷ prose |
+|---|---|---|---|---|
+| UD-Q6_K | 0.003321 ± 0.000126 | 0.005829 ± 0.000233 | 0.010403 | 3.13× |
+| UD-Q5_K_XL | 0.004465 ± 0.000281 | 0.010285 ± 0.000458 | 0.017285 | 3.87× |
+| UD-Q4_K_XL | 0.008207 ± 0.000340 | 0.021529 ± 0.000834 | 0.036129 | 4.40× |
+
+Monotone in every domain, adjacent arms separated at 3.7–11.8 σ. Against the <0.007 band published
+for high-quality deployment, **two of three arms pass on prose, one on generic code, and none on
+the actual task distribution** — and the prose-to-task amplification itself grows with
+aggressiveness, so the cheap arm is penalised twice. (PN-13, PN-14, PN-21)
+
+**2 — A task battery is structurally insensitive to this, not merely underpowered.**
+HellaSwag at n=400 on all four arms: 82.75 / 82.25 / 82.75 / 83.25 % — a 1.0-point spread inside
+~7.4-point intervals, with the **most quantized arm scoring nominally highest**. A paired McNemar
+analysis on the identical task set finds UD-Q6_K_XL and UD-Q5_K_XL answering **all 400 items
+identically**. More tasks would narrow the intervals and fix nothing: multiple-choice scoring
+depends only on an argmax over a few candidates, so it is robust to exactly the distribution shift
+that changes generated code. **Decided the conventional way, this study would have concluded "no
+meaningful difference" and picked the cheapest arm.** (PN-22)
+
+**3 — The usable context ceiling belongs to the GPU split, not the quantization.**
+UD-Q5_K_XL **fails to load** at 262,144 tokens at the engine's default split and loads at five
+different `-ts` ratios. One flag took UD-Q6_K from 196,608 to the full native 262,144 window *and*
++93 % decode throughput, by recovering 3,333 MiB that the default placement had stranded on the
+idle card. The optimum is quant-specific and **not monotone-safe** — `54,46` fails where `58,42`
+loads. A ceiling published without its split is a property of the split. (PN-6, PN-7)
+
+**4 — Speed does not discriminate the ladder.** At the full window the three arms that reach it
+post medians of 12.70 / 12.61 / 11.90 tok/s — a 6.7 % span against **32.9 %** within-arm
+repetition noise. The usual case for quantizing down ("meaningfully faster for slightly less
+accurate") does not hold here: the cheaper arm is **only** less accurate. It earns its place on
+VRAM footprint alone. (PN-19)
+
+**5 — Speculative decoding is not output-identical, contrary to the standing assumption.**
+At temperature 0 with a fixed seed, MTP reproduces the unspeculated baseline byte-exactly on
+**131 of 164** HumanEval+ problems — about one generated function in five differs. The mechanism is
+left open: the n=2 and n=4 divergence *sets* overlap only partially (Jaccard 0.610), which points
+at numerical nondeterminism from the changed decode batch shape rather than a broken verification
+rule, and the control that would settle it has not been run. Either way, **a speculative
+configuration is part of the accuracy configuration, not a free speed knob.** (PN-23)
+
+**6 — The KV-cache quantization everything rests on is not free.** `q4_0` KV — the dtype without
+which none of these context ceilings exist — costs 0.002955 ± 0.000127 KLD against f16, i.e. **51 %
+of the divergence of dropping a whole quantization level**. Defensible; not free; and it must be
+quoted with every accuracy claim. Perplexity on the identical pair moves +0.15 %, a clean
+demonstration of the averaging bias that makes PPL a poor quantization metric. (PN-15)
+
+## The deployment answer
+
+For this host, prioritising accuracy → context → tok/s:
+
+```bash
+-m Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 58,42 -c 262144 -fit off -fa on \
+   -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 \
+   --spec-type draft-mtp --spec-draft-n-max 4
+```
+
+Full 262,144-token window at Q6 fidelity, 16.8 tok/s at 94 % window depth. Fallbacks, the evidence
+and the conditions it is contingent on: [`docs/paper/TRACK-A-DECISION.md`](docs/paper/TRACK-A-DECISION.md).
+
+This is a **machine-specific operational answer and is kept separate from the report on purpose**.
+The report reports trade-off curves per objective; it does not inherit this priority ordering.
+
+## What the study does not show
+
+Stated here rather than buried, because an underpowered result reported as a ranking is worse than
+no result:
+
+- **Long-context task accuracy is unmeasured for every arm.** No 100K–250K task outputs exist
+  anywhere in the corpus. This is the largest hole.
+- **Divergence is ladder-relative** — measured against UD-Q6_K_XL because no FP16 reference fits
+  the host. These are distances along the ladder, not from the unquantized model.
+- **Divergence is measured on prompt tokens** — it ranks distribution shift, not generated-code
+  quality. The paired generative anchor was never run.
+- **Two single-domain corpora**, one model family, one host, one engine image.
+- **Absolute scores are not comparable to published numbers**: logprob instruments run greedy,
+  while the model's official presets are temp 0.7 (instruct) and 1.0 (thinking).
+
+## Repository layout
+
+```
+manuscript/          the arXiv report — the deliverable
+docs/
+  paper/             findings: PAPER-NOTES (PN-1..25), method references, the Track A decision
+  build-stream/      how the work was run: the plan, its decision log (DEC-*) and ledger (L-*)
+data/
+  raw/e12/           current evidence — artifacts, logs, quarantine, harness source
+  archive/           pre-E12 historical evidence, superseded but never deleted
+  multivac-src/      read-only mirrors of documents the machine owns
+tools/               sync-multivac.sh (active) · retired/ (the halted conductor subsystem)
+```
+
+Machine-side: `/srv/bench/e12/` (current wave), `/srv/bench/` (all prior results, never deleted),
+`/srv/models` + `/srv/bench/models` (GGUFs), `~/CLAUDE.md` (the machine's own documentation).
+
+## Working in this repository
+
+Read [`CLAUDE.md`](CLAUDE.md) — it holds the ownership map, the hard rules, the configuration facts
+that are easy to get wrong, and the live TODO. The rules exist because each one has already cost
+this project a wrong number or a near-miss on data loss.
+
+Git syncs to a private bare repository on the host. There is no public remote by design.

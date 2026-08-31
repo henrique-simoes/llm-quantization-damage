@@ -8,6 +8,11 @@
 # bulk artifact trees; those stay on multivac and are pulled selectively when a specific
 # artifact is needed as paper evidence (artifact command below).
 # Transport: tar-over-ssh (multivac has no rsync). Pull NEVER deletes local files.
+# RUN THIS FROM THE MAC. On multivac itself `ssh multivac` does not resolve (host key
+# verification failure) — there, both ends are local filesystems, so copy directly:
+#   pull: cp ~/CLAUDE.md data/multivac-src/multivac-CLAUDE.md
+#         cp ~/Documents/multivac-paper/data/PAPER-REFERENCES.md data/multivac-src/
+#   push: cp -a docs ~/Documents/multivac-paper/data/build-stream-docs/
 set -uo pipefail
 MODE="${1:-pull}"
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
@@ -25,8 +30,11 @@ pull() {
   #    file in this repository allowed to carry that name.
   mkdir -p "$D/multivac-src"
   $SSHOPT $H 'cat ~/CLAUDE.md' > "$D/multivac-src/multivac-CLAUDE.md" 2>/dev/null || { echo "WARN: CLAUDE.md pull failed"; rc=1; }
-  # 2. The multivac paper-data folder (PAPER-REFERENCES.md + mirrors)
-  $SSHOPT $H "cd 'Documents/multivac-paper/data' && find . \\( -name '*.md' -o -name '*.json' -o -name '*.txt' -o -name '*.sh' -o -name '*.py' \\) -type f -print0 2>/dev/null | tar czf - --null -T -" | tar xzf - -C "$D/multivac-src" 2>/dev/null || rc=1
+  # 2. The multivac paper-data folder (PAPER-REFERENCES.md + mirrors).
+  #    EXCLUDES build-stream-docs/: that directory is what *this repo's* push puts on multivac,
+  #    so pulling it back re-imported a stale copy of our own docs/ (12 files, ~230 KB, silently
+  #    diverging). Removed 2026-08-31; the exclusion is what stops it coming back.
+  $SSHOPT $H "cd 'Documents/multivac-paper/data' && find . -path './build-stream-docs' -prune -o \\( -name '*.md' -o -name '*.json' -o -name '*.txt' -o -name '*.sh' -o -name '*.py' \\) -type f -print0 2>/dev/null | tar czf - --null -T -" | tar xzf - -C "$D/multivac-src" 2>/dev/null || rc=1
   echo "documentation pull complete (rc=$rc)"
 }
 

@@ -1,5 +1,23 @@
 # Multivac — Qwen3-27B Quantization Benchmark Study
 
+> ## ⚠️ READ FIRST — this file is the MACHINE record; the CURRENT work lives elsewhere
+>
+> **The paper repository `~/repos/multivac-paper` is the source of truth for everything from
+> 2026-08-29 onward** (the E12 wave: `-ts` rebalance ceilings, the Small-Sample Accuracy protocol,
+> the S7 control, the S8 spec-decode battery, and the decided Track A configuration). Start at its
+> `README.md` and `CLAUDE.md`.
+>
+> **This file remains authoritative for**: hardware, engine and image provenance, directory layout,
+> the known-instrumentation-defect register, and the pre-E12 historical corpus. It is the machine's
+> own log — hazards, layout and history — not the study's current state.
+>
+> **Sections below that measurement has since overturned are marked inline** (⚠️ CORRECTED /
+> SUPERSEDED with a date). The largest: **speculative decoding is NOT greedy-lossless on this
+> stack** — see LONG-CONTEXT structural fact 1. Nothing is deleted; corrections are marked in place.
+>
+> **Nothing is running.** Last GPU work finished 2026-08-30T16:16Z. The legacy orchestrator is
+> quiesced by design; the Compass Forge conductor is halted and must not be restarted.
+
 ## What this project is
 
 A technical report benchmarking **Qwen3.8-27B** across quantization levels and inference backends on **2× NVIDIA RTX 5060 Ti 16GB** (Blackwell, sm120). The study compares **llama.cpp GGUF quantizations** (IQ4_XS, Q4_K_XL, Q5_K_XL, Q6_K_XL, Q3_K_XL) against **vLLM NVFP4** (W4A4, FP8 KV cache), with speculative decoding methods (MTP and DFlash2).
@@ -207,7 +225,7 @@ NVFP4: KLD mean zh 0.01628 / code 0.02600 / refgen 0.03993 / chat 0.05818; top-1
 5. **MTP depth optimum is context- and quant-dependent**: Q3 peaks at n=8 (116.9 tok/s); Q6 peaks at n=2 (40.9 tok/s, n=8 gives only 37.5).
 6. **Only `-sm layer` works on 5060 Ti**: `-sm tensor` crashes (CUDA illegal memory access in upstream builds; worked in the z-lab fork image — **which is no longer on disk**, so tensor split is currently unreproved on any surviving image, see G7/E6); `-sm row` unsupported (no split buffers).
 7. **Model recommendation**: Q6_K_XL for best accuracy (91.5 HE+, 88.4 thinking, 3/3 SWE); IQ4_XS for speed+efficiency (57.5 tok/s DFlash2, 4.35 J/tok MTP, mean 23 agentic steps).
-8. **Spec-method ranking is CONTEXT-DEPENDENT** (2026-08-29 long-context analysis): DFlash2 wins ≤32K (57.5 vs 46.9 tok/s) but its acceptance collapses at depth (0.41–0.55 @184K); MTP n=2 wins ≥100K and was the top-5 at every long-context measurement. Spec decode is greedy-lossless → method affects speed only; accuracy is a quant property.
+8. **Spec-method ranking is CONTEXT-DEPENDENT** (2026-08-29 long-context analysis): DFlash2 wins ≤32K (57.5 vs 46.9 tok/s) but its acceptance collapses at depth (0.41–0.55 @184K); MTP n=2 wins ≥100K and was the top-5 at every long-context measurement. ⚠️ **CORRECTED 2026-08-30 (E12 S8): the clause that followed here — "spec decode is greedy-lossless → method affects speed only; accuracy is a quant property" — is REFUTED by measurement.** MTP reproduces the no-spec baseline byte-exactly on only **131 of 164** HumanEval+ problems (79.88 %) at temperature 0 with a fixed seed on UD-Q6_K. See structural fact 1 below.
 9. **262,144-token context (the model's native limit) is reachable on 2×16GB — for SOME quants**: measured with q4_0 KV + MTP n=2 on Q5_K_XL (39.33 tok/s, 14,234 MiB/GPU) and on the now-deleted old UD-Q6_K (40.90 tok/s). ⚠️ Not established for Q6_K_XL (predicted OOM, E1 pending), and **not** established with MTP on IQ4_XS (`iq4tensor-20260820-1403`: 262,144 + MTP fails to allocate; no-spec OK). `props-iq4_xs.json` records `n_ctx` and `speculative.types=none` but **never the KV dtype** — it cannot support an "f16 @262,144" claim. vLLM NVFP4 caps at 98,304 (48K with MTP) — a cross-backend finding.
 10. **The two GPUs are NOT a pool, and the default layer split wastes both capacity and speed**
     (E11c, 2026-08-29): with `-sm layer` each layer's weights AND its KV slice live on one card
@@ -255,7 +273,22 @@ These are **reporting bugs, not data loss**. The raw evidence is intact; the der
 Purpose: choose the best config for **long-context accuracy-first coding** (huge codebases in one window), and expose what remains unproven. Evidence trail: `champion-20260821/raw/*.json` (llama.cpp timings embedded per run), PAPER-REFERENCES "THE CONTEXT AXIS" section, `/srv/bench/kvquant-ctx-20260821-2106.txt`, `/srv/bench/n8-ctx-ceiling-20260822-0938.txt`, `/srv/bench/props-iq4_xs.json`, `/srv/bench/kl-divergence.json`.
 
 ### Structural facts (measured)
-1. **Speculative decoding is greedy-lossless**: accepted draft tokens are exactly the target's greedy output → spec method (MTP/DFlash2/none) does NOT change accuracy, only speed. **Accuracy is a quant property.**
+1. ⚠️ **SUPERSEDED 2026-08-30 by E12 S8 — speculative decoding is NOT output-identical on
+   this stack.** The original text read: *"Speculative decoding is greedy-lossless: accepted draft
+   tokens are exactly the target's greedy output → spec method (MTP/DFlash2/none) does NOT change
+   accuracy, only speed. Accuracy is a quant property."* **Measured, it is false.** On 164
+   HumanEval+ problems at temperature 0, top_p 1, fixed seed, UD-Q6_K, `-ts 58,42`, `-ctxcp 32`,
+   q4_0 KV: `--spec-draft-n-max 2` and `4` each match the no-spec baseline byte-exactly on
+   **131/164 (79.88 %)** and diverge on 33, first difference at a median of 715/730 characters in.
+   pass@1 moves 94.5/91.5 → 93.9/90.2 → 93.9/90.9, inside the ±4.6-pt interval at n=164, so it
+   ranks nothing — the *equivalence* result is the finding.
+   **Mechanism NOT established.** The n=2 and n=4 divergence sets overlap only partially (25 shared,
+   8 unique each, Jaccard 0.610), which points at float nondeterminism from the changed decode
+   batch shape rather than a broken verification rule; a no-spec-vs-no-spec repeat control (~40 min)
+   would settle it and has not been run. Operationally the consequence holds either way: **a
+   speculative setting is part of the accuracy configuration, not a free speed knob.**
+   Artifacts: `/srv/bench/e12/s8/s8-humaneval.json`, `s8-{nospec,mtp2,mtp4}.jsonl`. Paper note
+   PN-23, ledger L-13 in the paper repo (`~/repos/multivac-paper`).
 2. **Acceptance (draft_n_accepted/draft_n) is a SPEED metric, not accuracy.** Q3-embedded hit 1.000 acceptance at 250K while being the worst agentic quant — never conflate the two.
 3. **Spec ranking is context-dependent**: DFlash2 wins ≤32K (57.5 tok/s); MTP n2 wins ≥100K; DFlash2 acceptance collapses at depth (0.41–0.55 @184K) while MTP holds (0.75–1.00).
 4. **Context-vs-speed degradation is graceful**: decode −38% and prefill −38% from 40K→250K (Q3-embedded: 71.6→44.6 tok/s; 860→538 tok/s). No cliff.
@@ -337,7 +370,7 @@ Q5_K_XL is the only 262K-capable accuracy quant. **Measure this before believing
 **Provisional pick: `Q6_K_XL + MTP n=2 + q4_0 KV @ the largest ctx E1 proves`** (expect 196,608;
 262,144 only if E1's layer-split hypothesis holds). Rationale: accuracy is quant-dominated
 (KLD 0.0016 = 12× better than IQ4_XS; PPL 6.6511; HE+ 91.5; thinking 88.4; SWE calib 3/3);
-spec decode is greedy-lossless so MTP n=2 buys ~2× decode without touching outputs; q4_0 is the
+spec decode was believed greedy-lossless (⚠️ REFUTED 2026-08-30, see structural fact 1) so MTP n=2 was taken to buy ~2× decode without touching outputs; q4_0 is the
 only KV dtype that reaches ≥196K on this quant.
 ⚠️ The earlier claim "`Q6_K_XL + q4_0 @262,144` fits by math with ~1 GiB headroom" is
 **WITHDRAWN** — the corrected model predicts OOM by 30–270 MiB under tensor split.
@@ -510,7 +543,7 @@ Two complementary measures, because neither alone is sufficient.
 {32K, 64K, 98K} (the windows where **both** f16 and q4_0 fit on Q6_K_XL), build one fixed code
 prompt, then generate **256 tokens greedy (`temperature 0`, same `--seed`, `cache_prompt:false`)**
 under `-ctk/-ctv f16` and again under `q4_0`, changing nothing else. Record the index of the
-first differing token and the token-level exact-match rate. Spec decode is greedy-lossless, so
+first differing token and the token-level exact-match rate. ⚠️ This assumed spec decode is greedy-lossless (REFUTED 2026-08-30 — run this comparison NO-SPEC on both arms, or the KV effect is confounded with the ~20 % spec-induced divergence), so
 KV dtype is the only variable — **any divergence is KV error, attributable and unambiguous.**
 
 **(b) NLL ladder** — the numeric fidelity metric. Score mean NLL of the final 256 tokens of a

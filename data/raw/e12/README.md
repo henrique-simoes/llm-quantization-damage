@@ -33,3 +33,32 @@ The repaired Wave-1 harness as it stood at the pull (`lib_e12.py`, `pad_e12.py`,
 > `$REPO/experiments` onto `/srv/bench/e12` — creating that directory here would make any later
 > push overwrite the live harness, and the sweep is running against it. If the harness ever needs
 > to be edited from this repo, quiesce the runner first.
+
+---
+
+## Added after the Wave-1 pull
+
+The table above describes the 2026-08-30T03:35Z pull only. Everything below landed later; all of it
+is **final**, none of it is an in-flight snapshot.
+
+| path | what it is |
+|---|---|
+| `tsweep-v2-Q4_K_XL.json`, `-Q6_K.json`, `-Q6_K_XL.json` | the remaining three `-ts` sweeps, complete — Q5_K_XL's was already final at the first pull |
+| `wave1-summary.{json,md}` | regenerated over all four arms. ⚠️ **Its decode column mixes three estimators** (PN-20) — superseded, kept as-is, not silently edited |
+| `ssa/ssa-results-parsed.json` | SSA S2/S3/S4: KLD + top-1 + PPL per arm per domain, recovered by `ssa_reparse.py` after the `±` parser defect (PN-17) |
+| `ssa/ssa-results.json` | the raw harness output, with the empty metric fields the defect produced — kept as the evidence for PN-17 |
+| `ssa/ssa-s5-results.json` | S5, divergence over the 164 HumanEval+ task prompts (forced-completion method) |
+| `ssa/ssa-s7-results.json`, `ssa-s7-paired.json` | S7 HellaSwag n=400 × 4 arms, plus the recovered per-task vectors and McNemar analysis |
+| `s8/s8-humaneval.json` | S8 phase 1: 164 problems × 4 spec configs, with the `equivalence` block (PN-23) |
+| `s8/s8-{nospec,mtp2,mtp4,dflash4}.jsonl` | **the per-problem completions** — the primary evidence for PN-23; the equivalence claim is re-derivable from these alone |
+| `s8/s8-*-sanitized*.json*` | evalplus sanitize + evaluate output per arm |
+| `s8/s8-scores.json` | pass@1 per arm. ⚠️ `dflash4` reads 0.000 — **that is a load failure, not a score** (PN-25) |
+| `s8/s8-atdepth.json` | S8 phase 3: each spec config at 262,144 filled to 93.9 % |
+| `s7-data-provenance.json` | HellaSwag/Winogrande fetch with sha256 pins |
+| `quarantine/empty-serverlogs/REGISTER.json` | 7 race-residue empty logs, quarantined rather than deleted |
+| `harness-src/{ssa_kld,ssa_s5,ssa_s7,s7_paired,ssa_reparse,s8_spec}.py`, `s8_chain.sh` | the code that produced all of the above |
+
+**Serverlogs are not here.** `*.serverlog` is gitignored (they reach hundreds of MB); the raw tool
+output every number was parsed from lives at `/srv/bench/server-timings/` on the host, and each
+artifact's per-cell metadata records its log path and byte count. That preservation rule is the
+only reason PN-17's lost metrics were recoverable and PN-25's five load failures were diagnosable.

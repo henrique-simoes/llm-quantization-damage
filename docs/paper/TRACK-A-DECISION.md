@@ -15,9 +15,13 @@ Host: 2× RTX 5060 Ti 16 GB (sm120). Engine `llamacpp-mtp:latest`, image `sha256
 ```
 -m Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 58,42 -c 262144 -fit off -fa on \
    -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 \
-   --spec-type draft-mtp --spec-draft-n-max 2
+   --spec-type draft-mtp --spec-draft-n-max 4
 ```
-Full 262,144-token window · code KLD **0.005829 ± 0.000233** · decode ~11.9 tok/s at 95 % depth.
+Full 262,144-token window · code KLD **0.005829 ± 0.000233** · decode **16.8 tok/s** at 94 % depth.
+
+> **`--spec-draft-n-max 4`, not 2 — changed by Amendment 1 (below) on 2026-08-31.** The original
+> line pinned n=2 at ~11.9 tok/s. n=4 is 46 % faster at the full window, reaches the same ceiling,
+> and is neither more nor less output-faithful. See Amendment 1 for the evidence and its caveats.
 
 **Why:** it has the best accuracy of any arm that reaches the full window, and it is the only
 non-reference arm whose code divergence stays under Fireworks' published <0.007 high-quality
@@ -141,6 +145,92 @@ concluded "no meaningful difference between quantizations" and picked the cheape
 
 `data/raw/e12/tsweep-v2-*.json` (ceilings, ratios, decode reps) ·
 `data/raw/e12/ssa/ssa-results-parsed.json` (divergence, top-1, E2) ·
-`data/raw/e12/serverlogs/` (raw tool output every number was parsed from) ·
+`/srv/bench/server-timings/` (raw tool output every number was parsed from; serverlogs are gitignored and live on the host) ·
 paper notes PN-13, PN-14, PN-15, PN-18, PN-19, PN-20, PN-21 · ledger L-8, L-9, L-10, L-11.
 `data/raw/e12/ssa/ssa-s5-results.json` (task-prompt divergence).
+
+
+---
+
+## Amendment 1 — 2026-08-31, after S8 (spec-decode battery)
+
+Two changes. One is a configuration change; the other is a **correction to a premise** that this
+document, `~/CLAUDE.md` and PAPER-REFERENCES.md had all carried, and that had been used to justify
+not testing speculative decoding for accuracy at all.
+
+### 1. The premise was wrong: speculative decoding is not output-identical here
+
+The study had assumed, and stated as a structural fact, that speculative decoding is
+*greedy-lossless* — that accepted draft tokens are by construction exactly the target model's
+greedy output, so the speculation method could only affect speed, and accuracy was purely a
+property of the quantization. **On this engine that is false.**
+
+164 HumanEval+ problems, UD-Q6_K, greedy (temperature 0, top_p 1, fixed seed), everything else held
+constant:
+
+| config | exact match vs no-spec | first divergence (median char) | pass@1 HE / HE+ | decode @32 K |
+|---|---|---|---|---|
+| no-spec | — (baseline) | — | 94.5 / 91.5 | 18.46 tok/s |
+| MTP n=2 | **131/164 (79.9 %)** | 715 | 93.9 / 90.2 | 37.44 tok/s |
+| MTP n=4 | **131/164 (79.9 %)** | 730 | 93.9 / 90.9 | 47.03 tok/s |
+
+About **one generated function in five is not the function the same configuration would have
+produced without speculation.** The pass@1 differences are inside the ±4.6-point interval at n=164
+and rank nothing — the *equivalence* result is the finding, not the score.
+
+**The mechanism is not established, and the honest reading matters for how much this should worry
+you.** Two candidates: the verification step may not implement exact greedy equivalence; or
+speculation changes the batch shape of every decode step, floating-point reductions are not
+associative, and the logits are therefore not bit-identical even when the rule is correct. The
+evidence leans to the second — the n=2 and n=4 divergence *sets* overlap only partially (25 shared
+problems, 8 unique to each, Jaccard 0.610), whereas a systematic rule error should produce nearly
+identical sets. A no-spec-vs-no-spec repeat control (~40 min GPU) would settle it and has not been
+run.
+
+Either way the operational consequence is the same and it is the reason this amendment exists:
+**a speculative configuration is part of the accuracy configuration, not a free speed knob.** If a
+result must be exactly reproducible, run without speculation and accept 3.43 tok/s at full depth.
+
+### 2. Draft depth n=4 replaces n=2
+
+Measured on the same arm at both depths:
+
+| depth | no-spec | MTP n=2 | MTP n=4 | n=4 vs n=2 |
+|---|---|---|---|---|
+| ctx 32,768 (median of 164) | 18.46 | 37.44 (2.03×) | **47.03 (2.55×)** | +25.6 % |
+| ctx 262,144, filled to 93.9 % | 3.43 | 11.48 (3.35×) | **16.81 (4.90×)** | **+46.4 %** |
+
+Applying the decision rule: n=2 and n=4 are equally output-faithful (both 131/164), both reach the
+same 262,144 ceiling at `-ts 58,42`, so criteria (1) accuracy and (2) context are tied and (3)
+tok/s decides. **n=4.**
+
+Note the direction: the speculative advantage **grows** with context depth here (2.55× → 4.90×),
+the opposite of the DFlash2 behaviour recorded in the historical corpus. Lower acceptance at n=4
+(0.8922 vs 0.9536 at 32 K) does not offset the larger number of tokens each accepted draft carries
+— acceptance alone is a poor predictor of throughput.
+
+**Caveats on the depth figures:** n=1 per configuration with a 192-token generation, against a
+documented within-arm decode noise of up to 32.9 % (PN-19). The 46.4 % gap exceeds that noise but
+has not been replicated. Draft acceptance reads exactly 1.000 for *both* arms at depth, which at
+that sample size is not a stable estimate and should not be quoted. The 32 K medians, over 164
+generations each, are the sturdier pair. Both are one quant at one `-ts` ratio, and PN-9 shows
+acceptance is quant-specific — do not carry this ordering to Q4_K_XL or Q5_K_XL without measuring.
+
+### 3. DFlash2 was not measured
+
+All five DFlash2 cells were launched against `llamacpp-mtp:latest`, which cannot parse the DFlash2
+drafter (`done_getting_tensors: wrong number of tensors; expected 81, got 58`); the required engine
+is the fork `llama-dflash2:latest` (v0.1.2-dev build 50, f7aadef, which also needs
+`--entrypoint /app/llama-server`). The cells recorded 0.000 pass@1 — a value indistinguishable in a
+table from a model that ran and failed completely. **They are excluded data.** DFlash2 remains
+unmeasured under this protocol and is not part of the recommendation either way.
+
+### What does not change
+
+The quant choice. Accuracy still decides it, speed still does not discriminate the arms (PN-19),
+and nothing in S8 touches the divergence ladder. **UD-Q6_K remains the primary**, Q6_K_XL the
+maximum-fidelity fallback at 212,992, Q4_K_XL the minimum-VRAM fallback, Q5_K_XL still dominated.
+
+Evidence: `data/raw/e12/s8/s8-humaneval.json` · `s8-atdepth.json` · `s8-scores.json` ·
+`s8-{nospec,mtp2,mtp4}.jsonl` (per-problem completions) ·
+`/srv/bench/server-timings/s8-*.serverlog` · paper notes PN-23, PN-24, PN-25 · ledger L-13.

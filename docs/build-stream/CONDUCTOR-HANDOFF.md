@@ -1,5 +1,21 @@
 # CONDUCTOR HANDOFF — qbench-t1 (multivac Track A quant benchmark)
 
+> ## ⚠️ RETIRED — historical document, do not act on it
+>
+> The conductor this file hands off **halted on 2026-08-30T01:57Z** with
+> `VERDICT-REPAIR-EXHAUSTED` and was deliberately not restarted (DEC-8). Its state directory
+> `.compass-forge/` is gone, the watcher process is dead, and the remaining work finished
+> hand-driven. **Do not restart it.** Kept as the record of how the run was orchestrated.
+>
+> Its tooling moved on 2026-08-31 and the paths below are stale:
+> `tools/watch-qbench.sh` → `tools/retired/watch-qbench.sh` ·
+> `tools/parse_tick.py` → `tools/retired/parse_tick.py` ·
+> `recipes/` → `tools/retired/recipes/` ·
+> `data/watch/` → `tools/retired/watch-state/`.
+>
+> For the actual state of the work read the STATUS block of
+> [`2026-08-30-quant-bench-trackA.md`](2026-08-30-quant-bench-trackA.md), or `CLAUDE.md` §1.
+
 You are taking over **conductor management** for an autonomous multi-model Build Stream run.
 A previous agent set everything up and is stepping back. The pipeline is ALREADY RUNNING —
 your job is to supervise it, report to the owner (the human you talk to), and handle the
