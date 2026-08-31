@@ -60,10 +60,13 @@ meaningful difference" and picked the cheapest arm.** (PN-22)
 
 **3 — The usable context ceiling belongs to the GPU split, not the quantization.**
 UD-Q5_K_XL **fails to load** at 262,144 tokens at the engine's default split and loads at five
-different `-ts` ratios. One flag took UD-Q6_K from 196,608 to the full native 262,144 window *and*
-+93 % decode throughput, by recovering 3,333 MiB that the default placement had stranded on the
-idle card. The optimum is quant-specific and **not monotone-safe** — `54,46` fails where `58,42`
-loads. A ceiling published without its split is a property of the split. (PN-6, PN-7)
+different `-ts` ratios (PN-6). UD-Q6_K_XL reaches 212,992 at `56,44` against a previously published
+131,072 (PN-7). The default placement had been stranding up to 3,333 MiB on one card while the
+other OOMed within 671 MiB of its wall — on this host the binding limit is per-card, and the
+earlier rebalance measurement that opened this line of enquiry recovered **+33 % context and +93 %
+decode at once** from that one flag (E11c, machine log). The optimum is quant-specific and **not
+monotone-safe** — `54,46` fails where `58,42` loads. A ceiling published without its split is a
+property of the split, not of the model.
 
 **4 — Speed does not discriminate the ladder.** At the full window the three arms that reach it
 post medians of 12.70 / 12.61 / 11.90 tok/s — a 6.7 % span against **32.9 %** within-arm
