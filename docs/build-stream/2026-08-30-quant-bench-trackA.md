@@ -991,6 +991,47 @@ lost — they are in the preserved `raw_tail` and `*-eval.txt` — but anything 
 machine-readable field would conclude every arm scored 1.0. Same defect class as PN-17. Re-parsed
 into `s8-scores-reparsed.json` with Wilson intervals; the original is left unedited on disk.
 
+### S9d — MTP draft-depth sweep at MATCHED depth (reinstated, DEC-13)
+
+The one item pulled back from DEC-12's cancelled set, because it is the only one that **repairs a
+claim the report makes** rather than adding one the report lacks.
+
+**What it fixes.** PN-9 reports that MTP acceptance differs sharply by quantization (0.897 / 0.564 /
+0.516) and then retracts most of its own force in the caveat: the three cells sat at different
+context depths *and* different `-ts` ratios, so quant, depth and ratio are confounded, and the note
+says outright it is "a signal … NOT a measured quant ranking." PN-24 has the parallel problem in
+the other direction — n=4 > n=2 with the margin growing with depth, measured on UD-Q6_K alone, with
+an explicit warning not to carry the ordering across the ladder without measuring.
+
+**Design.** 4 arms × 2 matched depths × 3 draft depths = **24 cells**.
+
+| axis | values | why |
+|---|---|---|
+| arm | Q4_K_XL · Q5_K_XL · Q6_K · Q6_K_XL | the full active ladder, each at its **own** Wave-1 winning `-ts` |
+| depth | **131,072 · 196,608** | the only two rungs with *verified* pads (0.9435 / 0.9474) that **all four** arms reach — Q6_K_XL's ceiling is 212,992 |
+| n_draft | **2 · 4 · 8** | turns the question from "which of two" into "where is the optimum"; n=8 may not fit at depth on the larger arms, which is itself an answer |
+
+Per cell: one deep prefill, then **three 512-token generations**. Three because this host's
+within-arm decode noise reaches 32.9 % (PN-19) and one reading cannot support a speed claim; reps 2
+and 3 are nearly free because the server's prefix cache means the pad is not re-processed — and
+`prompt_n`/`cache_n` are recorded per rep so that is checkable rather than asserted. 512 tokens
+rather than S8's 192 because acceptance is a ratio over draft events and S8's at-depth acceptance
+read exactly 1.000 for both arms, which is not a stable estimate at that sample size.
+
+**The PN-5 gate is asserted in code, not documented in a docstring**: a cell is `valid` only if
+`prefill_frac >= 0.90`, and invalid cells are excluded from every aggregate. That is the whole
+lesson of PN-5 — a contract that is not checked is not a contract.
+
+**Stated confound, not hidden.** `-ts` necessarily varies *between* arms, because the optimum is
+not portable (PN-7). It is held fixed *within* an arm across all six of its cells, so the
+draft-depth and context-depth comparisons are clean; only the between-arm comparison carries the
+ratio with it, and the artifact records that in a `confound_statement` field.
+
+**Sequencing.** `s9d_chain.sh` takes a **blocking** `flock` on the same lock `s9_chain.sh` holds,
+so it waits for that chain to finish and then holds it. The running chain is never edited — bash
+reads a script lazily by byte offset, so appending a phase to a running script can make it resume
+mid-token. Queued 2026-08-31T21:42Z, ~3.5–4 h once it starts.
+
 ## Decision log
 
 <!-- consensus-winner-decision:qbench-t1-8f05db1f10552b03a1beda52c51944302348a299695c65f02ac5aaaf34a64849 -->
@@ -1184,6 +1225,32 @@ constraint: GPU hours are the scarce resource and the objective is now the repor
 Consequence for the paper: three limitations become permanent rather than pending, and must be
 written as such — PN-9's confound, the absence of a temp>0 equivalence check, and the absence of a
 per-config energy measurement.
+
+DEC-13 | 2026-08-31 | S3-report | owner | reinstates one item from DEC-12
+Context: Asked which cancelled item would most help the technical report, the assessment was that
+almost every cancelled item ADDS a result the paper lacks, while exactly one REPAIRS a claim the
+paper already makes — the MTP depth sweep, which is what PN-9's caveat explicitly asks for
+("a signal that the Phase-5 sweep must resolve at matched depth, NOT a measured quant ranking")
+and what PN-24's warning depends on ("do not carry this ordering … without measuring").
+Owner: "Yes I want it."
+Decision: **REINSTATED** as S9d, queued behind the S9 chain. 24 cells, ~3.5-4 h. Design above.
+The rest of DEC-12 stands cancelled: G17, G8-at-temp>0, the presence-penalty probe, draft-KV dtype,
+and the Wave 4 energy curve.
+Why the others stay cancelled, recorded so they are not re-litigated:
+  - **presence-penalty probe** was the runner-up and on thematic grounds the most attractive — the
+    official preset's `presence_penalty 1.5` penalises every token already emitted, and code
+    repeats `self`, `return` and indentation constantly, so a measurable harm would be the paper's
+    own thesis appearing in a second dimension (a published default tuned on a general distribution
+    misfiring on code). Cut because it is a hypothesis that may return null and it strengthens a
+    section that is already adequately supported.
+  - **G8 at temp>0** sounds important because PN-23 is a headline, but doing it properly needs many
+    samples per problem to compare distributions — precisely the underpowered design the report
+    spends a section warning against. "Greedy-only, and a powered temp>0 test was not affordable"
+    is a better limitation than a weak result.
+  - **energy curve** ranks last despite leaving a section thin: PN-19 already shows the arms are
+    indistinguishable on decode throughput at the same power cap, so J/tok across quants would most
+    likely be another null. The interesting energy question is across *speculation* settings, not
+    quants — a different experiment from the one cancelled.
 
 ## Ledger
 

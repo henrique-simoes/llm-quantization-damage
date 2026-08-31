@@ -35,8 +35,9 @@ Model: **Qwen3.8-27B**, Unsloth GGUFs. Arms: **UD-Q4_K_XL, UD-Q5_K_XL, UD-Q6_K, 
 | SSA — the accuracy protocol, S0–S5 + S7 | **closed** (L-8, L-11, L-12) |
 | S8 — speculative decoding: equivalence, draft depth, at-depth | **closed** (L-13) |
 | Track A decision | **decided** (L-10), amended by S8 |
-| S9 — determinism control · SSA S6 · DFlash2 repair | **running** (launched 2026-08-31T21:23Z, `s9_chain.sh`, ~4 h) |
-| Wave 2 breadth · Wave 4 energy curve | **CANCELLED** by DEC-12 — will not be run |
+| S9 — determinism control · SSA S6 · DFlash2 repair | **running** (launched 2026-08-31T21:23Z, `s9_chain.sh`, ~4 h; pilot 3/3 green) |
+| S9d — MTP draft-depth sweep at matched depth | **queued** behind S9 (DEC-13, `s9d_chain.sh`, 24 cells, ~4 h) |
+| Wave 2 breadth (rest) · Wave 4 energy curve | **CANCELLED** by DEC-12 — will not be run |
 | The report | **not drafted** — this is the remaining work |
 
 Ceilings, MTP n=2 + q4_0 KV + `-sm layer`, each at its own winning ratio:
@@ -182,15 +183,21 @@ phase is logged and skipped — except the pilot, where failure stops the chain.
 - [~] **S8 score-parser repair** — `s8-scores.json`'s `parsed` field captured the `1` from `pass@1`
       as the score. Re-parsed with Wilson intervals into `s8-scores-reparsed.json`; original left
       unedited.
+- [~] **S9d MTP draft-depth sweep** (DEC-13, reinstated) — 4 arms × 2 matched depths
+      {131,072 · 196,608} × n_draft {2,4,8} = 24 cells. Repairs PN-9's quant/depth/ratio confound
+      and tests whether PN-24's n=4 ordering generalises. Queued behind S9 on a **blocking**
+      `flock` — the running chain is never edited.
 
-Monitor: `tail -f /srv/bench/e12/logs/s9_chain.log` · state markers in `/srv/bench/e12/state/`.
-Re-run a phase with `rm /srv/bench/e12/state/s9_<phase>.done`.
+Monitor: `tail -f /srv/bench/e12/logs/s9_chain.log` and `s9d_chain.log` · state markers in
+`/srv/bench/e12/state/`. Re-run a phase with `rm /srv/bench/e12/state/s9_<phase>.done`
+(or `s9d_sweep.done`).
 
 ### Cancelled — will not be run (DEC-12)
 Recorded so nobody re-derives them as open work. Each becomes a **stated limitation** in the report.
-- **Wave 2 breadth** — G17 `reasoning_effort` equivalence · G8 losslessness at temp > 0 ·
-  presence-penalty probe · MTP depth sweep on the other arms · draft-KV dtype. The consequence that
-  matters: PN-9's quant/depth/ratio confound stays unresolved, and PN-23's result stays greedy-only.
+- **Wave 2 breadth**, minus the depth sweep (reinstated as S9d, DEC-13) — G17
+  `reasoning_effort` equivalence · G8 losslessness at temp > 0 · presence-penalty probe ·
+  draft-KV dtype. The consequence that matters: **PN-23's result stays greedy-only**, and the
+  presence-penalty question — arguably the paper's thesis in a second dimension — stays open.
 - **Wave 4 energy curve** — no per-config J/tok figure will exist. PN-11 remains the host baseline;
   the historical J/tok table is depth-0 and from the deleted image, so it cannot substitute.
 
