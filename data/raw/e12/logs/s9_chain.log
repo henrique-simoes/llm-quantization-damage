@@ -29,3 +29,6 @@
 [2026-08-31T22:55:51Z]   git: pushed (after s9 dflash)
 [2026-08-31T22:55:51Z] === PHASE score START ===
 [2026-08-31T22:56:40Z] === PHASE score OK ===
+[2026-08-31T22:56:40Z]   git: pushed (after s9 score)
+[2026-08-31T22:56:40Z] === S9 CHAIN COMPLETE ===
+[2026-08-31T22:56:40Z] phases: 3 done, 2 failed
