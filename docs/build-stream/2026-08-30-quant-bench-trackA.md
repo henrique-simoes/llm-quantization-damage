@@ -5,12 +5,12 @@
 item: quant-bench-trackA
 branch: main
 cf: { spec: CF-SPEC-1, tasks: [CF-1..] }
-phase: "Measurement COMPLETE. Wave 1 (Phases 1-3) closed; SSA accuracy program S0-S5+S7 closed; S8 spec-decode closed. Remaining scope is report assembly (Phase 10)."
+phase: "Closing experiment campaign in flight (S9 + S9d). Wave 1, SSA S0-S5+S7, and S8 closed. Track A decided and amended."
 stage: S3-report
-status: measurement-complete
+status: campaign-running
 blocked_on: null
-last: { agent: claude-opus-5, at: 2026-08-31T00:00:00Z, ledger: L-13 }
-next_action: "No GPU work is queued and none is required for the Track A deliverable, which is DECIDED (docs/paper/TRACK-A-DECISION.md, amended by S8 to --spec-draft-n-max 4). The project objective is now the arXiv technical report (Track B). Outstanding: (1) assemble the report from PN-1..PN-25; (2) OPTIONAL 40-min no-spec-vs-no-spec determinism control to attribute PN-23's divergence between a verification-rule effect and float nondeterminism; (3) OPTIONAL Wave 2 breadth (G17 reasoning_effort equivalence, temp>0 losslessness, DFlash2 re-run on the CORRECT image llama-dflash2:latest) and Wave 4 energy curve — none of which the decision depends on. Do NOT restart the halted conductor."
+last: { agent: claude-opus-5, at: 2026-08-31T21:45:00Z, ledger: L-13 }
+next_action: "TWO DETACHED CHAINS ARE RUNNING — do not start a third GPU runner and do not edit either script while it runs. (1) s9_chain.sh pid 1822394, launched 21:23Z: pilot 3/3 DONE, then determinism -> s6 -> dflash -> score, ~3.5 h. (2) s9d_chain.sh pid 1887775, queued 21:42Z on a BLOCKING flock against s9.lock: the 24-cell MTP draft-depth sweep at matched depth, ~4 h, starts automatically when S9 releases the lock. Both commit and push to the hub after every phase. Check: cat /srv/bench/e12/logs/s9_chain.log and s9d_chain.log; markers in /srv/bench/e12/state/. WHEN BOTH COMPLETE: write the ledger entry (L-14) and the paper notes (PN-26 onward) for each phase, then the project moves to drafting the arXiv report against manuscript/OUTLINE.md. The owner has said the drafting pass will be MULTI-AGENT (writers, reviewers, re-writers) and will request it explicitly — do not launch agents or a workflow unprompted."
 conductor: { run: qbench-t1, shape: solo-architect, waves: 4, manifest: docs/build-stream/qbench-t1-waves.json, state: HALTED-verdict-repair-exhausted-2026-08-30T01:57Z, execution: hand-driven per DEC-8 }
 ```
 <!-- /STATUS BLOCK -->
