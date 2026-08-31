@@ -1,0 +1,7 @@
+[2026-08-31T22:56:16Z]   scored s9-nospec-r2: {'humaneval': 0.945, 'humaneval+': 0.915} n=164
+[2026-08-31T22:56:40Z]   scored s9-mtp2-r2: {'humaneval': 0.939, 'humaneval+': 0.902} n=164
+[2026-08-31T22:56:40Z]   skip s6-Q4_K_XL: no generations (phase did not run or failed)
+[2026-08-31T22:56:40Z]   skip s6-Q6_K_XL: no generations (phase did not run or failed)
+[2026-08-31T22:56:40Z]   skip dflash4-he: no generations (phase did not run or failed)
+[2026-08-31T22:56:40Z] s8 re-parsed: {"nospec": {"humaneval": 0.945, "humaneval+": 0.915}, "mtp2": {"humaneval": 0.939, "humaneval+": 0.902}, "mtp4": {"humaneval": 0.939, "humaneval+": 0.909}, "dflash4": {"humaneval": 0.0, "humaneval+": 0.0}}
+[2026-08-31T22:56:40Z] phase score done: 2 arm(s) scored
