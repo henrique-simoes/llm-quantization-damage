@@ -35,7 +35,8 @@ Model: **Qwen3.8-27B**, Unsloth GGUFs. Arms: **UD-Q4_K_XL, UD-Q5_K_XL, UD-Q6_K, 
 | SSA — the accuracy protocol, S0–S5 + S7 | **closed** (L-8, L-11, L-12) |
 | S8 — speculative decoding: equivalence, draft depth, at-depth | **closed** (L-13) |
 | Track A decision | **decided** (L-10), amended by S8 |
-| Wave 2 breadth · Wave 4 energy curve | **optional** — the decision does not depend on either |
+| S9 — determinism control · SSA S6 · DFlash2 repair | **running** (launched 2026-08-31T21:23Z, `s9_chain.sh`, ~4 h) |
+| Wave 2 breadth · Wave 4 energy curve | **CANCELLED** by DEC-12 — will not be run |
 | The report | **not drafted** — this is the remaining work |
 
 Ceilings, MTP n=2 + q4_0 KV + `-sm layer`, each at its own winning ratio:
@@ -167,15 +168,31 @@ Every headline number traces: **paper note → artifact → serverlog**. Start a
 - [ ] Label or exclude pre-2026-08-29 rows (*irreproducible-on-current-images*)
 - [ ] Owner call on releasing artifacts with the paper — the repo is private and has no public remote
 
-### Optional experiments, in order of what they would buy
-- [ ] **No-spec vs no-spec determinism control** (~40 min) — attributes PN-23's divergence between
-      a verification-rule effect and float nondeterminism. The cheapest real gap-closer left.
-- [ ] **SSA S6** — generative HumanEval+, Q4_K_XL vs Q6_K_XL, paired per-problem (~2 h). The
-      generative anchor the report currently lacks. Harness not written.
-- [ ] **DFlash2 re-run on `llama-dflash2:latest`** — the arm S8 failed to measure (PN-25)
-- [ ] Wave 2 breadth: G17 `reasoning_effort` equivalence · G8 losslessness at temp > 0 ·
-      presence-penalty probe · MTP depth sweep on the other arms · draft-KV dtype
-- [ ] Wave 4: speed + energy curve at the chosen config (J/tok; PN-11 is the host baseline)
+### S9 — the closing experiments (DEC-12 retained set, in flight)
+Design in the plan's §S9. Driven by `/srv/bench/e12/s9_chain.sh`, detached, one `flock`, a failed
+phase is logged and skipped — except the pilot, where failure stops the chain.
+
+- [~] **S9a determinism control** — re-runs S8's `nospec` and `mtp2` byte-identically and compares
+      each to its own S8 output. Whichever way it lands, PN-23's mechanism stops being "not
+      established" and gets an answer.
+- [~] **S9b SSA S6** — generative HumanEval+, ladder extremes, paired per problem, official
+      sampling, **no-spec on both arms** (PN-23 would otherwise confound it). The generative anchor.
+- [~] **S9c DFlash2 on `llama-dflash2:latest`** — the arm S8 voided (PN-25), plus a descending
+      at-depth ladder for the 1.19 GiB draft-worker wall.
+- [~] **S8 score-parser repair** — `s8-scores.json`'s `parsed` field captured the `1` from `pass@1`
+      as the score. Re-parsed with Wilson intervals into `s8-scores-reparsed.json`; original left
+      unedited.
+
+Monitor: `tail -f /srv/bench/e12/logs/s9_chain.log` · state markers in `/srv/bench/e12/state/`.
+Re-run a phase with `rm /srv/bench/e12/state/s9_<phase>.done`.
+
+### Cancelled — will not be run (DEC-12)
+Recorded so nobody re-derives them as open work. Each becomes a **stated limitation** in the report.
+- **Wave 2 breadth** — G17 `reasoning_effort` equivalence · G8 losslessness at temp > 0 ·
+  presence-penalty probe · MTP depth sweep on the other arms · draft-KV dtype. The consequence that
+  matters: PN-9's quant/depth/ratio confound stays unresolved, and PN-23's result stays greedy-only.
+- **Wave 4 energy curve** — no per-config J/tok figure will exist. PN-11 remains the host baseline;
+  the historical J/tok table is depth-0 and from the deleted image, so it cannot substitute.
 
 ### Graduation and housekeeping
 - [ ] Graduate Wave 1 + SSA + S8 into multivac's `PAPER-REFERENCES.md` (append **on multivac**)

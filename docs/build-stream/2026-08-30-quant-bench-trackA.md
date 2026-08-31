@@ -932,6 +932,65 @@ Cost of the cut, stated: no comparability against Qwen's official LiveCodeBench 
 agentic/SWE evidence, and no absolute-vs-FP16 distance (reference is Q6_K_XL). All four are
 recorded as paper limitations rather than silently dropped.
 
+## S9 — the closing experiment set (DEC-12 retained), designed 2026-08-31
+
+Three experiments, ~4 h GPU. Wave 2 breadth and the Wave 4 energy curve are cancelled (DEC-12);
+what remains is the set that either closes a stated open question or repairs a void result.
+Harness: `/srv/bench/e12/experiments/s9_final.py` + `s9_score.py`, driven by `s9_chain.sh`.
+All runs: `llamacpp-mtp:latest` unless stated, `-sm layer`, q4_0 KV, `-ctxcp 32`, seed 20260830,
+each arm at its own Wave-1 winning `-ts` ratio.
+
+### Hard gate — pilot (3 checks × 5 problems, ~10 min)
+Three launches that exercise every distinct configuration the batteries need: the MTP image, the
+DFlash2 image with its `--entrypoint /app/llama-server`, and official-sampling generation on
+Q4_K_XL. **If the pilot fails the chain STOPS** rather than skipping — this is the one place where
+continuing is wrong, because every downstream phase would be measuring the same broken thing. It
+exists because S8 spent four hours discovering a drafter that could not load (PN-25); this catches
+that class in ten minutes.
+
+### S9a — determinism control (closes PN-23's open mechanism)
+Re-run S8's `nospec` and `mtp2` configurations **byte-identically** — same model, ctx, `-ts`,
+`-ctxcp`, KV dtype, seed, sampling, prompt order, image — and compare each against its own S8
+output. Nothing varies, so any difference is engine nondeterminism.
+
+| outcome | reading |
+|---|---|
+| `nospec==nospec` **and** `mtp2==mtp2` | engine is deterministic → PN-23's divergence is **caused by speculation**, and the partial n=2/n=4 set overlap (Jaccard 0.610) makes it draft-depth-dependent, not random |
+| `nospec==nospec` **but** `mtp2!=mtp2` | speculation itself is nondeterministic run-to-run → rules out a fixed verification-rule error, supports the batch-shape / float-associativity account |
+| `nospec!=nospec` | the engine is not deterministic → **PN-23 must be restated relative to that floor**; only the EXCESS over self-divergence is attributable to speculation |
+
+Any of the three is a publishable answer. The current state — "mechanism not established" — is the
+only outcome that is not.
+
+### S9b — SSA S6, the generative anchor
+UD-Q4_K_XL vs UD-Q6_K_XL (the ladder's extremes) on all 164 HumanEval+ problems, **paired per
+problem**, DEC-2 official non-thinking sampling, seed-matched, scored with Wilson intervals and an
+exact McNemar test. Two arms rather than four for the reason R6 gives: at n=164 the
+independent-comparison interval is ±4.6 points while these arms differ by 1–3, so independent means
+cannot separate them and only the paired test is powered.
+**Run NO-SPEC on both arms** — a direct consequence of PN-23. With MTP on, ~20 % of completions
+would change for reasons unrelated to the quantization, confounding the only comparison this
+experiment exists to make. This is S8's finding immediately changing an experimental design.
+A null result is the expected outcome and is reportable: it is the task-level counterpart of S7,
+and together they are the empirical case for ranking on divergence.
+
+### S9c — DFlash2 on its correct image (repairs PN-25)
+`llama-dflash2:latest` with `--entrypoint /app/llama-server`. Equivalence + speed + acceptance at
+ctx 32,768 against the S8 no-spec baseline, then a descending at-depth ladder
+(262,144 → 212,992 → 163,840 → 131,072 → 65,536) to find whether the 1.1 GB draft GGUF fits
+anywhere near the Track A deployment context — the "1.19 GiB draft-worker wall".
+⚠️ **Stated confound**: the baseline was produced on `llamacpp-mtp:latest` and this arm runs on a
+different fork, so an engine-version difference is confounded with the speculation effect. The
+equivalence number must carry that caveat; it is not comparable to S8's MTP equivalence figures.
+
+### Also repaired here — S8's score parser
+S8's scorer used `re.findall(r"(base|base \+ extra|humaneval\+?)[^\d]*([\d.]+)", …)`, which
+matches `humaneval … pass@1` and captures **the 1 from `pass@1`**, not the score. Every arm in
+`s8-scores.json` reads `parsed=[["humaneval","1"],["humaneval+","1"]]`. The real numbers were never
+lost — they are in the preserved `raw_tail` and `*-eval.txt` — but anything reading the
+machine-readable field would conclude every arm scored 1.0. Same defect class as PN-17. Re-parsed
+into `s8-scores-reparsed.json` with Wilson intervals; the original is left unedited on disk.
+
 ## Decision log
 
 <!-- consensus-winner-decision:qbench-t1-8f05db1f10552b03a1beda52c51944302348a299695c65f02ac5aaaf34a64849 -->
@@ -1092,6 +1151,39 @@ LCB v6 at n=100 carries +/-9-10, SWE-bench at n=50 carries +/-12, while the quan
 points. **The task benchmarks cannot rank these four quants and were never able to.** PPL, code-NLL
 and KL divergence can. Running the expensive validators first would spend ~10-16 h of GPU to
 produce four overlapping confidence intervals and no ranking.
+
+DEC-12 | 2026-08-31 | S3-report | owner | scope cut on the remaining experiments
+Context: After S8 closed, five optional experiment groups remained. The owner reviewed them
+against the objective (the arXiv report) and cut the two that add breadth without correcting
+anything.
+Decision: **CANCELLED — will not be run.**
+  (a) **Wave 2 breadth**, in full:
+      - **G17 `reasoning_effort` equivalence** — half-answered already by PN-3 (the documented
+        `{"reasoning_effort":"none"}` raises a Jinja exception on this template while
+        `{"enable_thinking":false}` works). Cancelled rather than completed.
+      - **G8 losslessness at temp > 0** — a weak instrument by construction: speculation consumes
+        the sampler's RNG differently, so outputs diverge whether or not the verification rule is
+        exact, and only a distributional comparison would mean anything.
+      - **Presence-penalty probe** — whether the official preset's `presence_penalty 1.5` harms
+        code generation. Genuinely open and genuinely interesting; cut on cost.
+      - **MTP depth sweep on the other arms** — would disentangle the quant/depth/ratio confound
+        that PN-9 explicitly flags. Cut on cost; PN-9's caveat stands unresolved and must be
+        stated as such in the report.
+      - **draft-KV dtype** (`-ctkd`/`-ctvd`, confirmed present in the image) — never tested.
+  (b) **Wave 4 speed + energy curve** at the chosen configuration (J/tok at filled depths).
+      PN-11 remains the host baseline; there will be no per-config energy figure. The historical
+      J/tok table is depth-0 and from the deleted image, so it cannot substitute — the report
+      states that energy at the deployment configuration is unmeasured.
+Still to run (owner-confirmed): the no-spec-vs-no-spec **determinism control** (attributes PN-23),
+  **SSA S6** (the generative anchor), and **DFlash2 on its correct image** (the arm S8 voided).
+Why: neither cancelled group corrects an existing claim, and neither can change the Track A
+decision — PN-19 already establishes that decode speed does not discriminate these arms, so an
+energy curve would rank configurations on an axis the decision does not use. The three retained
+experiments each either close a stated open question or repair a void result. Cost was the binding
+constraint: GPU hours are the scarce resource and the objective is now the report.
+Consequence for the paper: three limitations become permanent rather than pending, and must be
+written as such — PN-9's confound, the absence of a temp>0 equivalence check, and the absence of a
+per-config energy measurement.
 
 ## Ledger
 
