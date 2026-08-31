@@ -1032,6 +1032,64 @@ so it waits for that chain to finish and then holds it. The running chain is nev
 reads a script lazily by byte offset, so appending a phase to a running script can make it resume
 mid-token. Queued 2026-08-31T21:42Z, ~3.5–4 h once it starts.
 
+### S9e — draft depth at the Track A window (262,144), added 2026-08-31
+
+S9d matches depth across all four arms, which forced it to 131,072 and 196,608 (Q6_K_XL's ceiling
+is 212,992). That leaves the Track A configuration itself unmeasured: its published throughput
+rests on **one** 192-token reading at n=4, taken on a `-ts` ratio selected under **n=2**
+(`tsweep-v2-Q6_K.json` records `spec: mtp2`), with **n=8 never tested anywhere in E12**.
+
+Three cells close it: Q6_K × 262,144 × n ∈ {2,4,8}, three 512-token generations each on the
+verified 248,522-token pad. Every outcome is useful — n=4 wins and the number gains a median-of-3;
+n=8 wins and the config line changes again *and* the ratio needs re-sweeping at the new draft
+depth; n=8 fails to load and the draft context does not fit at the full window, which is the same
+1.19 GiB draft-worker wall DFlash2 is being tested against.
+
+### S10 — does quantization damage grow with CONTEXT DEPTH? (added 2026-08-31)
+
+**The hole.** Every accuracy number in this study was measured at **n_ctx 2048** — the KLD ladder
+(PN-13), the domain hierarchy (PN-14, PN-21), the q4_0-KV verdict (PN-15). The deployment
+configuration runs at **262,144**. That is a 128× extrapolation, and PN-15 states the limitation
+itself: *"measured … at n_ctx 2048 — NOT at the 212K–262K depths where the KV cache actually
+dominates memory and where the effect could differ materially."*
+
+**Why it is affordable.** KLD cost scales with the **token budget**, not with context length.
+65,536 tokens at `-c 2048` is 32 chunks; the same 65,536 tokens at `-c 65536` is one. Identical
+per-token observation count, identical ~11 GB logits file — each token merely conditioned on 32×
+more context. Only the attention work grows.
+
+| rung | n_ctx | chunks | tokens | |
+|---|---|---|---|---|
+| (S3) | 2,048 | 32 | 65,536 | already measured — the anchor |
+| A | 16,384 | 4 | 65,536 | 8× deeper |
+| B | 65,536 | 1 | 65,536 | 32× deeper |
+
+Code domain only (the target workload; wikitext skipped to halve cost — a scope choice, stated).
+q4_0 KV on **both** base and arms exactly as in S2/S3, so the KV error is present on both sides and
+largely cancels and the residual divergence is quant-attributable. Plus **the KV axis at rung B**:
+f16 base vs q4_0 scoring on the reference arm — S4's design moved to depth, where the cache holds
+32× more quantized keys. That closes the open half of PN-15.
+
+**Split.** S2/S3 used the engine default because VRAM pressure at n_ctx 2048 was negligible. At
+65,536 it is not — the default split is what OOMed Q5_K_XL at 262,144 in Wave 1. A **single fixed
+`-ts 56,44`** is used at the deep rungs, identical for every arm, so it stays controlled without
+relying on the default placement being survivable.
+
+**Reading it.** Flat across rungs → quantization damage is depth-independent and published
+2K-context tables transfer. Rising → those tables (Unsloth's, Fireworks', LocalBench's, all near
+2K) understate the cost for long-context work, which is structurally the same finding this study
+already makes about prose-vs-code, in a second dimension.
+
+⚠️ **Caveat that must travel with rung B.** Budget-matching drives chunks down as n_ctx rises: 32
+at 2,048, **one** at 65,536. The deep rung's 65,536 observations therefore come from a single
+contiguous passage rather than 32 scattered ones — more correlated, less corpus-representative,
+same token count. The tool's Gaussian interval does not know this. Any rung-to-rung difference
+smaller than S3's arm-to-arm separation is suggestive, not established.
+
+**Pilot is a hard gate and also real work**: it records rung B's reference logits and scores one
+arm, so it costs nothing extra on success and rung B reuses its base file. It answers in ~30 min
+whether `--kl-divergence` runs at all at `-c 65536` on this stack and whether the reference fits.
+
 ## Decision log
 
 <!-- consensus-winner-decision:qbench-t1-8f05db1f10552b03a1beda52c51944302348a299695c65f02ac5aaaf34a64849 -->
@@ -1251,6 +1309,26 @@ Why the others stay cancelled, recorded so they are not re-litigated:
     indistinguishable on decode throughput at the same power cap, so J/tok across quants would most
     likely be another null. The interesting energy question is across *speculation* settings, not
     quants — a different experiment from the one cancelled.
+
+DEC-14 | 2026-08-31 | S3-report | owner | two additions, and the campaign is sequenced
+Context: (a) Pressed on whether the 16.81 tok/s headline was really the best config at full
+context, the provenance check found it rests on n=1 at a ratio tuned for a different draft depth,
+with n=8 untested. (b) Owner: "accuracy here is my biggest doubt under heavy context, but all
+types of context really, compared to the other quants and configurations" — which is G1/PN-15, the
+study's largest hole.
+Decision: add **S9e** (3 cells, Q6_K × 262,144 × n{2,4,8}) and **S10** (divergence vs context
+depth, ~3.5 h). Designs above. Owner approved the full ~11 h campaign.
+Sequencing: four detached chains, each taking a BLOCKING flock on the previous one's lock —
+S9 → S9d → S9e → S10. No polling for "is the GPU free"; the wait is on the lock, which is the
+condition itself. No running script is ever edited: bash reads scripts lazily by byte offset.
+Supervision: `campaign_watchdog.sh` emits one line per NEW problem (error signature, stall, dead
+chain, disk, orphan container) and is watched so failures surface immediately; plus a 20-minute
+independent check for the classes a watchdog cannot see — cells that return ok with empty metrics
+(the PN-17 class), prefill_frac below the 0.90 gate, acceptance reading exactly 1.000, and whether
+the autonomous git pushes are landing.
+Why: S9e repairs the deliverable's own headline number, which currently could not be printed
+without a footnote. S10 converts the accuracy program's biggest stated limitation into a measured
+result, and it is cheap for the reason above — the instrument's cost is set by tokens, not context.
 
 ## Ledger
 
