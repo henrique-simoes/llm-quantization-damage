@@ -103,7 +103,12 @@ def preflight(auto_recover_own=True):
     """Refuse to launch unless the host is clean. Returns list of check results;
     raises RuntimeError on any failure (fail loud rather than emit a confounded number)."""
     checks = []
-    r = sh('pgrep -af "watchdog.sh|worker.sh" | grep -v pgrep || true')
+    # PATH-ANCHORED. The bare pattern "watchdog.sh|worker.sh" matched ANY file with those
+    # names anywhere on the host, and on 2026-08-31 a monitoring script added to SUPERVISE the
+    # campaign was itself named campaign_watchdog.sh -- so every phase launched after it armed
+    # failed preflight and the whole remaining campaign cascaded to failure in 8 minutes.
+    # The check means "is the LEGACY ORCHESTRATOR running"; it now says so.
+    r = sh('pgrep -af "orchestrator/watchdog[.]sh|orchestrator/worker[.]sh" | grep -v pgrep || true')
     legacy = [ln for ln in r.stdout.strip().splitlines() if "pgrep" not in ln]
     checks.append({"check": "legacy_orchestrator_quiesced", "ok": not legacy,
                    "detail": legacy or "watchdog.sh/worker.sh not running"})

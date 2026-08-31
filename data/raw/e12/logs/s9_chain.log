@@ -32,3 +32,6 @@
 [2026-08-31T22:56:40Z]   git: pushed (after s9 score)
 [2026-08-31T22:56:40Z] === S9 CHAIN COMPLETE ===
 [2026-08-31T22:56:40Z] phases: 3 done, 2 failed
+[2026-08-31T23:27:22Z] s9_chain pid 2323219 starting (DEC-12 retained set: determinism, s6, dflash)
+[2026-08-31T23:27:22Z] === PILOT START (hard gate) ===
+[2026-08-31T23:43:45Z] === PILOT OK ===

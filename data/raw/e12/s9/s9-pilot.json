@@ -2,14 +2,14 @@
  "experiment": "s9-pilot",
  "source": "e12-s9",
  "purpose": "small-before-big gate for all three s9 phases",
- "started_utc": "2026-08-31T21:23:43Z",
+ "started_utc": "2026-08-31T23:27:24Z",
  "checks": [
   {
    "label": "pilot-mtp-image",
    "ok": true,
    "n_empty": 0,
    "failure_mode": null,
-   "decode_tok_s_median": 17.743,
+   "decode_tok_s_median": 17.147,
    "acceptance": null,
    "n_ctx_reported": 32768,
    "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62"
@@ -19,7 +19,7 @@
    "ok": true,
    "n_empty": 0,
    "failure_mode": null,
-   "decode_tok_s_median": 46.026,
+   "decode_tok_s_median": 47.702,
    "acceptance": 0.9689,
    "n_ctx_reported": 32768,
    "image_id": "sha256:22bb8b7fed8b3cfc8edb28ab5c4e1db0575670b35619da19693830a8d2952354"
@@ -29,12 +29,12 @@
    "ok": true,
    "n_empty": 0,
    "failure_mode": null,
-   "decode_tok_s_median": 21.031,
+   "decode_tok_s_median": 20.23,
    "acceptance": null,
    "n_ctx_reported": 32768,
    "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62"
   }
  ],
- "finished_utc": "2026-08-31T21:41:13Z",
+ "finished_utc": "2026-08-31T23:43:22Z",
  "verdict": "3/3 pilot checks passed"
 }

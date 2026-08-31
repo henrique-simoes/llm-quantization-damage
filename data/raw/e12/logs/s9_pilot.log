@@ -1,8 +1,8 @@
-[2026-08-31T21:23:43Z] === pilot-mtp-image: launching (ctx=32768, image=llamacpp-mtp) ===
-[2026-08-31T21:29:36Z] === pilot-mtp-image: 59.0s  decode_median=17.743 acceptance=None empties=0 ===
-[2026-08-31T21:29:36Z] === pilot-dflash-image: launching (ctx=32768, image=llama-dflash2) ===
-[2026-08-31T21:36:05Z] === pilot-dflash-image: 44.1s  decode_median=46.026 acceptance=0.9689 empties=0 ===
-[2026-08-31T21:36:05Z] === pilot-official-sampling: launching (ctx=32768, image=llamacpp-mtp) ===
-[2026-08-31T21:41:13Z] === pilot-official-sampling: 67.1s  decode_median=21.031 acceptance=None empties=0 ===
-[2026-08-31T21:41:13Z] PILOT: [{"label": "pilot-mtp-image", "ok": true, "n_empty": 0, "failure_mode": null, "decode_tok_s_median": 17.743, "acceptance": null, "n_ctx_reported": 32768, "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62"}, {"label": "pilot-dflash-image", "ok": true, "n_empty": 0, "failure_mode": null, "decode_tok_s_median": 46.026, "acceptance": 0.9689, "n_ctx_reported": 32768, "image_id": "sha256:22bb8b7fed8b3cfc8edb28ab5c4e1db0575670b35619da19693830a8d2952354"}, {"label": "pilot-official-sampling", "ok": true, "n_empty": 0, "failure_mode": null, "decode_tok_s_median": 21.031, "acceptance": null, "n_ctx_reported": 32768, "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62"}]
-[2026-08-31T21:41:14Z] phase pilot: PASS
+[2026-08-31T23:27:24Z] === pilot-mtp-image: launching (ctx=32768, image=llamacpp-mtp) ===
+[2026-08-31T23:33:05Z] === pilot-mtp-image: 63.1s  decode_median=17.147 acceptance=None empties=0 ===
+[2026-08-31T23:33:05Z] === pilot-dflash-image: launching (ctx=32768, image=llama-dflash2) ===
+[2026-08-31T23:38:46Z] === pilot-dflash-image: 38.9s  decode_median=47.702 acceptance=0.9689 empties=0 ===
+[2026-08-31T23:38:47Z] === pilot-official-sampling: launching (ctx=32768, image=llamacpp-mtp) ===
+[2026-08-31T23:43:21Z] === pilot-official-sampling: 56.9s  decode_median=20.23 acceptance=None empties=0 ===
+[2026-08-31T23:43:22Z] PILOT: [{"label": "pilot-mtp-image", "ok": true, "n_empty": 0, "failure_mode": null, "decode_tok_s_median": 17.147, "acceptance": null, "n_ctx_reported": 32768, "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62"}, {"label": "pilot-dflash-image", "ok": true, "n_empty": 0, "failure_mode": null, "decode_tok_s_median": 47.702, "acceptance": 0.9689, "n_ctx_reported": 32768, "image_id": "sha256:22bb8b7fed8b3cfc8edb28ab5c4e1db0575670b35619da19693830a8d2952354"}, {"label": "pilot-official-sampling", "ok": true, "n_empty": 0, "failure_mode": null, "decode_tok_s_median": 20.23, "acceptance": null, "n_ctx_reported": 32768, "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62"}]
+[2026-08-31T23:43:24Z] phase pilot: PASS
