@@ -1,0 +1,39 @@
+{
+ "experiment": "s10-ctxdepth",
+ "source": "e12-s10",
+ "run_ids": [
+  "s10"
+ ],
+ "question": "does quantization damage grow with context depth?",
+ "closes": "PN-15's stated caveat (measured at n_ctx 2048 only); the largest gap in the accuracy program",
+ "domain": "code",
+ "reference": "Q6_K_XL",
+ "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+ "kv_note": "q4_0 on BOTH base and arms, as in S2/S3: the KV error is present on both sides and largely cancels, so the divergence is quant-attributable",
+ "split_note": "default split at n_ctx < 16384; a SINGLE FIXED -ts 56,44 at and above it, identical for every arm, so it is controlled rather than an uncontrolled per-arm variable",
+ "budget_note": "every rung scores exactly 65,536 tokens; only n_ctx and chunks vary",
+ "chunk_caveat": "budget-matching drives chunks down as n_ctx rises (32 at 2,048, ONE at 65,536), so the deep rung's observations come from a single contiguous passage and are more correlated than the shallow rung's. The tool's Gaussian interval does not account for this.",
+ "started_utc": "2026-08-31T22:57:41Z",
+ "cells": [
+  {
+   "label": "ssa-Q6_K_XL-code-base-s10B",
+   "arm": "Q6_K_XL",
+   "domain": "code",
+   "mode": "base",
+   "kv": "q4_0",
+   "n_ctx": 65536,
+   "chunks": 1,
+   "tokens": 65536,
+   "rc": 139,
+   "seconds": 286.7,
+   "serverlog": "/srv/bench/server-timings/ssa-Q6_K_XL-code-base-s10B.serverlog",
+   "serverlog_bytes": 3015,
+   "command": "docker run --rm --name ssa-perplexity --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro -v /srv/bench/corpus:/corpus:ro -v /srv/bench/e12:/e12:ro -v /srv/bench/e12/ssa:/ssa --entrypoint /app/llama-perplexity llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -f /e12/corpus.txt -c 65536 --chunks 1 -ngl 99 -fa on -ctk q4_0 -ctv q4_0 -s 20260830 --kl-divergence-base /ssa/s10-B-code-q4_0.kld -ts 56,44",
+   "metrics": {},
+   "ok": false,
+   "rung": "B",
+   "tokens_budget": 65536
+  }
+ ],
+ "pilot_verdict": "FAIL \u2014 see the serverlog; do not run the battery"
+}
