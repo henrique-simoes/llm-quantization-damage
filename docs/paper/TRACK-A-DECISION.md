@@ -15,13 +15,15 @@ Host: 2× RTX 5060 Ti 16 GB (sm120). Engine `llamacpp-mtp:latest`, image `sha256
 ```
 -m Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 58,42 -c 262144 -fit off -fa on \
    -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 \
-   --spec-type draft-mtp --spec-draft-n-max 4
+   --spec-type draft-mtp --spec-draft-n-max 2
 ```
-Full 262,144-token window · code KLD **0.005829 ± 0.000233** · decode **16.8 tok/s** at 94 % depth.
+Full 262,144-token window · code KLD **0.005829 ± 0.000233** · decode **11.90 tok/s** at 95 % depth
+(median of 3, Wave-1 `tsweep-v2-Q6_K.json`).
 
-> **`--spec-draft-n-max 4`, not 2 — changed by Amendment 1 (below) on 2026-08-31.** The original
-> line pinned n=2 at ~11.9 tok/s. n=4 is 46 % faster at the full window, reaches the same ceiling,
-> and is neither more nor less output-faithful. See Amendment 1 for the evidence and its caveats.
+> **`--spec-draft-n-max 2` — Amendment 1's change to n=4 is WITHDRAWN by Amendment 2 (below) on
+> 2026-09-01.** The at-depth measurement it rested on timed 17 generated tokens, not 192 (PN-30).
+> n=2 is restored because it is the only draft depth with a valid measurement at this window.
+> n=4 remains 25.6 % faster at ctx 32,768 on sound data, and S9e will settle the full window.
 
 **Why:** it has the best accuracy of any arm that reaches the full window, and it is the only
 non-reference arm whose code divergence stays under Fireworks' published <0.007 high-quality
@@ -234,3 +236,39 @@ maximum-fidelity fallback at 212,992, Q4_K_XL the minimum-VRAM fallback, Q5_K_XL
 Evidence: `data/raw/e12/s8/s8-humaneval.json` · `s8-atdepth.json` · `s8-scores.json` ·
 `s8-{nospec,mtp2,mtp4}.jsonl` (per-problem completions) ·
 `/srv/bench/server-timings/s8-*.serverlog` · paper notes PN-23, PN-24, PN-25 · ledger L-13.
+
+
+---
+
+## Amendment 2 — 2026-09-01, withdrawing Amendment 1's speed evidence
+
+**Amendment 1 changed the pinned draft depth from n=2 to n=4 on the strength of a 46.4 % speed lead
+at the full 262,144-token window. That measurement is invalid.** It timed **17 generated tokens**,
+not the 192 requested: the probe posted the raw pad to the chat endpoint with no instruction, the
+model answered briefly and stopped, and the engine's own log records it plainly —
+`eval time = 951.92 ms / 17 tokens` and `draft acceptance = 1.00000 (16 accepted / 16 generated)`.
+Full diagnosis in PN-30.
+
+**The config line reverts to `--spec-draft-n-max 2`**, because it is the only draft depth with a
+sound measurement at this window: **11.90 tok/s**, median of three repetitions, from the Wave-1
+sweep, whose cells generated their full 192 tokens with realistic acceptance (0.495–0.911).
+
+### What is *not* affected
+
+- **The quantization decision is untouched.** UD-Q6_K remains the primary; the ladder, the KLD
+  numbers, the context ceilings and the fallbacks all come from Wave 1 and SSA, neither of which
+  used the broken construction.
+- **PN-19 stands** — decode speed does not discriminate the arms at the full window — and with it
+  the reasoning that accuracy, not speed, decides this configuration. That is why this correction
+  changes a flag and not the recommendation.
+- **The 32,768-token speed ordering stands**: no-spec 18.46 → MTP n=2 37.44 → MTP n=4 47.03 →
+  DFlash2 51.78 tok/s, all medians over 164 real generations.
+- **Amendment 1's *other* findings stand.** Speculative decoding is not output-identical (PN-23),
+  and PN-26 has since strengthened that to *deterministically* non-equivalent.
+
+### What is open
+
+Whether n=4 (or n=8) beats n=2 **at 262,144** is now unmeasured. S9e re-runs those three cells with
+the corrected probe — `/completion` plus a continuation cue, official sampling, and a gate that
+fails any cell generating less than 90 % of what it asked for. If n=4 or n=8 wins on sound data the
+line changes again, and this time the number will carry a median of three.

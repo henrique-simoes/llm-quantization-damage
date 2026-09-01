@@ -67,6 +67,8 @@ DEPTHS = {131072: f"{PADS}/pad_124006_0.txt",
 DEFAULT_DEPTHS = [131072, 196608]
 NDRAFT = [2, 4, 8]
 REPS, GEN_TOKENS, DEPTH_GATE = 3, 512, 0.90
+GEN_GATE = 0.90          # a cell must actually generate >=90% of n_predict
+SUFFIX = "\n\n# Summary:\n"   # tsweep_v2.py's continuation cue — proven to elicit full-length output
 
 
 def log(*a):
@@ -101,10 +103,15 @@ def cell(arm, model, ts, ctx, pad_text, n):
     vs = L.VramSampler(); vs.start()
     try:
         for rep in range(REPS):
-            r = L.post("/v1/chat/completions",
-                       {"messages": [{"role": "user", "content": pad_text}],
-                        "temperature": 0, "top_p": 1, "max_tokens": GEN_TOKENS,
-                        "seed": L.SEED, "chat_template_kwargs": {"enable_thinking": False}},
+            # /completion with a CONTINUATION SUFFIX, exactly as tsweep_v2.py does. The first
+            # version of this posted the bare pad to /v1/chat/completions as a user message:
+            # given 123K tokens of django source and no instruction the model answers in ~17
+            # tokens and stops, so decode was measured over 17 tokens and acceptance read 1.000
+            # in every cell. Sampling matches tsweep's so acceptance stays comparable to PN-9.
+            r = L.post("/completion",
+                       {"prompt": pad_text + SUFFIX, "n_predict": GEN_TOKENS,
+                        "cache_prompt": True, "seed": L.SEED + rep,
+                        **L.SAMPLING_NON_THINKING},
                        timeout=7200)
             tm = r.get("timings", {}) or {}
             c["reps"].append({
@@ -141,10 +148,17 @@ def cell(arm, model, ts, ctx, pad_text, n):
                                   if ds and min(ds) else None)
         c["acceptance"] = round(da / dn, 4) if dn else None
         c["draft_n_total"], c["draft_accepted_total"] = dn, da
-        # PN-5's gate, asserted in code rather than documented in a docstring
-        c["valid"] = c["prefill_frac"] >= DEPTH_GATE
+        # TWO gates, both asserted in code rather than documented in a docstring (PN-5).
+        # The generation gate is the one whose absence invalidated the first run of this sweep:
+        # prefill_frac passed at 0.9435 while every cell generated 17 of 512 requested tokens.
+        c["predicted_n_min"] = min((r.get("predicted_n") or 0) for r in c["reps"])
+        gen_ok = c["predicted_n_min"] >= GEN_GATE * GEN_TOKENS
+        c["valid"] = (c["prefill_frac"] >= DEPTH_GATE) and gen_ok
         if not c["valid"]:
-            c["invalid_reason"] = f"prefill_frac {c['prefill_frac']} < {DEPTH_GATE}"
+            c["invalid_reason"] = (
+                f"prefill_frac {c['prefill_frac']} < {DEPTH_GATE}" if c["prefill_frac"] < DEPTH_GATE
+                else f"generated only {c['predicted_n_min']} of {GEN_TOKENS} requested tokens "
+                     f"(gate {GEN_GATE:.0%}) — decode and acceptance are not measurable")
         log(f"    -> decode_median={c['decode_tok_s_median']} (reps {c['decode_tok_s_reps']}, "
             f"spread {c['decode_spread_pct']}%) acceptance={c['acceptance']} "
             f"prefill_frac={c['prefill_frac']} valid={c['valid']}")
@@ -174,10 +188,15 @@ def main():
            "image_id": subprocess.run(["docker", "inspect", "-f", "{{.Id}}", L.IMAGE],
                                       capture_output=True, text=True).stdout.strip(),
            "kv": "q4_0", "sm": "layer", "ctxcp": 32, "seed": L.SEED,
-           "sampling": "greedy temp=0 top_p=1",
-           "sampling_note": ("greedy: this measures throughput and draft acceptance, both of "
-                             "which are sampling-independent mechanics, and greedy removes "
-                             "sampling variance from the decode reading"),
+           "sampling": "DEC-2 official non-thinking (matches tsweep_v2, so acceptance is comparable to PN-9)",
+           "sampling_note": ("matches tsweep_v2.py exactly (/completion + continuation suffix, "
+                             "official non-thinking sampling) so that acceptance is comparable "
+                             "with PN-9's Wave-1 numbers, which is the confound this sweep exists "
+                             "to resolve"),
+           "gen_gate_note": ("a cell is valid only if it generated >=90% of n_predict. The first "
+                             "run of this sweep lacked that assertion: every cell passed the "
+                             "prefill gate at 0.9435 and generated 17 of 512 tokens, making both "
+                             "decode and acceptance meaningless (quarantined 2026-09-01)"),
            "design": {"arms": [x[0] for x in arms], "ts_per_arm": {x[0]: x[2] for x in arms},
                       "depths": sorted(depths), "n_draft": ndraft,
                       "reps_per_cell": REPS, "gen_tokens": GEN_TOKENS,
