@@ -1,0 +1,240 @@
+{
+ "experiment": "s9e-ndraft-at-262144",
+ "source": "e12-s9",
+ "run_ids": [
+  "s9d"
+ ],
+ "reinstated_by": "DEC-13 (owner, from the DEC-12 cancelled set)",
+ "repairs": [
+  "PN-9 quant/depth/ratio confound",
+  "PN-24 generality across the ladder"
+ ],
+ "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+ "kv": "q4_0",
+ "sm": "layer",
+ "ctxcp": 32,
+ "seed": 20260830,
+ "sampling": "DEC-2 official non-thinking (matches tsweep_v2, so acceptance is comparable to PN-9)",
+ "sampling_note": "matches tsweep_v2.py exactly (/completion + continuation suffix, official non-thinking sampling) so that acceptance is comparable with PN-9's Wave-1 numbers, which is the confound this sweep exists to resolve",
+ "gen_gate_note": "a cell is valid only if it generated >=90% of n_predict. The first run of this sweep lacked that assertion: every cell passed the prefill gate at 0.9435 and generated 17 of 512 tokens, making both decode and acceptance meaningless (quarantined 2026-09-01). The gate is an absolute floor of 128 tokens per rep, not a fraction of n_predict, because a rep may stop early on EOS and still be a valid measurement",
+ "design": {
+  "arms": [
+   "Q6_K"
+  ],
+  "ts_per_arm": {
+   "Q6_K": "58,42"
+  },
+  "depths": [
+   262144
+  ],
+  "n_draft": [
+   2,
+   4,
+   8
+  ],
+  "reps_per_cell": 3,
+  "gen_tokens": 512,
+  "depth_gate": 0.9,
+  "pads": {
+   "262144": "/srv/bench/e12/pads/pad_248524_0.txt"
+  }
+ },
+ "confound_statement": "-ts varies BETWEEN arms because the optimum is not portable (PN-7), and is held fixed WITHIN an arm across every cell. Draft-depth and context-depth comparisons are therefore clean; the between-arm comparison carries the ratio with it.",
+ "started_utc": "2026-09-01T09:17:45Z",
+ "cells": [
+  {
+   "arm": "Q6_K",
+   "model": "/srv/bench/models/Qwen3.8-27B-UD-Q6_K.gguf",
+   "ts": "58,42",
+   "ctx": 262144,
+   "n_draft": 2,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 58,42 -c 262144 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 2 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": true,
+   "valid": true,
+   "failure_mode": null,
+   "reps": [
+    {
+     "rep": 0,
+     "decode_tok_s": 12.01654680847101,
+     "prefill_tok_s": 506.5425221053561,
+     "prompt_n": 248527,
+     "cache_n": 0,
+     "predicted_n": 512,
+     "draft_n": 445,
+     "draft_n_accepted": 288
+    },
+    {
+     "rep": 1,
+     "decode_tok_s": 15.584214855514047,
+     "prefill_tok_s": 3.58877968032945,
+     "prompt_n": 4,
+     "cache_n": 248523,
+     "predicted_n": 512,
+     "draft_n": 354,
+     "draft_n_accepted": 334
+    },
+    {
+     "rep": 2,
+     "decode_tok_s": 12.473622620970767,
+     "prefill_tok_s": 3.5815528538708525,
+     "prompt_n": 4,
+     "cache_n": 248523,
+     "predicted_n": 512,
+     "draft_n": 438,
+     "draft_n_accepted": 291
+    }
+   ],
+   "n_ctx_reported": 262144,
+   "vram": {
+    "vram_peak_mib": [
+     15322,
+     15082
+    ],
+    "imbalance_mib": 240,
+    "imbalance_timealigned_mib": 290,
+    "samples": 630
+   },
+   "prompt_n": 248527,
+   "prefill_tok_s": 506.5425221053561,
+   "prefill_frac": 0.9481,
+   "prefix_cache_worked": true,
+   "decode_tok_s_median": 12.474,
+   "decode_tok_s_reps": [
+    12.017,
+    15.584,
+    12.474
+   ],
+   "decode_spread_pct": 29.7,
+   "acceptance": 0.7381,
+   "draft_n_total": 1237,
+   "draft_accepted_total": 913,
+   "predicted_n_reps": [
+    512,
+    512,
+    512
+   ],
+   "predicted_n_min": 512
+  },
+  {
+   "arm": "Q6_K",
+   "model": "/srv/bench/models/Qwen3.8-27B-UD-Q6_K.gguf",
+   "ts": "58,42",
+   "ctx": 262144,
+   "n_draft": 4,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 58,42 -c 262144 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 4 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": true,
+   "valid": true,
+   "failure_mode": null,
+   "reps": [
+    {
+     "rep": 0,
+     "decode_tok_s": 11.80577917611187,
+     "prefill_tok_s": 494.3112379721807,
+     "prompt_n": 248527,
+     "cache_n": 0,
+     "predicted_n": 512,
+     "draft_n": 801,
+     "draft_n_accepted": 310
+    },
+    {
+     "rep": 1,
+     "decode_tok_s": 12.875023482430306,
+     "prefill_tok_s": 3.6735027491576204,
+     "prompt_n": 4,
+     "cache_n": 248523,
+     "predicted_n": 512,
+     "draft_n": 737,
+     "draft_n_accepted": 326
+    },
+    {
+     "rep": 2,
+     "decode_tok_s": 18.066667204070466,
+     "prefill_tok_s": 3.42481587333661,
+     "prompt_n": 4,
+     "cache_n": 248523,
+     "predicted_n": 512,
+     "draft_n": 527,
+     "draft_n_accepted": 379
+    }
+   ],
+   "n_ctx_reported": 262144,
+   "vram": {
+    "vram_peak_mib": [
+     15506,
+     15194
+    ],
+    "imbalance_mib": 312,
+    "imbalance_timealigned_mib": 336,
+    "samples": 607
+   },
+   "prompt_n": 248527,
+   "prefill_tok_s": 494.3112379721807,
+   "prefill_frac": 0.9481,
+   "prefix_cache_worked": true,
+   "decode_tok_s_median": 12.875,
+   "decode_tok_s_reps": [
+    11.806,
+    12.875,
+    18.067
+   ],
+   "decode_spread_pct": 53.0,
+   "acceptance": 0.4915,
+   "draft_n_total": 2065,
+   "draft_accepted_total": 1015,
+   "predicted_n_reps": [
+    512,
+    512,
+    512
+   ],
+   "predicted_n_min": 512
+  },
+  {
+   "arm": "Q6_K",
+   "model": "/srv/bench/models/Qwen3.8-27B-UD-Q6_K.gguf",
+   "ts": "58,42",
+   "ctx": 262144,
+   "n_draft": 8,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 58,42 -c 262144 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 8 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": false,
+   "valid": false,
+   "failure_mode": "load-or-health-failed",
+   "reps": [],
+   "health_wait_s": 259,
+   "failure_class": "compute-buffer-oom"
+  }
+ ],
+ "summary": {
+  "cells_total": 3,
+  "cells_valid": 2,
+  "cells_failed": [
+   "Q6_K-c262144-n8: load-or-health-failed"
+  ],
+  "acceptance_at_matched_depth": {
+   "262144": {
+    "Q6_K-n2": 0.7381,
+    "Q6_K-n4": 0.4915
+   }
+  },
+  "decode_median_at_matched_depth": {
+   "262144": {
+    "Q6_K-n2": 12.474,
+    "Q6_K-n4": 12.875
+   }
+  },
+  "best_n_per_arm_per_depth": {
+   "Q6_K@262144": {
+    "n": 4,
+    "decode_tok_s_median": 12.875,
+    "acceptance": 0.4915,
+    "all_n": {
+     "2": 12.474,
+     "4": 12.875
+    }
+   }
+  }
+ },
+ "finished_utc": "2026-09-01T09:53:16Z"
+}

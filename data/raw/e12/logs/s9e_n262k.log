@@ -1,3 +1,19 @@
-[2026-09-01T05:13:53Z] 3 cells: 1 arms x 1 depths x 3 draft depths
-[2026-09-01T05:13:53Z] --- cell 1/3 ---
-[2026-09-01T05:13:53Z] === Q6_K-c262144-n2: launching (-ts 58,42) ===
+[2026-09-01T09:17:45Z] 3 cells: 1 arms x 1 depths x 3 draft depths
+[2026-09-01T09:17:45Z] --- cell 1/3 ---
+[2026-09-01T09:17:45Z] === Q6_K-c262144-n2: launching (-ts 58,42) ===
+[2026-09-01T09:32:32Z]     rep0: decode=12.01654680847101 prompt_n=248527 cache_n=0 draft=288/445
+[2026-09-01T09:33:06Z]     rep1: decode=15.584214855514047 prompt_n=4 cache_n=248523 draft=334/354
+[2026-09-01T09:33:48Z]     rep2: decode=12.473622620970767 prompt_n=4 cache_n=248523 draft=291/438
+[2026-09-01T09:33:48Z]     -> decode_median=12.474 (reps [12.017, 15.584, 12.474], spread 29.7%) acceptance=0.7381 prefill_frac=0.9481 valid=True
+[2026-09-01T09:33:52Z] --- cell 2/3 ---
+[2026-09-01T09:33:52Z] === Q6_K-c262144-n4: launching (-ts 58,42) ===
+[2026-09-01T09:47:35Z]     rep0: decode=11.80577917611187 prompt_n=248527 cache_n=0 draft=310/801
+[2026-09-01T09:48:16Z]     rep1: decode=12.875023482430306 prompt_n=4 cache_n=248523 draft=326/737
+[2026-09-01T09:48:46Z]     rep2: decode=18.066667204070466 prompt_n=4 cache_n=248523 draft=379/527
+[2026-09-01T09:48:46Z]     -> decode_median=12.875 (reps [11.806, 12.875, 18.067], spread 53.0%) acceptance=0.4915 prefill_frac=0.9481 valid=True
+[2026-09-01T09:48:49Z] --- cell 3/3 ---
+[2026-09-01T09:48:49Z] === Q6_K-c262144-n8: launching (-ts 58,42) ===
+[2026-09-01T09:53:15Z]     LOAD FAILED (compute-buffer-oom) after 259s
+[2026-09-01T09:53:16Z] ACCEPTANCE: {"262144": {"Q6_K-n2": 0.7381, "Q6_K-n4": 0.4915}}
+[2026-09-01T09:53:16Z] BEST-N: {"Q6_K@262144": {"n": 4, "decode_tok_s_median": 12.875, "acceptance": 0.4915, "all_n": {"2": 12.474, "4": 12.875}}}
+[2026-09-01T09:53:16Z] done: 2/3 valid cells

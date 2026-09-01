@@ -3,3 +3,9 @@
 [2026-09-01T05:28:59Z] s9e_chain pid 3610209 queued — waiting on s9d.lock (the depth sweep must finish first)
 [2026-09-01T05:29:19Z] s9d.lock acquired after 20s — starting the 262,144 addendum
 [2026-09-01T05:29:41Z] s9e_chain pid 3612761 queued — waiting on s9d.lock (the depth sweep must finish first)
+[2026-09-01T09:17:24Z] s9d.lock acquired after 13663s — starting the 262,144 addendum
+[2026-09-01T09:17:44Z] === PHASE s9e_n262k START (3 cells: Q6_K x 262144 x n{2,4,8}, ~40 min) ===
+[2026-09-01T09:53:23Z] === PHASE s9e_n262k OK ===
+      [2026-09-01T09:53:16Z] ACCEPTANCE: {"262144": {"Q6_K-n2": 0.7381, "Q6_K-n4": 0.4915}}
+      [2026-09-01T09:53:16Z] BEST-N: {"Q6_K@262144": {"n": 4, "decode_tok_s_median": 12.875, "acceptance": 0.4915, "all_n": {"2": 12.474, "4": 12.875}}}
+      [2026-09-01T09:53:16Z] done: 2/3 valid cells
