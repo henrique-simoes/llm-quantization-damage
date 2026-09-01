@@ -35,8 +35,9 @@ Model: **Qwen3.8-27B**, Unsloth GGUFs. Arms: **UD-Q4_K_XL, UD-Q5_K_XL, UD-Q6_K, 
 | SSA — the accuracy protocol, S0–S5 + S7 | **closed** (L-8, L-11, L-12) |
 | S8 — speculative decoding: equivalence, draft depth, at-depth | **closed** (L-13) |
 | Track A decision | **decided** (L-10), amended by S8 |
-| S9 — determinism control · SSA S6 · DFlash2 repair | **running** (launched 2026-08-31T21:23Z, `s9_chain.sh`, ~4 h; pilot 3/3 green) |
-| S9d — MTP draft-depth sweep at matched depth | **queued** behind S9 (DEC-13, `s9d_chain.sh`, 24 cells, ~4 h) |
+| S9 — determinism · SSA S6 · DFlash2 | **DONE** (L-15) — PN-26, PN-28, PN-29 |
+| S9d — MTP draft-depth sweep at matched depth | **re-running** — first run invalid (PN-30, degenerate 17-token generation); harness fixed and piloted |
+| S9e · S10 | queued behind S9d |
 | Wave 2 breadth (rest) · Wave 4 energy curve | **CANCELLED** by DEC-12 — will not be run |
 | The report | **not drafted** — this is the remaining work |
 

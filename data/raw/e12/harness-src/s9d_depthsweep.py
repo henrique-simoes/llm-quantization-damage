@@ -67,7 +67,13 @@ DEPTHS = {131072: f"{PADS}/pad_124006_0.txt",
 DEFAULT_DEPTHS = [131072, 196608]
 NDRAFT = [2, 4, 8]
 REPS, GEN_TOKENS, DEPTH_GATE = 3, 512, 0.90
-GEN_GATE = 0.90          # a cell must actually generate >=90% of n_predict
+# ABSOLUTE floor, not a fraction of n_predict. The first gate required every rep to reach 90% of
+# 512, which failed a perfectly good cell whose middle rep stopped naturally at 258 tokens on EOS
+# under temp-0.7 sampling. What the measurement actually needs is that each timed generation is
+# long enough to BE a throughput measurement rather than a startup transient; 128 tokens clears
+# that by a wide margin and still rejects the 17-token degenerate case decisively. Per-rep
+# predicted_n is recorded either way so the variation is visible rather than hidden by the gate.
+GEN_FLOOR = 128
 SUFFIX = "\n\n# Summary:\n"   # tsweep_v2.py's continuation cue — proven to elicit full-length output
 
 
@@ -151,14 +157,15 @@ def cell(arm, model, ts, ctx, pad_text, n):
         # TWO gates, both asserted in code rather than documented in a docstring (PN-5).
         # The generation gate is the one whose absence invalidated the first run of this sweep:
         # prefill_frac passed at 0.9435 while every cell generated 17 of 512 requested tokens.
+        c["predicted_n_reps"] = [r.get("predicted_n") for r in c["reps"]]
         c["predicted_n_min"] = min((r.get("predicted_n") or 0) for r in c["reps"])
-        gen_ok = c["predicted_n_min"] >= GEN_GATE * GEN_TOKENS
+        gen_ok = c["predicted_n_min"] >= GEN_FLOOR
         c["valid"] = (c["prefill_frac"] >= DEPTH_GATE) and gen_ok
         if not c["valid"]:
             c["invalid_reason"] = (
                 f"prefill_frac {c['prefill_frac']} < {DEPTH_GATE}" if c["prefill_frac"] < DEPTH_GATE
-                else f"generated only {c['predicted_n_min']} of {GEN_TOKENS} requested tokens "
-                     f"(gate {GEN_GATE:.0%}) — decode and acceptance are not measurable")
+                else f"shortest rep generated only {c['predicted_n_min']} tokens "
+                     f"(floor {GEN_FLOOR}) — decode and acceptance are not measurable")
         log(f"    -> decode_median={c['decode_tok_s_median']} (reps {c['decode_tok_s_reps']}, "
             f"spread {c['decode_spread_pct']}%) acceptance={c['acceptance']} "
             f"prefill_frac={c['prefill_frac']} valid={c['valid']}")
@@ -196,7 +203,10 @@ def main():
            "gen_gate_note": ("a cell is valid only if it generated >=90% of n_predict. The first "
                              "run of this sweep lacked that assertion: every cell passed the "
                              "prefill gate at 0.9435 and generated 17 of 512 tokens, making both "
-                             "decode and acceptance meaningless (quarantined 2026-09-01)"),
+                             "decode and acceptance meaningless (quarantined 2026-09-01). The gate "
+                             f"is an absolute floor of {GEN_FLOOR} tokens per rep, not a fraction "
+                             "of n_predict, because a rep may stop early on EOS and still be a "
+                             "valid measurement"),
            "design": {"arms": [x[0] for x in arms], "ts_per_arm": {x[0]: x[2] for x in arms},
                       "depths": sorted(depths), "n_draft": ndraft,
                       "reps_per_cell": REPS, "gen_tokens": GEN_TOKENS,

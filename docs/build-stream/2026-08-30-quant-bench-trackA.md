@@ -1926,3 +1926,43 @@ Next: S9d's 24-cell matched-depth sweep started 01:54:19Z, then S9e (262,144 dra
   SHRINKS with depth against PN-19's 6.7 % span at 262,144 — but those two measurements differ in
   spec setting, sampling and ratio, so the comparison is confounded. S9d measures it cleanly at
   matched depth with identical settings; the note waits for that.
+
+### L-16 | 2026-09-01T05:35:00Z | S3-report | claude-opus-5 | conductor-manager | S9d invalid — degenerate generation; PN-24 and Amendment 1 withdrawn <!-- bsc-ledger:qbench-t1-S9D-DEFECT -->
+Did: S9d's 24-cell sweep completed at 05:13:28Z reporting 23/24 valid. Every cell reported
+  **acceptance exactly 1.000** — the red flag the standing 20-minute check lists — so the artifact
+  was inspected before any note was written. It is invalid, and so is more than the sweep.
+Result — the defect (PN-30): the cell probe posted the 123,666-token pad to
+  `/v1/chat/completions` as a user message with `max_tokens: 512`. Given a corpus and no
+  instruction the model answers briefly and stops: **all 69 reps generated exactly 17 tokens**
+  (min = median = max). Decode was therefore timed over 17 tokens — yielding 52.27 tok/s at
+  131,072, faster than most configurations reach at depth 0 — and acceptance was computed over
+  36-48 draft events on a trivially predictable continuation. The `valid` gate asserted
+  `prefill_frac >= 0.90` (which passed at 0.9435) and asserted nothing about generation. **PN-5's
+  lesson recurring inside the harness written to honour it**: prefill contract in code, generation
+  contract in the docstring.
+Reach: the same construction is used by `s8_spec.py --phase atdepth`, and the engine's own log
+  confirms it — `eval time = 951.92 ms / 17 tokens` and `draft acceptance = 1.00000 (16 accepted /
+  16 generated)`. **PN-24's at-depth half is withdrawn**; its ctx-32,768 half (medians over 164 real
+  HumanEval+ generations at max_tokens 1024) stands. **Track A Amendment 1 is withdrawn** by
+  Amendment 2 and the config line reverts to `--spec-draft-n-max 2`, the only draft depth with a
+  valid measurement at 262,144 (11.90 tok/s, median of 3, Wave 1).
+  ✅ **Wave 1 is UNAFFECTED and was checked, not assumed**: every tsweep cell records
+  `n_predict = 192` with acceptance spread 0.495-0.911, because tsweep uses `/completion` with
+  `prompt = pad + "\n\n# Summary:\n"`. PN-6, PN-7, PN-8, PN-18, PN-19 and the quantization decision
+  are sound. The recommendation changed a flag, not the model.
+Verified: harness repaired to tsweep's proven construction (`/completion` + continuation cue,
+  official sampling so acceptance stays comparable with PN-9) plus a generation gate. **Piloted on
+  one cell before re-running 24**: predicted_n 512/258/512 against the previous 17, acceptance
+  0.7747 over 1003 draft events, decode median 17.78 with 33.9 % spread (matching PN-19's
+  documented noise), prefix cache confirmed (`prompt_n` 4, `cache_n` 123,666 on reps 2-3). The
+  pilot also corrected the gate itself: an initial "every rep >= 90 % of n_predict" rule failed a
+  good cell whose middle rep stopped naturally at 258 tokens on EOS, so the gate is now an absolute
+  128-token floor, which rejects the degenerate case decisively and accepts natural EOS variation.
+  Invalid artifact quarantined with a register (`quarantine/README-s9d-degenerate.md`), never
+  deleted. The stale `s9d_sweep.done` — written because the run exited 0 under the WRONG gate — was
+  archived as `.INVALID-degenerate-17tok-20260901`; under the corrected gate a degenerate run
+  yields zero valid cells, exits 2, and cannot leave a marker at all.
+Cost: ~3.3 h of GPU on the invalid sweep, plus the re-run. Chains relaunched 05:29:41Z in lock
+  order s9d → s9e → s10.
+Next: S9d (~4 h), S9e (~40 min), S10 (~3.5 h). The 20-minute check earned its place here — the
+  sweep would otherwise have been written up as a result.
