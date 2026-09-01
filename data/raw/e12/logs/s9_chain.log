@@ -35,3 +35,7 @@
 [2026-08-31T23:27:22Z] s9_chain pid 2323219 starting (DEC-12 retained set: determinism, s6, dflash)
 [2026-08-31T23:27:22Z] === PILOT START (hard gate) ===
 [2026-08-31T23:43:45Z] === PILOT OK ===
+[2026-08-31T23:43:47Z]   git: pushed (after s9 pilot)
+[2026-08-31T23:43:47Z] === PHASE determinism already done — skipping (idempotent) ===
+[2026-08-31T23:43:47Z] === PHASE s6 START ===
+[2026-09-01T01:10:08Z] === PHASE s6 OK ===

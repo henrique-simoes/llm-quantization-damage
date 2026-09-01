@@ -1,0 +1,14 @@
+[2026-08-31T23:43:51Z] 164 HumanEval+ problems
+[2026-08-31T23:43:51Z] === s6-Q4_K_XL: launching (ctx=32768, image=llamacpp-mtp) ===
+[2026-08-31T23:53:20Z]     s6-Q4_K_XL: 40/164 (353s)
+[2026-08-31T23:59:25Z]     s6-Q4_K_XL: 80/164 (718s)
+[2026-09-01T00:08:02Z]     s6-Q4_K_XL: 120/164 (1235s)
+[2026-09-01T00:18:02Z]     s6-Q4_K_XL: 160/164 (1835s)
+[2026-09-01T00:18:46Z] === s6-Q4_K_XL: 1874.4s  decode_median=22.153 acceptance=None empties=0 ===
+[2026-09-01T00:18:46Z] === s6-Q6_K_XL: launching (ctx=32768, image=llamacpp-mtp) ===
+[2026-09-01T00:31:42Z]     s6-Q6_K_XL: 40/164 (506s)
+[2026-09-01T00:40:32Z]     s6-Q6_K_XL: 80/164 (1036s)
+[2026-09-01T00:54:01Z]     s6-Q6_K_XL: 120/164 (1845s)
+[2026-09-01T01:08:39Z]     s6-Q6_K_XL: 160/164 (2723s)
+[2026-09-01T01:09:41Z] === s6-Q6_K_XL: 2780.2s  decode_median=16.063 acceptance=None empties=0 ===
+[2026-09-01T01:09:42Z] phase s6 done: 2 successful unit(s)
