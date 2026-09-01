@@ -1,7 +1,9 @@
-[2026-08-31T22:56:16Z]   scored s9-nospec-r2: {'humaneval': 0.945, 'humaneval+': 0.915} n=164
-[2026-08-31T22:56:40Z]   scored s9-mtp2-r2: {'humaneval': 0.939, 'humaneval+': 0.902} n=164
-[2026-08-31T22:56:40Z]   skip s6-Q4_K_XL: no generations (phase did not run or failed)
-[2026-08-31T22:56:40Z]   skip s6-Q6_K_XL: no generations (phase did not run or failed)
-[2026-08-31T22:56:40Z]   skip dflash4-he: no generations (phase did not run or failed)
-[2026-08-31T22:56:40Z] s8 re-parsed: {"nospec": {"humaneval": 0.945, "humaneval+": 0.915}, "mtp2": {"humaneval": 0.939, "humaneval+": 0.902}, "mtp4": {"humaneval": 0.939, "humaneval+": 0.909}, "dflash4": {"humaneval": 0.0, "humaneval+": 0.0}}
-[2026-08-31T22:56:40Z] phase score done: 2 arm(s) scored
+[2026-09-01T01:52:47Z]   scored s9-nospec-r2: {'humaneval': 0.945, 'humaneval+': 0.915} n=164
+[2026-09-01T01:52:49Z]   scored s9-mtp2-r2: {'humaneval': 0.939, 'humaneval+': 0.902} n=164
+[2026-09-01T01:53:12Z]   scored s9-s6-Q4_K_XL: {'humaneval': 0.939, 'humaneval+': 0.896} n=164
+[2026-09-01T01:53:35Z]   scored s9-s6-Q6_K_XL: {'humaneval': 0.945, 'humaneval+': 0.902} n=164
+[2026-09-01T01:53:59Z]   scored s9-dflash4-he: {'humaneval': 0.933, 'humaneval+': 0.902} n=164
+[2026-09-01T01:53:59Z]   McNemar[base] s9-s6-Q4_K_XL vs s9-s6-Q6_K_XL: 93.9 vs 94.51 %, discordant 1/2, p=1.0
+[2026-09-01T01:53:59Z]   McNemar[plus] s9-s6-Q4_K_XL vs s9-s6-Q6_K_XL: 89.63 vs 90.24 %, discordant 2/3, p=1.0
+[2026-09-01T01:53:59Z] s8 re-parsed: {"nospec": {"humaneval": 0.945, "humaneval+": 0.915}, "mtp2": {"humaneval": 0.939, "humaneval+": 0.902}, "mtp4": {"humaneval": 0.939, "humaneval+": 0.909}, "dflash4": {"humaneval": 0.0, "humaneval+": 0.0}}
+[2026-09-01T01:53:59Z] phase score done: 5 arm(s) scored
