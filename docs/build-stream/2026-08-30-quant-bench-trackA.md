@@ -1090,6 +1090,50 @@ smaller than S3's arm-to-arm separation is suggestive, not established.
 arm, so it costs nothing extra on success and rung B reuses its base file. It answers in ~30 min
 whether `--kl-divergence` runs at all at `-c 65536` on this stack and whether the reference fits.
 
+### S11 — Greedy Divergence at Depth (replaces S10's instrument, 2026-09-01)
+
+**Question unchanged; instrument replaced.** Does quantization damage grow with context depth?
+S10 was to answer it with KL divergence and cannot: the tool holds a chunk's logits resident and
+this host tops out at n_ctx 8,192 (PN-31). S11 measures the same question with an instrument whose
+memory cost is that of an ordinary serving run.
+
+**Why it reaches depth.** No logits buffering — each cell is one `/completion` returning text. The
+ceiling becomes VRAM, which is already mapped, instead of host RAM, which was not.
+
+**Why the comparison is clean — it rests on PN-26.** No-spec greedy generation on this engine is
+byte-reproducible (md5-identical across runs a day apart). So with speculation off and temperature
+0, any text difference between two arms on the same prompt at the same depth is attributable to the
+quantization. ⚠️ Speculation must stay OFF: PN-23/PN-26 show MTP alters ~20 % of completions for
+reasons unrelated to the quant, which would swamp the effect.
+
+**Metric — first-divergence position, not exact-match.** Greedy decoding is a trajectory: after the
+first differing token the sequences are on different paths and per-position comparison stops
+meaning anything, so exact-match would be a coarse binary. The graded metric is *where* they
+separate — the index of the first differing character against the reference arm on the identical
+prompt. **A falling index as depth rises means damage grows with context.**
+
+| axis | value |
+|---|---|
+| depths | 8,192 · 65,536 · 196,608 — cheapest first, each slice usable alone |
+| arms | Q6_K_XL (reference) · Q6_K · Q5_K_XL · Q4_K_XL |
+| split | one fixed `-ts 56,44` for every arm — a per-arm ratio would be an uncontrolled variable in an accuracy comparison |
+| sampling | greedy, no-spec, `/completion` + the proven continuation cue |
+| n | 3 distinct corpus excerpts per (arm, depth) |
+| gates | `prefill_frac ≥ 0.90` **and** `generated_tokens ≥ 128`, both asserted in code |
+
+**Controls, because this harness family has failed three times.**
+1. **Self-consistency**: the reference arm generates the same pad twice at the deepest rung with
+   `cache_prompt: false`, re-prefilling both times. Not identical → the experiment is void and
+   stops, rather than reporting noise.
+2. **Pilot runs the HARDEST cell first** — the reference arm at 196,608, where the VRAM arithmetic
+   says RISK (16,426 MiB/GPU predicted vs a 15,650 practical ceiling) while E11a measured that arm
+   at 245,760 no-spec. The estimate and the history disagree, so it is measured before any battery.
+3. Both gates above, which are the two that were missing in PN-5 and PN-30.
+
+**Resource math, done before the harness was written** (the discipline whose absence caused PN-30
+and PN-31): RAM not a constraint (no logits buffer); VRAM comfortable for three arms and flagged
+RISK for the fourth at the deepest rung; ~3.1 h total.
+
 ## Decision log
 
 <!-- consensus-winner-decision:qbench-t1-8f05db1f10552b03a1beda52c51944302348a299695c65f02ac5aaaf34a64849 -->
@@ -1329,6 +1373,22 @@ the autonomous git pushes are landing.
 Why: S9e repairs the deliverable's own headline number, which currently could not be printed
 without a footnote. S10 converts the accuracy program's biggest stated limitation into a measured
 result, and it is cheap for the reason above — the instrument's cost is set by tokens, not context.
+
+DEC-15 | 2026-09-01 | S3-report | owner | S10 replaced by S11; instrument findings are a footnote
+Context: S10's pilot failed with `std::bad_alloc`. Empirical measurement then established a hard
+ceiling of n_ctx 8,192 for KL divergence on this host (PN-31). Owner: "S10 is actually important...
+If it's not possible to perform the test reliably, say so" — and, on the OOM findings, that they
+are footnote material rather than a paper feature, because the report is about serving models,
+quantization and configuration, with the host specification and honest limitations stated in Setup.
+Decision: (a) KL divergence at depth is **declared not reliably measurable on this host** and the
+4× ladder is NOT run — it cannot support a claim about a 128× deployment context. (b) The question
+is retained and answered by **S11**, design above. (c) PN-31 is marked FOOTNOTE MATERIAL; the only
+clause with bearing on the paper's argument is that the standard divergence tooling's footprint
+scales with context length, which is itself why published quantization tables are all measured
+near 2K.
+Why: the owner has raised repeatedly that hours are being lost to runs launched without resource
+arithmetic or a pilot. S11 was therefore specified with the memory/VRAM math stated before the
+harness existed, the hardest cell piloted first, and both output gates asserted in code.
 
 ## Ledger
 
