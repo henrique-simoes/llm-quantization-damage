@@ -1,0 +1,145 @@
+[2026-09-01T01:54:19Z] 24 cells: 4 arms x 2 depths x 3 draft depths
+[2026-09-01T01:54:19Z] --- cell 1/24 ---
+[2026-09-01T01:54:19Z] === Q4_K_XL-c131072-n2: launching (-ts 56,44) ===
+[2026-09-01T01:59:58Z]     rep0: decode=18.67939044479131 prompt_n=123675 cache_n=0 draft=12/12
+[2026-09-01T01:59:59Z]     rep1: decode=20.753777187448115 prompt_n=4 cache_n=123671 draft=12/12
+[2026-09-01T02:00:01Z]     rep2: decode=20.893483714182366 prompt_n=4 cache_n=123671 draft=12/12
+[2026-09-01T02:00:01Z]     -> decode_median=20.754 (reps [18.679, 20.754, 20.893], spread 11.9%) acceptance=1.0 prefill_frac=0.9436 valid=True
+[2026-09-01T02:00:05Z] --- cell 2/24 ---
+[2026-09-01T02:00:05Z] === Q4_K_XL-c131072-n4: launching (-ts 56,44) ===
+[2026-09-01T02:06:24Z]     rep0: decode=21.66371949815994 prompt_n=123675 cache_n=0 draft=16/16
+[2026-09-01T02:06:25Z]     rep1: decode=24.8341544125636 prompt_n=4 cache_n=123671 draft=16/16
+[2026-09-01T02:06:27Z]     rep2: decode=24.84784576942131 prompt_n=4 cache_n=123671 draft=16/16
+[2026-09-01T02:06:27Z]     -> decode_median=24.834 (reps [21.664, 24.834, 24.848], spread 14.7%) acceptance=1.0 prefill_frac=0.9436 valid=True
+[2026-09-01T02:06:32Z] --- cell 3/24 ---
+[2026-09-01T02:06:32Z] === Q4_K_XL-c131072-n8: launching (-ts 56,44) ===
+[2026-09-01T02:12:41Z]     rep0: decode=39.72352427107333 prompt_n=123675 cache_n=0 draft=16/16
+[2026-09-01T02:12:43Z]     rep1: decode=52.27186597493564 prompt_n=4 cache_n=123671 draft=16/16
+[2026-09-01T02:12:44Z]     rep2: decode=52.377616425620516 prompt_n=4 cache_n=123671 draft=16/16
+[2026-09-01T02:12:44Z]     -> decode_median=52.272 (reps [39.724, 52.272, 52.378], spread 31.9%) acceptance=1.0 prefill_frac=0.9436 valid=True
+[2026-09-01T02:12:48Z] --- cell 4/24 ---
+[2026-09-01T02:12:48Z] === Q4_K_XL-c196608-n2: launching (-ts 56,44) ===
+[2026-09-01T02:21:32Z]     rep0: decode=15.757119756079787 prompt_n=186276 cache_n=0 draft=12/12
+[2026-09-01T02:21:34Z]     rep1: decode=17.238184302047465 prompt_n=4 cache_n=186272 draft=12/12
+[2026-09-01T02:21:36Z]     rep2: decode=17.21538926685037 prompt_n=4 cache_n=186272 draft=12/12
+[2026-09-01T02:21:36Z]     -> decode_median=17.215 (reps [15.757, 17.238, 17.215], spread 9.4%) acceptance=1.0 prefill_frac=0.9474 valid=True
+[2026-09-01T02:21:39Z] --- cell 5/24 ---
+[2026-09-01T02:21:39Z] === Q4_K_XL-c196608-n4: launching (-ts 56,44) ===
+[2026-09-01T02:29:52Z]     rep0: decode=15.974424945661996 prompt_n=186276 cache_n=0 draft=16/16
+[2026-09-01T02:29:54Z]     rep1: decode=21.014059719330966 prompt_n=4 cache_n=186272 draft=16/16
+[2026-09-01T02:29:56Z]     rep2: decode=21.15352834242274 prompt_n=4 cache_n=186272 draft=16/16
+[2026-09-01T02:29:56Z]     -> decode_median=21.014 (reps [15.974, 21.014, 21.154], spread 32.4%) acceptance=1.0 prefill_frac=0.9474 valid=True
+[2026-09-01T02:30:01Z] --- cell 6/24 ---
+[2026-09-01T02:30:01Z] === Q4_K_XL-c196608-n8: launching (-ts 56,44) ===
+[2026-09-01T02:39:34Z]     rep0: decode=34.15635927366502 prompt_n=186276 cache_n=0 draft=16/16
+[2026-09-01T02:39:35Z]     rep1: decode=43.48156924983423 prompt_n=4 cache_n=186272 draft=16/16
+[2026-09-01T02:39:36Z]     rep2: decode=43.39983453813082 prompt_n=4 cache_n=186272 draft=16/16
+[2026-09-01T02:39:36Z]     -> decode_median=43.4 (reps [34.156, 43.482, 43.4], spread 27.3%) acceptance=1.0 prefill_frac=0.9474 valid=True
+[2026-09-01T02:39:40Z] --- cell 7/24 ---
+[2026-09-01T02:39:40Z] === Q5_K_XL-c131072-n2: launching (-ts 54,46) ===
+[2026-09-01T02:46:17Z]     rep0: decode=17.166903069227683 prompt_n=123675 cache_n=0 draft=12/12
+[2026-09-01T02:46:19Z]     rep1: decode=19.814904027750774 prompt_n=4 cache_n=123671 draft=12/12
+[2026-09-01T02:46:20Z]     rep2: decode=19.826837359213965 prompt_n=4 cache_n=123671 draft=12/12
+[2026-09-01T02:46:20Z]     -> decode_median=19.815 (reps [17.167, 19.815, 19.827], spread 15.5%) acceptance=1.0 prefill_frac=0.9436 valid=True
+[2026-09-01T02:46:26Z] --- cell 8/24 ---
+[2026-09-01T02:46:26Z] === Q5_K_XL-c131072-n4: launching (-ts 54,46) ===
+[2026-09-01T02:54:39Z]     rep0: decode=20.84131164794856 prompt_n=123675 cache_n=0 draft=16/16
+[2026-09-01T02:54:40Z]     rep1: decode=24.254000015158752 prompt_n=4 cache_n=123671 draft=16/16
+[2026-09-01T02:54:42Z]     rep2: decode=24.246796013220568 prompt_n=4 cache_n=123671 draft=16/16
+[2026-09-01T02:54:42Z]     -> decode_median=24.247 (reps [20.841, 24.254, 24.247], spread 16.4%) acceptance=1.0 prefill_frac=0.9436 valid=True
+[2026-09-01T02:54:45Z] --- cell 9/24 ---
+[2026-09-01T02:54:45Z] === Q5_K_XL-c131072-n8: launching (-ts 54,46) ===
+[2026-09-01T03:01:21Z]     rep0: decode=35.85418104568719 prompt_n=123675 cache_n=0 draft=16/16
+[2026-09-01T03:01:23Z]     rep1: decode=47.636060497796834 prompt_n=4 cache_n=123671 draft=16/16
+[2026-09-01T03:01:24Z]     rep2: decode=47.46225267716769 prompt_n=4 cache_n=123671 draft=16/16
+[2026-09-01T03:01:24Z]     -> decode_median=47.462 (reps [35.854, 47.636, 47.462], spread 32.9%) acceptance=1.0 prefill_frac=0.9436 valid=True
+[2026-09-01T03:01:29Z] --- cell 10/24 ---
+[2026-09-01T03:01:29Z] === Q5_K_XL-c196608-n2: launching (-ts 54,46) ===
+[2026-09-01T03:11:51Z]     rep0: decode=13.71441110318723 prompt_n=186276 cache_n=0 draft=12/12
+[2026-09-01T03:11:54Z]     rep1: decode=16.526945118146998 prompt_n=4 cache_n=186272 draft=12/12
+[2026-09-01T03:11:56Z]     rep2: decode=16.524316564594585 prompt_n=4 cache_n=186272 draft=12/12
+[2026-09-01T03:11:56Z]     -> decode_median=16.524 (reps [13.714, 16.527, 16.524], spread 20.5%) acceptance=1.0 prefill_frac=0.9474 valid=True
+[2026-09-01T03:12:00Z] --- cell 11/24 ---
+[2026-09-01T03:12:00Z] === Q5_K_XL-c196608-n4: launching (-ts 54,46) ===
+[2026-09-01T03:22:05Z]     rep0: decode=18.690256885899487 prompt_n=186276 cache_n=0 draft=16/16
+[2026-09-01T03:22:07Z]     rep1: decode=20.652996104328608 prompt_n=4 cache_n=186272 draft=16/16
+[2026-09-01T03:22:09Z]     rep2: decode=20.699299975548954 prompt_n=4 cache_n=186272 draft=16/16
+[2026-09-01T03:22:09Z]     -> decode_median=20.653 (reps [18.69, 20.653, 20.699], spread 10.7%) acceptance=1.0 prefill_frac=0.9474 valid=True
+[2026-09-01T03:22:12Z] --- cell 12/24 ---
+[2026-09-01T03:22:12Z] === Q5_K_XL-c196608-n8: launching (-ts 54,46) ===
+[2026-09-01T03:31:43Z]     rep0: decode=32.214548895644995 prompt_n=186276 cache_n=0 draft=16/16
+[2026-09-01T03:31:44Z]     rep1: decode=40.17284365984649 prompt_n=4 cache_n=186272 draft=16/16
+[2026-09-01T03:31:46Z]     rep2: decode=40.05467463087114 prompt_n=4 cache_n=186272 draft=16/16
+[2026-09-01T03:31:46Z]     -> decode_median=40.055 (reps [32.215, 40.173, 40.055], spread 24.7%) acceptance=1.0 prefill_frac=0.9474 valid=True
+[2026-09-01T03:31:50Z] --- cell 13/24 ---
+[2026-09-01T03:31:50Z] === Q6_K-c131072-n2: launching (-ts 58,42) ===
+[2026-09-01T03:39:56Z]     rep0: decode=18.305358550490183 prompt_n=123675 cache_n=0 draft=12/12
+[2026-09-01T03:39:58Z]     rep1: decode=20.52826935142216 prompt_n=4 cache_n=123671 draft=12/12
+[2026-09-01T03:39:59Z]     rep2: decode=20.52679452293805 prompt_n=4 cache_n=123671 draft=12/12
+[2026-09-01T03:39:59Z]     -> decode_median=20.527 (reps [18.305, 20.528, 20.527], spread 12.1%) acceptance=1.0 prefill_frac=0.9436 valid=True
+[2026-09-01T03:40:03Z] --- cell 14/24 ---
+[2026-09-01T03:40:03Z] === Q6_K-c131072-n4: launching (-ts 58,42) ===
+[2026-09-01T03:48:10Z]     rep0: decode=21.936078267927257 prompt_n=123675 cache_n=0 draft=16/16
+[2026-09-01T03:48:12Z]     rep1: decode=25.85056435013297 prompt_n=4 cache_n=123671 draft=16/16
+[2026-09-01T03:48:13Z]     rep2: decode=25.862849310108494 prompt_n=4 cache_n=123671 draft=16/16
+[2026-09-01T03:48:13Z]     -> decode_median=25.851 (reps [21.936, 25.851, 25.863], spread 17.9%) acceptance=1.0 prefill_frac=0.9436 valid=True
+[2026-09-01T03:48:17Z] --- cell 15/24 ---
+[2026-09-01T03:48:17Z] === Q6_K-c131072-n8: launching (-ts 58,42) ===
+[2026-09-01T03:55:59Z]     rep0: decode=38.59755773953403 prompt_n=123675 cache_n=0 draft=16/16
+[2026-09-01T03:56:01Z]     rep1: decode=46.29080462097957 prompt_n=4 cache_n=123671 draft=16/16
+[2026-09-01T03:56:02Z]     rep2: decode=46.074589000267814 prompt_n=4 cache_n=123671 draft=16/16
+[2026-09-01T03:56:02Z]     -> decode_median=46.075 (reps [38.598, 46.291, 46.075], spread 19.9%) acceptance=1.0 prefill_frac=0.9436 valid=True
+[2026-09-01T03:56:05Z] --- cell 16/24 ---
+[2026-09-01T03:56:05Z] === Q6_K-c196608-n2: launching (-ts 58,42) ===
+[2026-09-01T04:07:33Z]     rep0: decode=13.226321371503394 prompt_n=186276 cache_n=0 draft=12/12
+[2026-09-01T04:07:49Z]     rep1: decode=16.317905433658535 prompt_n=4 cache_n=186272 draft=12/12
+[2026-09-01T04:07:52Z]     rep2: decode=15.084449346890484 prompt_n=4 cache_n=186272 draft=12/12
+[2026-09-01T04:07:52Z]     -> decode_median=15.084 (reps [13.226, 16.318, 15.084], spread 23.4%) acceptance=1.0 prefill_frac=0.9474 valid=True
+[2026-09-01T04:07:58Z] --- cell 17/24 ---
+[2026-09-01T04:07:58Z] === Q6_K-c196608-n4: launching (-ts 58,42) ===
+[2026-09-01T04:17:52Z]     rep0: decode=18.530936819929096 prompt_n=186276 cache_n=0 draft=16/16
+[2026-09-01T04:17:54Z]     rep1: decode=21.835074225605446 prompt_n=4 cache_n=186272 draft=16/16
+[2026-09-01T04:17:56Z]     rep2: decode=21.796791239869602 prompt_n=4 cache_n=186272 draft=16/16
+[2026-09-01T04:17:56Z]     -> decode_median=21.797 (reps [18.531, 21.835, 21.797], spread 17.8%) acceptance=1.0 prefill_frac=0.9474 valid=True
+[2026-09-01T04:18:00Z] --- cell 18/24 ---
+[2026-09-01T04:18:00Z] === Q6_K-c196608-n8: launching (-ts 58,42) ===
+[2026-09-01T04:28:16Z]     rep0: decode=33.737337955348636 prompt_n=186276 cache_n=0 draft=16/16
+[2026-09-01T04:28:18Z]     rep1: decode=38.6645272294933 prompt_n=4 cache_n=186272 draft=16/16
+[2026-09-01T04:28:19Z]     rep2: decode=39.33881290214716 prompt_n=4 cache_n=186272 draft=16/16
+[2026-09-01T04:28:19Z]     -> decode_median=38.665 (reps [33.737, 38.665, 39.339], spread 16.6%) acceptance=1.0 prefill_frac=0.9474 valid=True
+[2026-09-01T04:28:23Z] --- cell 19/24 ---
+[2026-09-01T04:28:23Z] === Q6_K_XL-c131072-n2: launching (-ts 56,44) ===
+[2026-09-01T04:35:11Z]     rep0: decode=18.050378606691275 prompt_n=123675 cache_n=0 draft=12/12
+[2026-09-01T04:35:13Z]     rep1: decode=20.587436774051593 prompt_n=4 cache_n=123671 draft=12/12
+[2026-09-01T04:35:14Z]     rep2: decode=20.623180970990916 prompt_n=4 cache_n=123671 draft=12/12
+[2026-09-01T04:35:14Z]     -> decode_median=20.587 (reps [18.05, 20.587, 20.623], spread 14.3%) acceptance=1.0 prefill_frac=0.9436 valid=True
+[2026-09-01T04:35:18Z] --- cell 20/24 ---
+[2026-09-01T04:35:18Z] === Q6_K_XL-c131072-n4: launching (-ts 56,44) ===
+[2026-09-01T04:42:51Z]     rep0: decode=23.44274256645285 prompt_n=123675 cache_n=0 draft=16/16
+[2026-09-01T04:42:53Z]     rep1: decode=27.181945751631766 prompt_n=4 cache_n=123671 draft=16/16
+[2026-09-01T04:42:54Z]     rep2: decode=27.263417435296244 prompt_n=4 cache_n=123671 draft=16/16
+[2026-09-01T04:42:54Z]     -> decode_median=27.182 (reps [23.443, 27.182, 27.263], spread 16.3%) acceptance=1.0 prefill_frac=0.9436 valid=True
+[2026-09-01T04:42:58Z] --- cell 21/24 ---
+[2026-09-01T04:42:58Z] === Q6_K_XL-c131072-n8: launching (-ts 56,44) ===
+[2026-09-01T04:49:49Z]     rep0: decode=33.786566039010815 prompt_n=123675 cache_n=0 draft=16/16
+[2026-09-01T04:49:50Z]     rep1: decode=44.68125509645566 prompt_n=4 cache_n=123671 draft=16/16
+[2026-09-01T04:49:51Z]     rep2: decode=44.843677742120825 prompt_n=4 cache_n=123671 draft=16/16
+[2026-09-01T04:49:51Z]     -> decode_median=44.681 (reps [33.787, 44.681, 44.844], spread 32.7%) acceptance=1.0 prefill_frac=0.9436 valid=True
+[2026-09-01T04:49:55Z] --- cell 22/24 ---
+[2026-09-01T04:49:55Z] === Q6_K_XL-c196608-n2: launching (-ts 56,44) ===
+[2026-09-01T04:59:03Z]     rep0: decode=13.892337854710458 prompt_n=186276 cache_n=0 draft=12/12
+[2026-09-01T04:59:05Z]     rep1: decode=16.86838443048117 prompt_n=4 cache_n=186272 draft=12/12
+[2026-09-01T04:59:07Z]     rep2: decode=16.875767979284994 prompt_n=4 cache_n=186272 draft=12/12
+[2026-09-01T04:59:07Z]     -> decode_median=16.868 (reps [13.892, 16.868, 16.876], spread 21.5%) acceptance=1.0 prefill_frac=0.9474 valid=True
+[2026-09-01T04:59:11Z] --- cell 23/24 ---
+[2026-09-01T04:59:11Z] === Q6_K_XL-c196608-n4: launching (-ts 56,44) ===
+[2026-09-01T05:09:21Z]     rep0: decode=19.936055103256304 prompt_n=186276 cache_n=0 draft=16/16
+[2026-09-01T05:09:23Z]     rep1: decode=22.348584845703975 prompt_n=4 cache_n=186272 draft=16/16
+[2026-09-01T05:09:24Z]     rep2: decode=22.48963017208784 prompt_n=4 cache_n=186272 draft=16/16
+[2026-09-01T05:09:24Z]     -> decode_median=22.349 (reps [19.936, 22.349, 22.49], spread 12.8%) acceptance=1.0 prefill_frac=0.9474 valid=True
+[2026-09-01T05:09:28Z] --- cell 24/24 ---
+[2026-09-01T05:09:28Z] === Q6_K_XL-c196608-n8: launching (-ts 56,44) ===
+[2026-09-01T05:13:22Z]     LOAD FAILED (compute-buffer-oom) after 228s
+[2026-09-01T05:13:23Z] ACCEPTANCE: {"131072": {"Q4_K_XL-n2": 1.0, "Q4_K_XL-n4": 1.0, "Q4_K_XL-n8": 1.0, "Q5_K_XL-n2": 1.0, "Q5_K_XL-n4": 1.0, "Q5_K_XL-n8": 1.0, "Q6_K-n2": 1.0, "Q6_K-n4": 1.0, "Q6_K-n8": 1.0, "Q6_K_XL-n2": 1.0, "Q6_K_XL-n4": 1.0, "Q6_K_XL-n8": 1.0}, "196608": {"Q4_K_XL-n2": 1.0, "Q4_K_XL-n4": 1.0, "Q4_K_XL-n8": 1.0, "Q5_K_XL-n2": 1.0, "Q5_K_XL-n4": 1.0, "Q5_K_XL-n8": 1.0, "Q6_K-n2": 1.0, "Q6_K-n4": 1.0, "Q6_K-n8": 1.0, "Q6_K_XL-n2": 1.0, "Q6_K_XL-n4": 1.0}}
+[2026-09-01T05:13:23Z] BEST-N: {"Q4_K_XL@131072": {"n": 8, "decode_tok_s_median": 52.272, "acceptance": 1.0, "all_n": {"2": 20.754, "4": 24.834, "8": 52.272}}, "Q5_K_XL@131072": {"n": 8, "decode_tok_s_median": 47.462, "acceptance": 1.0, "all_n": {"2": 19.815, "4": 24.247, "8": 47.462}}, "Q6_K@131072": {"n": 8, "decode_tok_s_median": 46.075, "acceptance": 1.0, "all_n": {"2": 20.527, "4": 25.851, "8": 46.075}}, "Q6_K_XL@131072": {"n": 8, "decode_tok_s_median": 44.681, "acceptance": 1.0, "all_n": {"2": 20.587, "4": 27.182, "8": 44.681}}, "Q4_K_XL@196608": {"n": 8, "decode_tok_s_median": 43.4, "acceptance": 1.0, "all_n": {"2": 17.215, "4": 21.014, "8": 43.4}}, "Q5_K_XL@196608": {"n": 8, "decode_tok_s_median": 40.055, "acceptance": 1.0, "all_n": {"2": 16.524, "4": 20.653, "8": 40.055}}, "Q6_K@196608": {"n": 8, "decode_tok_s_median": 38.665, "acceptance": 1.0, "all_n": {"2": 15.084, "4": 21.797, "8": 38.665}}, "Q6_K_XL@196608": {"n": 4, "decode_tok_s_median": 22.349, "acceptance": 1.0, "all_n": {"2": 16.868, "4": 22.349}}}
+[2026-09-01T05:13:23Z] done: 23/24 valid cells

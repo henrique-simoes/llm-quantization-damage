@@ -1,0 +1,1779 @@
+{
+ "experiment": "s9d-depthsweep",
+ "source": "e12-s9",
+ "run_ids": [
+  "s9d"
+ ],
+ "reinstated_by": "DEC-13 (owner, from the DEC-12 cancelled set)",
+ "repairs": [
+  "PN-9 quant/depth/ratio confound",
+  "PN-24 generality across the ladder"
+ ],
+ "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+ "kv": "q4_0",
+ "sm": "layer",
+ "ctxcp": 32,
+ "seed": 20260830,
+ "sampling": "greedy temp=0 top_p=1",
+ "sampling_note": "greedy: this measures throughput and draft acceptance, both of which are sampling-independent mechanics, and greedy removes sampling variance from the decode reading",
+ "design": {
+  "arms": [
+   "Q4_K_XL",
+   "Q5_K_XL",
+   "Q6_K",
+   "Q6_K_XL"
+  ],
+  "ts_per_arm": {
+   "Q4_K_XL": "56,44",
+   "Q5_K_XL": "54,46",
+   "Q6_K": "58,42",
+   "Q6_K_XL": "56,44"
+  },
+  "depths": [
+   131072,
+   196608
+  ],
+  "n_draft": [
+   2,
+   4,
+   8
+  ],
+  "reps_per_cell": 3,
+  "gen_tokens": 512,
+  "depth_gate": 0.9,
+  "pads": {
+   "131072": "/srv/bench/e12/pads/pad_124006_0.txt",
+   "196608": "/srv/bench/e12/pads/pad_186265_0.txt"
+  }
+ },
+ "confound_statement": "-ts varies BETWEEN arms because the optimum is not portable (PN-7), and is held fixed WITHIN an arm across every cell. Draft-depth and context-depth comparisons are therefore clean; the between-arm comparison carries the ratio with it.",
+ "started_utc": "2026-09-01T01:54:19Z",
+ "cells": [
+  {
+   "arm": "Q4_K_XL",
+   "model": "/srv/models/Qwen3.8-27B-UD-Q4_K_XL.gguf",
+   "ts": "56,44",
+   "ctx": 131072,
+   "n_draft": 2,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 131072 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 2 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": true,
+   "valid": true,
+   "failure_mode": null,
+   "reps": [
+    {
+     "rep": 0,
+     "decode_tok_s": 18.67939044479131,
+     "prefill_tok_s": 781.8139338719618,
+     "prompt_n": 123675,
+     "cache_n": 0,
+     "predicted_n": 17,
+     "draft_n": 12,
+     "draft_n_accepted": 12
+    },
+    {
+     "rep": 1,
+     "decode_tok_s": 20.753777187448115,
+     "prefill_tok_s": 6.2989150118892026,
+     "prompt_n": 4,
+     "cache_n": 123671,
+     "predicted_n": 17,
+     "draft_n": 12,
+     "draft_n_accepted": 12
+    },
+    {
+     "rep": 2,
+     "decode_tok_s": 20.893483714182366,
+     "prefill_tok_s": 5.971245467451488,
+     "prompt_n": 4,
+     "cache_n": 123671,
+     "predicted_n": 17,
+     "draft_n": 12,
+     "draft_n_accepted": 12
+    }
+   ],
+   "n_ctx_reported": 131072,
+   "vram": {
+    "vram_peak_mib": [
+     11012,
+     11722
+    ],
+    "imbalance_mib": 710,
+    "imbalance_timealigned_mib": 712,
+    "samples": 173
+   },
+   "prompt_n": 123675,
+   "prefill_tok_s": 781.8139338719618,
+   "prefill_frac": 0.9436,
+   "prefix_cache_worked": true,
+   "decode_tok_s_median": 20.754,
+   "decode_tok_s_reps": [
+    18.679,
+    20.754,
+    20.893
+   ],
+   "decode_spread_pct": 11.9,
+   "acceptance": 1.0,
+   "draft_n_total": 36,
+   "draft_accepted_total": 36
+  },
+  {
+   "arm": "Q4_K_XL",
+   "model": "/srv/models/Qwen3.8-27B-UD-Q4_K_XL.gguf",
+   "ts": "56,44",
+   "ctx": 131072,
+   "n_draft": 4,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 131072 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 4 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": true,
+   "valid": true,
+   "failure_mode": null,
+   "reps": [
+    {
+     "rep": 0,
+     "decode_tok_s": 21.66371949815994,
+     "prefill_tok_s": 757.96854305827,
+     "prompt_n": 123675,
+     "cache_n": 0,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 1,
+     "decode_tok_s": 24.8341544125636,
+     "prefill_tok_s": 6.069618524475737,
+     "prompt_n": 4,
+     "cache_n": 123671,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 2,
+     "decode_tok_s": 24.84784576942131,
+     "prefill_tok_s": 6.062461541259598,
+     "prompt_n": 4,
+     "cache_n": 123671,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    }
+   ],
+   "n_ctx_reported": 131072,
+   "vram": {
+    "vram_peak_mib": [
+     11188,
+     11848
+    ],
+    "imbalance_mib": 660,
+    "imbalance_timealigned_mib": 662,
+    "samples": 180
+   },
+   "prompt_n": 123675,
+   "prefill_tok_s": 757.96854305827,
+   "prefill_frac": 0.9436,
+   "prefix_cache_worked": true,
+   "decode_tok_s_median": 24.834,
+   "decode_tok_s_reps": [
+    21.664,
+    24.834,
+    24.848
+   ],
+   "decode_spread_pct": 14.7,
+   "acceptance": 1.0,
+   "draft_n_total": 48,
+   "draft_accepted_total": 48
+  },
+  {
+   "arm": "Q4_K_XL",
+   "model": "/srv/models/Qwen3.8-27B-UD-Q4_K_XL.gguf",
+   "ts": "56,44",
+   "ctx": 131072,
+   "n_draft": 8,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 131072 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 8 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": true,
+   "valid": true,
+   "failure_mode": null,
+   "reps": [
+    {
+     "rep": 0,
+     "decode_tok_s": 39.72352427107333,
+     "prefill_tok_s": 748.127865592863,
+     "prompt_n": 123675,
+     "cache_n": 0,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 1,
+     "decode_tok_s": 52.27186597493564,
+     "prefill_tok_s": 6.328773452061124,
+     "prompt_n": 4,
+     "cache_n": 123671,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 2,
+     "decode_tok_s": 52.377616425620516,
+     "prefill_tok_s": 6.39629526578206,
+     "prompt_n": 4,
+     "cache_n": 123671,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    }
+   ],
+   "n_ctx_reported": 131072,
+   "vram": {
+    "vram_peak_mib": [
+     11536,
+     12100
+    ],
+    "imbalance_mib": 564,
+    "imbalance_timealigned_mib": 564,
+    "samples": 177
+   },
+   "prompt_n": 123675,
+   "prefill_tok_s": 748.127865592863,
+   "prefill_frac": 0.9436,
+   "prefix_cache_worked": true,
+   "decode_tok_s_median": 52.272,
+   "decode_tok_s_reps": [
+    39.724,
+    52.272,
+    52.378
+   ],
+   "decode_spread_pct": 31.9,
+   "acceptance": 1.0,
+   "draft_n_total": 48,
+   "draft_accepted_total": 48
+  },
+  {
+   "arm": "Q4_K_XL",
+   "model": "/srv/models/Qwen3.8-27B-UD-Q4_K_XL.gguf",
+   "ts": "56,44",
+   "ctx": 196608,
+   "n_draft": 2,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 196608 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 2 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": true,
+   "valid": true,
+   "failure_mode": null,
+   "reps": [
+    {
+     "rep": 0,
+     "decode_tok_s": 15.757119756079787,
+     "prefill_tok_s": 652.2951168057746,
+     "prompt_n": 186276,
+     "cache_n": 0,
+     "predicted_n": 17,
+     "draft_n": 12,
+     "draft_n_accepted": 12
+    },
+    {
+     "rep": 1,
+     "decode_tok_s": 17.238184302047465,
+     "prefill_tok_s": 4.568144727961271,
+     "prompt_n": 4,
+     "cache_n": 186272,
+     "predicted_n": 17,
+     "draft_n": 12,
+     "draft_n_accepted": 12
+    },
+    {
+     "rep": 2,
+     "decode_tok_s": 17.21538926685037,
+     "prefill_tok_s": 4.64246087566097,
+     "prompt_n": 4,
+     "cache_n": 186272,
+     "predicted_n": 17,
+     "draft_n": 12,
+     "draft_n_accepted": 12
+    }
+   ],
+   "n_ctx_reported": 196608,
+   "vram": {
+    "vram_peak_mib": [
+     12172,
+     13250
+    ],
+    "imbalance_mib": 1078,
+    "imbalance_timealigned_mib": 1080,
+    "samples": 328
+   },
+   "prompt_n": 186276,
+   "prefill_tok_s": 652.2951168057746,
+   "prefill_frac": 0.9474,
+   "prefix_cache_worked": true,
+   "decode_tok_s_median": 17.215,
+   "decode_tok_s_reps": [
+    15.757,
+    17.238,
+    17.215
+   ],
+   "decode_spread_pct": 9.4,
+   "acceptance": 1.0,
+   "draft_n_total": 36,
+   "draft_accepted_total": 36
+  },
+  {
+   "arm": "Q4_K_XL",
+   "model": "/srv/models/Qwen3.8-27B-UD-Q4_K_XL.gguf",
+   "ts": "56,44",
+   "ctx": 196608,
+   "n_draft": 4,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 196608 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 4 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": true,
+   "valid": true,
+   "failure_mode": null,
+   "reps": [
+    {
+     "rep": 0,
+     "decode_tok_s": 15.974424945661996,
+     "prefill_tok_s": 631.813410924454,
+     "prompt_n": 186276,
+     "cache_n": 0,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 1,
+     "decode_tok_s": 21.014059719330966,
+     "prefill_tok_s": 4.2797501481863485,
+     "prompt_n": 4,
+     "cache_n": 186272,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 2,
+     "decode_tok_s": 21.15352834242274,
+     "prefill_tok_s": 4.487429028505271,
+     "prompt_n": 4,
+     "cache_n": 186272,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    }
+   ],
+   "n_ctx_reported": 196608,
+   "vram": {
+    "vram_peak_mib": [
+     12348,
+     13376
+    ],
+    "imbalance_mib": 1028,
+    "imbalance_timealigned_mib": 1030,
+    "samples": 313
+   },
+   "prompt_n": 186276,
+   "prefill_tok_s": 631.813410924454,
+   "prefill_frac": 0.9474,
+   "prefix_cache_worked": true,
+   "decode_tok_s_median": 21.014,
+   "decode_tok_s_reps": [
+    15.974,
+    21.014,
+    21.154
+   ],
+   "decode_spread_pct": 32.4,
+   "acceptance": 1.0,
+   "draft_n_total": 48,
+   "draft_accepted_total": 48
+  },
+  {
+   "arm": "Q4_K_XL",
+   "model": "/srv/models/Qwen3.8-27B-UD-Q4_K_XL.gguf",
+   "ts": "56,44",
+   "ctx": 196608,
+   "n_draft": 8,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 196608 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 8 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": true,
+   "valid": true,
+   "failure_mode": null,
+   "reps": [
+    {
+     "rep": 0,
+     "decode_tok_s": 34.15635927366502,
+     "prefill_tok_s": 625.6847562682511,
+     "prompt_n": 186276,
+     "cache_n": 0,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 1,
+     "decode_tok_s": 43.48156924983423,
+     "prefill_tok_s": 4.596459577010807,
+     "prompt_n": 4,
+     "cache_n": 186272,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 2,
+     "decode_tok_s": 43.39983453813082,
+     "prefill_tok_s": 4.555284642655002,
+     "prompt_n": 4,
+     "cache_n": 186272,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    }
+   ],
+   "n_ctx_reported": 196608,
+   "vram": {
+    "vram_peak_mib": [
+     12696,
+     13628
+    ],
+    "imbalance_mib": 932,
+    "imbalance_timealigned_mib": 932,
+    "samples": 350
+   },
+   "prompt_n": 186276,
+   "prefill_tok_s": 625.6847562682511,
+   "prefill_frac": 0.9474,
+   "prefix_cache_worked": true,
+   "decode_tok_s_median": 43.4,
+   "decode_tok_s_reps": [
+    34.156,
+    43.482,
+    43.4
+   ],
+   "decode_spread_pct": 27.3,
+   "acceptance": 1.0,
+   "draft_n_total": 48,
+   "draft_accepted_total": 48
+  },
+  {
+   "arm": "Q5_K_XL",
+   "model": "/srv/models/Qwen3.8-27B-UD-Q5_K_XL.gguf",
+   "ts": "54,46",
+   "ctx": 131072,
+   "n_draft": 2,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q5_K_XL.gguf -ngl 99 -sm layer -ts 54,46 -c 131072 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 2 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": true,
+   "valid": true,
+   "failure_mode": null,
+   "reps": [
+    {
+     "rep": 0,
+     "decode_tok_s": 17.166903069227683,
+     "prefill_tok_s": 727.0564741667444,
+     "prompt_n": 123675,
+     "cache_n": 0,
+     "predicted_n": 17,
+     "draft_n": 12,
+     "draft_n_accepted": 12
+    },
+    {
+     "rep": 1,
+     "decode_tok_s": 19.814904027750774,
+     "prefill_tok_s": 6.15711416059293,
+     "prompt_n": 4,
+     "cache_n": 123671,
+     "predicted_n": 17,
+     "draft_n": 12,
+     "draft_n_accepted": 12
+    },
+    {
+     "rep": 2,
+     "decode_tok_s": 19.826837359213965,
+     "prefill_tok_s": 6.221391320848038,
+     "prompt_n": 4,
+     "cache_n": 123671,
+     "predicted_n": 17,
+     "draft_n": 12,
+     "draft_n_accepted": 12
+    }
+   ],
+   "n_ctx_reported": 131072,
+   "vram": {
+    "vram_peak_mib": [
+     12338,
+     13248
+    ],
+    "imbalance_mib": 910,
+    "imbalance_timealigned_mib": 910,
+    "samples": 179
+   },
+   "prompt_n": 123675,
+   "prefill_tok_s": 727.0564741667444,
+   "prefill_frac": 0.9436,
+   "prefix_cache_worked": true,
+   "decode_tok_s_median": 19.815,
+   "decode_tok_s_reps": [
+    17.167,
+    19.815,
+    19.827
+   ],
+   "decode_spread_pct": 15.5,
+   "acceptance": 1.0,
+   "draft_n_total": 36,
+   "draft_accepted_total": 36
+  },
+  {
+   "arm": "Q5_K_XL",
+   "model": "/srv/models/Qwen3.8-27B-UD-Q5_K_XL.gguf",
+   "ts": "54,46",
+   "ctx": 131072,
+   "n_draft": 4,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q5_K_XL.gguf -ngl 99 -sm layer -ts 54,46 -c 131072 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 4 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": true,
+   "valid": true,
+   "failure_mode": null,
+   "reps": [
+    {
+     "rep": 0,
+     "decode_tok_s": 20.84131164794856,
+     "prefill_tok_s": 714.24658325052,
+     "prompt_n": 123675,
+     "cache_n": 0,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 1,
+     "decode_tok_s": 24.254000015158752,
+     "prefill_tok_s": 6.382557746191209,
+     "prompt_n": 4,
+     "cache_n": 123671,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 2,
+     "decode_tok_s": 24.246796013220568,
+     "prefill_tok_s": 6.305100668813553,
+     "prompt_n": 4,
+     "cache_n": 123671,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    }
+   ],
+   "n_ctx_reported": 131072,
+   "vram": {
+    "vram_peak_mib": [
+     12506,
+     13378
+    ],
+    "imbalance_mib": 872,
+    "imbalance_timealigned_mib": 872,
+    "samples": 240
+   },
+   "prompt_n": 123675,
+   "prefill_tok_s": 714.24658325052,
+   "prefill_frac": 0.9436,
+   "prefix_cache_worked": true,
+   "decode_tok_s_median": 24.247,
+   "decode_tok_s_reps": [
+    20.841,
+    24.254,
+    24.247
+   ],
+   "decode_spread_pct": 16.4,
+   "acceptance": 1.0,
+   "draft_n_total": 48,
+   "draft_accepted_total": 48
+  },
+  {
+   "arm": "Q5_K_XL",
+   "model": "/srv/models/Qwen3.8-27B-UD-Q5_K_XL.gguf",
+   "ts": "54,46",
+   "ctx": 131072,
+   "n_draft": 8,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q5_K_XL.gguf -ngl 99 -sm layer -ts 54,46 -c 131072 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 8 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": true,
+   "valid": true,
+   "failure_mode": null,
+   "reps": [
+    {
+     "rep": 0,
+     "decode_tok_s": 35.85418104568719,
+     "prefill_tok_s": 698.141601530681,
+     "prompt_n": 123675,
+     "cache_n": 0,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 1,
+     "decode_tok_s": 47.636060497796834,
+     "prefill_tok_s": 6.158849034292472,
+     "prompt_n": 4,
+     "cache_n": 123671,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 2,
+     "decode_tok_s": 47.46225267716769,
+     "prefill_tok_s": 6.194740974649572,
+     "prompt_n": 4,
+     "cache_n": 123671,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    }
+   ],
+   "n_ctx_reported": 131072,
+   "vram": {
+    "vram_peak_mib": [
+     12844,
+     13640
+    ],
+    "imbalance_mib": 796,
+    "imbalance_timealigned_mib": 798,
+    "samples": 196
+   },
+   "prompt_n": 123675,
+   "prefill_tok_s": 698.141601530681,
+   "prefill_frac": 0.9436,
+   "prefix_cache_worked": true,
+   "decode_tok_s_median": 47.462,
+   "decode_tok_s_reps": [
+    35.854,
+    47.636,
+    47.462
+   ],
+   "decode_spread_pct": 32.9,
+   "acceptance": 1.0,
+   "draft_n_total": 48,
+   "draft_accepted_total": 48
+  },
+  {
+   "arm": "Q5_K_XL",
+   "model": "/srv/models/Qwen3.8-27B-UD-Q5_K_XL.gguf",
+   "ts": "54,46",
+   "ctx": 196608,
+   "n_draft": 2,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q5_K_XL.gguf -ngl 99 -sm layer -ts 54,46 -c 196608 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 2 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": true,
+   "valid": true,
+   "failure_mode": null,
+   "reps": [
+    {
+     "rep": 0,
+     "decode_tok_s": 13.71441110318723,
+     "prefill_tok_s": 622.7261924120434,
+     "prompt_n": 186276,
+     "cache_n": 0,
+     "predicted_n": 17,
+     "draft_n": 12,
+     "draft_n_accepted": 12
+    },
+    {
+     "rep": 1,
+     "decode_tok_s": 16.526945118146998,
+     "prefill_tok_s": 4.557963046314602,
+     "prompt_n": 4,
+     "cache_n": 186272,
+     "predicted_n": 17,
+     "draft_n": 12,
+     "draft_n_accepted": 12
+    },
+    {
+     "rep": 2,
+     "decode_tok_s": 16.524316564594585,
+     "prefill_tok_s": 4.547919724668939,
+     "prompt_n": 4,
+     "cache_n": 186272,
+     "predicted_n": 17,
+     "draft_n": 12,
+     "draft_n_accepted": 12
+    }
+   ],
+   "n_ctx_reported": 196608,
+   "vram": {
+    "vram_peak_mib": [
+     13498,
+     14776
+    ],
+    "imbalance_mib": 1278,
+    "imbalance_timealigned_mib": 1278,
+    "samples": 357
+   },
+   "prompt_n": 186276,
+   "prefill_tok_s": 622.7261924120434,
+   "prefill_frac": 0.9474,
+   "prefix_cache_worked": true,
+   "decode_tok_s_median": 16.524,
+   "decode_tok_s_reps": [
+    13.714,
+    16.527,
+    16.524
+   ],
+   "decode_spread_pct": 20.5,
+   "acceptance": 1.0,
+   "draft_n_total": 36,
+   "draft_accepted_total": 36
+  },
+  {
+   "arm": "Q5_K_XL",
+   "model": "/srv/models/Qwen3.8-27B-UD-Q5_K_XL.gguf",
+   "ts": "54,46",
+   "ctx": 196608,
+   "n_draft": 4,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q5_K_XL.gguf -ngl 99 -sm layer -ts 54,46 -c 196608 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 4 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": true,
+   "valid": true,
+   "failure_mode": null,
+   "reps": [
+    {
+     "rep": 0,
+     "decode_tok_s": 18.690256885899487,
+     "prefill_tok_s": 602.5823758358063,
+     "prompt_n": 186276,
+     "cache_n": 0,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 1,
+     "decode_tok_s": 20.652996104328608,
+     "prefill_tok_s": 4.488159114216917,
+     "prompt_n": 4,
+     "cache_n": 186272,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 2,
+     "decode_tok_s": 20.699299975548954,
+     "prefill_tok_s": 4.556737649247398,
+     "prompt_n": 4,
+     "cache_n": 186272,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    }
+   ],
+   "n_ctx_reported": 196608,
+   "vram": {
+    "vram_peak_mib": [
+     13666,
+     14906
+    ],
+    "imbalance_mib": 1240,
+    "imbalance_timealigned_mib": 1240,
+    "samples": 338
+   },
+   "prompt_n": 186276,
+   "prefill_tok_s": 602.5823758358063,
+   "prefill_frac": 0.9474,
+   "prefix_cache_worked": true,
+   "decode_tok_s_median": 20.653,
+   "decode_tok_s_reps": [
+    18.69,
+    20.653,
+    20.699
+   ],
+   "decode_spread_pct": 10.7,
+   "acceptance": 1.0,
+   "draft_n_total": 48,
+   "draft_accepted_total": 48
+  },
+  {
+   "arm": "Q5_K_XL",
+   "model": "/srv/models/Qwen3.8-27B-UD-Q5_K_XL.gguf",
+   "ts": "54,46",
+   "ctx": 196608,
+   "n_draft": 8,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q5_K_XL.gguf -ngl 99 -sm layer -ts 54,46 -c 196608 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 8 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": true,
+   "valid": true,
+   "failure_mode": null,
+   "reps": [
+    {
+     "rep": 0,
+     "decode_tok_s": 32.214548895644995,
+     "prefill_tok_s": 587.7041264284352,
+     "prompt_n": 186276,
+     "cache_n": 0,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 1,
+     "decode_tok_s": 40.17284365984649,
+     "prefill_tok_s": 4.537652876361437,
+     "prompt_n": 4,
+     "cache_n": 186272,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 2,
+     "decode_tok_s": 40.05467463087114,
+     "prefill_tok_s": 4.59493362618377,
+     "prompt_n": 4,
+     "cache_n": 186272,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    }
+   ],
+   "n_ctx_reported": 196608,
+   "vram": {
+    "vram_peak_mib": [
+     14004,
+     15168
+    ],
+    "imbalance_mib": 1164,
+    "imbalance_timealigned_mib": 1166,
+    "samples": 338
+   },
+   "prompt_n": 186276,
+   "prefill_tok_s": 587.7041264284352,
+   "prefill_frac": 0.9474,
+   "prefix_cache_worked": true,
+   "decode_tok_s_median": 40.055,
+   "decode_tok_s_reps": [
+    32.215,
+    40.173,
+    40.055
+   ],
+   "decode_spread_pct": 24.7,
+   "acceptance": 1.0,
+   "draft_n_total": 48,
+   "draft_accepted_total": 48
+  },
+  {
+   "arm": "Q6_K",
+   "model": "/srv/bench/models/Qwen3.8-27B-UD-Q6_K.gguf",
+   "ts": "58,42",
+   "ctx": 131072,
+   "n_draft": 2,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 58,42 -c 131072 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 2 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": true,
+   "valid": true,
+   "failure_mode": null,
+   "reps": [
+    {
+     "rep": 0,
+     "decode_tok_s": 18.305358550490183,
+     "prefill_tok_s": 697.0980373766297,
+     "prompt_n": 123675,
+     "cache_n": 0,
+     "predicted_n": 17,
+     "draft_n": 12,
+     "draft_n_accepted": 12
+    },
+    {
+     "rep": 1,
+     "decode_tok_s": 20.52826935142216,
+     "prefill_tok_s": 6.409670911471228,
+     "prompt_n": 4,
+     "cache_n": 123671,
+     "predicted_n": 17,
+     "draft_n": 12,
+     "draft_n_accepted": 12
+    },
+    {
+     "rep": 2,
+     "decode_tok_s": 20.52679452293805,
+     "prefill_tok_s": 6.438828712668879,
+     "prompt_n": 4,
+     "cache_n": 123671,
+     "predicted_n": 17,
+     "draft_n": 12,
+     "draft_n_accepted": 12
+    }
+   ],
+   "n_ctx_reported": 131072,
+   "vram": {
+    "vram_peak_mib": [
+     13808,
+     12834
+    ],
+    "imbalance_mib": 974,
+    "imbalance_timealigned_mib": 1000,
+    "samples": 191
+   },
+   "prompt_n": 123675,
+   "prefill_tok_s": 697.0980373766297,
+   "prefill_frac": 0.9436,
+   "prefix_cache_worked": true,
+   "decode_tok_s_median": 20.527,
+   "decode_tok_s_reps": [
+    18.305,
+    20.528,
+    20.527
+   ],
+   "decode_spread_pct": 12.1,
+   "acceptance": 1.0,
+   "draft_n_total": 36,
+   "draft_accepted_total": 36
+  },
+  {
+   "arm": "Q6_K",
+   "model": "/srv/bench/models/Qwen3.8-27B-UD-Q6_K.gguf",
+   "ts": "58,42",
+   "ctx": 131072,
+   "n_draft": 4,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 58,42 -c 131072 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 4 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": true,
+   "valid": true,
+   "failure_mode": null,
+   "reps": [
+    {
+     "rep": 0,
+     "decode_tok_s": 21.936078267927257,
+     "prefill_tok_s": 677.8186593636425,
+     "prompt_n": 123675,
+     "cache_n": 0,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 1,
+     "decode_tok_s": 25.85056435013297,
+     "prefill_tok_s": 6.145299460442708,
+     "prompt_n": 4,
+     "cache_n": 123671,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 2,
+     "decode_tok_s": 25.862849310108494,
+     "prefill_tok_s": 6.224712107065048,
+     "prompt_n": 4,
+     "cache_n": 123671,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    }
+   ],
+   "n_ctx_reported": 131072,
+   "vram": {
+    "vram_peak_mib": [
+     13994,
+     12946
+    ],
+    "imbalance_mib": 1048,
+    "imbalance_timealigned_mib": 1094,
+    "samples": 205
+   },
+   "prompt_n": 123675,
+   "prefill_tok_s": 677.8186593636425,
+   "prefill_frac": 0.9436,
+   "prefix_cache_worked": true,
+   "decode_tok_s_median": 25.851,
+   "decode_tok_s_reps": [
+    21.936,
+    25.851,
+    25.863
+   ],
+   "decode_spread_pct": 17.9,
+   "acceptance": 1.0,
+   "draft_n_total": 48,
+   "draft_accepted_total": 48
+  },
+  {
+   "arm": "Q6_K",
+   "model": "/srv/bench/models/Qwen3.8-27B-UD-Q6_K.gguf",
+   "ts": "58,42",
+   "ctx": 131072,
+   "n_draft": 8,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 58,42 -c 131072 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 8 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": true,
+   "valid": true,
+   "failure_mode": null,
+   "reps": [
+    {
+     "rep": 0,
+     "decode_tok_s": 38.59755773953403,
+     "prefill_tok_s": 680.5941404418762,
+     "prompt_n": 123675,
+     "cache_n": 0,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 1,
+     "decode_tok_s": 46.29080462097957,
+     "prefill_tok_s": 6.29970863847547,
+     "prompt_n": 4,
+     "cache_n": 123671,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 2,
+     "decode_tok_s": 46.074589000267814,
+     "prefill_tok_s": 6.300859752313204,
+     "prompt_n": 4,
+     "cache_n": 123671,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    }
+   ],
+   "n_ctx_reported": 131072,
+   "vram": {
+    "vram_peak_mib": [
+     14370,
+     13172
+    ],
+    "imbalance_mib": 1198,
+    "imbalance_timealigned_mib": 1246,
+    "samples": 188
+   },
+   "prompt_n": 123675,
+   "prefill_tok_s": 680.5941404418762,
+   "prefill_frac": 0.9436,
+   "prefix_cache_worked": true,
+   "decode_tok_s_median": 46.075,
+   "decode_tok_s_reps": [
+    38.598,
+    46.291,
+    46.075
+   ],
+   "decode_spread_pct": 19.9,
+   "acceptance": 1.0,
+   "draft_n_total": 48,
+   "draft_accepted_total": 48
+  },
+  {
+   "arm": "Q6_K",
+   "model": "/srv/bench/models/Qwen3.8-27B-UD-Q6_K.gguf",
+   "ts": "58,42",
+   "ctx": 196608,
+   "n_draft": 2,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 58,42 -c 196608 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 2 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": true,
+   "valid": true,
+   "failure_mode": null,
+   "reps": [
+    {
+     "rep": 0,
+     "decode_tok_s": 13.226321371503394,
+     "prefill_tok_s": 569.029694673914,
+     "prompt_n": 186276,
+     "cache_n": 0,
+     "predicted_n": 17,
+     "draft_n": 12,
+     "draft_n_accepted": 12
+    },
+    {
+     "rep": 1,
+     "decode_tok_s": 16.317905433658535,
+     "prefill_tok_s": 2.1767463627928745,
+     "prompt_n": 4,
+     "cache_n": 186272,
+     "predicted_n": 17,
+     "draft_n": 12,
+     "draft_n_accepted": 12
+    },
+    {
+     "rep": 2,
+     "decode_tok_s": 15.084449346890484,
+     "prefill_tok_s": 1.8710727936192675,
+     "prompt_n": 4,
+     "cache_n": 186272,
+     "predicted_n": 17,
+     "draft_n": 12,
+     "draft_n_accepted": 12
+    }
+   ],
+   "n_ctx_reported": 196608,
+   "vram": {
+    "vram_peak_mib": [
+     14968,
+     14362
+    ],
+    "imbalance_mib": 606,
+    "imbalance_timealigned_mib": 658,
+    "samples": 347
+   },
+   "prompt_n": 186276,
+   "prefill_tok_s": 569.029694673914,
+   "prefill_frac": 0.9474,
+   "prefix_cache_worked": true,
+   "decode_tok_s_median": 15.084,
+   "decode_tok_s_reps": [
+    13.226,
+    16.318,
+    15.084
+   ],
+   "decode_spread_pct": 23.4,
+   "acceptance": 1.0,
+   "draft_n_total": 36,
+   "draft_accepted_total": 36
+  },
+  {
+   "arm": "Q6_K",
+   "model": "/srv/bench/models/Qwen3.8-27B-UD-Q6_K.gguf",
+   "ts": "58,42",
+   "ctx": 196608,
+   "n_draft": 4,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 58,42 -c 196608 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 4 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": true,
+   "valid": true,
+   "failure_mode": null,
+   "reps": [
+    {
+     "rep": 0,
+     "decode_tok_s": 18.530936819929096,
+     "prefill_tok_s": 578.0995138310826,
+     "prompt_n": 186276,
+     "cache_n": 0,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 1,
+     "decode_tok_s": 21.835074225605446,
+     "prefill_tok_s": 4.6846087180568246,
+     "prompt_n": 4,
+     "cache_n": 186272,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 2,
+     "decode_tok_s": 21.796791239869602,
+     "prefill_tok_s": 3.746893591032185,
+     "prompt_n": 4,
+     "cache_n": 186272,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    }
+   ],
+   "n_ctx_reported": 196608,
+   "vram": {
+    "vram_peak_mib": [
+     15154,
+     14474
+    ],
+    "imbalance_mib": 680,
+    "imbalance_timealigned_mib": 704,
+    "samples": 324
+   },
+   "prompt_n": 186276,
+   "prefill_tok_s": 578.0995138310826,
+   "prefill_frac": 0.9474,
+   "prefix_cache_worked": true,
+   "decode_tok_s_median": 21.797,
+   "decode_tok_s_reps": [
+    18.531,
+    21.835,
+    21.797
+   ],
+   "decode_spread_pct": 17.8,
+   "acceptance": 1.0,
+   "draft_n_total": 48,
+   "draft_accepted_total": 48
+  },
+  {
+   "arm": "Q6_K",
+   "model": "/srv/bench/models/Qwen3.8-27B-UD-Q6_K.gguf",
+   "ts": "58,42",
+   "ctx": 196608,
+   "n_draft": 8,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 58,42 -c 196608 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 8 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": true,
+   "valid": true,
+   "failure_mode": null,
+   "reps": [
+    {
+     "rep": 0,
+     "decode_tok_s": 33.737337955348636,
+     "prefill_tok_s": 577.407777817544,
+     "prompt_n": 186276,
+     "cache_n": 0,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 1,
+     "decode_tok_s": 38.6645272294933,
+     "prefill_tok_s": 4.525685528215386,
+     "prompt_n": 4,
+     "cache_n": 186272,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 2,
+     "decode_tok_s": 39.33881290214716,
+     "prefill_tok_s": 4.557853980032042,
+     "prompt_n": 4,
+     "cache_n": 186272,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    }
+   ],
+   "n_ctx_reported": 196608,
+   "vram": {
+    "vram_peak_mib": [
+     15530,
+     14700
+    ],
+    "imbalance_mib": 830,
+    "imbalance_timealigned_mib": 878,
+    "samples": 338
+   },
+   "prompt_n": 186276,
+   "prefill_tok_s": 577.407777817544,
+   "prefill_frac": 0.9474,
+   "prefix_cache_worked": true,
+   "decode_tok_s_median": 38.665,
+   "decode_tok_s_reps": [
+    33.737,
+    38.665,
+    39.339
+   ],
+   "decode_spread_pct": 16.6,
+   "acceptance": 1.0,
+   "draft_n_total": 48,
+   "draft_accepted_total": 48
+  },
+  {
+   "arm": "Q6_K_XL",
+   "model": "/srv/models/Qwen3.8-27B-UD-Q6_K_XL.gguf",
+   "ts": "56,44",
+   "ctx": 131072,
+   "n_draft": 2,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 131072 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 2 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": true,
+   "valid": true,
+   "failure_mode": null,
+   "reps": [
+    {
+     "rep": 0,
+     "decode_tok_s": 18.050378606691275,
+     "prefill_tok_s": 717.0688708427377,
+     "prompt_n": 123675,
+     "cache_n": 0,
+     "predicted_n": 17,
+     "draft_n": 12,
+     "draft_n_accepted": 12
+    },
+    {
+     "rep": 1,
+     "decode_tok_s": 20.587436774051593,
+     "prefill_tok_s": 6.254554097202026,
+     "prompt_n": 4,
+     "cache_n": 123671,
+     "predicted_n": 17,
+     "draft_n": 12,
+     "draft_n_accepted": 12
+    },
+    {
+     "rep": 2,
+     "decode_tok_s": 20.623180970990916,
+     "prefill_tok_s": 6.367094853795584,
+     "prompt_n": 4,
+     "cache_n": 123671,
+     "predicted_n": 17,
+     "draft_n": 12,
+     "draft_n_accepted": 12
+    }
+   ],
+   "n_ctx_reported": 131072,
+   "vram": {
+    "vram_peak_mib": [
+     14872,
+     14928
+    ],
+    "imbalance_mib": 56,
+    "imbalance_timealigned_mib": 56,
+    "samples": 182
+   },
+   "prompt_n": 123675,
+   "prefill_tok_s": 717.0688708427377,
+   "prefill_frac": 0.9436,
+   "prefix_cache_worked": true,
+   "decode_tok_s_median": 20.587,
+   "decode_tok_s_reps": [
+    18.05,
+    20.587,
+    20.623
+   ],
+   "decode_spread_pct": 14.3,
+   "acceptance": 1.0,
+   "draft_n_total": 36,
+   "draft_accepted_total": 36
+  },
+  {
+   "arm": "Q6_K_XL",
+   "model": "/srv/models/Qwen3.8-27B-UD-Q6_K_XL.gguf",
+   "ts": "56,44",
+   "ctx": 131072,
+   "n_draft": 4,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 131072 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 4 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": true,
+   "valid": true,
+   "failure_mode": null,
+   "reps": [
+    {
+     "rep": 0,
+     "decode_tok_s": 23.44274256645285,
+     "prefill_tok_s": 705.8345456366251,
+     "prompt_n": 123675,
+     "cache_n": 0,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 1,
+     "decode_tok_s": 27.181945751631766,
+     "prefill_tok_s": 6.05004598034945,
+     "prompt_n": 4,
+     "cache_n": 123671,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 2,
+     "decode_tok_s": 27.263417435296244,
+     "prefill_tok_s": 6.375345264791996,
+     "prompt_n": 4,
+     "cache_n": 123671,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    }
+   ],
+   "n_ctx_reported": 131072,
+   "vram": {
+    "vram_peak_mib": [
+     15048,
+     15054
+    ],
+    "imbalance_mib": 6,
+    "imbalance_timealigned_mib": 42,
+    "samples": 188
+   },
+   "prompt_n": 123675,
+   "prefill_tok_s": 705.8345456366251,
+   "prefill_frac": 0.9436,
+   "prefix_cache_worked": true,
+   "decode_tok_s_median": 27.182,
+   "decode_tok_s_reps": [
+    23.443,
+    27.182,
+    27.263
+   ],
+   "decode_spread_pct": 16.3,
+   "acceptance": 1.0,
+   "draft_n_total": 48,
+   "draft_accepted_total": 48
+  },
+  {
+   "arm": "Q6_K_XL",
+   "model": "/srv/models/Qwen3.8-27B-UD-Q6_K_XL.gguf",
+   "ts": "56,44",
+   "ctx": 131072,
+   "n_draft": 8,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 131072 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 8 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": true,
+   "valid": true,
+   "failure_mode": null,
+   "reps": [
+    {
+     "rep": 0,
+     "decode_tok_s": 33.786566039010815,
+     "prefill_tok_s": 695.0926972642303,
+     "prompt_n": 123675,
+     "cache_n": 0,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 1,
+     "decode_tok_s": 44.68125509645566,
+     "prefill_tok_s": 6.218886135304306,
+     "prompt_n": 4,
+     "cache_n": 123671,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 2,
+     "decode_tok_s": 44.843677742120825,
+     "prefill_tok_s": 6.210852222087654,
+     "prompt_n": 4,
+     "cache_n": 123671,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    }
+   ],
+   "n_ctx_reported": 131072,
+   "vram": {
+    "vram_peak_mib": [
+     15396,
+     15304
+    ],
+    "imbalance_mib": 92,
+    "imbalance_timealigned_mib": 126,
+    "samples": 183
+   },
+   "prompt_n": 123675,
+   "prefill_tok_s": 695.0926972642303,
+   "prefill_frac": 0.9436,
+   "prefix_cache_worked": true,
+   "decode_tok_s_median": 44.681,
+   "decode_tok_s_reps": [
+    33.787,
+    44.681,
+    44.844
+   ],
+   "decode_spread_pct": 32.7,
+   "acceptance": 1.0,
+   "draft_n_total": 48,
+   "draft_accepted_total": 48
+  },
+  {
+   "arm": "Q6_K_XL",
+   "model": "/srv/models/Qwen3.8-27B-UD-Q6_K_XL.gguf",
+   "ts": "56,44",
+   "ctx": 196608,
+   "n_draft": 2,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 196608 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 2 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": true,
+   "valid": true,
+   "failure_mode": null,
+   "reps": [
+    {
+     "rep": 0,
+     "decode_tok_s": 13.892337854710458,
+     "prefill_tok_s": 594.7336760179263,
+     "prompt_n": 186276,
+     "cache_n": 0,
+     "predicted_n": 17,
+     "draft_n": 12,
+     "draft_n_accepted": 12
+    },
+    {
+     "rep": 1,
+     "decode_tok_s": 16.86838443048117,
+     "prefill_tok_s": 4.552179355866621,
+     "prompt_n": 4,
+     "cache_n": 186272,
+     "predicted_n": 17,
+     "draft_n": 12,
+     "draft_n_accepted": 12
+    },
+    {
+     "rep": 2,
+     "decode_tok_s": 16.875767979284994,
+     "prefill_tok_s": 4.5835028274483065,
+     "prompt_n": 4,
+     "cache_n": 186272,
+     "predicted_n": 17,
+     "draft_n": 12,
+     "draft_n_accepted": 12
+    }
+   ],
+   "n_ctx_reported": 196608,
+   "vram": {
+    "vram_peak_mib": [
+     15416,
+     15840
+    ],
+    "imbalance_mib": 424,
+    "imbalance_timealigned_mib": 424,
+    "samples": 323
+   },
+   "prompt_n": 186276,
+   "prefill_tok_s": 594.7336760179263,
+   "prefill_frac": 0.9474,
+   "prefix_cache_worked": true,
+   "decode_tok_s_median": 16.868,
+   "decode_tok_s_reps": [
+    13.892,
+    16.868,
+    16.876
+   ],
+   "decode_spread_pct": 21.5,
+   "acceptance": 1.0,
+   "draft_n_total": 36,
+   "draft_accepted_total": 36
+  },
+  {
+   "arm": "Q6_K_XL",
+   "model": "/srv/models/Qwen3.8-27B-UD-Q6_K_XL.gguf",
+   "ts": "56,44",
+   "ctx": 196608,
+   "n_draft": 4,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 196608 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 4 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": true,
+   "valid": true,
+   "failure_mode": null,
+   "reps": [
+    {
+     "rep": 0,
+     "decode_tok_s": 19.936055103256304,
+     "prefill_tok_s": 566.983521016427,
+     "prompt_n": 186276,
+     "cache_n": 0,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 1,
+     "decode_tok_s": 22.348584845703975,
+     "prefill_tok_s": 4.497560635550293,
+     "prompt_n": 4,
+     "cache_n": 186272,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    },
+    {
+     "rep": 2,
+     "decode_tok_s": 22.48963017208784,
+     "prefill_tok_s": 4.546136465924434,
+     "prompt_n": 4,
+     "cache_n": 186272,
+     "predicted_n": 17,
+     "draft_n": 16,
+     "draft_n_accepted": 16
+    }
+   ],
+   "n_ctx_reported": 196608,
+   "vram": {
+    "vram_peak_mib": [
+     15590,
+     15254
+    ],
+    "imbalance_mib": 336,
+    "imbalance_timealigned_mib": 358,
+    "samples": 335
+   },
+   "prompt_n": 186276,
+   "prefill_tok_s": 566.983521016427,
+   "prefill_frac": 0.9474,
+   "prefix_cache_worked": true,
+   "decode_tok_s_median": 22.349,
+   "decode_tok_s_reps": [
+    19.936,
+    22.349,
+    22.49
+   ],
+   "decode_spread_pct": 12.8,
+   "acceptance": 1.0,
+   "draft_n_total": 48,
+   "draft_accepted_total": 48
+  },
+  {
+   "arm": "Q6_K_XL",
+   "model": "/srv/models/Qwen3.8-27B-UD-Q6_K_XL.gguf",
+   "ts": "56,44",
+   "ctx": 196608,
+   "n_draft": 8,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 196608 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 8 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": false,
+   "valid": false,
+   "failure_mode": "load-or-health-failed",
+   "reps": [],
+   "health_wait_s": 228,
+   "failure_class": "compute-buffer-oom"
+  }
+ ],
+ "summary": {
+  "cells_total": 24,
+  "cells_valid": 23,
+  "cells_failed": [
+   "Q6_K_XL-c196608-n8: load-or-health-failed"
+  ],
+  "acceptance_at_matched_depth": {
+   "131072": {
+    "Q4_K_XL-n2": 1.0,
+    "Q4_K_XL-n4": 1.0,
+    "Q4_K_XL-n8": 1.0,
+    "Q5_K_XL-n2": 1.0,
+    "Q5_K_XL-n4": 1.0,
+    "Q5_K_XL-n8": 1.0,
+    "Q6_K-n2": 1.0,
+    "Q6_K-n4": 1.0,
+    "Q6_K-n8": 1.0,
+    "Q6_K_XL-n2": 1.0,
+    "Q6_K_XL-n4": 1.0,
+    "Q6_K_XL-n8": 1.0
+   },
+   "196608": {
+    "Q4_K_XL-n2": 1.0,
+    "Q4_K_XL-n4": 1.0,
+    "Q4_K_XL-n8": 1.0,
+    "Q5_K_XL-n2": 1.0,
+    "Q5_K_XL-n4": 1.0,
+    "Q5_K_XL-n8": 1.0,
+    "Q6_K-n2": 1.0,
+    "Q6_K-n4": 1.0,
+    "Q6_K-n8": 1.0,
+    "Q6_K_XL-n2": 1.0,
+    "Q6_K_XL-n4": 1.0
+   }
+  },
+  "decode_median_at_matched_depth": {
+   "131072": {
+    "Q4_K_XL-n2": 20.754,
+    "Q4_K_XL-n4": 24.834,
+    "Q4_K_XL-n8": 52.272,
+    "Q5_K_XL-n2": 19.815,
+    "Q5_K_XL-n4": 24.247,
+    "Q5_K_XL-n8": 47.462,
+    "Q6_K-n2": 20.527,
+    "Q6_K-n4": 25.851,
+    "Q6_K-n8": 46.075,
+    "Q6_K_XL-n2": 20.587,
+    "Q6_K_XL-n4": 27.182,
+    "Q6_K_XL-n8": 44.681
+   },
+   "196608": {
+    "Q4_K_XL-n2": 17.215,
+    "Q4_K_XL-n4": 21.014,
+    "Q4_K_XL-n8": 43.4,
+    "Q5_K_XL-n2": 16.524,
+    "Q5_K_XL-n4": 20.653,
+    "Q5_K_XL-n8": 40.055,
+    "Q6_K-n2": 15.084,
+    "Q6_K-n4": 21.797,
+    "Q6_K-n8": 38.665,
+    "Q6_K_XL-n2": 16.868,
+    "Q6_K_XL-n4": 22.349
+   }
+  },
+  "best_n_per_arm_per_depth": {
+   "Q4_K_XL@131072": {
+    "n": 8,
+    "decode_tok_s_median": 52.272,
+    "acceptance": 1.0,
+    "all_n": {
+     "2": 20.754,
+     "4": 24.834,
+     "8": 52.272
+    }
+   },
+   "Q5_K_XL@131072": {
+    "n": 8,
+    "decode_tok_s_median": 47.462,
+    "acceptance": 1.0,
+    "all_n": {
+     "2": 19.815,
+     "4": 24.247,
+     "8": 47.462
+    }
+   },
+   "Q6_K@131072": {
+    "n": 8,
+    "decode_tok_s_median": 46.075,
+    "acceptance": 1.0,
+    "all_n": {
+     "2": 20.527,
+     "4": 25.851,
+     "8": 46.075
+    }
+   },
+   "Q6_K_XL@131072": {
+    "n": 8,
+    "decode_tok_s_median": 44.681,
+    "acceptance": 1.0,
+    "all_n": {
+     "2": 20.587,
+     "4": 27.182,
+     "8": 44.681
+    }
+   },
+   "Q4_K_XL@196608": {
+    "n": 8,
+    "decode_tok_s_median": 43.4,
+    "acceptance": 1.0,
+    "all_n": {
+     "2": 17.215,
+     "4": 21.014,
+     "8": 43.4
+    }
+   },
+   "Q5_K_XL@196608": {
+    "n": 8,
+    "decode_tok_s_median": 40.055,
+    "acceptance": 1.0,
+    "all_n": {
+     "2": 16.524,
+     "4": 20.653,
+     "8": 40.055
+    }
+   },
+   "Q6_K@196608": {
+    "n": 8,
+    "decode_tok_s_median": 38.665,
+    "acceptance": 1.0,
+    "all_n": {
+     "2": 15.084,
+     "4": 21.797,
+     "8": 38.665
+    }
+   },
+   "Q6_K_XL@196608": {
+    "n": 4,
+    "decode_tok_s_median": 22.349,
+    "acceptance": 1.0,
+    "all_n": {
+     "2": 16.868,
+     "4": 22.349
+    }
+   }
+  }
+ },
+ "finished_utc": "2026-09-01T05:13:23Z"
+}
