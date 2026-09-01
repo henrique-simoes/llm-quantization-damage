@@ -1,0 +1,17 @@
+[2026-09-01T17:05:03Z] === depth 8192: 4 arms x 3 pads ===
+[2026-09-01T17:11:20Z]   Q6_K_XL pad0: 512 tok  frac 0.9078  valid=True
+[2026-09-01T17:11:21Z]   Q6_K_XL pad1: None tok  frac None  valid=None
+[2026-09-01T17:11:22Z]   Q6_K_XL pad2: None tok  frac None  valid=None
+[2026-09-01T17:16:47Z]   Q6_K pad0: 512 tok  frac 0.9078  valid=True
+[2026-09-01T17:16:49Z]   Q6_K pad1: None tok  frac None  valid=None
+[2026-09-01T17:16:49Z]   Q6_K pad2: None tok  frac None  valid=None
+[2026-09-01T17:21:37Z]   Q5_K_XL pad0: 512 tok  frac 0.9078  valid=True
+[2026-09-01T17:21:39Z]   Q5_K_XL pad1: None tok  frac None  valid=None
+[2026-09-01T17:21:40Z]   Q5_K_XL pad2: None tok  frac None  valid=None
+[2026-09-01T17:26:35Z]   Q4_K_XL pad0: 512 tok  frac 0.9078  valid=True
+[2026-09-01T17:26:36Z]   Q4_K_XL pad1: None tok  frac None  valid=None
+[2026-09-01T17:26:37Z]   Q4_K_XL pad2: None tok  frac None  valid=None
+[2026-09-01T17:26:41Z]   DIVERGENCE Q6_K @8192: median first-div char 131 (0/1 identical)
+[2026-09-01T17:26:41Z]   DIVERGENCE Q5_K_XL @8192: median first-div char 77 (0/1 identical)
+[2026-09-01T17:26:41Z]   DIVERGENCE Q4_K_XL @8192: median first-div char 97 (0/1 identical)
+[2026-09-01T17:26:42Z] depth 8192: 4 valid cells

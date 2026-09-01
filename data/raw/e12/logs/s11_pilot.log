@@ -1,0 +1,5 @@
+[2026-09-01T16:48:16Z] PILOT: hardest cell — Q6_K_XL @ 196608 no-spec, -ts 56,44
+[2026-09-01T16:48:16Z]   VRAM estimate says RISK (16,426 MiB/GPU vs 15,650); E11a measured this arm at 245,760 no-spec. Measuring.
+[2026-09-01T17:04:36Z]   run1: 512 tok, prefill_frac 0.9474
+[2026-09-01T17:04:36Z]   run2: 512 tok, prefill_frac 0.9474
+[2026-09-01T17:04:36Z] PILOT: PASS — serves the deepest rung, generates past the floor, and reproduces itself byte-exactly

@@ -1,0 +1,244 @@
+{
+ "experiment": "s11-divdepth",
+ "source": "e12-s11",
+ "run_ids": [
+  "s11"
+ ],
+ "question": "does quantization divergence grow with context depth?",
+ "replaces": "S10's KL-divergence design, infeasible here: llama-perplexity holds a chunk's logits resident and this host tops out at n_ctx 8,192 (16,384 -> 305 MiB available and zero bytes written in 13 min; 65,536 -> std::bad_alloc)",
+ "reference": "Q6_K_XL",
+ "arms": [
+  "Q6_K_XL",
+  "Q6_K",
+  "Q5_K_XL",
+  "Q4_K_XL"
+ ],
+ "depths": [
+  8192,
+  65536,
+  196608
+ ],
+ "ts": "56,44",
+ "kv": "q4_0",
+ "spec": "NONE \u2014 mandatory",
+ "spec_rationale": "PN-23/PN-26: MTP alters ~20 % of completions for reasons unrelated to the quant and would swamp the effect being measured",
+ "determinism_basis": "PN-26 \u2014 no-spec greedy generation on this engine is byte-reproducible, so any text difference between arms is attributable to the quantization",
+ "metric": "index of first differing character vs the reference arm on the identical prompt; later divergence = closer agreement. Exact-match would be binary because greedy decoding is a trajectory: after the first differing token the sequences are on different paths",
+ "gates": {
+  "prefill_frac_min": 0.9,
+  "generated_tokens_min": 128
+ },
+ "started_utc": "2026-09-01T16:48:16Z",
+ "cells": [
+  {
+   "tag": "Q6_K_XL-c8192-p0",
+   "ok": true,
+   "chars": 1695,
+   "predicted_n": 512,
+   "prompt_n": 7437,
+   "prefill_frac": 0.9078,
+   "prefill_tok_s": 1149.299880572953,
+   "decode_tok_s": 14.614388491801115,
+   "valid": true,
+   "arm": "Q6_K_XL",
+   "ctx": 8192,
+   "pad": 0,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 8192 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080"
+  },
+  {
+   "tag": "Q6_K_XL-c8192-p1",
+   "ok": false,
+   "error": "HTTP Error 400: Bad Request",
+   "arm": "Q6_K_XL",
+   "ctx": 8192,
+   "pad": 1,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 8192 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080"
+  },
+  {
+   "tag": "Q6_K_XL-c8192-p2",
+   "ok": false,
+   "error": "HTTP Error 400: Bad Request",
+   "arm": "Q6_K_XL",
+   "ctx": 8192,
+   "pad": 2,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 8192 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080"
+  },
+  {
+   "tag": "Q6_K-c8192-p0",
+   "ok": true,
+   "chars": 1933,
+   "predicted_n": 512,
+   "prompt_n": 7437,
+   "prefill_frac": 0.9078,
+   "prefill_tok_s": 920.0209018060467,
+   "decode_tok_s": 16.08236942713247,
+   "valid": true,
+   "arm": "Q6_K",
+   "ctx": 8192,
+   "pad": 0,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 56,44 -c 8192 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080"
+  },
+  {
+   "tag": "Q6_K-c8192-p1",
+   "ok": false,
+   "error": "HTTP Error 400: Bad Request",
+   "arm": "Q6_K",
+   "ctx": 8192,
+   "pad": 1,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 56,44 -c 8192 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080"
+  },
+  {
+   "tag": "Q6_K-c8192-p2",
+   "ok": false,
+   "error": "HTTP Error 400: Bad Request",
+   "arm": "Q6_K",
+   "ctx": 8192,
+   "pad": 2,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 56,44 -c 8192 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080"
+  },
+  {
+   "tag": "Q5_K_XL-c8192-p0",
+   "ok": true,
+   "chars": 1786,
+   "predicted_n": 512,
+   "prompt_n": 7437,
+   "prefill_frac": 0.9078,
+   "prefill_tok_s": 1152.9167227338373,
+   "decode_tok_s": 16.329955344123288,
+   "valid": true,
+   "arm": "Q5_K_XL",
+   "ctx": 8192,
+   "pad": 0,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q5_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 8192 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080"
+  },
+  {
+   "tag": "Q5_K_XL-c8192-p1",
+   "ok": false,
+   "error": "HTTP Error 400: Bad Request",
+   "arm": "Q5_K_XL",
+   "ctx": 8192,
+   "pad": 1,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q5_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 8192 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080"
+  },
+  {
+   "tag": "Q5_K_XL-c8192-p2",
+   "ok": false,
+   "error": "HTTP Error 400: Bad Request",
+   "arm": "Q5_K_XL",
+   "ctx": 8192,
+   "pad": 2,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q5_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 8192 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080"
+  },
+  {
+   "tag": "Q4_K_XL-c8192-p0",
+   "ok": true,
+   "chars": 1775,
+   "predicted_n": 512,
+   "prompt_n": 7437,
+   "prefill_frac": 0.9078,
+   "prefill_tok_s": 934.7260336471207,
+   "decode_tok_s": 19.40552263705483,
+   "valid": true,
+   "arm": "Q4_K_XL",
+   "ctx": 8192,
+   "pad": 0,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 8192 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080"
+  },
+  {
+   "tag": "Q4_K_XL-c8192-p1",
+   "ok": false,
+   "error": "HTTP Error 400: Bad Request",
+   "arm": "Q4_K_XL",
+   "ctx": 8192,
+   "pad": 1,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 8192 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080"
+  },
+  {
+   "tag": "Q4_K_XL-c8192-p2",
+   "ok": false,
+   "error": "HTTP Error 400: Bad Request",
+   "arm": "Q4_K_XL",
+   "ctx": 8192,
+   "pad": 2,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 8192 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080"
+  }
+ ],
+ "self_consistency": {
+  "arm": "Q6_K_XL",
+  "ctx": 196608,
+  "identical": true,
+  "run1": {
+   "predicted_n": 512,
+   "prefill_frac": 0.9474,
+   "chars": 2062,
+   "valid": true
+  },
+  "run2": {
+   "predicted_n": 512,
+   "prefill_frac": 0.9474,
+   "chars": 2062,
+   "valid": true
+  },
+  "why": "if the reference arm cannot reproduce itself at this depth, every divergence number below is noise and the experiment is void"
+ },
+ "pilot": {
+  "ok": true,
+  "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 196608 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080",
+  "verdict": "PASS \u2014 serves the deepest rung, generates past the floor, and reproduces itself byte-exactly"
+ },
+ "divergence": {
+  "8192": {
+   "Q6_K": {
+    "per_pad": [
+     {
+      "pad": 0,
+      "first_div_char": 131,
+      "identical": false,
+      "ref_chars": 1695,
+      "arm_chars": 1933
+     }
+    ],
+    "n_pads": 1,
+    "n_identical": 0,
+    "first_div_char_median": 131,
+    "first_div_char_all": [
+     131
+    ]
+   },
+   "Q5_K_XL": {
+    "per_pad": [
+     {
+      "pad": 0,
+      "first_div_char": 77,
+      "identical": false,
+      "ref_chars": 1695,
+      "arm_chars": 1786
+     }
+    ],
+    "n_pads": 1,
+    "n_identical": 0,
+    "first_div_char_median": 77,
+    "first_div_char_all": [
+     77
+    ]
+   },
+   "Q4_K_XL": {
+    "per_pad": [
+     {
+      "pad": 0,
+      "first_div_char": 97,
+      "identical": false,
+      "ref_chars": 1695,
+      "arm_chars": 1775
+     }
+    ],
+    "n_pads": 1,
+    "n_identical": 0,
+    "first_div_char_median": 97,
+    "first_div_char_all": [
+     97
+    ]
+   }
+  }
+ }
+}
