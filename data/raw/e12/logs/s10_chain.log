@@ -8,3 +8,16 @@
       [2026-08-31T23:02:28Z]     base rc=139 ok=False 286.7s
       [2026-08-31T23:02:28Z]     rung B ABORTED: reference logits failed
       [2026-08-31T23:02:28Z] PILOT: FAIL — see the serverlog; do not run the battery
+[2026-08-31T23:02:32Z]   git: pushed (s10 pilot FAILED)
+[2026-08-31T23:27:22Z] s10_chain pid 2323222 queued — waiting on s9e.lock
+[2026-09-01T05:28:59Z] s10_chain pid 3610210 queued — waiting on s9e.lock
+[2026-09-01T05:29:41Z] s10_chain pid 3612762 queued — waiting on s9e.lock
+[2026-09-01T09:53:28Z] s9e.lock acquired after 15827s — starting S10
+[2026-09-01T09:53:48Z] === S10 PILOT START (hard gate: does --kl-divergence run at -c 65536?) ===
+[2026-09-01T09:58:35Z] === S10 PILOT FAILED — CHAIN STOPS, battery not run ===
+      [2026-09-01T09:53:48Z] PILOT: rung B (n_ctx 65,536, 1 chunk) — reference logits + one arm
+      [2026-09-01T09:53:48Z] === rung B: n_ctx=65536 chunks=1 tokens=65536 kv=q4_0 ts=['-ts', '56,44'] ===
+      [2026-09-01T09:53:48Z] RUN ssa-Q6_K_XL-code-base-s10B: -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -f /e12/corpus.txt -c 65536 --chunks 1 -ngl 99 -fa on -ctk q4_0 -ctv q4_0 -s 20260830 --kl-divergence-base /ssa/s10-B-code-q4_0.kld -ts 56,44
+      [2026-09-01T09:58:33Z]     base rc=139 ok=False 283.6s
+      [2026-09-01T09:58:33Z]     rung B ABORTED: reference logits failed
+      [2026-09-01T09:58:33Z] PILOT: FAIL — see the serverlog; do not run the battery

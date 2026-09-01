@@ -33,6 +33,25 @@
    "ok": false,
    "rung": "B",
    "tokens_budget": 65536
+  },
+  {
+   "label": "ssa-Q6_K_XL-code-base-s10B",
+   "arm": "Q6_K_XL",
+   "domain": "code",
+   "mode": "base",
+   "kv": "q4_0",
+   "n_ctx": 65536,
+   "chunks": 1,
+   "tokens": 65536,
+   "rc": 139,
+   "seconds": 283.6,
+   "serverlog": "/srv/bench/server-timings/ssa-Q6_K_XL-code-base-s10B.serverlog",
+   "serverlog_bytes": 3015,
+   "command": "docker run --rm --name ssa-perplexity --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro -v /srv/bench/corpus:/corpus:ro -v /srv/bench/e12:/e12:ro -v /srv/bench/e12/ssa:/ssa --entrypoint /app/llama-perplexity llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -f /e12/corpus.txt -c 65536 --chunks 1 -ngl 99 -fa on -ctk q4_0 -ctv q4_0 -s 20260830 --kl-divergence-base /ssa/s10-B-code-q4_0.kld -ts 56,44",
+   "metrics": {},
+   "ok": false,
+   "rung": "B",
+   "tokens_budget": 65536
   }
  ],
  "pilot_verdict": "FAIL \u2014 see the serverlog; do not run the battery"
