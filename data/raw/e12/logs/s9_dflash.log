@@ -1,0 +1,16 @@
+[2026-09-01T01:10:13Z] 164 HumanEval+ problems
+[2026-09-01T01:10:13Z] === dflash4-he: launching (ctx=32768, image=llama-dflash2) ===
+[2026-09-01T01:17:42Z]     dflash4-he: 40/164 (198s)
+[2026-09-01T01:21:11Z]     dflash4-he: 80/164 (408s)
+[2026-09-01T01:25:48Z]     dflash4-he: 120/164 (685s)
+[2026-09-01T01:30:43Z]     dflash4-he: 160/164 (980s)
+[2026-09-01T01:31:06Z] === dflash4-he: 997.4s  decode_median=51.78 acceptance=0.9172 empties=0 ===
+[2026-09-01T01:31:06Z] DFLASH EQUIVALENCE: {"a": "s8-nospec", "b": "s9-dflash4", "n": 164, "exact_match": 132, "differs": 32, "exact_match_pct": 80.49, "first_divergence_char_median": 730, "identical": false}
+[2026-09-01T01:31:06Z] === dflash atdepth @ 262144 ===
+[2026-09-01T01:36:14Z]     FAILED (compute-buffer-oom) -> descending
+[2026-09-01T01:36:15Z] === dflash atdepth @ 212992 ===
+[2026-09-01T01:42:19Z]     FAILED (compute-buffer-oom) -> descending
+[2026-09-01T01:42:20Z] === dflash atdepth @ 163840 ===
+[2026-09-01T01:52:16Z]     ok decode=8.343375802854373 acc=0.4583 prefill_frac=0.9978
+[2026-09-01T01:52:20Z]     highest reachable rung is 163840 -- not testing lower
+[2026-09-01T01:52:20Z] phase dflash done: 2 successful unit(s)
