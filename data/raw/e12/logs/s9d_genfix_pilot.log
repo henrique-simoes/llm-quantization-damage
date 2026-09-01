@@ -1,0 +1,10 @@
+[2026-09-01T05:18:31Z] 1 cells: 1 arms x 1 depths x 1 draft depths
+[2026-09-01T05:18:31Z] --- cell 1/1 ---
+[2026-09-01T05:18:31Z] === Q6_K-c131072-n2: launching (-ts 58,42) ===
+[2026-09-01T05:27:16Z]     rep0: decode=17.775758630939595 prompt_n=123670 cache_n=0 draft=304/413
+[2026-09-01T05:27:32Z]     rep1: decode=16.639278759131937 prompt_n=4 cache_n=123666 draft=138/238
+[2026-09-01T05:27:56Z]     rep2: decode=22.287496138942082 prompt_n=4 cache_n=123666 draft=335/352
+[2026-09-01T05:27:56Z]     -> decode_median=17.776 (reps [17.776, 16.639, 22.287], spread 33.9%) acceptance=0.7747 prefill_frac=0.9435 valid=False
+[2026-09-01T05:28:00Z] ACCEPTANCE: {"131072": {}}
+[2026-09-01T05:28:00Z] BEST-N: {}
+[2026-09-01T05:28:00Z] done: 0/1 valid cells

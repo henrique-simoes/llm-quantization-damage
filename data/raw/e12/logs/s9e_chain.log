@@ -1,0 +1,5 @@
+[2026-09-01T05:13:32Z] s9d.lock acquired after 20770s — starting the 262,144 addendum
+[2026-09-01T05:13:52Z] === PHASE s9e_n262k START (3 cells: Q6_K x 262144 x n{2,4,8}, ~40 min) ===
+[2026-09-01T05:28:59Z] s9e_chain pid 3610209 queued — waiting on s9d.lock (the depth sweep must finish first)
+[2026-09-01T05:29:19Z] s9d.lock acquired after 20s — starting the 262,144 addendum
+[2026-09-01T05:29:41Z] s9e_chain pid 3612761 queued — waiting on s9d.lock (the depth sweep must finish first)

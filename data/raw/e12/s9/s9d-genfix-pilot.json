@@ -1,0 +1,127 @@
+{
+ "experiment": "s9d-genfix-pilot",
+ "source": "e12-s9",
+ "run_ids": [
+  "s9d"
+ ],
+ "reinstated_by": "DEC-13 (owner, from the DEC-12 cancelled set)",
+ "repairs": [
+  "PN-9 quant/depth/ratio confound",
+  "PN-24 generality across the ladder"
+ ],
+ "image_id": "sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62",
+ "kv": "q4_0",
+ "sm": "layer",
+ "ctxcp": 32,
+ "seed": 20260830,
+ "sampling": "DEC-2 official non-thinking (matches tsweep_v2, so acceptance is comparable to PN-9)",
+ "sampling_note": "matches tsweep_v2.py exactly (/completion + continuation suffix, official non-thinking sampling) so that acceptance is comparable with PN-9's Wave-1 numbers, which is the confound this sweep exists to resolve",
+ "gen_gate_note": "a cell is valid only if it generated >=90% of n_predict. The first run of this sweep lacked that assertion: every cell passed the prefill gate at 0.9435 and generated 17 of 512 tokens, making both decode and acceptance meaningless (quarantined 2026-09-01)",
+ "design": {
+  "arms": [
+   "Q6_K"
+  ],
+  "ts_per_arm": {
+   "Q6_K": "58,42"
+  },
+  "depths": [
+   131072
+  ],
+  "n_draft": [
+   2
+  ],
+  "reps_per_cell": 3,
+  "gen_tokens": 512,
+  "depth_gate": 0.9,
+  "pads": {
+   "131072": "/srv/bench/e12/pads/pad_124006_0.txt"
+  }
+ },
+ "confound_statement": "-ts varies BETWEEN arms because the optimum is not portable (PN-7), and is held fixed WITHIN an arm across every cell. Draft-depth and context-depth comparisons are therefore clean; the between-arm comparison carries the ratio with it.",
+ "started_utc": "2026-09-01T05:18:31Z",
+ "cells": [
+  {
+   "arm": "Q6_K",
+   "model": "/srv/bench/models/Qwen3.8-27B-UD-Q6_K.gguf",
+   "ts": "58,42",
+   "ctx": 131072,
+   "n_draft": 2,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models2/Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 58,42 -c 131072 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --spec-type draft-mtp --spec-draft-n-max 2 --host 0.0.0.0 --port 8080",
+   "launch_rc": 0,
+   "ok": true,
+   "valid": false,
+   "failure_mode": null,
+   "reps": [
+    {
+     "rep": 0,
+     "decode_tok_s": 17.775758630939595,
+     "prefill_tok_s": 700.2741561713406,
+     "prompt_n": 123670,
+     "cache_n": 0,
+     "predicted_n": 512,
+     "draft_n": 413,
+     "draft_n_accepted": 304
+    },
+    {
+     "rep": 1,
+     "decode_tok_s": 16.639278759131937,
+     "prefill_tok_s": 6.309297538585297,
+     "prompt_n": 4,
+     "cache_n": 123666,
+     "predicted_n": 258,
+     "draft_n": 238,
+     "draft_n_accepted": 138
+    },
+    {
+     "rep": 2,
+     "decode_tok_s": 22.287496138942082,
+     "prefill_tok_s": 6.207594370953425,
+     "prompt_n": 4,
+     "cache_n": 123666,
+     "predicted_n": 512,
+     "draft_n": 352,
+     "draft_n_accepted": 335
+    }
+   ],
+   "n_ctx_reported": 131072,
+   "vram": {
+    "vram_peak_mib": [
+     13808,
+     12834
+    ],
+    "imbalance_mib": 974,
+    "imbalance_timealigned_mib": 1012,
+    "samples": 275
+   },
+   "prompt_n": 123670,
+   "prefill_tok_s": 700.2741561713406,
+   "prefill_frac": 0.9435,
+   "prefix_cache_worked": true,
+   "decode_tok_s_median": 17.776,
+   "decode_tok_s_reps": [
+    17.776,
+    16.639,
+    22.287
+   ],
+   "decode_spread_pct": 33.9,
+   "acceptance": 0.7747,
+   "draft_n_total": 1003,
+   "draft_accepted_total": 777,
+   "predicted_n_min": 258,
+   "invalid_reason": "generated only 258 of 512 requested tokens (gate 90%) \u2014 decode and acceptance are not measurable"
+  }
+ ],
+ "summary": {
+  "cells_total": 1,
+  "cells_valid": 0,
+  "cells_failed": [],
+  "acceptance_at_matched_depth": {
+   "131072": {}
+  },
+  "decode_median_at_matched_depth": {
+   "131072": {}
+  },
+  "best_n_per_arm_per_depth": {}
+ },
+ "finished_utc": "2026-09-01T05:28:00Z"
+}
