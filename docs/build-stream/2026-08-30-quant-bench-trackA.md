@@ -1890,3 +1890,39 @@ Verified: fixed two independent ways and both tested under the live failing cond
   the idempotence guards did their job — determinism and score were skipped as already done.
 Next: campaign re-running from S9's pilot; ~11 h. The determinism result is banked and does not
   need re-running. On completion: ledger entries and paper notes per phase, then the report.
+
+### L-15 | 2026-09-01T02:00:00Z | S3-report | claude-opus-5 | conductor-manager | S9 COMPLETE — the generative anchor is null, DFlash2 measured at last <!-- bsc-ledger:qbench-t1-S9-DONE -->
+Did: S9 ran to completion after the PN-27 repair (01:53:59Z). Pilot 3/3 with the sentinel armed;
+  `determinism` and `score` correctly skipped as already done on the relaunch; `s6`, `dflash` and
+  `score` executed. Four artifacts, five scored arms, no empty generations anywhere.
+Result 1 — **SSA S6 is a null, and that is the finding** (PN-28). The ladder's two extremes on all
+  164 HumanEval+ problems, official sampling, seed-matched, no-spec on both arms:
+  UD-Q4_K_XL 93.90 % [89.14, 96.65] vs UD-Q6_K_XL 94.51 % [89.90, 97.09] base; 89.63 % vs 90.24 %
+  plus. Paired: the arms agree on **161 of 164** problems (base, discordant 3) and **159 of 164**
+  (plus, discordant 5), exact McNemar **p = 1.0** on both, direction inconsistent (1-vs-2, 2-vs-3).
+  These are the same arms that differ **3.69×** in code KLD. **This is the generative counterpart
+  of S7**: PN-22 showed a multiple-choice battery cannot see quantization damage; PN-28 shows a
+  generative coding benchmark cannot either, at the sample size the benchmark has. Together they
+  are the empirical case for DEC-11's divergence-first design. The informative quantity is the
+  discordance (3 and 5 of 164), not the p-value.
+Result 2 — **DFlash2 measured properly for the first time** (PN-29), repairing PN-25. At ctx 32,768
+  it is the FASTEST method on the host: 51.78 tok/s, acceptance 0.9172, 2.80× no-spec, ahead of
+  MTP n=4 (47.03) and n=2 (37.44); pass@1 93.29/90.24, indistinguishable from every other arm —
+  against the 0.000 S8 recorded for it. At depth it is **strictly dominated**: compute-buffer OOM
+  at 262,144 AND 212,992, highest reachable rung **163,840** (37.5 % less window than MTP), where
+  decode falls to 8.34 tok/s and acceptance **halves to 0.4583**. The 1.19 GiB draft-worker wall is
+  now quantified: ~330 MiB of headroom at the Track A config against a ~1,090 MiB drafter. The
+  historical acceptance collapse (0.41-0.55 at ~184 K) is reproduced on a surviving image.
+Result 3 — S8's score parser repaired (`s8-scores-reparsed.json`), now with Wilson intervals:
+  nospec 0.945/0.915, mtp2 0.939/0.902, mtp4 0.939/0.909, dflash4 0.0/0.0 (the void cells). The
+  original `s8-scores.json` is left unedited and is superseded.
+Verified: independent confirmation of PN-26 through a different pipeline — `nospec-r2` scores
+  0.945/0.915 and `mtp2-r2` scores 0.939/0.902, exactly matching their S8 originals, so the
+  byte-identity result reproduces at the level of scored outcomes and not only text comparison.
+  All five arms carry parsed scores and Wilson intervals; no cell returned ok with empty metrics.
+Next: S9d's 24-cell matched-depth sweep started 01:54:19Z, then S9e (262,144 draft depth) and S10
+  (divergence vs context depth). One claim is deliberately NOT written yet: S6's decode medians
+  (Q4_K_XL 22.15 vs Q6_K_XL 16.06 tok/s at 32,768, a 38 % gap) suggest the inter-quant speed gap
+  SHRINKS with depth against PN-19's 6.7 % span at 262,144 — but those two measurements differ in
+  spec setting, sampling and ratio, so the comparison is confounded. S9d measures it cleanly at
+  matched depth with identical settings; the note waits for that.
