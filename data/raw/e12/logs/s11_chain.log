@@ -16,3 +16,23 @@
       [2026-09-01T17:26:41Z]   DIVERGENCE Q6_K @8192: median first-div char 131 (0/1 identical)
       [2026-09-01T17:26:41Z]   DIVERGENCE Q5_K_XL @8192: median first-div char 77 (0/1 identical)
       [2026-09-01T17:26:41Z]   DIVERGENCE Q4_K_XL @8192: median first-div char 97 (0/1 identical)
+[2026-09-01T17:26:48Z]   git: pushed (after s11 d8192)
+[2026-09-01T17:26:48Z] === PHASE d65536 START ===
+[2026-09-01T17:37:01Z] s11_chain pid 1982312 — pilot already PASSED (serves 196,608, 512 tok, byte-identical self-check)
+[2026-09-01T17:37:01Z] === PHASE d8192 START ===
+[2026-09-01T18:03:30Z] === PHASE d8192 OK ===
+      [2026-09-01T17:41:52Z]   Q6_K_XL pad0: 512 tok  frac 0.9248  valid=True
+      [2026-09-01T17:42:40Z]   Q6_K_XL pad1: 512 tok  frac 0.9264  valid=True
+      [2026-09-01T17:43:24Z]   Q6_K_XL pad2: 512 tok  frac 0.9204  valid=True
+      [2026-09-01T17:48:39Z]   Q6_K pad0: 512 tok  frac 0.9248  valid=True
+      [2026-09-01T17:49:21Z]   Q6_K pad1: 512 tok  frac 0.9264  valid=True
+      [2026-09-01T17:50:03Z]   Q6_K pad2: 512 tok  frac 0.9204  valid=True
+      [2026-09-01T17:56:03Z]   Q5_K_XL pad0: 512 tok  frac 0.9248  valid=True
+      [2026-09-01T17:56:42Z]   Q5_K_XL pad1: 512 tok  frac 0.9264  valid=True
+      [2026-09-01T17:57:19Z]   Q5_K_XL pad2: 512 tok  frac 0.9204  valid=True
+      [2026-09-01T18:01:54Z]   Q4_K_XL pad0: 512 tok  frac 0.9248  valid=True
+      [2026-09-01T18:02:30Z]   Q4_K_XL pad1: 512 tok  frac 0.9264  valid=True
+      [2026-09-01T18:03:17Z]   Q4_K_XL pad2: 512 tok  frac 0.9204  valid=True
+      [2026-09-01T18:03:24Z]   DIVERGENCE Q6_K @8192: median first-div char 5 (0/3 identical)
+      [2026-09-01T18:03:24Z]   DIVERGENCE Q5_K_XL @8192: median first-div char 62 (0/3 identical)
+      [2026-09-01T18:03:24Z]   DIVERGENCE Q4_K_XL @8192: median first-div char 10 (0/3 identical)

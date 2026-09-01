@@ -71,25 +71,22 @@ def log(*a):
 
 
 def build_pads(ctx, n=N_PADS):
-    """n non-overlapping excerpts of the corpus, each sized for this ctx.
+    """Load the pads that s11_prebuild_pads.py built and VERIFIED with the real tokenizer.
 
-    Character length is taken from the VERIFIED pad for this rung where one exists, so the token
-    count is known-good; otherwise from the measured ~4.45 chars/token of this corpus. The
-    prefill_frac gate is what actually protects the measurement, so an approximate size is safe."""
-    raw = open(CORPUS).read()
-    ref = {8192: None, 65536: None, 131072: f"{PADS}/pad_124006_0.txt",
-           196608: f"{PADS}/pad_186265_0.txt"}.get(ctx)
-    if ref and os.path.exists(ref):
-        nchars = len(open(ref).read())
-    else:
-        nchars = int(ctx * 0.945 * 4.45)
-    pads, off = [], 0
-    for i in range(n):
-        if off + nchars > len(raw):          # wrap rather than truncate
-            off = 0
-        pads.append(raw[off:off + nchars])
-        off += nchars
-    return pads
+    This function used to size pads by a fixed chars-per-token constant. Three adjacent slices of
+    this corpus measure 4.63 / 3.89 / 2.86 chars per token, so two of every three pads overflowed
+    the context and the server returned HTTP 400 — n=1 per cell instead of n=3. PN-5's exact root
+    cause, repeated. Pads are now measured, not guessed, and this refuses to run without them."""
+    man_path = f"{E12}/s11-pads-manifest.json"
+    if not os.path.exists(man_path):
+        raise RuntimeError("s11-pads-manifest.json missing — run s11_prebuild_pads.py first")
+    man = json.load(open(man_path))
+    if not man.get("all_ok"):
+        raise RuntimeError("pad manifest reports all_ok=false — do not run on unverified pads")
+    rows = sorted([p for p in man["pads"] if p["ctx"] == ctx], key=lambda p: p["pad"])[:n]
+    if len(rows) < n:
+        raise RuntimeError(f"only {len(rows)} verified pads for ctx {ctx}, need {n}")
+    return [open(r["path"]).read() for r in rows]
 
 
 def generate(arm, ctx, pad, tag):

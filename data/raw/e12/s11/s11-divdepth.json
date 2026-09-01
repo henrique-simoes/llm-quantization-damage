@@ -28,17 +28,17 @@
   "prefill_frac_min": 0.9,
   "generated_tokens_min": 128
  },
- "started_utc": "2026-09-01T16:48:16Z",
+ "started_utc": "2026-09-01T17:37:01Z",
  "cells": [
   {
    "tag": "Q6_K_XL-c8192-p0",
    "ok": true,
-   "chars": 1695,
+   "chars": 1761,
    "predicted_n": 512,
-   "prompt_n": 7437,
-   "prefill_frac": 0.9078,
-   "prefill_tok_s": 1149.299880572953,
-   "decode_tok_s": 14.614388491801115,
+   "prompt_n": 7576,
+   "prefill_frac": 0.9248,
+   "prefill_tok_s": 1131.5946268374037,
+   "decode_tok_s": 13.977694662922286,
    "valid": true,
    "arm": "Q6_K_XL",
    "ctx": 8192,
@@ -47,8 +47,14 @@
   },
   {
    "tag": "Q6_K_XL-c8192-p1",
-   "ok": false,
-   "error": "HTTP Error 400: Bad Request",
+   "ok": true,
+   "chars": 1859,
+   "predicted_n": 512,
+   "prompt_n": 7589,
+   "prefill_frac": 0.9264,
+   "prefill_tok_s": 939.3919513580892,
+   "decode_tok_s": 14.40835447710009,
+   "valid": true,
    "arm": "Q6_K_XL",
    "ctx": 8192,
    "pad": 1,
@@ -56,8 +62,14 @@
   },
   {
    "tag": "Q6_K_XL-c8192-p2",
-   "ok": false,
-   "error": "HTTP Error 400: Bad Request",
+   "ok": true,
+   "chars": 1341,
+   "predicted_n": 512,
+   "prompt_n": 7540,
+   "prefill_frac": 0.9204,
+   "prefill_tok_s": 1211.710782956404,
+   "decode_tok_s": 14.5484262446321,
+   "valid": true,
    "arm": "Q6_K_XL",
    "ctx": 8192,
    "pad": 2,
@@ -66,12 +78,12 @@
   {
    "tag": "Q6_K-c8192-p0",
    "ok": true,
-   "chars": 1933,
+   "chars": 1487,
    "predicted_n": 512,
-   "prompt_n": 7437,
-   "prefill_frac": 0.9078,
-   "prefill_tok_s": 920.0209018060467,
-   "decode_tok_s": 16.08236942713247,
+   "prompt_n": 7576,
+   "prefill_frac": 0.9248,
+   "prefill_tok_s": 995.4827473747033,
+   "decode_tok_s": 15.5542558163709,
    "valid": true,
    "arm": "Q6_K",
    "ctx": 8192,
@@ -80,8 +92,14 @@
   },
   {
    "tag": "Q6_K-c8192-p1",
-   "ok": false,
-   "error": "HTTP Error 400: Bad Request",
+   "ok": true,
+   "chars": 1177,
+   "predicted_n": 512,
+   "prompt_n": 7589,
+   "prefill_frac": 0.9264,
+   "prefill_tok_s": 1086.1457098317871,
+   "decode_tok_s": 16.159663803096233,
+   "valid": true,
    "arm": "Q6_K",
    "ctx": 8192,
    "pad": 1,
@@ -89,8 +107,14 @@
   },
   {
    "tag": "Q6_K-c8192-p2",
-   "ok": false,
-   "error": "HTTP Error 400: Bad Request",
+   "ok": true,
+   "chars": 1655,
+   "predicted_n": 512,
+   "prompt_n": 7540,
+   "prefill_frac": 0.9204,
+   "prefill_tok_s": 1165.359578343848,
+   "decode_tok_s": 16.34835941653825,
+   "valid": true,
    "arm": "Q6_K",
    "ctx": 8192,
    "pad": 2,
@@ -99,12 +123,12 @@
   {
    "tag": "Q5_K_XL-c8192-p0",
    "ok": true,
-   "chars": 1786,
+   "chars": 1282,
    "predicted_n": 512,
-   "prompt_n": 7437,
-   "prefill_frac": 0.9078,
-   "prefill_tok_s": 1152.9167227338373,
-   "decode_tok_s": 16.329955344123288,
+   "prompt_n": 7576,
+   "prefill_frac": 0.9248,
+   "prefill_tok_s": 1036.9296698619046,
+   "decode_tok_s": 16.228442610034083,
    "valid": true,
    "arm": "Q5_K_XL",
    "ctx": 8192,
@@ -113,8 +137,14 @@
   },
   {
    "tag": "Q5_K_XL-c8192-p1",
-   "ok": false,
-   "error": "HTTP Error 400: Bad Request",
+   "ok": true,
+   "chars": 1918,
+   "predicted_n": 512,
+   "prompt_n": 7589,
+   "prefill_frac": 0.9264,
+   "prefill_tok_s": 1219.9350471794487,
+   "decode_tok_s": 17.06788271044524,
+   "valid": true,
    "arm": "Q5_K_XL",
    "ctx": 8192,
    "pad": 1,
@@ -122,8 +152,14 @@
   },
   {
    "tag": "Q5_K_XL-c8192-p2",
-   "ok": false,
-   "error": "HTTP Error 400: Bad Request",
+   "ok": true,
+   "chars": 1388,
+   "predicted_n": 512,
+   "prompt_n": 7540,
+   "prefill_frac": 0.9204,
+   "prefill_tok_s": 1244.1018599322806,
+   "decode_tok_s": 17.146408755150926,
+   "valid": true,
    "arm": "Q5_K_XL",
    "ctx": 8192,
    "pad": 2,
@@ -132,12 +168,12 @@
   {
    "tag": "Q4_K_XL-c8192-p0",
    "ok": true,
-   "chars": 1775,
+   "chars": 1576,
    "predicted_n": 512,
-   "prompt_n": 7437,
-   "prefill_frac": 0.9078,
-   "prefill_tok_s": 934.7260336471207,
-   "decode_tok_s": 19.40552263705483,
+   "prompt_n": 7576,
+   "prefill_frac": 0.9248,
+   "prefill_tok_s": 1154.872415256511,
+   "decode_tok_s": 18.98871316092102,
    "valid": true,
    "arm": "Q4_K_XL",
    "ctx": 8192,
@@ -146,8 +182,14 @@
   },
   {
    "tag": "Q4_K_XL-c8192-p1",
-   "ok": false,
-   "error": "HTTP Error 400: Bad Request",
+   "ok": true,
+   "chars": 1093,
+   "predicted_n": 512,
+   "prompt_n": 7589,
+   "prefill_frac": 0.9264,
+   "prefill_tok_s": 1313.2702419089126,
+   "decode_tok_s": 18.591983602379834,
+   "valid": true,
    "arm": "Q4_K_XL",
    "ctx": 8192,
    "pad": 1,
@@ -155,88 +197,120 @@
   },
   {
    "tag": "Q4_K_XL-c8192-p2",
-   "ok": false,
-   "error": "HTTP Error 400: Bad Request",
+   "ok": true,
+   "chars": 1904,
+   "predicted_n": 512,
+   "prompt_n": 7540,
+   "prefill_frac": 0.9204,
+   "prefill_tok_s": 867.9591276435197,
+   "decode_tok_s": 18.962097883388296,
+   "valid": true,
    "arm": "Q4_K_XL",
    "ctx": 8192,
    "pad": 2,
    "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 8192 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080"
   }
  ],
- "self_consistency": {
-  "arm": "Q6_K_XL",
-  "ctx": 196608,
-  "identical": true,
-  "run1": {
-   "predicted_n": 512,
-   "prefill_frac": 0.9474,
-   "chars": 2062,
-   "valid": true
-  },
-  "run2": {
-   "predicted_n": 512,
-   "prefill_frac": 0.9474,
-   "chars": 2062,
-   "valid": true
-  },
-  "why": "if the reference arm cannot reproduce itself at this depth, every divergence number below is noise and the experiment is void"
- },
- "pilot": {
-  "ok": true,
-  "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 196608 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080",
-  "verdict": "PASS \u2014 serves the deepest rung, generates past the floor, and reproduces itself byte-exactly"
- },
+ "self_consistency": null,
  "divergence": {
   "8192": {
    "Q6_K": {
     "per_pad": [
      {
       "pad": 0,
-      "first_div_char": 131,
+      "first_div_char": 2,
       "identical": false,
-      "ref_chars": 1695,
-      "arm_chars": 1933
+      "ref_chars": 1761,
+      "arm_chars": 1487
+     },
+     {
+      "pad": 1,
+      "first_div_char": 5,
+      "identical": false,
+      "ref_chars": 1859,
+      "arm_chars": 1177
+     },
+     {
+      "pad": 2,
+      "first_div_char": 71,
+      "identical": false,
+      "ref_chars": 1341,
+      "arm_chars": 1655
      }
     ],
-    "n_pads": 1,
+    "n_pads": 3,
     "n_identical": 0,
-    "first_div_char_median": 131,
+    "first_div_char_median": 5,
     "first_div_char_all": [
-     131
+     2,
+     5,
+     71
     ]
    },
    "Q5_K_XL": {
     "per_pad": [
      {
       "pad": 0,
-      "first_div_char": 77,
+      "first_div_char": 2,
       "identical": false,
-      "ref_chars": 1695,
-      "arm_chars": 1786
+      "ref_chars": 1761,
+      "arm_chars": 1282
+     },
+     {
+      "pad": 1,
+      "first_div_char": 62,
+      "identical": false,
+      "ref_chars": 1859,
+      "arm_chars": 1918
+     },
+     {
+      "pad": 2,
+      "first_div_char": 126,
+      "identical": false,
+      "ref_chars": 1341,
+      "arm_chars": 1388
      }
     ],
-    "n_pads": 1,
+    "n_pads": 3,
     "n_identical": 0,
-    "first_div_char_median": 77,
+    "first_div_char_median": 62,
     "first_div_char_all": [
-     77
+     2,
+     62,
+     126
     ]
    },
    "Q4_K_XL": {
     "per_pad": [
      {
       "pad": 0,
-      "first_div_char": 97,
+      "first_div_char": 2,
       "identical": false,
-      "ref_chars": 1695,
-      "arm_chars": 1775
+      "ref_chars": 1761,
+      "arm_chars": 1576
+     },
+     {
+      "pad": 1,
+      "first_div_char": 14,
+      "identical": false,
+      "ref_chars": 1859,
+      "arm_chars": 1093
+     },
+     {
+      "pad": 2,
+      "first_div_char": 10,
+      "identical": false,
+      "ref_chars": 1341,
+      "arm_chars": 1904
      }
     ],
-    "n_pads": 1,
+    "n_pads": 3,
     "n_identical": 0,
-    "first_div_char_median": 97,
+    "first_div_char_median": 10,
     "first_div_char_all": [
-     97
+     2,
+     10,
+     14
     ]
    }
   }
