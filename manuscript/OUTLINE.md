@@ -95,18 +95,36 @@ Three-tier hierarchy (prose < code < task prompts); monotone in every domain; ad
 3.7–11.8 σ with non-overlapping intervals. The metric-pair argument: top-1 agreement and mean KLD
 disagree about which domain is hurt, and a top-1-only table inverts the conclusion.
 
-### 5.2 Three instruments, one blind spot — PN-22, PN-28, PN-33, **PN-34**
-**The paper's centre.** Multiple-choice (HellaSwag n=400: 1.0-point spread, most-quantized arm
-nominally highest, two arms answering all 400 identically). Generative coding (HumanEval+ n=164
-paired: agreement on 161 of 164, McNemar p=1.0). Long-context retrieval (S-NIAH: 100.0/100.0 at
-8,192 / 32,768 / 131,072 — **16× more context, zero discrimination**). Then the diagnostic: hold
-depth at 131,072 and raise *difficulty* — MK-NIAH gives 100.0 vs 91.67. **Difficulty revealed what
-depth could not.** State the MK-NIAH caveat in the same breath: one failed sample of twelve,
-intervals overlapping, consistent with R9's published band but not established here.
+### 5.2 Three instruments, three bounds — PN-22, PN-28, **PN-40**, PN-33, **PN-37**
+**The paper's centre.** Each instrument *bounds* the task-level effect rather than failing to find
+one — that reframing is PN-40's, and it is what makes the section a result instead of a null.
+- **Multiple-choice** (HellaSwag n=400): 1.0-point spread, the most-quantized arm nominally
+  highest, two arms answering all 400 items identically, no pair differing on more than 4.
+- **Generative coding** (HumanEval+ n=164, paired): the arms agree on 161 of 164. ⚠️ Report the
+  **paired difference and its interval — −0.61 pts, 95 % CI [−2.68, +1.46]** — *not* "McNemar
+  p = 1.0", which PN-40 shows could never have reached 0.05 with 3 discordant pairs (minimum
+  obtainable p = 0.25). State that explicitly: it is the paper's own instance of the error it
+  attributes to the field.
+- **Long-context retrieval** (RULER): S-NIAH 100.0/100.0 at 8,192 / 32,768 / 131,072 — 16× more
+  context, zero discrimination. MK-NIAH at 131,072 at n=100 — **awaiting the second arm; the
+  reference scored 89.0, not the 100.0 the n=12 pilot suggested.** Do not write this subsection
+  until that lands.
+**The mechanism is PN-37's, not PN-34's.** Do not claim saturation: HellaSwag has ~17 points of
+headroom, HumanEval+ ~5, and MK-NIAH's reference sits at 89 %. Claim instead that damage confined to
+~1–5 % of token positions (PN-35) changes an outcome only when a tail token lands decisively, which
+predicts the discordance magnitudes above. And disclose in this same subsection that
+`variable_tracking` — the *harder* RULER task — was excluded for an output-format artifact (PN-33),
+because it is the obvious counter-example to any difficulty-based reading.
 
-### 5.3 The context ceiling belongs to the split — PN-6, PN-7, PN-8
-The same configuration failing at the default split and loading at five ratios; the quant-specific,
-non-monotone optimum; balance and throughput as opposing objectives.
+### 5.3 What sets the reachable window — PN-6 scoped by **PN-39**, PN-7, PN-8 corrected by **PN-42**
+For two of the four arms the tensor split, not the quantization, set the reachable context: Q5_K_XL
+and Q6_K both fail at the engine default at 262,144 and load at a swept ratio. ⚠️ **Q4_K_XL loads at
+the default split** and Q6_K_XL was never attempted there — so state "for two of the four arms we
+measured", and note that each default-split failure is a **single** attempt, short of this project's
+own two-attempt bracketing rule. The `-ts` optimum is quant-specific and not monotone-safe (PN-7).
+On balance vs throughput: the most balanced ratio was the slowest by 21 %, while the other four
+clustered within 3.6 % — inside the 46.7 % noise floor, so only the outlier survives. Report the
+practical rule ("keep the fastest that loads") and drop PN-8's "opposing objectives" framing.
 
 ### 5.4 Speculative decoding is not free — PN-23, PN-26, PN-29, PN-32, PN-9
 Non-identity at greedy (131/164), then PN-26's determinism control upgrading it to *deterministically*
