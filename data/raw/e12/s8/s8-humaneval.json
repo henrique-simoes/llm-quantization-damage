@@ -5512,5 +5512,6 @@
    "lossless": false
   }
  },
- "finished_utc": "2026-08-30T15:16:16Z"
+ "finished_utc": "2026-08-30T15:16:16Z",
+ "_WARNING_equivalence_dflash4": "EXCLUDED DATA \u2014 the dflash4 entry records exact_match 0, differs 164, lossless false for a server that NEVER LOADED. Per PN-25 the DFlash2 drafter cannot be parsed by llamacpp-mtp:latest ('done_getting_tensors: wrong number of tensors; expected 81, got 58'); every cell failed at load and generated nothing. These numbers are indistinguishable in a table from a model that ran and failed completely, which is precisely the confusion PN-25 exists to prevent. DFlash2 was correctly re-measured in S9c on llama-dflash2:latest \u2014 see PN-29 (51.78 tok/s, acceptance 0.9172, pass@1 93.29/90.24)."
 }

@@ -1,0 +1,10 @@
+{
+ "artifact": "corpus.txt",
+ "role": "the CODE domain (D2) behind PN-13, PN-14, PN-15, PN-16, PN-21 and PN-35",
+ "why_not_committed": "gitignored as bulk corpus (.gitignore: corpus.txt); 9.1 MB of source text",
+ "sha256": "049d12efad53048bbadf7b8f2c79afeedfbdfb7cbf316633f5673cd8a9f915af",
+ "bytes": 9097163,
+ "construction": "concatenation of a Python/django source tree, path-sorted, built by experiments/pad_e12.py::_raw_text; NOT deduplicated, and whole passes repeat when the requested length exceeds the tree",
+ "stated_limitation": "reference-arm perplexity on this corpus is 1.1809 (0.240 bits/token) against 5.7898 on WikiText-2, and median per-token KLD is 1.7e-05 against a mean of 0.021529 \u2014 the mean is ~1,266x the median. The corpus is far more predictable than general source code, which is load-bearing for PN-35's tail finding and must be stated wherever the code domain is cited.",
+ "reproducibility": "a public reader cannot regenerate this byte-for-byte without the same django checkout; the sha256 above pins the exact file used for every code-domain number in this study."
+}

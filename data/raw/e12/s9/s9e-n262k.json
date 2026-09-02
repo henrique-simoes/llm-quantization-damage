@@ -236,5 +236,6 @@
    }
   }
  },
- "finished_utc": "2026-09-01T09:53:16Z"
+ "finished_utc": "2026-09-01T09:53:16Z",
+ "_WARNING_best_n_per_arm_per_depth": "SUPERSEDED \u2014 do not read this field as a result. PN-32 establishes that draft-depth cannot be ranked at n=3 on this host: decode rep-spread reaches 166% and per-rep acceptance ranges up to 0.629 within one cell. The 'best n=4' here reflects a 3% difference (12.474 vs 12.875 tok/s) that is far inside the noise. Track A pins --spec-draft-n-max 2 (TRACK-A-DECISION Amendment 2) on the grounds that n=2 and n=4 are INDISTINGUISHABLE, not that n=4 lost."
 }

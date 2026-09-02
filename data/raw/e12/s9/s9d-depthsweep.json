@@ -1910,5 +1910,6 @@
    }
   }
  },
- "finished_utc": "2026-09-01T09:17:20Z"
+ "finished_utc": "2026-09-01T09:17:20Z",
+ "_WARNING_best_n_per_arm_per_depth": "SUPERSEDED \u2014 do not read this field as a result. It declares a winning draft depth per arm, which PN-32 shows is unanswerable at n=3 (rep-spread to 166%, between-rep acceptance range to 0.629, 19 of 21 cells exceeding 0.10). Several cells here name n=8, contradicting Track A's n=2 pin; that contradiction is an artifact of the noise, not a finding. The one result this sweep supports is the sign test in PN-32: acceptance falls with draft depth in 12 of 13 adjacent pairs, p=0.0017."
 }
