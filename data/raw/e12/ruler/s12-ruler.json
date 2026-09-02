@@ -197,5 +197,29 @@
    "seconds": 230.5
   }
  ],
- "variable_tracking_exclusion": "variable_tracking excluded from the depth comparison. RULER budgets it at 30 generated tokens, which assumes a model that continues the answer_prefix directly. This instruct-tuned model instead writes a markdown step-by-step trace: at 30 tokens it named 1 of 5 variables (16.8 / 18.4), and at a raised 120 tokens still truncated mid-way through the second (27.2 / 36.8). The tracking itself is CORRECT \u2014 the named variables match the references in order \u2014 so this measures output verbosity against a fixed budget, not long-context ability. Both attempts put the reference arm BELOW the cheaper arm (109 % and 135 % apparent recovery), which is the signature of a floor-scored comparison. Data retained, excluded from the accuracy-recovery table."
+ "variable_tracking_exclusion": "variable_tracking excluded from the depth comparison. RULER budgets it at 30 generated tokens, which assumes a model that continues the answer_prefix directly. This instruct-tuned model instead writes a markdown step-by-step trace: at 30 tokens it named 1 of 5 variables (16.8 / 18.4), and at a raised 120 tokens still truncated mid-way through the second (27.2 / 36.8). The tracking itself is CORRECT \u2014 the named variables match the references in order \u2014 so this measures output verbosity against a fixed budget, not long-context ability. Both attempts put the reference arm BELOW the cheaper arm (109 % and 135 % apparent recovery), which is the signature of a floor-scored comparison. Data retained, excluded from the accuracy-recovery table.",
+ "accuracy_recovery": {
+  "8192": {
+   "niah:Q4_K_XL": {
+    "score": 100.0,
+    "baseline": 100.0,
+    "accuracy_recovery_pct": 100.0
+   }
+  },
+  "32768": {
+   "niah:Q4_K_XL": {
+    "score": 100.0,
+    "baseline": 100.0,
+    "accuracy_recovery_pct": 100.0
+   }
+  },
+  "131072": {
+   "niah:Q4_K_XL": {
+    "score": 100.0,
+    "baseline": 100.0,
+    "accuracy_recovery_pct": 100.0
+   }
+  }
+ },
+ "finished_utc": "2026-09-02T06:22:07Z"
 }
