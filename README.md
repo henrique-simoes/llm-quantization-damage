@@ -58,9 +58,12 @@ depends only on an argmax over a few candidates, so it is robust to exactly the 
 that changes generated code. **Decided the conventional way, this study would have concluded "no
 meaningful difference" and picked the cheapest arm.** (PN-22)
 
-**3 — The usable context ceiling belongs to the GPU split, not the quantization.**
-UD-Q5_K_XL **fails to load** at 262,144 tokens at the engine's default split and loads at five
-different `-ts` ratios (PN-6). UD-Q6_K_XL reaches 212,992 at `56,44` against a previously published
+**3 — For most arms, the usable context ceiling is set by the GPU split rather than the
+quantization.** UD-Q5_K_XL **fails to load** at 262,144 tokens at the engine's default split and
+loads at five different `-ts` ratios (PN-6); UD-Q6_K likewise fails at the default and loads at
+`58,42`. ⚠️ **Scope (PN-39): UD-Q4_K_XL loads at 262,144 on the default split**, so the effect is
+not universal — it holds for two of the four arms, UD-Q6_K_XL was never attempted at the default
+at that length, and each default-split failure is a *single* attempt. UD-Q6_K_XL reaches 212,992 at `56,44` against a previously published
 131,072 (PN-7). The default placement had been stranding up to 3,333 MiB on one card while the
 other OOMed within 671 MiB of its wall — on this host the binding limit is per-card, and the
 earlier rebalance measurement that opened this line of enquiry recovered **+33 % context and +93 %
@@ -69,17 +72,18 @@ monotone-safe** — `54,46` fails where `58,42` loads. A ceiling published witho
 property of the split, not of the model.
 
 **4 — Speed does not discriminate the ladder.** At the full window the three arms that reach it
-post medians of 12.70 / 12.61 / 11.90 tok/s — a 6.7 % span against **32.9 %** within-arm
-repetition noise. The usual case for quantizing down ("meaningfully faster for slightly less
+over *true* repetition groups (same arm, same context, same split) the arms span
+**11.69–12.70 tok/s, about 8.6 %**, against a within-configuration spread reaching **46.7 %**
+(PN-36 — the earlier "32.9 %" figure mixed four context depths). The usual case for quantizing down ("meaningfully faster for slightly less
 accurate") does not hold here: the cheaper arm is **only** less accurate. It earns its place on
 VRAM footprint alone. (PN-19)
 
 **5 — Speculative decoding is not output-identical, contrary to the standing assumption.**
 At temperature 0 with a fixed seed, MTP reproduces the unspeculated baseline byte-exactly on
-**131 of 164** HumanEval+ problems — about one generated function in five differs. The mechanism is
-left open: the n=2 and n=4 divergence *sets* overlap only partially (Jaccard 0.610), which points
-at numerical nondeterminism from the changed decode batch shape rather than a broken verification
-rule, and the control that would settle it has not been run. Either way, **a speculative
+**131 of 164** HumanEval+ problems — about one generated function in five differs. The control has since been run and settled it
+the other way: **both configurations reproduce *themselves* byte-identically** across runs a day
+apart, so the divergence is deterministic and systematic, not numerical noise. Speculation here is
+a reproducibly *different* decode path, not an approximation that drifts (PN-26). Either way, **a speculative
 configuration is part of the accuracy configuration, not a free speed knob.** (PN-23)
 
 **6 — The KV-cache quantization everything rests on is not free.** `q4_0` KV — the dtype without
@@ -95,10 +99,12 @@ For this host, prioritising accuracy → context → tok/s:
 ```bash
 -m Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 58,42 -c 262144 -fit off -fa on \
    -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 \
-   --spec-type draft-mtp --spec-draft-n-max 4
+   --spec-type draft-mtp --spec-draft-n-max 2
 ```
 
-Full 262,144-token window at Q6 fidelity, 16.8 tok/s at 94 % window depth. Fallbacks, the evidence
+Full 262,144-token window at Q6 fidelity, **11.90 tok/s** at 95 % window depth (median of 3).
+An earlier revision pinned `n-max 4` at "16.8 tok/s"; that measurement timed **17 generated tokens
+rather than 192** and is withdrawn — see `TRACK-A-DECISION.md` Amendment 2. Fallbacks, the evidence
 and the conditions it is contingent on: [`docs/paper/TRACK-A-DECISION.md`](docs/paper/TRACK-A-DECISION.md).
 
 This is a **machine-specific operational answer and is kept separate from the report on purpose**.
