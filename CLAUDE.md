@@ -33,13 +33,17 @@ Model: **Qwen3.8-27B**, Unsloth GGUFs. Arms: **UD-Q4_K_XL, UD-Q5_K_XL, UD-Q6_K, 
 |---|---|
 | Wave 1 — context ceilings and `-ts` rebalance, 4 arms | **closed** (L-8, L-9) |
 | SSA — the accuracy protocol, S0–S5 + S7 | **closed** (L-8, L-11, L-12) |
-| S8 — speculative decoding: equivalence, draft depth, at-depth | **closed** (L-13) |
-| Track A decision | **decided** (L-10), amended by S8 |
-| S9 — determinism · SSA S6 · DFlash2 | **DONE** (L-15) — PN-26, PN-28, PN-29 |
-| S9d — MTP draft-depth sweep at matched depth | **re-running** — first run invalid (PN-30, degenerate 17-token generation); harness fixed and piloted |
-| S9e · S10 | queued behind S9d |
-| Wave 2 breadth (rest) · Wave 4 energy curve | **CANCELLED** by DEC-12 — will not be run |
+| S8 — speculative decoding: equivalence, draft depth, at-depth | **closed** (L-13); at-depth half withdrawn (PN-30) |
+| S9 — determinism · SSA S6 · DFlash2 | **closed** (L-15) — PN-26, PN-28, PN-29 |
+| S9d/S9e — draft depth at matched depth | **closed** (L-17) — underpowered; PN-32 |
+| S10 — KL divergence at depth | **INFEASIBLE** (DEC-15, PN-31) — 14 GiB caps the tool at n_ctx 8,192 |
+| S11 — greedy divergence at depth | **REJECTED on its own data** — trajectories fork; metric saturated |
+| S12 — RULER long-context accuracy | **closed** (L-18) — PN-33, **PN-34** |
+| Track A decision | **decided** (L-10), amended twice (S8, then withdrawn by PN-30) |
+| Wave 2 breadth · Wave 4 energy curve | **CANCELLED** (DEC-12) |
 | The report | **not drafted** — this is the remaining work |
+
+**MEASUREMENT IS CLOSED (L-18, 2026-09-02).** No GPU work is queued and none is required.
 
 Ceilings, MTP n=2 + q4_0 KV + `-sm layer`, each at its own winning ratio:
 **Q4_K_XL 262,144 @ `-ts 56,44` · Q5_K_XL 262,144 @ `54,46` · Q6_K 262,144 @ `58,42` ·
