@@ -2084,3 +2084,55 @@ Cost control applied mid-run: the flat n=25 design was 8.0 h with ~75 % in the d
   MK-NIAH data was pre-generated on CPU while the GPU ran, so the hedge cost nothing until needed.
 Next: **measurement is closed.** No GPU work is queued and none is required. Remaining scope is the
   arXiv report: draft against manuscript/OUTLINE.md, every claim traced to a PN entry.
+
+### L-19 | 2026-09-02T20:00:00Z | S3-report | claude-opus-5 | conductor-manager | Three-way review round: two blind reviews + an archivist <!-- bsc-ledger:qbench-t1-REVIEW -->
+Did: at the owner's direction, spawned three researchers at max effort — two performing INDEPENDENT
+  BLIND reviews (neither saw the other's work, nor my own non-blind pass), and one archivist
+  building the reference corpus. Each read PN-1..PN-35, the 2,086-line build stream, all 173
+  `data/raw/e12/` artifacts and both machine records, and each **recomputed values from the
+  artifacts rather than trusting the notes**. I contributed a fourth, explicitly non-blind pass
+  (`manuscript/review/insider-notes.md`) covering what only an author knows: which results are
+  fragile for reasons not written down.
+  Deliverables now on disk: `manuscript/review/{reviewer-a-rigor.md (1,655 lines),
+  reviewer-b-structure.md (1,551 lines), insider-notes.md}` and
+  `manuscript/references/{METRIC-CORPUS.md (1,659), references.bib (47 verified entries),
+  PROVENANCE.md, TIMELINE.md}`.
+Result — **the reviews converged independently on the same defects, which is the strongest
+  corroboration this process can produce.** Both found the missing MK-NIAH artifact; both found the
+  PN-19 depth confound; both flagged scope creep on the losslessness claim.
+  1. **PN-19's statistics are wrong** (found by both). Its "n=6 repetitions at 262,144" is six
+     readings across FOUR depths, so its 32.9 % "repetition noise" is largely a depth effect.
+     Recomputed over true repetition groups: max within-configuration spread is **46.7 %**, the
+     matched-depth between-arm span is **8.6 %**, and UD-Q4_K_XL has **no repetition group at all**
+     at 262,144 (n=1). **The conclusion is unchanged and better supported.** Superseded by PN-36.
+  2. **PN-33/PN-34's centerpiece had no artifact in the repo** — the MK-NIAH data existed only on
+     the host, so the paper's declared headline broke its own note→artifact→serverlog rule. Synced.
+     Worse, the *generation command* existed nowhere: the harness READS a pre-generated file and the
+     `--num_needle_k 4` invocation was ad-hoc. Recorded as `s12_mkniah_generate.sh` so the dataset is
+     reproducible from a public repo.
+  3. **Two errors in PN-35, written hours earlier by me.** Its evidence line claimed the quantiles
+     exist only in serverlogs — false; six of seven are in the committed artifact's
+     `metrics_reparsed`. And it cited this ledger entry before it existed. Both corrected in place
+     with dated markers.
+  4. **A citation that inverts its source.** R5/PN-14 cite LocalBench's "KLD 0.01-0.03 for Q4_K_M"
+     as a reference band; LocalBench **disclaims** it as an artifact of short-context Wikipedia
+     protocols. Corrected — and it now supports this paper's protocol-dependence thesis instead of
+     standing against it.
+  5. **R11/R12 attribution corrected three ways**: PaperBanana is not "Google Research's method"
+     (mixed affiliations; the implementation disclaims affiliation); DFlash is an **ICML 2026**
+     paper whose authors' code is `z-lab/dflash` — **the same lab as our `llama-dflash2` engine
+     fork**; and "bit-for-bit identical" is the third-party MLX port's wording, not the paper's.
+     R12 is reframed as MOTIVATION only, never as something this study refutes.
+  6. **The thesis needs restating.** Saturation is factually wrong for two of three instruments
+     (HellaSwag has ~17 points of headroom, HumanEval+ ~5); only S-NIAH is saturated. And
+     Dutta et al., *Accuracy is Not All You Need* (NeurIPS 2024, arXiv 2407.09141), may already own
+     "divergence sees what accuracy hides" — which is precisely why PN-35's tail structure matters
+     as the novel contribution.
+  7. **PN-35 was found by review, not by us** — the median and decile KLD fields sat in our own
+     artifacts for twelve days unexamined.
+Verified: I independently re-derived the PN-19 depth confound from the cells' `key` fields before
+  accepting it, and re-derived PN-35's quantile table from raw serverlogs before writing it. Every
+  correction above was checked against the artifact rather than taken on a reviewer's word.
+Next: 33 numbered repairs are listed in reviewer-a-rigor.md; most cost no GPU. The one that does —
+  MK-NIAH at n≈100, ~11 h — decides whether a long-context claim can stay in the title. Outstanding
+  documentation debt: S11 ran, produced 12 cells and still has no paper note.
