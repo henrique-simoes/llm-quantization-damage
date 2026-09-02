@@ -432,6 +432,42 @@ MK-NIAH data was pre-generated on CPU while the GPU ran, so the hedge cost nothi
 
 ---
 
+## Coda · 2026-09-02T18:00Z — a re-analysis, with no new GPU time
+
+Prompted by an independent structural review of the corpus, the SSA cells were re-read **by
+quantile** rather than by mean — and the study's most-quoted accuracy sentence turned out to be an
+average of two opposite facts.
+
+**PN-14 says code degrades ~2× more than prose. At the median, code tokens are perturbed
+100–200× *less*.** The ordering **reverses between the 90th and 95th percentile**, and by the 99th
+percentile code is perturbed 5–8× more. The crossover sits in the same place for all three arms,
+and above it the amplification is monotone in quantization aggressiveness at every quantile. The
+single worst token is *less* perturbed on code than on prose, so the effect is a bounded
+**p95–p99.9 band**, not an unbounded tail. (PN-35)
+
+**This is the mechanism the corpus had been missing**, and it explains two earlier results that had
+only been described. PN-16's paradox — top-1 agreement *higher* on code while mean KLD is *double* —
+follows directly: ~90 % of code tokens are trivially predictable and barely move, while a thin band
+moves enormously. And it predicts the small paired discordances the task benchmarks actually
+produced (3 of 164, 5 of 164 in PN-28): damage concentrated in ~1–5 % of positions changes an
+outcome only when a tail token lands somewhere decisive.
+
+The generalisable sentence, and it is the sharpest one the project has: **a mean-only report of
+quantization damage — which is what the field publishes — is the average of "almost nothing
+happens" and "something drastic happens", and reports neither.**
+
+Two things to fix before this ships, both in `METRIC-CORPUS.md`: PN-35's evidence line understates
+where its own data lives (six of its seven rows *are* in the shipped artifact, ⚑F-23), and its
+median row is rounded in the direction that understates the effect (⚑F-24). And **PN-35 cites a
+ledger entry `L-19` that has not been written** (⚑F-25) — the same gap that left S8 undocumented
+for a day.
+
+*No GPU time was spent. The finding was in the preserved data the whole time, and was reachable
+because hard rule 1 had written the raw tool output to disk before every teardown — which is, once
+more, the thing this project keeps rediscovering.*
+
+---
+
 ## What the twelve days actually demonstrate
 
 **Four published results were withdrawn by the project itself**: PN-23's mechanism (by PN-26),

@@ -75,6 +75,13 @@ the same token as the original under greedy decoding". Measures over **top-40 to
 per position. Notes most KLD benchmarks use ~2,048-token context, and reports observed
 **KLD ≈ 0.01–0.03 for Q4_K_M**.
 
+⚠️ **Correction, 2026-09-02:** this band must NOT be cited as a neutral reference range. LocalBench
+**disclaims** it — the source attributes those values to short-context Wikipedia-style protocols
+(*"If you've seen KL values of 0.01-0.03 for Q4_K_M elsewhere, that's why"*). Citing it as a
+baseline, as R5 and PN-14 originally did, inverts the source's meaning and would be caught in
+review. Correcting it **strengthens** our argument: LocalBench is then independent support for the
+protocol-dependence thesis this paper argues, not a benchmark we are measured against.
+
 *Calibration for our sample size:* SSA's 131,072 tokens across 2 domains is roughly half
 LocalBench's token budget, concentrated on the two domains that bear on a coding agent. Their
 6-category breadth is what we explicitly give up (SSA limitation 3).
@@ -161,8 +168,13 @@ methodological choice rather than a workaround for a memory limit.
 <https://arxiv.org/abs/2601.23265> · <https://github.com/llmsresearch/paperbanana>
 
 **Project prerequisite (owner, 2026-09-02).** Figures for this report are to be produced with
-PaperBanana — Google Research's method for automating academic illustration, and the open-source
-implementation of it. Multi-agent pipeline: a retriever selects reference exemplars, a planner
+PaperBanana — the method for automating academic illustration, and an open-source implementation
+of it.
+⚠️ **Attribution corrected 2026-09-02 after review:** this note first called PaperBanana "Google
+Research's method". The paper has a **mixed-affiliation author list**, not a Google Research one,
+and the open implementation states it is **not affiliated with the original authors**. Cite the
+paper and the implementation as separate artifacts with correct authorship; do not attribute
+either to Google Research. Multi-agent pipeline: a retriever selects reference exemplars, a planner
 writes a detailed figure description, a stylist refines it, a visualizer renders, and a critic
 iterates (≈3 rounds, or until satisfied under auto-refine). Produces methodology diagrams,
 statistical plots from CSV/JSON, and multi-panel composite figures; batch generation supported.
@@ -178,12 +190,21 @@ figure spec in the manuscript should be written to be directly consumable by Pap
 
 ## R12 — DFlash, and a published losslessness claim our measurements contradict
 <https://arxiv.org/abs/2602.06036> (Chen, Liang & Liu, 2026, *DFlash: Block Diffusion for Flash
-Speculative Decoding*) · <https://github.com/Aryagm/dflash-mlx>
+Speculative Decoding*) — **accepted at ICML 2026, cite the venue not the preprint**.
+Authors' code: <https://github.com/z-lab/dflash> · third-party MLX port:
+<https://github.com/Aryagm/dflash-mlx>
+
+⚠️ **Corrected 2026-09-02 after review, three ways.** (a) It is an ICML 2026 paper, not a preprint.
+(b) The authors' own repository is `z-lab/dflash` — **the same lab as this project's
+`llama-dflash2:latest` engine fork**, which is a provenance link the paper should state rather than
+leave implicit. (c) **The "bit-for-bit identical" wording belongs to the third-party MLX port, not
+to the paper**; whether the paper itself makes that claim is UNVERIFIED. Attribute the quote to the
+port, and do not put words in the paper's mouth.
 
 The origin of the DFlash/DFlash2 drafter this study benchmarks (PN-29): a small block-diffusion
-model proposes several tokens at once, which the target verifies in a single pass. The MLX port
-states the method is **"bit-for-bit identical to plain target decoding"** and describes the
-verification rule as accepting the longest matching prefix plus one bonus correction token.
+model proposes several tokens at once, which the target verifies in a single pass. The MLX **port** states the method is **"bit-for-bit identical to plain target decoding"** and
+describes the verification rule as accepting the longest matching prefix plus one bonus correction
+token. That sentence is the port's; the paper's own claim is unverified.
 
 *Why this matters to our argument:* it is a clean, citable instance of the assumption our
 measurements refute. PN-23 found MTP reproducing the no-spec baseline on only **131 of 164**
@@ -192,8 +213,9 @@ reproduce *themselves* byte-identically — so the divergence is **deterministic
 not noise. We are not contradicting DFlash's own implementation, which we could not measure
 losslessly (PN-25/PN-29 — different engine, different verification path); we are showing that
 **"speculative decoding is lossless" is an implementation property that must be verified per
-stack, not inherited from the algorithm's specification.** Cite R12 as the claim, PN-23/PN-26 as
-the counter-measurement, and be precise about which implementation each refers to.
+stack, not inherited from the algorithm's specification.** Cite R12 as MOTIVATION — the assumption is live and in print — and never as something this study
+refutes: we measured llama.cpp's MTP head, not DFlash, and our own DFlash2 arm is engine-confounded
+(PN-29). Setting it up as a refutation is the single easiest way to lose a reviewer.
 
 ---
 
