@@ -107,8 +107,11 @@ def string_match_all(preds, refs):
 
 
 def ruler_template(task, key):
+    """mkniah is RULER's multi-key NIAH — same template, metric and budget as niah, four
+    distractor keys instead of one. S-NIAH saturated at 100.0 for BOTH arms at all three
+    lengths, so it cannot discriminate; MK-NIAH is RULER's standard harder retrieval variant."""
     import constants
-    return constants.TASKS[task][key]
+    return constants.TASKS["niah" if task == "mkniah" else task][key]
 
 
 def generate(task, length, n=None, seed=42):
@@ -118,7 +121,8 @@ def generate(task, length, n=None, seed=42):
     out = f"{DATA}/{name}/validation.jsonl"
     if os.path.exists(out):
         log(f"  {name}: already generated"); return out
-    script = {"niah": "niah.py", "variable_tracking": "variable_tracking.py"}[task]
+    script = {"niah": "niah.py", "mkniah": "niah.py",
+              "variable_tracking": "variable_tracking.py"}[task]
     cmd = [PY, script, "--save_dir", DATA, "--save_name", name,
            "--tokenizer_path", TOKENIZER, "--tokenizer_type", "hf",
            "--max_seq_length", str(length),
@@ -182,7 +186,7 @@ def run_arm(arm, length, rows, task):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--phase", required=True, choices=["gen", "smoke"] +
+    ap.add_argument("--phase", required=True, choices=["gen", "smoke", "mk131072"] +
                     [f"c{l}" for l in LENGTHS] + ["summarize"])
     a = ap.parse_args()
     os.makedirs(OUTD, exist_ok=True)
@@ -227,6 +231,23 @@ def main():
         good = rec.get("ok") and rec.get("score", 0) > 0
         log(f"SMOKE: {'PASS' if good else 'FAIL'} — score {rec.get('score')}")
         sys.exit(0 if good else 2)
+
+    if a.phase == "mk131072":
+        length, task = 131072, "mkniah"
+        f = f"{DATA}/mkniah_{length}/validation.jsonl"
+        if not os.path.exists(f):
+            log("MK-NIAH data missing"); sys.exit(2)
+        rows = [json.loads(x) for x in open(f)]
+        L.preflight()
+        for arm in [REFERENCE] + [x for x in ARMS if x != REFERENCE]:
+            rec = run_arm(arm, length, rows, task)
+            json.dump({"preds": rec.pop("preds", []), "refs": rec.pop("refs", [])},
+                      open(f"{OUTD}/s12-preds-{arm}-{task}-c{length}.json", "w"), indent=1)
+            out["cells"].append(rec)
+            json.dump(out, open(path, "w"), indent=1)
+        n = sum(1 for c in out["cells"] if c.get("task") == "mkniah" and c.get("ok"))
+        log(f"mkniah: {n} cells ok")
+        sys.exit(0 if n else 2)
 
     if a.phase.startswith("c"):
         length = int(a.phase[1:])
