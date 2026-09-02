@@ -2026,3 +2026,30 @@ Cost: ~3.3 h of GPU on the invalid sweep, plus the re-run. Chains relaunched 05:
   order s9d → s9e → s10.
 Next: S9d (~4 h), S9e (~40 min), S10 (~3.5 h). The 20-minute check earned its place here — the
   sweep would otherwise have been written up as a result.
+
+### L-17 | 2026-09-01T20:00:00Z | S3-report | claude-opus-5 | conductor-manager | S9d re-run + S9e closed; both underpowered <!-- bsc-ledger:qbench-t1-S9D-DONE -->
+Did: S9d re-ran under the repaired harness (09:17:24Z, 21/24 valid) and S9e completed (09:53:27Z,
+  2/3 valid). Both were analysed before anything was written up — prompted by the standing
+  20-minute check, whose red-flag list includes "acceptance reading exactly 1.000".
+Result (PN-32): the repaired harness worked — depth matching exact (identical prompt_n 123,670 and
+  186,270 at the two rungs), generations real, and the generation gate caught two cells at 55 and
+  124 tokens. **Acceptance falls monotonically with draft depth in 12 of 13 adjacent pairs
+  (sign test p = 0.0017)**, ~0.67-0.92 at n=2 down to ~0.25-0.57 at n=8. S9e: Q6_K at 262,144
+  gives n=2 12.47 tok/s / n=4 12.88 tok/s — a 3 % difference — and **n=8 fails to load**, the
+  draft context not fitting at the full window.
+  ⚠️ **The ranking question is unanswerable at n=3.** Decode rep-spread reached 166 % (median 34 %,
+  75 % for n=8 cells) and per-rep acceptance ranged up to 0.629 within a single cell. The pooled
+  Wilson intervals (±0.02 over 1,000-4,000 draft events) are MISLEADING — draft events inside one
+  generation are correlated, so the effective n is 3 generations, not 4,000 events. That is R6's
+  clustered-standard-error trap, and it is the most useful thing this sweep produced.
+Consequence: **PN-9's quant/depth/ratio confound stays unresolved and PN-24's generality question
+  stays unanswered** — DEC-13 reinstated this sweep specifically to close them, and it did not.
+  Resolving either needs ~30 reps per cell rather than 3. No per-arm "best draft depth" is
+  reported. Track A's revert to `--spec-draft-n-max 2` (Amendment 2) stands, now on the firmer
+  ground that n=2 and n=4 are indistinguishable at 262,144 rather than on a withdrawn measurement.
+Verified: sign test computed over all 13 adjacent pairs; per-rep acceptance recomputed from the raw
+  reps to expose the clustering the pooled figure hides; both invalid cells carry their
+  `invalid_reason`; S9e's n=8 failure classified from its serverlog.
+Next: nothing running. S10 is cancelled as infeasible (DEC-15/PN-31), S11's instrument was
+  measured and rejected (see below), and the depth question now awaits an owner decision on a
+  RULER-based design.
