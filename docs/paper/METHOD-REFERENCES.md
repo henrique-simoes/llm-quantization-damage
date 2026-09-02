@@ -106,6 +106,57 @@ without a minimum-effect-size or power discussion. It is cited as evidence that 
 approach is publishable, and as the gap SSA is designed to avoid: **stating the sample and the power
 up front instead of reporting intervals that cannot separate the arms.**
 
+## R8 — RULER: the long-context benchmark, and the instrument S12 uses
+<https://arxiv.org/abs/2404.06654> · <https://github.com/NVIDIA/RULER>
+
+NVIDIA's synthetic long-context benchmark: retrieval (NIAH variants — single-key, multi-key,
+multi-value, multi-query), multi-hop tracing (variable tracking), aggregation (common- and
+frequent-word extraction) and QA (SQuAD/HotpotQA with distractors), all generated at a controlled
+sequence length. Scored by string match; the reference metric `string_match_all` awards, per
+sample, the fraction of reference answers appearing case-insensitively in the prediction.
+
+*What we take:* the task generators, the official templates and answer prefixes from its
+`constants.py`, its prompt construction (`input + answer_prefix`), and its metric — reproduced
+verbatim and unit-checked against the reference implementation.
+
+*What we could not take, and why (stated in the paper):* RULER's `OpenAIClient` is hardcoded to
+OpenAI/Azure endpoints (requires `OPENAI_API_KEY`, tiktoken `cl100k_base`, and a fixed
+model→context-length table) and its `requirements.txt` pins `nemo-toolkit[all]`, `vllm==0.5.4` and
+`transformers==4.44.2`. Generation and scoring are therefore RULER's; only transport is ours.
+
+*Constraint it imposes:* every sample needs a full prefill of its own haystack and prefix caching
+cannot help, because each sample's haystack differs. At this host's measured ~600 tok/s that is
+3.6 min per sample at 131,072 — the reason S12 runs n=12 there rather than the n=500 the benchmark
+contemplates.
+
+## R9 — Published precedents for exactly our experiment
+<https://developers.redhat.com/articles/2024/02/03/how-well-do-quantized-models-handle-long-context-tasks> ·
+<https://arxiv.org/abs/2505.20276>
+
+**Red Hat** ran RULER on Llama-3.1 8B/70B at 4K–128K across FP W8A8, INT W8A8 and INT W4A16,
+reporting **accuracy recovery** (quantized ÷ unquantized) per sequence length — >99.5 % at most
+lengths, falling to **85–88 % for INT W4A16 at 128K**, on ~200,000 evaluations.
+**arXiv 2505.20276**, *"Does quantization affect models' performance on long-context tasks?"* —
+9.7K examples, 5 models × 5 schemes: 8-bit ≈ 0.8 % drop, 4-bit up to **59 %** on long inputs.
+
+*What we take:* the accuracy-recovery framing, and a published band to place our MK-NIAH 91.67 %
+beside. *What separates us:* they had clusters and ~200,000 evaluations; we have 150. Our numbers
+are comparable in kind, not in power, and PN-33 says so.
+
+## R10 — LongPPL: why a perplexity ladder would not have answered this
+<https://arxiv.org/abs/2410.23771> (ICLR 2025) · <https://github.com/PKU-ML/LongPPL>
+
+Establishes that perplexity is unreliable for long-context evaluation because it averages over all
+tokens and thereby drowns the few **key tokens** that long-context ability actually turns on;
+proposes LongPPL, which weights them, and reports a Pearson correlation of −0.96 with long-context
+benchmark performance where plain PPL correlates poorly.
+
+*Why it matters here:* S10 proposed a divergence/perplexity ladder at depth and was abandoned when
+the instrument proved infeasible on this host's 14 GiB (PN-31). R10 says that even had it run, an
+averaged token-level metric would have been the wrong instrument for the question — which is the
+independent reason S12 uses a task benchmark instead. Cite it so the switch reads as a
+methodological choice rather than a workaround for a memory limit.
+
 ---
 
 ## How the sources combine into SSA
@@ -119,5 +170,15 @@ up front instead of reporting intervals that cannot separate the arms.**
 | Reference arm instead of FP16, labelled ladder-relative | R1 (logits-file cost), local constraint |
 | Interpretation bands (<0.007; 0.01–0.03) | R4, R5 |
 | Two-arm **paired** task anchor (S6), power stated | R6 |
-| Rejecting PPL-alone as the ranker | R2, R4 |
+| Rejecting PPL-alone as the ranker | R2, R4, R10 |
 | Code domain weighted over wikitext | R3 (calibration contamination) |
+
+## How the sources combine into S12 (long context)
+
+| S12 element | Source |
+|---|---|
+| The benchmark, its generators, templates and metric | R8 |
+| Accuracy-recovery framing vs a baseline arm, per length | R9 |
+| Why a task benchmark rather than a perplexity/divergence ladder at depth | R10 |
+| Two arms at the ladder's extremes rather than four | R6 (paired-difference, power) |
+| Reporting "not separated at n" rather than a ranking | R6 |

@@ -2053,3 +2053,34 @@ Verified: sign test computed over all 13 adjacent pairs; per-rep acceptance reco
 Next: nothing running. S10 is cancelled as infeasible (DEC-15/PN-31), S11's instrument was
   measured and rejected (see below), and the depth question now awaits an owner decision on a
   RULER-based design.
+
+### L-18 | 2026-09-02T13:00:00Z | S3-report | claude-opus-5 | conductor-manager | S12 RULER complete — MEASUREMENT PHASE CLOSED <!-- bsc-ledger:qbench-t1-S12 -->
+Did: built and ran S12 after S10 was declared infeasible (PN-31) and S11 was rejected on its own
+  data. Researched what the field actually does rather than improvising: RULER (R8) is the
+  standard, and two published studies run our exact experiment with it (R9). Used RULER's own
+  generators, templates, prompt construction and metric — the metric unit-checked against the
+  reference implementation on five cases before any GPU time.
+Result 1 (PN-33): **S-NIAH saturated at 100.0 for BOTH arms at 8,192 / 32,768 / 131,072**;
+  accuracy recovery 100 % at every length, zero empties, prompt_n medians on target. **MK-NIAH at
+  131,072 gives 100.0 vs 91.67** — recovery 91.67 %, beside Red Hat's published 85-88 % for 4-bit
+  at 128K. ⚠️ That is ONE failed sample of twelve; Wilson intervals [75.7, 100.0] and [64.6, 98.5]
+  overlap almost entirely. Reported as "consistent with published results, not established here".
+  Separating an 8-point drop needs n≈100 ≈ 11 h at this depth.
+Result 2 (PN-34) — **the finding that emerged, and the paper's methodological through-line**:
+  sixteen-fold more context bought NO discrimination on S-NIAH, because the task is saturated.
+  Holding depth fixed and raising DIFFICULTY is what produced a difference. So a benchmark's
+  sensitivity to quantization damage is gated by **task headroom, not by modality and not by
+  context length**. That closes a three-instrument arc: PN-22 (multiple-choice, blind),
+  PN-28 (generative coding, blind), PN-33/34 (retrieval, blind while easy — sighted when hard).
+  Every one has a ceiling; divergence does not, which is why 20 min of KLD separates these arms at
+  3.7-11.8 σ where ~20 h of task benchmarking across three modalities separates them nowhere.
+Verified: metric identical to RULER's on 5 cases incl. partial-match and case-folding; end-to-end
+  smoke 100.0 @4K before the battery; every generated set within ~1 % of its target length; two
+  duplicate c8192 cells (failed resume) deduped with a note; `variable_tracking` excluded after two
+  measured attempts (30 and 120 token budgets) for an output-format artifact — data retained under
+  `variable_tracking_excluded_cells`, never deleted.
+Cost control applied mid-run: the flat n=25 design was 8.0 h with ~75 % in the deepest rung, so
+  sample counts went per-length (25/25/12); dropping `variable_tracking` halved the remainder.
+  MK-NIAH data was pre-generated on CPU while the GPU ran, so the hedge cost nothing until needed.
+Next: **measurement is closed.** No GPU work is queued and none is required. Remaining scope is the
+  arXiv report: draft against manuscript/OUTLINE.md, every claim traced to a PN entry.
