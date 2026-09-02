@@ -217,6 +217,32 @@ stack, not inherited from the algorithm's specification.** Cite R12 as MOTIVATIO
 refutes: we measured llama.cpp's MTP head, not DFlash, and our own DFlash2 arm is engine-confounded
 (PN-29). Setting it up as a refutation is the single easiest way to lose a reviewer.
 
+## R13 — Dutta et al., *Accuracy is Not All You Need* — the prior work our broad framing belongs to
+<https://arxiv.org/abs/2407.09141> — Abhinav Dutta, Sanjeev Krishnan, Nipun Kwatra,
+Ramachandran Ramjee. **NeurIPS 2024.**
+
+Establishes that benchmark accuracy is insufficient for evaluating compressed LLMs: baseline and
+compressed models can score alike while behaving substantially differently. Introduces **"flips"**
+— answers changing correct↔incorrect between baseline and compressed at notable rates despite
+matched accuracy — and proposes **KL divergence** and flips as the metrics to use instead, showing
+the two correlate. Qualitative MT-Bench evaluation shows compressed models markedly worse on
+free-form generation. Studies multiple compression techniques, models and datasets.
+
+⚠️ **This must be cited in our introduction, not in related work as an afterthought.** It owns the
+claim "divergence sees what accuracy hides", and this study's PN-13/PN-22/PN-28 are an
+**independent confirmation** of it — on a different model family (Qwen3.8-27B), a different
+compression family (llama.cpp GGUF k-quants rather than the schemes they study), consumer
+dual-GPU hardware, and three instrument classes including a generative coding benchmark. A
+confirmation across that much variation is worth reporting and is not a novelty claim.
+
+*What remains ours after crediting it:* **PN-35's tail structure.** Dutta et al. show accuracy
+hides damage; they do not, as far as we can establish, decompose the divergence by quantile or
+report that damage on code inverts between the median and the tail. That decomposition supplies a
+mechanism with a numerical prediction — damage confined to ~1-5 % of positions changes an outcome
+only when a tail token lands somewhere decisive, which predicts the 3/164 and 5/164 discordances
+actually observed. Their "flips" metric is the outcome-level counterpart of exactly that prediction
+and should be cited as such.
+
 ---
 
 ## How the sources combine into SSA
