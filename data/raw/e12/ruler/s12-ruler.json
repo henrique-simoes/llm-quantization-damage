@@ -1,0 +1,106 @@
+{
+ "experiment": "s12-ruler",
+ "source": "e12-s12",
+ "run_ids": [
+  "s12"
+ ],
+ "benchmark": "RULER (arXiv 2404.06654), reference generators + official templates + string_match_all",
+ "precedent": [
+  "Red Hat RULER quantization study (accuracy recovery per length)",
+  "arXiv 2505.20276 quantization x long-context"
+ ],
+ "departure": "RULER's OpenAIClient targets OpenAI/Azure endpoints and its requirements pin nemo-toolkit/vllm/transformers; data generation and scoring are RULER's, transport is this project's harness",
+ "arms": [
+  "Q6_K_XL",
+  "Q4_K_XL"
+ ],
+ "reference": "Q6_K_XL",
+ "ts": "56,44",
+ "kv": "q4_0",
+ "spec": "NONE \u2014 PN-23/PN-26: speculation alters ~20 % of completions independently of quant",
+ "sampling": "greedy (temperature 0, top_k 1)",
+ "lengths": [
+  8192,
+  32768,
+  131072
+ ],
+ "n_samples": 25,
+ "tasks": [
+  "niah",
+  "variable_tracking"
+ ],
+ "metric": "RULER string_match_all; headline = accuracy recovery vs the reference arm per length",
+ "started_utc": "2026-09-02T03:08:32Z",
+ "cells": [
+  {
+   "arm": "Q6_K_XL",
+   "task": "niah",
+   "length": 8192,
+   "ok": true,
+   "score": 100.0,
+   "n": 25,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 8192 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "prompt_n_median": 8041,
+   "prompt_n_min": 8039,
+   "prompt_n_max": 8049,
+   "n_empty": 0,
+   "seconds": 363.6
+  },
+  {
+   "arm": "Q4_K_XL",
+   "task": "niah",
+   "length": 8192,
+   "ok": true,
+   "score": 100.0,
+   "n": 25,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 8192 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "prompt_n_median": 8041,
+   "prompt_n_min": 8039,
+   "prompt_n_max": 8049,
+   "n_empty": 0,
+   "seconds": 309.2
+  },
+  {
+   "arm": "Q6_K_XL",
+   "task": "variable_tracking",
+   "length": 8192,
+   "ok": true,
+   "score": 16.8,
+   "n": 25,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 8192 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "prompt_n_median": 8146,
+   "prompt_n_min": 8142,
+   "prompt_n_max": 8151,
+   "n_empty": 1,
+   "seconds": 246.8
+  },
+  {
+   "arm": "Q4_K_XL",
+   "task": "variable_tracking",
+   "length": 8192,
+   "ok": true,
+   "score": 18.4,
+   "n": 25,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 8192 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "prompt_n_median": 8146,
+   "prompt_n_min": 8142,
+   "prompt_n_max": 8151,
+   "n_empty": 0,
+   "seconds": 225.5
+  }
+ ],
+ "smoke": {
+  "arm": "Q6_K_XL",
+  "task": "niah",
+  "length": 4096,
+  "ok": true,
+  "score": 100.0,
+  "n": 3,
+  "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 4096 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080",
+  "prompt_n_median": 3968,
+  "prompt_n_min": 3343,
+  "prompt_n_max": 3968,
+  "n_empty": 0,
+  "seconds": 48.3
+ }
+}
