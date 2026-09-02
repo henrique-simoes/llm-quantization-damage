@@ -1,0 +1,917 @@
+% ============================================================================
+% references.bib — multivac-paper
+%
+% Every entry below was VERIFIED ON THE WEB on 2026-09-02 against the arXiv API
+% (export.arxiv.org/api/query), publisher pages, DBLP, PMLR, proceedings sites,
+% GitHub raw files and the Hugging Face API. Nothing is from memory.
+%
+% Fields that could not be verified are marked with a "% UNVERIFIED:" comment on
+% the line above them, or omitted entirely. Where a source publishes its own
+% BibTeX, that form is used and the divergence from our house style is left
+% alone deliberately.
+%
+% CONVENTIONS USED HERE
+%   * arXiv preprint with no venue  -> @misc + eprint/archivePrefix/primaryClass,
+%     doi = {10.48550/arXiv.XXXX.XXXXX} (arXiv mints one for every submission).
+%   * arXiv preprint WITH a venue   -> @inproceedings with the venue, PLUS the
+%     eprint fields, so the reader can reach the preprint. natbib/plain BibTeX
+%     ignore unknown fields, biblatex renders them.
+%   * Blog post / web page          -> @misc with howpublished + url + urldate.
+%     (biblatex users: @online is equivalent and renders better.)
+%   * Software / repository         -> @software. NOT supported by legacy BibTeX
+%     styles (plain/unsrt/abbrv); those degrade it to @misc. If the target style
+%     is plain BibTeX, change @software to @misc — the fields survive.
+%   * Dataset                       -> @misc with a sha256 in `note`, because the
+%     scores are only comparable against the same file.
+%
+% TEN of the entries below have NO publisher DOI, because arXiv preprints, PMLR
+% proceedings, NeurIPS proceedings, ICLR proceedings and COLM do not mint them.
+% For those the arXiv DOI is the only DOI that exists. Do not invent others.
+%
+% ---------------------------------------------------------------------------
+% STYLE COMPATIBILITY — read before choosing a .bst. Verified 2026-09-02 by
+% reading the ENTRY declarations of the actual style files on CTAN.
+%
+%   style                     url  doi  eprint/archivePrefix/primaryClass  urldate
+%   plain/unsrt/abbrv/alpha    -    -                 -                       -
+%   plainnat/abbrvnat          Y    Y                 -                       -
+%   IEEEtran                   Y    -                 -                       -
+%   apsrev4-2 (REVTeX 4.2)     Y    Y                 Y                       -
+%   biblatex + biber           Y    Y          Y (auto-mapped)                Y
+%
+% Consequences for THIS file:
+%   * Under plain/unsrt/abbrv the `url` and `doi` fields are SILENTLY IGNORED
+%     (plain.bst declares exactly 22 fields and drops the rest without warning).
+%     If the target template uses one of those, move the URL into `howpublished`.
+%     Most arXiv CS templates are natbib-based, which does carry url and doi.
+%   * Under EVERY legacy style, @software emits
+%       "Warning--entry type for ... isn't style-file defined"
+%     and is then rendered through the `misc` driver — so it looks like it
+%     worked while dropping `url` and `version`. If the template is plain
+%     BibTeX, change every @software here to @misc; the fields survive because
+%     the load-bearing content is already duplicated into `note`.
+%   * `urldate` is biblatex-only and must be ISO yyyy-mm-dd — a non-ISO value
+%     prints NO access date at all, silently. Legacy styles need
+%     `note = {Accessed: YYYY-MM-DD}` instead. Several entries here carry both,
+%     deliberately, so neither route loses it.
+%   * biblatex maps `archivePrefix`->`eprinttype` and `primaryClass`->`eprintclass`
+%     automatically (biblatex.def), and ships a dedicated `eprint:arxiv` renderer
+%     that prints exactly arXiv's own `arXiv:2401.12345 [cs.CL]` form. arXiv's
+%     native BibTeX export therefore works here unmodified.
+%
+% ARXIV DOIs ARE PER-PAPER, NOT PER-VERSION. `10.48550/arXiv.<id>` resolves;
+% `...<id>v1` does NOT (verified: 404). Where a specific version matters, the
+% `eprint` field with a `v#` suffix is the only identifier that carries it.
+% Every entry below records the current version in a comment instead.
+%
+% AVOIDED THROUGHOUT: the Google-Scholar antipattern
+%   @article{..., journal = {arXiv preprint arXiv:2505.09388}}
+% which puts an identifier in a journal-title field, defeats every eprint-aware
+% style, and cannot express a published version. Where a venue is confirmed,
+% this file uses @inproceedings WITH the eprint fields, so both are reachable.
+%
+% Sources for the above: arXiv's own BibTeX endpoint https://arxiv.org/bibtex/<id>
+% · https://info.arxiv.org/help/doi.html · https://info.arxiv.org/help/hypertex/index.html
+% (note: the old /help/hypertex/bibstyles page is GONE — 404) ·
+% https://mirrors.ctan.org/biblio/bibtex/base/plain.bst ·
+% https://mirrors.ctan.org/macros/latex/contrib/natbib/plainnat.bst ·
+% https://mirrors.ctan.org/macros/latex/contrib/biblatex/latex/biblatex.def ·
+% https://mirrors.ctan.org/biblio/bibtex/base/btxdoc.tex
+% For software specifically, biblatex-software (https://ctan.org/pkg/biblatex-software)
+% gives real @software drivers plus native SWHID support, and is integrated into
+% the ACM article style.
+% ============================================================================
+
+
+% ============================================================================
+% SECTION 1 — METHOD REFERENCES R1..R10
+% (docs/paper/METHOD-REFERENCES.md; the sources of record for the SSA and S12
+%  protocols)
+% ============================================================================
+
+% --- R1: the instrument we run -------------------------------------------
+% VERIFIED 2026-09-02: file exists at the path below. The 11 GiB / 37 GiB claim
+% is verbatim: "The logit file will be very large, 11 GiB for LLaMA 2 or 37 GiB
+% for LLaMA 3 when using the Wikitext-2 test set."  NOTE: the README says "the
+% Wikitext-2 test set", NOT "the full WikiText-2 test set" — do not add "full"
+% when quoting.
+% NOTE: llama.cpp publishes NO CITATION.cff and NO citation section in its
+% README (both checked; CITATION.cff returns HTTP 404). The author string below
+% is our editorial convention, not something the project asserts.
+@misc{llamacpp_perplexity_readme,
+  title        = {{llama.cpp} perplexity tool: perplexity and {KL}-divergence measurement},
+  author       = {{ggml-org llama.cpp contributors}},
+  howpublished = {\url{https://github.com/ggml-org/llama.cpp/blob/master/tools/perplexity/README.md}},
+  year         = {2026},
+  note         = {Documents \texttt{--kl-divergence-base} and \texttt{--kl-divergence}. Accessed 2026-09-02},
+  url          = {https://github.com/ggml-org/llama.cpp/blob/master/tools/perplexity/README.md},
+  urldate      = {2026-09-02}
+}
+
+% The engine itself. Cite this ALONGSIDE R1 and pin the commit, not the release:
+% our image is 0.3.0-dev build 1 commit d222767, which predates the v0.3.0 tag
+% (published 2026-08-25T10:22:58Z per the GitHub API).
+% UNVERIFIED: individual author attribution — the repo names no author for
+% citation purposes. "Georgi Gerganov and contributors" is convention.
+@software{llamacpp,
+  title        = {{llama.cpp}: {LLM} inference in {C}/{C}++},
+  author       = {Gerganov, Georgi and {llama.cpp contributors}},
+  year         = {2026},
+  license      = {MIT},
+  version      = {0.3.0-dev (build 1)},
+  note         = {Engine commit \texttt{d222767}; container image \texttt{llamacpp-mtp:latest},
+                  digest \texttt{sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62}},
+  url          = {https://github.com/ggml-org/llama.cpp},
+  urldate      = {2026-09-02}
+}
+
+% --- R2: the community argument for KLD over PPL ---------------------------
+% VERIFIED 2026-09-02: discussion exists; author kalomaze; opened 2023-11-17;
+% category General. Title is verbatim, including the "seem" (sic).
+@misc{kalomaze2023ppl,
+  title        = {Perplexity / {PPL}, as a quantization loss benchmark, is inaccurate --- {KL} divergence seem to be a better data point},
+  author       = {{kalomaze}},
+  year         = {2023},
+  month        = nov,
+  howpublished = {GitHub Discussion \#4110, \texttt{ggml-org/llama.cpp}},
+  url          = {https://github.com/ggml-org/llama.cpp/discussions/4110},
+  urldate      = {2026-09-02}
+}
+
+% --- R3: provenance of the quantizations under test ------------------------
+% ⚠ VERIFIED 2026-09-02 — THE DYNAMIC 2.0 URL IS DEAD.
+%   https://unsloth.ai/docs/basics/unsloth-dynamic-2.0-ggufs      -> HTTP 404
+%   https://docs.unsloth.ai/basics/unsloth-dynamic-2.0-ggufs      -> 301 to the 404
+%   https://unsloth.ai/docs/basics/dynamic-3.0-ggufs              -> RESOLVES
+% Only the 3.0 entry is safe to print. If the 2.0 methodology must be cited,
+% add a Wayback snapshot. Unsloth publishes no citation guidance and no single
+% publication date (page shows dated updates 2025-09-10, 2026-02-27, 2026-04-20),
+% hence urldate rather than a date.
+@misc{unsloth_dynamic3,
+  title        = {Unsloth Dynamic 3.0 {GGUF}s},
+  author       = {{Unsloth AI}},
+  year         = {2026},
+  howpublished = {Unsloth documentation},
+  url          = {https://unsloth.ai/docs/basics/dynamic-3.0-ggufs},
+  urldate      = {2026-09-02},
+  note         = {Ranks Dynamic {GGUF}s on mean {KL} divergence; warns that calibrating and
+                  evaluating on the same Wikipedia-like data overfits the metric.
+                  A companion ``Dynamic 2.0'' page cited in earlier drafts no longer resolves}
+}
+
+% --- R4: production quantization evaluation --------------------------------
+% VERIFIED 2026-09-02. Exact title as below. Published 2024-08-01 ("PUBLISHED
+% 8/1/2024"). Both claims we rely on are verbatim in the text:
+%   "we generally see that KL divergence of < 0.007 results in high-quality
+%    deployments"
+%   "we pick N such that the top N tokens cover 0.99 of the distribution, and we
+%    find N=16 to be a good value"
+% UNVERIFIED: author byline — the page carries none. Institutional attribution.
+@misc{fireworks2024quantization,
+  title        = {How {Fireworks} evaluates quantization precisely and interpretably},
+  author       = {{Fireworks AI}},
+  year         = {2024},
+  month        = aug,
+  howpublished = {Fireworks AI blog},
+  url          = {https://fireworks.ai/blog/fireworks-quantization},
+  urldate      = {2026-09-02},
+  note         = {Publishes a {KLD} $<0.007$ threshold for high-quality deployments}
+}
+
+% --- R5: the closest published analogue ------------------------------------
+% VERIFIED 2026-09-02. Author oobabooga, published 2026-04-14. Exact title below.
+% ⚠ ATTRIBUTION WARNING — see METRIC-CORPUS.md flag F-7. The article does NOT
+% report KLD 0.01-0.03 as its own Q4_K_M result; it DISCLAIMS that range as an
+% artifact of short-context Wikipedia protocols, verbatim: "If you've seen KL
+% values of 0.01-0.03 for Q4_K_M elsewhere, that's why." Citing it as the source
+% of that band inverts the author's point.
+% Verified verbatim and safe to cite: "~250,000 tokens" across 6 categories;
+% "logprobs: 40, which returns the top-40 token log-probabilities".
+@misc{localbench2026gguf,
+  title        = {{GGUF} Quantization Quality Benchmark: Methodology},
+  author       = {{oobabooga}},
+  year         = {2026},
+  month        = apr,
+  howpublished = {LocalBench (Substack)},
+  url          = {https://localbench.substack.com/p/gguf-benchmark-methodology},
+  urldate      = {2026-09-02},
+  note         = {${\sim}250{,}000$ tokens across 6 task categories; {KLD} on prompt tokens plus
+                  top-1 agreement, over top-40 log-probabilities. Argues the commonly quoted
+                  0.01--0.03 band for \texttt{Q4\_K\_M} is an artifact of short-context
+                  Wikipedia protocols}
+}
+
+% --- R6: the statistics ----------------------------------------------------
+% VERIFIED 2026-09-02 via arXiv API. Sole author Evan Miller. v1 only, submitted
+% 2024-11-01T14:57:16Z. 14 pages. stat.AP primary, cs.CL secondary. DBLP records
+% it as CoRR abs/2411.00640 (2024) under "Informal and Other Publications" — it
+% has NO conference or journal publication. NOTE the subtitle: earlier drafts
+% cited only the first half of the title.
+% UNVERIFIED: the Anthropic affiliation (arXiv listings carry no affiliations).
+@misc{miller2024errorbars,
+  title         = {Adding Error Bars to Evals: A Statistical Approach to Language Model Evaluations},
+  author        = {Miller, Evan},
+  year          = {2024},
+  eprint        = {2411.00640},
+  archivePrefix = {arXiv},
+  primaryClass  = {stat.AP},
+  doi           = {10.48550/arXiv.2411.00640},
+  url           = {https://arxiv.org/abs/2411.00640}
+}
+
+% --- R7: the academic task-battery treatment we read as a caution ----------
+% VERIFIED 2026-09-02 FOUR WAYS (abs page, HTML v1, arXiv API XML, web search):
+% the ID is real. Sole author Uygar Kurt. v1 published 2026-01-11T18:52:37Z.
+% cs.LG. 17 pages, 6 tables, 1 figure. No journal_ref, no venue: preprint.
+% 13 quantization configurations on Llama-3.1-8B-Instruct across GSM8K,
+% HellaSwag, IFEval, MMLU, TruthfulQA plus perplexity and CPU throughput.
+@misc{kurt2026whichquant,
+  title         = {Which Quantization Should {I} Use? {A} Unified Evaluation of {llama.cpp} Quantization on {Llama-3.1-8B-Instruct}},
+  author        = {Kurt, Uygar},
+  year          = {2026},
+  eprint        = {2601.14277},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.LG},
+  doi           = {10.48550/arXiv.2601.14277},
+  url           = {https://arxiv.org/abs/2601.14277}
+}
+
+% --- R8: the long-context benchmark, and the instrument S12 uses -----------
+% VERIFIED 2026-09-02. Venue COLM 2024, stated in the arXiv Comments field.
+% v1 2024-04-09, v2 2024-04-11, v3 2024-08-06 (current). cs.CL.
+% UNVERIFIED: a COLM-issued DOI — COLM does not mint them. arXiv DOI only.
+% The BibTeX the RULER repository itself publishes is the @article form; the
+% @inproceedings below adds the confirmed venue. Use whichever your style wants.
+@inproceedings{hsieh2024ruler,
+  title         = {{RULER}: What's the Real Context Size of Your Long-Context Language Models?},
+  author        = {Hsieh, Cheng-Ping and Sun, Simeng and Kriman, Samuel and Acharya, Shantanu
+                   and Rekesh, Dima and Jia, Fei and Zhang, Yang and Ginsburg, Boris},
+  booktitle     = {First Conference on Language Modeling (COLM)},
+  year          = {2024},
+  eprint        = {2404.06654},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  doi           = {10.48550/arXiv.2404.06654},
+  url           = {https://arxiv.org/abs/2404.06654}
+}
+
+@software{ruler_repo,
+  title   = {{RULER}: reference implementation and synthetic task generators},
+  author  = {{NVIDIA}},
+  year    = {2024},
+  license = {Apache-2.0},
+  note    = {Task generators, official templates and the \texttt{string\_match\_all} metric
+             reproduced verbatim and unit-checked in this study},
+  url     = {https://github.com/NVIDIA/RULER},
+  urldate = {2026-09-02}
+}
+
+% --- R9: published precedents for exactly our experiment -------------------
+% ⚠ VERIFIED 2026-09-02 — THE PUBLICATION DATE ON THE PAGE IS WRONG. The URL
+% slug and page header read 2024-02-03; the footer reads "Last updated:
+% September 23, 2025". The article evaluates Llama-3.1-Instruct (released July
+% 2024) using RULER (arXiv April 2024), so a February 2024 date is impossible.
+% It is a neuralmagic.com -> developers.redhat.com migration artifact
+% (neuralmagic.com 301-redirects into this URL). DO NOT PRINT 2024-02-03.
+% Claim verified verbatim: "most quantization formats maintain over 99.5%
+% accuracy recovery, with one exception: INT W4A16 at 128K length, where accuracy
+% recovery drops to 85% (8B) and 88% (70B)."
+% ⚠ The source DISCLAIMS the conclusion: "at this extreme length, even
+% unquantized models perform poorly ... making it difficult to draw definitive
+% conclusions about quantization's impact at this scale." Carry that caveat.
+@misc{redhat_longcontext_quant,
+  title        = {How well do quantized models handle long-context tasks?},
+  author       = {Kurti{\'c}, Eldar and Kurtz, Mark and Marques, Alexandre and Alistarh, Dan},
+  year         = {2025},
+  howpublished = {Red Hat Developer (originally published by Neural Magic)},
+  url          = {https://developers.redhat.com/articles/2024/02/03/how-well-do-quantized-models-handle-long-context-tasks},
+  urldate      = {2026-09-02},
+  note         = {{RULER} on {Llama-3.1} 8B/70B at 4K--128K across {FP} W8A8, {INT} W8A8 and
+                  {INT} W4A16. The page's stated date of 2024-02-03 is a site-migration artifact
+                  and precedes the model and benchmark it evaluates}
+}
+
+% VERIFIED 2026-09-02 via arXiv API. Venue: EMNLP 2025 ("to appear in EMNLP 2025"
+% in the Comments field). v1 2025-05-26, v2 2025-05-27, v3 2025-09-20 (current).
+% UNVERIFIED: an ACL Anthology ID or DOI — not locatable at time of writing.
+@inproceedings{mekala2025quantlongcontext,
+  title         = {Does quantization affect models' performance on long-context tasks?},
+  author        = {Mekala, Anmol and Atmakuru, Anirudh and Song, Yixiao and
+                   Karpinska, Marzena and Iyyer, Mohit},
+  booktitle     = {Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing (EMNLP)},
+  year          = {2025},
+  eprint        = {2505.20276},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  doi           = {10.48550/arXiv.2505.20276},
+  url           = {https://arxiv.org/abs/2505.20276}
+}
+
+% --- R10: why a perplexity ladder would not have answered this -------------
+% VERIFIED 2026-09-02. ICLR 2025 confirmed from the ICLR proceedings page
+% (header: "Published as a conference paper at ICLR 2025"); the arXiv abs page
+% has no Comments field, so the venue comes from the proceedings, not arXiv.
+% v1 2024-10-31 ... v5 2025-07-27 (current). NOTE: "LongPPL" is the metric the
+% paper proposes; it is not the paper's title.
+@inproceedings{fang2025longppl,
+  title         = {What is Wrong with Perplexity for Long-context Language Modeling?},
+  author        = {Fang, Lizhe and Wang, Yifei and Liu, Zhaoyang and Zhang, Chenheng and
+                   Jegelka, Stefanie and Gao, Jinyang and Ding, Bolin and Wang, Yisen},
+  booktitle     = {The Thirteenth International Conference on Learning Representations (ICLR)},
+  year          = {2025},
+  eprint        = {2410.23771},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  doi           = {10.48550/arXiv.2410.23771},
+  url           = {https://proceedings.iclr.cc/paper_files/paper/2025/hash/ebd6641c32ed633c2a3addc689d39896-Abstract-Conference.html},
+  note          = {Proposes {LongPPL}; reports Pearson $-0.96$ with long-context benchmark
+                   performance where plain perplexity correlates poorly}
+}
+
+@software{longppl_repo,
+  title   = {{LongPPL}: code for ``What is Wrong with Perplexity for Long-context Language Modeling?''},
+  author  = {{PKU-ML}},
+  year    = {2025},
+  url     = {https://github.com/PKU-ML/LongPPL},
+  urldate = {2026-09-02}
+}
+
+
+% ============================================================================
+% SECTION 2 — THE MODEL AND ITS QUANTIZATIONS
+% ============================================================================
+
+% ⚠ VERIFIED 2026-09-02 via the Hugging Face API. Qwen/Qwen3.8-27B EXISTS:
+% createdAt 2026-08-05T08:22:59Z, lastModified 2026-08-14T15:00:01Z, Apache-2.0,
+% architecture tag `qwen3_5`, pipeline tag `image-text-to-text` (i.e. it is a
+% VISION-LANGUAGE model), 18 safetensors shards, ships chat_template.jinja and
+% video_preprocessor_config.json. Native context 262,144, ~1M via YaRN.
+%
+% ⚠ THE OFFICIAL CITATION IS THE BLOG POST BELOW, NOT arXiv 2505.09388.
+% 2505.09388 is the *Qwen3* technical report, an earlier model generation.
+% There is NO arXiv paper for Qwen3.8. The BibTeX below is the one the model
+% card itself publishes, reproduced exactly.
+@misc{qwen38,
+  title  = {{Qwen3.8-Max}: A New Bar for Coding and Cowork},
+  url    = {https://qwen.ai/blog?id=qwen3.8},
+  author = {{Qwen Team}},
+  month  = {August},
+  year   = {2026}
+}
+
+% The model card itself, for the sampling presets, the context figure and the
+% published benchmark scores this study quotes.
+@misc{qwen38_27b_card,
+  title        = {{Qwen3.8-27B}},
+  author       = {{Qwen Team}},
+  year         = {2026},
+  howpublished = {Hugging Face model card},
+  url          = {https://huggingface.co/Qwen/Qwen3.8-27B},
+  urldate      = {2026-09-02},
+  note         = {Apache-2.0; created 2026-08-05. Native context 262{,}144.
+                  Official sampling --- thinking: temp 1.0 / top\_p 0.95 / top\_k 20 /
+                  min\_p 0.0 / presence 0.0; non-thinking: temp 0.7 / top\_p 0.80 /
+                  top\_k 20 / min\_p 0.0 / presence 1.5.
+                  \texttt{reasoning\_effort} options: \texttt{xhigh} $|$ \texttt{medium} $|$ \texttt{low}}
+}
+
+% Architectural background only. VERIFIED 2026-09-02 via arXiv API: v1 only,
+% 2025-05-14T13:41:34Z, cs.CL, no journal_ref (preprint).
+% UNVERIFIED: exact author count — repeated counts returned 80, 73 and 69; a
+% dedicated recount gave 80, first author An Yang, last author Zihan Qiu. Cited
+% as {Qwen Team} to sidestep the ambiguity, which is also the community norm.
+% ⚠ This report covers the Qwen3 family and does NOT describe Qwen3.8-27B.
+@misc{qwen3_techreport,
+  title         = {{Qwen3} Technical Report},
+  author        = {{Qwen Team}},
+  year          = {2025},
+  eprint        = {2505.09388},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  doi           = {10.48550/arXiv.2505.09388},
+  url           = {https://arxiv.org/abs/2505.09388},
+  note          = {Architectural background for the {Qwen3} family. Does not cover {Qwen3.8}}
+}
+
+% VERIFIED 2026-09-02 via the Hugging Face API: created 2026-08-13T08:28:40Z,
+% lastModified 2026-08-20T12:04:25Z. File listing confirms every arm used here
+% (UD-IQ4_XS, UD-Q4_K_XL, UD-Q5_K_XL, UD-Q6_K, UD-Q6_K_XL) plus UD-Q4_K_M,
+% UD-Q4_K_S, UD-Q5_K_S, UD-Q5_K_M, UD-Q6_K_M, UD-Q6_K_L, a BF16 (2 shards),
+% imatrix_unsloth.gguf and MTP/mtp-Qwen3.8-27B-Q4_0.gguf.
+% Per-file sha256 and byte sizes for the four arms we ran are in PROVENANCE.md.
+@misc{unsloth_qwen38_gguf,
+  title        = {{unsloth/Qwen3.8-27B-GGUF}},
+  author       = {{Unsloth AI}},
+  year         = {2026},
+  howpublished = {Hugging Face model repository},
+  url          = {https://huggingface.co/unsloth/Qwen3.8-27B-GGUF},
+  urldate      = {2026-09-02},
+  note         = {Source of every {GGUF} arm in this study. Exact file sizes and {SHA}-256
+                  digests are recorded in \texttt{manuscript/references/PROVENANCE.md}}
+}
+
+% Cited only where the eliminated vLLM/NVFP4 arm is discussed.
+% ⚠ UNVERIFIED: the publication date. A direct fetch returned empty; a syndicated
+% repost carries a /2025/07/ path, and search metadata clusters on mid-2025. One
+% search summary asserted 2026-01-08 and could NOT be corroborated. Verify from
+% the page footer before printing a date. Author Simon Layton, confirmed from
+% NVIDIA's own author page.
+@misc{nvidia_nvfp4,
+  title        = {Introducing {NVFP4} for Efficient and Accurate Low-Precision Inference},
+  author       = {Layton, Simon},
+  year         = {2025},
+  howpublished = {NVIDIA Technical Blog},
+  url          = {https://developer.nvidia.com/blog/introducing-nvfp4-for-efficient-and-accurate-low-precision-inference/},
+  urldate      = {2026-09-02},
+  note         = {Publication date not independently confirmed; treat as mid-2025}
+}
+
+
+% ============================================================================
+% SECTION 3 — BENCHMARKS AND DATASETS
+% ============================================================================
+
+% VERIFIED 2026-09-02 via arXiv API. 61 authors, first Mark Chen, last Wojciech
+% Zaremba. v1 2021-07-07, v2 2021-07-14 (current). No journal_ref: never
+% formally published.
+@misc{chen2021humaneval,
+  title         = {Evaluating Large Language Models Trained on Code},
+  author        = {Chen, Mark and Tworek, Jerry and Jun, Heewoo and Yuan, Qiming and
+                   Pinto, Henrique Ponde de Oliveira and Kaplan, Jared and Edwards, Harri and
+                   Burda, Yuri and Joseph, Nicholas and Brockman, Greg and others},
+  year          = {2021},
+  eprint        = {2107.03374},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.LG},
+  doi           = {10.48550/arXiv.2107.03374},
+  url           = {https://arxiv.org/abs/2107.03374}
+}
+
+% VERIFIED 2026-09-02. This is the BibTeX the EvalPlus repository publishes,
+% reproduced as given. NeurIPS 2023 poster confirmed (neurips.cc/virtual/2023/
+% poster/72990). arXiv 2305.01210, v1 2023-05-02, v3 2023-10-30 (current).
+% ⚠ TITLE CORRECTION: it ends "for Code Generation", NOT "for Code Synthesis".
+% UNVERIFIED: a NeurIPS proceedings DOI — NeurIPS does not mint them.
+@inproceedings{evalplus,
+  title     = {Is Your Code Generated by Chat{GPT} Really Correct? Rigorous Evaluation of Large Language Models for Code Generation},
+  author    = {Liu, Jiawei and Xia, Chunqiu Steven and Wang, Yuyao and Zhang, Lingming},
+  booktitle = {Thirty-seventh Conference on Neural Information Processing Systems},
+  year      = {2023},
+  url       = {https://openreview.net/forum?id=1qvx610Cu7}
+}
+
+@software{evalplus_repo,
+  title   = {{EvalPlus}: rigorous evaluation of {LLM}-synthesised code},
+  author  = {Liu, Jiawei and Xia, Chunqiu Steven and Wang, Yuyao and Zhang, Lingming},
+  year    = {2026},
+  note    = {Used via the patched virtualenv \texttt{/srv/bench/.venv-evalplus};
+             \texttt{evalplus.sanitize} then \texttt{evalplus.evaluate}},
+  url     = {https://github.com/evalplus/evalplus},
+  urldate = {2026-09-02}
+}
+
+% VERIFIED 2026-09-02 via arXiv API. ACL 2019 confirmed from the arXiv Comments
+% field ("ACL 2019. Project page at https://rowanzellers.com/hellaswag").
+% v1 only, 2019-05-19.
+% UNVERIFIED: the ACL Anthology identifier (believed P19-1472) — not
+% independently confirmed in this pass. Omitted rather than guessed.
+@inproceedings{zellers2019hellaswag,
+  title         = {{HellaSwag}: Can a Machine Really Finish Your Sentence?},
+  author        = {Zellers, Rowan and Holtzman, Ari and Bisk, Yonatan and
+                   Farhadi, Ali and Choi, Yejin},
+  booktitle     = {Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics (ACL)},
+  year          = {2019},
+  eprint        = {1905.07830},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  doi           = {10.48550/arXiv.1905.07830},
+  url           = {https://arxiv.org/abs/1905.07830}
+}
+
+% The exact HellaSwag datafile scored in SSA S7. Scores are only comparable to
+% other runs against this sha256 — see s7-data-provenance.json.
+@misc{hellaswag_datafile,
+  title        = {{HellaSwag} validation set, {llama.cpp} plain-text format (\texttt{hellaswag\_val\_full.txt})},
+  author       = {{klosax}},
+  howpublished = {GitHub raw content},
+  year         = {2026},
+  url          = {https://raw.githubusercontent.com/klosax/hellaswag_text_data/main/hellaswag_val_full.txt},
+  urldate      = {2026-08-30},
+  note         = {7{,}770{,}677 bytes, 60{,}252 lines,
+                  \texttt{sha256:d572539320eb2050e858ca34b495bbe2103e3b3f1391a9c3bcdf215b0bb93bd1};
+                  the file \texttt{llama.cpp}'s own \texttt{get-hellaswag.sh} fetches}
+}
+
+% Fetched with provenance but NEVER RUN — dropped as disproportionate. Included
+% so the provenance record is complete.
+@misc{winogrande_datafile,
+  title        = {{Winogrande} debiased evaluation set for {llama.cpp} (\texttt{winogrande-debiased-eval.csv})},
+  author       = {{ikawrakow}},
+  howpublished = {Hugging Face dataset},
+  year         = {2026},
+  url          = {https://huggingface.co/datasets/ikawrakow/winogrande-eval-for-llama.cpp},
+  urldate      = {2026-08-30},
+  note         = {155{,}325 bytes, 1{,}268 lines,
+                  \texttt{sha256:6726173ef65ffdc4abb0d28b755375d288ffb3eb41633bd833288c411c8ebf7c}.
+                  Fetched but not run}
+}
+
+% VERIFIED 2026-09-02. ICLR 2017 poster (DBLP conf/iclr/MerityX0S17; OpenReview
+% Byj72udxe). arXiv v1 only, 2016-09-26. The origin of WikiText-2.
+@inproceedings{merity2017pointer,
+  title         = {Pointer Sentinel Mixture Models},
+  author        = {Merity, Stephen and Xiong, Caiming and Bradbury, James and Socher, Richard},
+  booktitle     = {5th International Conference on Learning Representations (ICLR)},
+  year          = {2017},
+  eprint        = {1609.07843},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  doi           = {10.48550/arXiv.1609.07843},
+  url           = {https://arxiv.org/abs/1609.07843},
+  note          = {Introduces {WikiText-2}, the convention corpus for {llama.cpp} perplexity
+                   and {KL}-divergence measurement}
+}
+
+% VERIFIED 2026-09-02. ICLR 2024, stated in the arXiv Comments field. v1
+% 2023-10-10, v3 2024-11-11 (current).
+@inproceedings{jimenez2024swebench,
+  title         = {{SWE}-bench: Can Language Models Resolve Real-World {GitHub} Issues?},
+  author        = {Jimenez, Carlos E. and Yang, John and Wettig, Alexander and Yao, Shunyu and
+                   Pei, Kexin and Press, Ofir and Narasimhan, Karthik},
+  booktitle     = {The Twelfth International Conference on Learning Representations (ICLR)},
+  year          = {2024},
+  eprint        = {2310.06770},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  doi           = {10.48550/arXiv.2310.06770},
+  url           = {https://arxiv.org/abs/2310.06770}
+}
+
+% VERIFIED 2026-09-02: there is NO paper. SWE-bench Verified is an OpenAI blog
+% post plus a benchmark page, published 2024-08-13: a 500-instance
+% human-validated subset of the SWE-bench test set.
+% UNVERIFIED: an author list — OpenAI blog posts are institutionally attributed.
+@misc{openai2024swebenchverified,
+  title        = {Introducing {SWE}-bench Verified},
+  author       = {{OpenAI}},
+  year         = {2024},
+  month        = aug,
+  howpublished = {OpenAI blog},
+  url          = {https://openai.com/index/introducing-swe-bench-verified/},
+  urldate      = {2026-09-02},
+  note         = {A 500-instance human-validated subset of the {SWE}-bench test set.
+                  Distinct from {SWE}-bench Pro; scores on the two are not comparable}
+}
+
+% VERIFIED 2026-09-02. ICLR 2025 poster (DBLP conf/iclr/JainHGLYZWSSS25;
+% iclr.cc/virtual/2025/poster/29033). The arXiv Comments field gives only the
+% website, so the venue is verified externally. v1 2024-03-12, v2 2024-06-06.
+% Cited because the model's published LiveCodeBench v6 score (90.3) is quoted;
+% the benchmark is NOT set up on this host.
+@inproceedings{jain2025livecodebench,
+  title         = {{LiveCodeBench}: Holistic and Contamination Free Evaluation of Large Language Models for Code},
+  author        = {Jain, Naman and Han, King and Gu, Alex and Li, Wen-Ding and Yan, Fanjia and
+                   Zhang, Tianjun and Wang, Sida and Solar-Lezama, Armando and Sen, Koushik and
+                   Stoica, Ion},
+  booktitle     = {The Thirteenth International Conference on Learning Representations (ICLR)},
+  year          = {2025},
+  eprint        = {2403.07974},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.SE},
+  doi           = {10.48550/arXiv.2403.07974},
+  url           = {https://arxiv.org/abs/2403.07974}
+}
+
+% ⚠ VERIFIED 2026-09-02 — VERSION MISMATCH. The paper describes Terminal-Bench
+% 2.0 (89 tasks) and does NOT mention "Terminus". The model's published
+% "Terminal Bench 2.1 (Terminus) 73.0" is a LEADERBOARD result on a version this
+% paper does not cover. Cite the paper for the benchmark and tbench.ai for the
+% score, and state the version explicitly.
+% 70 authors, first Mike A. Merrill. v1 2026-01-17T01:29:30Z. cs.SE. Preprint.
+@misc{merrill2026terminalbench,
+  title         = {Terminal-Bench: Benchmarking Agents on Hard, Realistic Tasks in Command Line Interfaces},
+  author        = {Merrill, Mike A. and Shaw, Alexander G. and Carlini, Nicholas and Li, Boxuan and
+                   Raj, Harsh and Bercovich, Ivan and Shi, Lin and Shin, Jeong Yeon and
+                   Walshe, Thomas and Buchanan, E. Kelly and others},
+  year          = {2026},
+  eprint        = {2601.11868},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.SE},
+  doi           = {10.48550/arXiv.2601.11868},
+  url           = {https://arxiv.org/abs/2601.11868},
+  note          = {Describes Terminal-Bench 2.0 (89 tasks); leaderboard at \url{https://www.tbench.ai/}}
+}
+
+
+% ============================================================================
+% SECTION 4 — SPECULATIVE DECODING AND MULTI-TOKEN PREDICTION
+% ============================================================================
+
+% VERIFIED 2026-09-02. ICML 2023 Oral (arXiv Comments: "ICML 2023 Oral").
+% PMLR v202, pages 19274-19286. v1 2022-11-30, v2 2023-05-18 (current).
+% UNVERIFIED: a publisher DOI — PMLR does not mint them.
+@inproceedings{leviathan2023speculative,
+  title         = {Fast Inference from Transformers via Speculative Decoding},
+  author        = {Leviathan, Yaniv and Kalman, Matan and Matias, Yossi},
+  booktitle     = {Proceedings of the 40th International Conference on Machine Learning (ICML)},
+  series        = {Proceedings of Machine Learning Research},
+  volume        = {202},
+  pages         = {19274--19286},
+  year          = {2023},
+  publisher     = {PMLR},
+  eprint        = {2211.17192},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.LG},
+  url           = {https://proceedings.mlr.press/v202/leviathan23a.html}
+}
+
+% VERIFIED 2026-09-02. DeepMind technical report; v1 only, 2023-02-02; no
+% comments, no journal_ref: never formally published.
+@misc{chen2023speculativesampling,
+  title         = {Accelerating Large Language Model Decoding with Speculative Sampling},
+  author        = {Chen, Charlie and Borgeaud, Sebastian and Irving, Geoffrey and
+                   Lespiau, Jean-Baptiste and Sifre, Laurent and Jumper, John},
+  year          = {2023},
+  eprint        = {2302.01318},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  doi           = {10.48550/arXiv.2302.01318},
+  url           = {https://arxiv.org/abs/2302.01318}
+}
+
+% The multi-token-prediction TRAINING OBJECTIVE. VERIFIED 2026-09-02: v1 only,
+% 2024-04-30.
+% UNVERIFIED: ICML 2024 acceptance — widely reported but NOT present in the
+% arXiv metadata. Check PMLR v235 before asserting a venue. Filed as @misc.
+@misc{gloeckle2024multitoken,
+  title         = {Better \& Faster Large Language Models via Multi-token Prediction},
+  author        = {Gloeckle, Fabian and Idrissi, Badr Youbi and Rozi{\`e}re, Baptiste and
+                   Lopez-Paz, David and Synnaeve, Gabriel},
+  year          = {2024},
+  eprint        = {2404.19737},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  doi           = {10.48550/arXiv.2404.19737},
+  url           = {https://arxiv.org/abs/2404.19737}
+}
+
+% Introduced the deployable MTP *modules* whose lineage Qwen3's built-in MTP head
+% follows — the mechanism behind `--spec-type draft-mtp` in this study.
+% VERIFIED 2026-09-02: v1 2024-12-27, v2 2025-02-18 (current). Preprint.
+% Corporate author DeepSeek-AI followed by ~194 individuals; cited as the org.
+@misc{deepseekv3,
+  title         = {{DeepSeek-V3} Technical Report},
+  author        = {{DeepSeek-AI}},
+  year          = {2024},
+  eprint        = {2412.19437},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  doi           = {10.48550/arXiv.2412.19437},
+  url           = {https://arxiv.org/abs/2412.19437}
+}
+
+% Related work only. NOTE: Medusa is a DIFFERENT mechanism (multiple decoding
+% heads + tree attention), not multi-token prediction as run here.
+% VERIFIED 2026-09-02: ICML 2024, PMLR v235. v1 2024-01-19, v3 2024-06-14.
+@inproceedings{cai2024medusa,
+  title         = {{Medusa}: Simple {LLM} Inference Acceleration Framework with Multiple Decoding Heads},
+  author        = {Cai, Tianle and Li, Yuhong and Geng, Zhengyang and Peng, Hongwu and
+                   Lee, Jason D. and Chen, Deming and Dao, Tri},
+  booktitle     = {Proceedings of the 41st International Conference on Machine Learning (ICML)},
+  series        = {Proceedings of Machine Learning Research},
+  volume        = {235},
+  year          = {2024},
+  publisher     = {PMLR},
+  eprint        = {2401.10774},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.LG},
+  url           = {https://proceedings.mlr.press/v235/cai24b.html}
+}
+
+% --- R12: DFlash, and the published losslessness claim we counter-measure ---
+% VERIFIED 2026-09-02 via arXiv API. THREE CORRECTIONS to the data supplied:
+%   (1) It is NOT a preprint — the Comments field reads "Accepted at ICML 2026.
+%       Camera-ready version."  Venue confirmed from arXiv metadata.
+%   (2) v1 2026-02-05T18:59:30Z, v2 2026-05-28T09:13:25Z (current). cs.CL.
+%   (3) The authors' own code is at github.com/z-lab/dflash (stated in the same
+%       Comments field) — NOT the MLX port. This matters: "z-lab" is the same lab
+%       whose llama.cpp fork is our `llama-dflash2:latest` engine image, so the
+%       drafter benchmarked in PN-29 traces to the paper's own group.
+% Authors confirmed: Jian Chen, Yesheng Liang, Zhijian Liu.
+% UNVERIFIED: a PMLR volume/page range — ICML 2026 proceedings not yet posted at
+% time of writing. Add v_XXX and pages once available.
+@inproceedings{chen2026dflash,
+  title         = {{DFlash}: Block Diffusion for Flash Speculative Decoding},
+  author        = {Chen, Jian and Liang, Yesheng and Liu, Zhijian},
+  booktitle     = {Proceedings of the 43rd International Conference on Machine Learning (ICML)},
+  year          = {2026},
+  publisher     = {PMLR},
+  eprint        = {2602.06036},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  doi           = {10.48550/arXiv.2602.06036},
+  url           = {https://arxiv.org/abs/2602.06036},
+  note          = {Authors' implementation: \url{https://github.com/z-lab/dflash}}
+}
+
+% ⚠ THE LOSSLESSNESS CLAIM THIS STUDY COUNTER-MEASURES BELONGS TO THIS PORT,
+% NOT (as verified) TO THE PAPER. VERIFIED 2026-09-02: a third-party MLX/Apple
+% Silicon port, MIT, described as "Exact speculative decoding on Apple Silicon,
+% powered by MLX" and "a native MLX port ... built from scratch on top of Metal";
+% the original "targets CUDA". Verbatim from its README:
+%   "we accept the longest matching prefix plus one bonus correction token,
+%    which is what makes the output bit-for-bit identical to plain target
+%    decoding."
+% UNVERIFIED: whether the ICML paper itself makes the same claim in the same
+% words — not checked. Attribute the quotation to the PORT, cite the paper for
+% the method, and say which implementation each refers to. Our counter-
+% measurement (PN-23/PN-26) is on a THIRD implementation again: llama.cpp's
+% built-in MTP head. Three implementations, three verification paths.
+@software{dflash_mlx,
+  title   = {\texttt{dflash-mlx}: exact speculative decoding on {Apple} {Silicon}},
+  author  = {Gupta, Arya},
+  year    = {2026},
+  license = {MIT},
+  note    = {A third-party {MLX} port of {DFlash}; the upstream implementation targets {CUDA}.
+             Source of the ``bit-for-bit identical to plain target decoding'' claim, which
+             this study's {PN-23}/{PN-26} counter-measure on a different stack},
+  url     = {https://github.com/Aryagm/dflash-mlx},
+  urldate = {2026-09-02}
+}
+
+% The DFlash2 drafter and its engine fork AS RUN HERE. No upstream publication
+% exists for this fork; it is cited by build identity so the result is
+% attributable. See chen2026dflash for the method it implements.
+@software{llamacpp_dflash2,
+  title   = {{llama.cpp} {DFlash2} fork (z-lab)},
+  author  = {{z-lab}},
+  year    = {2026},
+  version = {0.1.2-dev (build 50)},
+  note    = {Engine commit \texttt{f7aadef}; image \texttt{llama-dflash2:latest},
+             digest \texttt{sha256:22bb8b7fed8b3cfc8edb28ab5c4e1db0575670b35619da19693830a8d2952354};
+             requires \texttt{--entrypoint /app/llama-server}.
+             Drafter \texttt{Qwen3.8-27B-DFlash2-Q4\_K\_M.gguf}, 1{,}143{,}006{,}752 bytes,
+             \texttt{sha256:18a380efc9b7ed8d88677fc895f5c11ae170653434ee378f7348f715c14d0594}}
+}
+
+
+% ============================================================================
+% SECTION 5 — SERVING STACKS AND AGENT HARNESSES
+% (cited where the eliminated vLLM arm or the historical SWE-bench corpus is
+%  discussed)
+% ============================================================================
+
+% VERIFIED 2026-09-02. SOSP 2023, pages 611-626. This entry has a REAL publisher
+% DOI — one of the few in this file. The vLLM README directs to it.
+@inproceedings{kwon2023pagedattention,
+  title         = {Efficient Memory Management for Large Language Model Serving with {PagedAttention}},
+  author        = {Kwon, Woosuk and Li, Zhuohan and Zhuang, Siyuan and Sheng, Ying and
+                   Zheng, Lianmin and Yu, Cody Hao and Gonzalez, Joseph E. and Zhang, Hao and
+                   Stoica, Ion},
+  booktitle     = {Proceedings of the 29th Symposium on Operating Systems Principles (SOSP)},
+  pages         = {611--626},
+  year          = {2023},
+  publisher     = {ACM},
+  doi           = {10.1145/3600006.3613165},
+  eprint        = {2309.06180},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.LG},
+  url           = {https://doi.org/10.1145/3600006.3613165}
+}
+
+@software{vllm,
+  title   = {{vLLM}: a high-throughput and memory-efficient inference and serving engine for {LLM}s},
+  author  = {{vLLM Project}},
+  year    = {2026},
+  note    = {Versions used in the pre-E12 corpus: stable \texttt{0.27.1}
+             (\texttt{vllm/vllm-openai@sha256:0a51ea5b4ae2dc5d81890e5173f54203d2a3ae0cfffe51b8fd2afd4391bfd967})
+             and nightly \texttt{0.26.1rc1.dev1219+g46638857f}
+             (\texttt{vllm/vllm-openai@sha256:22d3b1217fda569653f32f1e00a2a4e64119c1601c67ff94cc72d7ca5ef352c8}).
+             Both images were deleted 2026-08-29 under {DEC-4}; the digests make a byte-exact
+             re-pull possible},
+  url     = {https://github.com/vllm-project/vllm},
+  urldate = {2026-09-02}
+}
+
+% VERIFIED 2026-09-02. The mini-swe-agent README states: "If you found this work
+% helpful, please consider citing the SWE-agent paper" and gives the BibTeX
+% below. ⚠ The paper describes SWE-agent, NOT mini-swe-agent, which is a later
+% simpler rewrite — hence the separate @software entry pinning our version.
+@inproceedings{yang2024sweagent,
+  title     = {{SWE}-agent: Agent-Computer Interfaces Enable Automated Software Engineering},
+  author    = {Yang, John and Jimenez, Carlos E. and Wettig, Alexander and Lieret, Kilian and
+               Yao, Shunyu and Narasimhan, Karthik R. and Press, Ofir},
+  booktitle = {The Thirty-eighth Annual Conference on Neural Information Processing Systems},
+  year      = {2024},
+  url       = {https://arxiv.org/abs/2405.15793}
+}
+
+@software{miniswe,
+  title   = {\texttt{mini-swe-agent}},
+  author  = {{SWE-agent contributors}},
+  year    = {2026},
+  version = {2.4.6},
+  license = {MIT},
+  note    = {Used for the pre-E12 {SWE}-bench Verified corpus via
+             \texttt{/srv/bench/.venv-swebench}. A simpler rewrite of {SWE}-agent;
+             the {SWE}-agent paper describes a different system},
+  url     = {https://github.com/SWE-agent/mini-swe-agent},
+  urldate = {2026-09-02}
+}
+
+
+% ============================================================================
+% SECTION 5b — R11: FIGURE GENERATION (project tooling prerequisite)
+% ============================================================================
+
+% VERIFIED 2026-09-02 via arXiv API and the abs page. ONE CORRECTION to the data
+% supplied: it is not attributable to "Google Research" alone — the author list
+% is mixed-affiliation (Tomas Pfister and Jinsung Yoon are Google; Sujian Li and
+% Dawei Zhu are academic). Cite the authors, not the organisation.
+% v1 2026-01-30T18:33:37Z, v2 2026-03-24T13:39:36Z (current). cs.CL primary,
+% cs.CV secondary. No journal_ref: preprint.
+% The BibTeX below matches the form the reference implementation publishes.
+@misc{zhu2026paperbanana,
+  title         = {{PaperBanana}: Automating Academic Illustration for {AI} Scientists},
+  author        = {Zhu, Dawei and Meng, Rui and Song, Yale and Wei, Xiyu and
+                   Li, Sujian and Pfister, Tomas and Yoon, Jinsung},
+  year          = {2026},
+  eprint        = {2601.23265},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  doi           = {10.48550/arXiv.2601.23265},
+  url           = {https://arxiv.org/abs/2601.23265}
+}
+
+% VERIFIED 2026-09-02. MIT. ⚠ The repository states it is a community-driven
+% open-source implementation and is EXPLICITLY NOT AFFILIATED with the original
+% authors — so it is a separate work and gets a separate entry, not a `note` on
+% the paper.
+% ⚠ CANNOT RUN OFFLINE. Verified required keys: OPENAI_API_KEY (gpt-5.2 +
+% gpt-image-1.5, default), GOOGLE_API_KEY (gemini-2.5-flash +
+% gemini-3-pro-image-preview), ATLASCLOUD_API_KEY, Azure OpenAI
+% (OPENAI_API_KEY + OPENAI_BASE_URL), or OpenRouter. Statistical plots are
+% produced as VLM-generated matplotlib and need no image provider, but still
+% require a VLM API call. NO such key exists on the benchmark host — see
+% PROVENANCE.md §8.
+@software{paperbanana_impl,
+  title   = {{PaperBanana}: open implementation},
+  author  = {{llmsresearch}},
+  year    = {2026},
+  license = {MIT},
+  note    = {Community implementation of \citet{zhu2026paperbanana}; states no affiliation with
+             the original authors. Requires a cloud {VLM} and image-generation provider
+             ({OpenAI}, {Gemini}, {Atlas} {Cloud}, {Azure} or {OpenRouter}) and cannot run
+             offline. Used to render this report's figures; no credentials exist on the
+             benchmark host, so rendering happens elsewhere},
+  url     = {https://github.com/llmsresearch/paperbanana},
+  urldate = {2026-09-02}
+}
+
+
+% ============================================================================
+% SECTION 6 — STATISTICS
+% ============================================================================
+
+% VERIFIED 2026-09-02. JASA vol. 22, no. 158, pp. 209-212, June 1927.
+% Real publisher DOI. The interval used for every pass-rate in this study.
+@article{wilson1927interval,
+  title     = {Probable Inference, the Law of Succession, and Statistical Inference},
+  author    = {Wilson, Edwin B.},
+  journal   = {Journal of the American Statistical Association},
+  volume    = {22},
+  number    = {158},
+  pages     = {209--212},
+  year      = {1927},
+  publisher = {Taylor \& Francis},
+  doi       = {10.1080/01621459.1927.10502953}
+}
+
+% VERIFIED 2026-09-02. Annals of Statistics vol. 7, no. 1, pp. 1-26, Jan 1979.
+% Real publisher DOI. Cited for the pre-E12 bootstrap CIs
+% (B = 10,000, seed 20260825).
+@article{efron1979bootstrap,
+  title     = {Bootstrap Methods: Another Look at the Jackknife},
+  author    = {Efron, B.},
+  journal   = {The Annals of Statistics},
+  volume    = {7},
+  number    = {1},
+  pages     = {1--26},
+  year      = {1979},
+  publisher = {Institute of Mathematical Statistics},
+  doi       = {10.1214/aos/1176344552}
+}
+
+% McNemar's test, used paired in SSA S6 (exact binomial) and S7 (chi-square).
+% NOT independently re-verified in this pass; the citation is standard and
+% stable. Flagged so a reviewer knows it was taken as canonical.
+@article{mcnemar1947test,
+  title     = {Note on the sampling error of the difference between correlated proportions or percentages},
+  author    = {McNemar, Quinn},
+  journal   = {Psychometrika},
+  volume    = {12},
+  number    = {2},
+  pages     = {153--157},
+  year      = {1947},
+  doi       = {10.1007/BF02295996}
+}

@@ -321,6 +321,18 @@ Unified Evaluation of llama.cpp Quantization on Llama-3.1-8B-Instruct"*, v1 2026
   χ² McNemar statistic (`chi2` field), while PN-28's S6 p-values are exact binomial
   (`p_two_sided_exact`). Two different tests, both correctly non-significant. Name each in the table.
 * **F-19** — `data/raw/e12/README.md` describes the tree as ~20 pulled files; it now holds 173.
+* **F-21** — **not minor; stated in full at §4.0.** Three distinct speculative implementations
+  appear in this corpus and its references (llama.cpp's built-in MTP head · the DFlash2 drafter on
+  the z-lab fork · the published DFlash / `dflash-mlx` port, never run here), and the pre-E12
+  tables mix the first two freely. The losslessness argument turns on keeping them apart.
+* **F-22** — R12's supplied metadata needed three corrections, all verified 2026-09-02:
+  DFlash is **accepted at ICML 2026** (camera-ready), not a preprint; the authors' own code is
+  `github.com/z-lab/dflash` — the **same lab** as our `llama-dflash2:latest` fork, which is a
+  provenance link worth stating; and the *"bit-for-bit identical to plain target decoding"* wording
+  belongs to the third-party **MLX port**, not (as verified) to the paper. Whether the paper makes
+  the same claim was **not checked**. R11 likewise: PaperBanana is a **mixed-affiliation** author
+  list, not "Google Research", and its open implementation states it is **not affiliated** with the
+  original authors.
 * **F-20** — the repo lacks `s11-pads-manifest.json`, `state/progress.json` and
   `quarantine/s11-gen-c8192.json`, all present on the host. Low value, but the quarantine register
   is incomplete without the last one.
@@ -391,15 +403,20 @@ task distribution**. PN-14, PN-21 · **CURRENT**
 
 ### 1.5 Adjacent-arm separation
 
-| pair | domain | separation |
-|---|---|---|
-| Q6_K vs Q5_K_XL | prose | ~3.7 σ |
-| Q5_K_XL vs Q4_K_XL | prose | ~10 σ |
-| Q6_K vs Q5_K_XL | code | ~8.7 σ |
-| Q5_K_XL vs Q4_K_XL | code | ~11.8 σ |
+Computed here from the tabled means and tool errors as
+`|Δ| / sqrt(err_a² + err_b²)`; **not** a field in the artifact.
 
-PN-13 states the range as **3.7–11.8 σ with non-overlapping intervals**; the per-pair values above
-are computed from the tabled means and errors and are consistent. **CURRENT**
+| pair | prose (D1) | code (D2) | task prompts (D3) |
+|---|---|---|---|
+| Q6_K vs Q5_K_XL | **3.71 σ** ← the minimum | 8.67 σ | 8.26 σ |
+| Q5_K_XL vs Q4_K_XL | 8.48 σ | **11.82 σ** ← the maximum | 11.17 σ |
+
+PN-13 states the range as **3.7–11.8 σ with non-overlapping intervals**; the recomputation
+reproduces both endpoints exactly (3.71 and 11.82). **CURRENT**
+⚠ The uncertainties are the tool's own, which treats per-token KLD as Gaussian; tokens within a
+2,048-token chunk are not independent, so these σ are **optimistic in the same way** PN-32 shows
+pooled acceptance intervals are. The *ordering* and the *order of magnitude* of the separation are
+what the data supports, not a precise σ.
 
 ### 1.6 The metric-pair inversion (PN-16)
 
@@ -638,10 +655,13 @@ Medians over 164 real HumanEval+ generations, `max_tokens` 1024, seed 20260830:
 | no-spec | **18.463** | 1.00× | — | 164 |
 | MTP n=2 | **37.429** | 2.03× | 0.9536 | 164 |
 | MTP n=4 | **47.024** | 2.55× | 0.8922 | 164 |
-| DFlash2 n=4 (on `llama-dflash2:latest`) | **51.780** | 2.80× | 0.9172 | 164 |
+| DFlash2 n=4 (impl. **B**, `llama-dflash2:latest`) | **51.780** | 2.80× | 0.9172 | 164 |
 
 Artifacts `data/raw/e12/s8/s8-humaneval.json`, `data/raw/e12/s9/s9-dflash.json` · PN-24, PN-29 ·
-**CURRENT**. ⚠ The DFlash2 row is on a **different engine image** — see §4.4.
+**CURRENT**. ⚠ The first three rows are **implementation A**; the fourth is **implementation B on
+a different engine image** (§4.0). A table printing all four must say so in the table, because the
+2.80× is partly an engine comparison and partly a drafter comparison and the data cannot separate
+them.
 Repeat measurement a day later (S9a): no-spec **18.485**, MTP n=2 **37.837**
 (`s9-determinism.json`) — a 0.1 % and 1.1 % difference, and the completions were byte-identical.
 
@@ -737,7 +757,53 @@ CURRENT and load-bearing: it is why every Wave-1 row is measured at ≥0.90 dept
 
 # §4 — Speculative decoding
 
+## §4.0 — WHICH IMPLEMENTATION IS BEING MEASURED (read before using any row here)
+
+**The paper's losslessness argument turns on not conflating these.** Three distinct speculative
+implementations appear in this corpus and in its references, with three different verification
+paths. A row from one says nothing about another.
+
+| # | implementation | what it is | engine | measured here? | rows |
+|---|---|---|---|---|---|
+| **A** | **llama.cpp built-in MTP head** (`--spec-type draft-mtp`) | the model's own multi-token-prediction head; **no separate draft model**. The engine builds a *separate draft context against the target model* (`common_speculative_init_result` in the serverlog), which is why enabling it costs window | `llamacpp-mtp:latest` `sha256:feb0231976b6…` | **YES — this is what PN-23 and PN-26 measure** | §4.1 (n=2, n=4), §4.2, §4.3, §4.5 (withdrawn), §4.6, and every Wave-1 ceiling in §2 |
+| **B** | **DFlash2 drafter** on the z-lab llama.cpp fork | a separate 1.14 GB block-diffusion draft model (`Qwen3.8-27B-DFlash2-Q4_K_M.gguf`) verified by the target | `llama-dflash2:latest` `sha256:22bb8b7fed8b…` (0.1.2-dev build 50, f7aadef) — **requires `--entrypoint /app/llama-server`** | **YES, but only in S9c** | §4.4, and the 51.78 tok/s row in §3.3 |
+| **C** | **DFlash reference / `dflash-mlx` port** | the published method (`chen2026dflash`, ICML 2026) and a third-party Apple-Silicon port | not on this host | **NO — never run here** | reference only |
+
+**Rules that follow, and they are not optional:**
+
+1. **PN-23's and PN-26's non-equivalence result is about implementation A only.** It is
+   `--spec-type draft-mtp` on `llamacpp-mtp:latest`. Do not state it as a result about
+   "speculative decoding" without naming the implementation, and do not state it as a result
+   about DFlash.
+2. **The DFlash2 equivalence figure (132/164, §4.4) is ENGINE-CONFOUNDED and must never appear
+   beside MTP's 131/164.** Its no-spec baseline was generated on `llamacpp-mtp:latest` while the
+   arm ran on `llama-dflash2:latest`, so an engine-version difference is inseparable from the
+   speculation effect. The two numbers look comparable and are not.
+3. **The "bit-for-bit identical to plain target decoding" claim (R12) is made by the `dflash-mlx`
+   port** — implementation C — describing a verification rule of *longest matching prefix plus one
+   bonus correction token*. Whether the ICML paper itself uses that wording was **not verified**.
+   Our counter-measurement is on implementation **A**. The honest statement is therefore:
+   *"speculative decoding is lossless" is an implementation property that must be verified per
+   stack, not inherited from the algorithm's specification* — **not** "DFlash's losslessness claim
+   is false", which we did not test.
+4. **All five S8 DFlash cells are EXCLUDED (PN-25)**, because they were launched on implementation
+   A's engine with implementation B's drafter — a mis-binding that produced `0.000 pass@1` and
+   `generate-failed`, values indistinguishable in a table from a model that ran and failed. S9c
+   (§4.4) is the only valid DFlash2 measurement in the corpus.
+5. **Acceptance rates are not comparable across A and B**, both because the drafters differ and
+   because the sampling differs between Wave 1 (DEC-2 official) and S8/S9 (greedy).
+
+⚑ **F-21** — `data/multivac-src/multivac-CLAUDE.md` and the pre-E12 tables mix A and B freely
+(e.g. "IQ4_XS DFlash2 n=4 57.5 tok/s" beside "IQ4_XS MTP n=2 46.9"). Those rows are additionally
+**IRREPRODUCIBLE-ON-CURRENT-IMAGES** and depth-0. They may be reported as historical context; they
+may not be used to compare A against B under the current protocol. The only current-protocol A-vs-B
+comparison is §3.3 at ctx 32,768 — and even there the arms sit on **two different engine images**,
+which the table must say.
+
+---
+
 ### 4.1 Output equivalence at greedy (S8) — the premise this study retired
+**Implementation A (llama.cpp built-in MTP head), except the last row.**
 
 164 HumanEval+ problems · UD-Q6_K · ctx 32,768 · `-ts 58,42` · `-ctxcp 32` · q4_0 KV ·
 **greedy (temperature 0, top_p 1), seed 20260830** — a deliberate departure from DEC-2, because
@@ -776,8 +842,17 @@ Artifact `s9-determinism.json` · PN-26 · **CURRENT**
 ⇒ **PN-23's proposed mechanism (float nondeterminism from a changed decode batch shape) is
 WITHDRAWN.** PN-23's numbers stand. Where in verification the difference arises is unresolved and
 needs engine-level instrumentation.
-⚠ PN-26 cites md5 `37616d8911fb4792fb76cadf0806511c` for the no-spec completions. That hash is
-**not in the artifact**; it is recomputable from the `.jsonl` files.
+
+> ✅ **INDEPENDENTLY RE-DERIVED 2026-09-02 from the raw completions, and every figure reproduces
+> exactly.** Recomputed from `s8-{nospec,mtp2,mtp4}.jsonl` and `s9-{nospec-r2,mtp2-r2}.jsonl`
+> without reading any summary field:
+> `nospec` self-identity **164/164, differs 0** · `mtp2` self-identity **164/164, differs 0** ·
+> `nospec` vs `mtp2` **131 identical / 33 differ** · `nospec` vs `mtp4` **131 / 33** ·
+> divergence-set overlap **25 shared, 8 unique to each, Jaccard 0.6098**.
+> **PN-26's md5 `37616d8911fb4792fb76cadf0806511c` is confirmed**: it is the md5 of the raw
+> `.jsonl` file, and `s8-nospec.jsonl` and `s9-nospec-r2.jsonl` hash to it **identically**. The
+> hash is not a field in any artifact — it is a property of the shipped files, and it holds.
+> **This is the most thoroughly verified result in the corpus.**
 
 ### 4.3 Draft acceptance — per quant, and its confounds
 
@@ -804,6 +879,7 @@ Also note the strong **within-cell** instability: UD-Q6_K at 262,144 `58,42` rea
 estimate.
 
 ### 4.4 DFlash2 (S9c) — measured at last, on its correct engine
+**Implementation B. The only valid DFlash2 measurement in this corpus.**
 
 Engine `llama-dflash2:latest` (`sha256:22bb8b7fed8b…`, 0.1.2-dev build 50, f7aadef) with
 `--entrypoint /app/llama-server`; drafter `Qwen3.8-27B-DFlash2-Q4_K_M.gguf`, 1,143,006,752 B,

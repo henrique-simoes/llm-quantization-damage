@@ -1,0 +1,6 @@
+[2026-09-02T06:57:04Z]     Q6_K_XL mkniah c131072: 10/12 (1813s)
+[2026-09-02T07:02:55Z]   Q6_K_XL mkniah c131072: score 100.0 (n=12, 0 empty, 2164.6s, prompt_n median 130935)
+[2026-09-02T07:33:16Z]     Q4_K_XL mkniah c131072: 10/12 (1622s)
+[2026-09-02T07:38:43Z]   Q4_K_XL mkniah c131072: score 91.67 (n=12, 0 empty, 1949.1s, prompt_n median 130935)
+[2026-09-02T07:38:43Z] mkniah: 2 cells ok
+[2026-09-02T07:38:47Z] ACCURACY RECOVERY vs Q6_K_XL: {"8192": {"niah:Q4_K_XL": {"score": 100.0, "baseline": 100.0, "accuracy_recovery_pct": 100.0}}, "32768": {"niah:Q4_K_XL": {"score": 100.0, "baseline": 100.0, "accuracy_recovery_pct": 100.0}}, "131072": {"niah:Q4_K_XL": {"score": 100.0, "baseline": 100.0, "accuracy_recovery_pct": 100.0}, "mkniah:Q4_K_XL": {"score": 91.67, "baseline": 100.0, "accuracy_recovery_pct": 91.67}}}

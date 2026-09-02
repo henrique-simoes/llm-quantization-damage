@@ -63,36 +63,6 @@
   {
    "arm": "Q6_K_XL",
    "task": "niah",
-   "length": 8192,
-   "ok": true,
-   "score": 100.0,
-   "n": 25,
-   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 8192 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080",
-   "tokens_to_generate": 128,
-   "prompt_n_median": 8041,
-   "prompt_n_min": 8039,
-   "prompt_n_max": 8049,
-   "n_empty": 0,
-   "seconds": 363.1
-  },
-  {
-   "arm": "Q4_K_XL",
-   "task": "niah",
-   "length": 8192,
-   "ok": true,
-   "score": 100.0,
-   "n": 25,
-   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 8192 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080",
-   "tokens_to_generate": 128,
-   "prompt_n_median": 8041,
-   "prompt_n_min": 8039,
-   "prompt_n_max": 8049,
-   "n_empty": 0,
-   "seconds": 308.4
-  },
-  {
-   "arm": "Q6_K_XL",
-   "task": "niah",
    "length": 32768,
    "ok": true,
    "score": 100.0,
@@ -149,6 +119,36 @@
    "prompt_n_max": 130943,
    "n_empty": 0,
    "seconds": 1923.7
+  },
+  {
+   "arm": "Q6_K_XL",
+   "task": "mkniah",
+   "length": 131072,
+   "ok": true,
+   "score": 100.0,
+   "n": 12,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 131072 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "tokens_to_generate": 128,
+   "prompt_n_median": 130935,
+   "prompt_n_min": 130931,
+   "prompt_n_max": 130942,
+   "n_empty": 0,
+   "seconds": 2164.6
+  },
+  {
+   "arm": "Q4_K_XL",
+   "task": "mkniah",
+   "length": 131072,
+   "ok": true,
+   "score": 91.67,
+   "n": 12,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 131072 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "tokens_to_generate": 128,
+   "prompt_n_median": 130935,
+   "prompt_n_min": 130931,
+   "prompt_n_max": 130942,
+   "n_empty": 0,
+   "seconds": 1949.1
   }
  ],
  "smoke": {
@@ -218,8 +218,14 @@
     "score": 100.0,
     "baseline": 100.0,
     "accuracy_recovery_pct": 100.0
+   },
+   "mkniah:Q4_K_XL": {
+    "score": 91.67,
+    "baseline": 100.0,
+    "accuracy_recovery_pct": 91.67
    }
   }
  },
- "finished_utc": "2026-09-02T06:22:07Z"
+ "finished_utc": "2026-09-02T07:38:47Z",
+ "dedup_note": "two niah c8192 cells were measured twice: the per-cell resume keyed on a tokens_to_generate field the first pair predated, so a restart re-ran them. Scores were identical (100.0); duplicates removed."
 }
