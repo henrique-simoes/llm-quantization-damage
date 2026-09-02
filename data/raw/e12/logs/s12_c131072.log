@@ -1,0 +1,6 @@
+[2026-09-02T05:06:03Z]   niah_131072: already generated
+[2026-09-02T05:39:52Z]     Q6_K_XL niah c131072: 10/12 (1759s)
+[2026-09-02T05:45:48Z]   Q6_K_XL niah c131072: score 100.0 (n=12, 0 empty, 2114.7s, prompt_n median 130941)
+[2026-09-02T06:16:40Z]     Q4_K_XL niah c131072: 10/12 (1601s)
+[2026-09-02T06:22:03Z]   Q4_K_XL niah c131072: score 100.0 (n=12, 0 empty, 1923.7s, prompt_n median 130941)
+[2026-09-02T06:22:03Z] length 131072: 2 cells ok

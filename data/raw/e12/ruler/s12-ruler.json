@@ -119,6 +119,36 @@
    "prompt_n_max": 32624,
    "n_empty": 0,
    "seconds": 845.2
+  },
+  {
+   "arm": "Q6_K_XL",
+   "task": "niah",
+   "length": 131072,
+   "ok": true,
+   "score": 100.0,
+   "n": 12,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 131072 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "tokens_to_generate": 128,
+   "prompt_n_median": 130941,
+   "prompt_n_min": 130318,
+   "prompt_n_max": 130943,
+   "n_empty": 0,
+   "seconds": 2114.7
+  },
+  {
+   "arm": "Q4_K_XL",
+   "task": "niah",
+   "length": 131072,
+   "ok": true,
+   "score": 100.0,
+   "n": 12,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 131072 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "tokens_to_generate": 128,
+   "prompt_n_median": 130941,
+   "prompt_n_min": 130318,
+   "prompt_n_max": 130943,
+   "n_empty": 0,
+   "seconds": 1923.7
   }
  ],
  "smoke": {
