@@ -1,0 +1,74 @@
+{
+ "note": "re-parsed from the *-eval.txt files S8 wrote; s8-scores.json is left unedited on disk and is superseded by this file",
+ "defect": "the original regex captured the '1' from 'pass@1' as the score",
+ "arms": {
+  "nospec": {
+   "scores": {
+    "humaneval": 0.945,
+    "humaneval+": 0.915
+   },
+   "n": 164,
+   "base_pass": 155,
+   "plus_pass": 150,
+   "base_wilson95": [
+    89.9,
+    97.09
+   ],
+   "plus_wilson95": [
+    86.18,
+    94.85
+   ]
+  },
+  "mtp2": {
+   "scores": {
+    "humaneval": 0.939,
+    "humaneval+": 0.902
+   },
+   "n": 164,
+   "base_pass": 154,
+   "plus_pass": 148,
+   "base_wilson95": [
+    89.14,
+    96.65
+   ],
+   "plus_wilson95": [
+    84.74,
+    93.91
+   ]
+  },
+  "mtp4": {
+   "scores": {
+    "humaneval": 0.939,
+    "humaneval+": 0.909
+   },
+   "n": 164,
+   "base_pass": 154,
+   "plus_pass": 149,
+   "base_wilson95": [
+    89.14,
+    96.65
+   ],
+   "plus_wilson95": [
+    85.46,
+    94.38
+   ]
+  },
+  "dflash4": {
+   "scores": {
+    "humaneval": 0.0,
+    "humaneval+": 0.0
+   },
+   "n": 164,
+   "base_pass": 0,
+   "plus_pass": 0,
+   "base_wilson95": [
+    0.0,
+    2.29
+   ],
+   "plus_wilson95": [
+    0.0,
+    2.29
+   ]
+  }
+ }
+}

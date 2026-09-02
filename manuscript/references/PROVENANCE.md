@@ -322,7 +322,172 @@ Key entry points: `lib_e12.py` (launch contract, 1 Hz VRAM sampler, `save_and_ki
 
 ---
 
-## 10. The rules that made this record possible
+## 10. Public-repository readiness — what publication requires that this repo does not yet have
+
+Researched 2026-09-02 against the primary standards, with the URL for every claim. Recorded here
+because the repository is to be made public alongside an arXiv submission, and three of these are
+blocking.
+
+### 10.1 A GitHub link is not an archived artifact
+
+ACM's *Artifact Review and Badging* **v1.1 (2020-08-24)** defines **Artifacts Available** as
+*"Author-created artifacts relevant to this paper have been placed on a publically accessible
+**archival** repository. A DOI or link to this repository along with a unique identifier for the
+object is provided"* — and states *"Personal web pages are not acceptable for this purpose."*
+ACM CCS 2025 makes the exclusion explicit: *"making the artifacts available solely through personal
+web pages, **GitHub, GitLab, or a similar software-development site is not adequate** for receiving
+this badge."* Acceptable: Zenodo, FigShare, Dryad, Software Heritage.
+· <https://www.acm.org/publications/policies/artifact-review-and-badging-current>
+· <https://www.sigsac.org/ccs/CCS2025/call-for-artifacts/>
+
+Corroborated by *Good Enough Practices in Scientific Computing* rule 1g — *"Submit data to a
+reputable DOI-issuing repository so that others can access and cite it"*
+(<https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005510>) — and by
+NeurIPS's dataset guidance (*"The dataset should have a persistent identifier such as a Digital
+Object Identifier"*).
+
+> ⚠ **This repository currently has no public remote at all** — by design, a bare hub on the host.
+> So the GitHub→Zenodo automation does not apply, and the route is **manual Zenodo upload**.
+
+### 10.2 The DOI, and the ordering problem
+
+Zenodo mints **two DOIs on first publication**: a **version DOI** for the specific deposit and a
+**concept DOI** representing all versions
+(<https://support.zenodo.org/help/en-gb/1-upload-deposit/97-what-is-doi-versioning>).
+
+* **Cite the version DOI in the paper's bibliography** — it is the only identifier that resolves to
+  the exact artifact that produced the tables.
+* **Use the concept DOI in the README badge and in `CITATION.cff`**, where "always latest" is what
+  a reader wants.
+
+**The ordering trap, and why the manual route is the right one here.** Zenodo's GitHub integration
+fires on a **Release** object (not a tag, not a push) and *"It is not possible to pre-reserve DOIs
+before using GitHub integration with Zenodo"*
+(<https://support.zenodo.org/help/en-gb/24-github-integration/73-can-i-pre-reserved-a-doi-before-a-github-release>).
+A **manual upload does support DOI pre-reservation** — *"You can include this DOI in files prior to
+uploading them"* (<https://help.zenodo.org/docs/deposit/describe-records/reserve-doi>), with the
+caveat that deleting the draft loses the reserved DOI. Since this repo has no public forge, the
+manual route is both the only available one **and** the one that lets the DOI be printed inside the
+archived artifact and in the paper before submission.
+
+⚠ **`.zenodo.json` silently disables `CITATION.cff`**: *"If both files are present in your
+repository, **only** the `.zenodo.json` metadata will be used… The `CITATION.cff` metadata will be
+ignored by Zenodo"* (<https://help.zenodo.org/docs/github/describe-software/>). Keep
+`CITATION.cff` anyway — GitHub uses it for its "Cite this repository" panel.
+
+**Size:** 50 GB and 100 files per record by default, with a self-service allowance to 200 GB, and
+unlimited records under 50 GB (<https://help.zenodo.org/docs/deposit/manage-quota/>). ⚠ Zenodo's
+own policies page still states a flat 50 GB cap, so the two disagree — re-check before relying on
+it. This repo's tracked tree is ~13 MB, so the limit is not close to binding; it would only matter
+if GGUFs or serverlogs were ever archived. Note also *"The **older API** supports 100MB per file"* —
+the classic scripted-upload trap (<https://developers.zenodo.org/>).
+
+**Retention, quotable in a data-availability statement:** *"Items will be retained for the lifetime
+of the repository. This is currently the lifetime of the host laboratory CERN, which currently has
+an experimental programme defined for the next 20 years at least"* — with Zenodo's own caveat that
+it *"makes no promises of usability and understandability of deposited objects over time"*
+(<https://about.zenodo.org/policies/>).
+
+### 10.3 Software Heritage — complementary, and intrinsic
+
+Deposit via Save Code Now (<https://archive.softwareheritage.org/save/>), no account required,
+supporting `git, hg, svn, cvs, bzr, tarball`. SWH's advice is to *"trigger archival on branch, tag,
+or release creation, rather than on every push"*
+(<https://www.softwareheritage.org/how-to-archive-reference-code/>).
+
+The identifier is an **SWHID**, standardised as **ISO/IEC 18670:2025** on 2025-04-23
+(<https://www.swhid.org/>), with grammar
+`swh:1:<snp|rel|rev|dir|cnt>:<40 hex digits>` plus optional `origin=`, `visit=`, `anchor=`,
+`path=`, `lines=` qualifiers
+(<https://docs.softwareheritage.org/devel/swh-model/persistent-identifiers.html>).
+
+The distinction that makes it worth doing **in addition to** a DOI, in SWH's own words:
+*"**Extrinsic**: use a register to keep the correspondence between the identifier and the object.
+**Intrinsic**: intimately bound to the designated object, they do not need a register, only
+agreement on a standard."* A DOI is a registry's promise; a SWHID **is** the hash, recomputable
+offline. Since late 2024 Zenodo forwards publicly-accessible single-archive deposits to SWH
+automatically (<https://blog.zenodo.org/2024/10/21/2024-10-21-swh>) — but **do a Save Code Now
+anyway**, because it archives the full git history, which a Zenodo tarball does not.
+
+⚠ Save Code Now needs a **publicly clonable URL**, which this repo does not currently have.
+⚠ A restricted or embargoed Zenodo record is **not** forwarded to SWH.
+
+### 10.4 What the public README must contain
+
+The operative standard is the **ML Code Completeness Checklist**
+(<https://github.com/paperswithcode/releasing-research-code>), adopted as official NeurIPS
+guidance: *specification of dependencies · training code · evaluation code · pre-trained models ·
+a README with a table of results accompanied by precise commands to reproduce them.*
+(⚠ Papers-with-Code itself is sunset — `paperswithcode.com` now redirects to Hugging Face — but
+the checklist repository is live and still cited by NeurIPS.)
+
+Two of its five items do not apply to an inference-benchmark paper and need substituting: **training
+code → the launch/measurement harness** (`data/raw/e12/harness-src/`), and **pre-trained models →
+the exact quantized weights with sha256 and provenance** (§3 above).
+
+Four sections distinguish a systems-benchmark repo from a generic ML one, and none of them come
+from the general project-layout literature — **all four are already written and only need
+surfacing into a public README**:
+
+| section | source | where it already exists here |
+|---|---|---|
+| hardware and environment specification | ML Reproducibility Checklist v2.0, *"a description of the computing infrastructure used"*; NeurIPS checklist item 8 | §1, §2, §9 of this file |
+| expected runtime / compute / energy per result | MLRC, *"the average runtime for each result, or estimated energy cost"* | per-cell `seconds` in every artifact; §7 of `METRIC-CORPUS.md` |
+| statistical protocol — n, estimator, seeds, interval type | MLRC; NeurIPS item 7 | §8.4 of `METRIC-CORPUS.md`; §4 of this file |
+| known limitations / what this repo does **not** contain | NeurIPS item 2 (*"Reviewers will be specifically instructed to not penalize honesty concerning limitations"*) and item 5 | §7 of this file; §9.10 of `METRIC-CORPUS.md` |
+
+<https://www.cs.mcgill.ca/~jpineau/ReproducibilityChecklist.pdf> ·
+<https://neurips.cc/public/guides/PaperChecklist>
+
+### 10.5 Three practices this project already follows, which the standards name
+
+Worth stating in the public README as compliance rather than leaving them as internal habit:
+
+1. **`irreproducible-on-current-images` labelling** is exactly NeurIPS checklist item 5: *"If a
+   subset of experiments are reproducible, you should state which ones are."* It reads as an
+   admission and is in fact best practice.
+2. **`quarantine/`** — excluded but retained, with a register — maps to the ML Reproducibility
+   Checklist's *"an explanation of any data that were excluded."*
+3. **`env-manifest.json`** (sha256 + bytes + RepoDigest for every artifact, including deleted ones)
+   maps to ACM's *"Documented: at minimum, an **inventory of artifacts** is included"* and to
+   MLPerf's `systems/<system_desc_id>.json` machine-readable hardware/software manifest
+   (<https://github.com/mlcommons/policies/blob/master/submission_rules.adoc>).
+
+### 10.6 Missing files, and licensing
+
+**Not present and required for publication:** `LICENSE` (Zenodo makes the licence field
+**mandatory**, on the SPDX list, and the GitHub→Zenodo path requires one),
+`LICENSE-DATA`, `CITATION.cff`, and a public-facing `README.md` section covering §10.4.
+
+`CITATION.cff` is at **version 1.2.0**, requires exactly four keys — `authors`, `cff-version`,
+`message`, `title` — and must sit at the **root of the default branch**
+(<https://citation-file-format.github.io/>,
+<https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-citation-files>).
+GitHub renders APA and BibTeX from it.
+⚠ The two CFF→BibTeX converters **disagree on entry type** — `cffconvert` emits `@misc`,
+`ruby-cff` emits `@software` — and GitHub does not document which it uses. Compile whatever is
+pasted and read the `.blg`.
+
+**Licensing, code vs data.** Creative Commons *"recommend[s] against using Creative Commons
+licenses for software"* while confirming *"CC licenses can be used on databases"*
+(<https://creativecommons.org/faq/>); the Turing Way recommends CC0/CC-BY/PDDL/ODC-BY/ODbL for data
+(<https://book.the-turing-way.org/reproducible-research/licensing/licensing-data>). Dual licensing
+— permissive for the harness, CC-BY-style for the measurement data — follows from combining the
+two, though **neither states it as a requirement**. The only hard rule is NeurIPS's: *the license
+and any data-access restrictions must be described in the paper.*
+
+### 10.7 One terminology trap worth avoiding in the manuscript
+
+ACM v1.1 **swapped the senses of two words**: *"ACM agreed with NISO's recommendation to **swap the
+terms 'reproducibility' and 'replication'**… ACM took action to update all prior badging to ensure
+consistency."* Current senses: **Repeatability** = same team, same setup · **Reproducibility** =
+*different* team, same setup · **Replicability** = different team, different setup. Many live
+conference pages still show the pre-2020 opposite sense. **Define the term in the paper and cite
+the version.**
+
+---
+
+## 11. The rules that made this record possible
 
 Stated because they are the paper's method contribution, and because each was written after a
 failure that would otherwise have been unrecoverable.

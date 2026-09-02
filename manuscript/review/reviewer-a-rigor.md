@@ -152,6 +152,11 @@ data/raw/e12/logs/s12_gen.log     →  niah_{8192,32768,131072}, variable_tracki
 data/raw/e12/logs/s12_chain.log   →  phases c8192, c32768, c131072, summarize. No MK-NIAH phase.
 ```
 
+The chain log has since been updated on disk to its complete form, ending
+`[2026-09-02T06:22:07Z] === S12 CHAIN COMPLETE ===`. **The completed run confirms the finding
+rather than resolving it**: four phases, no MK-NIAH, and a final `ACCURACY RECOVERY vs Q6_K_XL`
+line covering only `niah:Q4_K_XL` at 8,192 / 32,768 / 131,072, all 100.0.
+
 A repository-wide grep for `91.67` returns hits only in prose (`PAPER-NOTES.md`,
 `METHOD-REFERENCES.md`, `OUTLINE.md`, the ledger) — **no data file**. RULER's `niah.py` defaults
 `num_needle_k=1`; the mirrored harness never overrides it, so it cannot have produced MK-NIAH. L-18's
@@ -1070,7 +1075,7 @@ alongside the mean."
   design was never powered to. The common expectation that a smaller quantization buys meaningful
   speed is not supported by what we measured, and would need n ≥ 30 repetitions per arm to test."
 
-**W15 — the speculative-decoding contribution bullet (outline §35, README finding 5).**
+**W15 — the speculative-decoding contribution bullet (`manuscript/OUTLINE.md` contribution 4, `README.md` finding 5).**
 - **Before:** "Speculative decoding is not output-identical, contrary to the standing assumption." /
   "Speculative decoding on this engine is deterministically non-equivalent to unspeculated decoding."
 - **After:** "Speculation with this engine's built-in MTP head is **reproducibly non-equivalent** to
@@ -1152,8 +1157,33 @@ which concedes the rule, names the implementations on both sides, and states the
 25. **Re-attempt the four single-attempt ceiling failures (~1 h)** so PN-6 and the non-monotonicity
     headline satisfy the project's own two-attempt rule (§6.4).
 
-Items 11–20 cost no GPU time and fix most of the review. Item 21 decides whether the paper keeps its
-title.
+### Added after the R12 note and the harness-source audit
+
+26. **Re-scope every restatement of the speculative-decoding claim** to name the drafter and the
+    engine build (W15, §11.1). Six sentences, listed in §11.1.
+27. **Delete R12's opening gloss** and adopt the §11.3 framing; firewall the citation from PN-29's
+    132/164; state the falsifier not run (W17).
+28. **Withdraw PN-26's mechanism-exclusion sentence** and replace it with W16 — then **run the free
+    re-analysis**: first-divergence token position against the draft-chunk lattice, from
+    `s8-{nospec,mtp2,mtp4}.jsonl`. No GPU time. It is the single cheapest new result available to
+    this paper.
+29. **Mirror `s9_score.sh`, `s11_prebuild_pads.py` and `s8-scores-reparsed.json`** into
+    `harness-src/` (V12). No statistic should reach the paper from a script the artifact set does
+    not contain, and PN-32's sign test and PN-33's Wilson intervals should get a small script each.
+30. **Unify the estimators** (§4.6): one definition of "median" (`statistics.median`), one
+    definition of "spread", one named McNemar variant with the exact test used at b+c < 25, and a
+    declared "6 pairwise comparisons, uncorrected" for PN-22. Re-quote PN-22 as **min p = 0.125**.
+31. **Port the two gates into `s8_spec.py` and `s9_final.py`, and record `predicted_n` in
+    `tsweep_v2.py`** (§4.6). The second is the field whose absence makes Wave 1 — and therefore the
+    Track A decision — unauditable against the failure mode that already voided two batteries.
+32. **Correct PN-32's two descriptive slips**: two of the thirteen pairs are n2→n8 spans, not
+    adjacent; and three cells were invalid, not two (§4.4).
+33. **Re-scope R8's "reproduced verbatim"** to the metric rather than the pipeline, note that
+    `postprocess_pred` was not applied and why it is inconsequential here, and either produce the
+    claimed five-case unit check as an artifact or drop the claim (§4.6).
+
+Items 11–20 and 26–33 cost no GPU time and fix most of the review. Item 21 decides whether the paper
+keeps its title.
 
 ---
 
@@ -1323,11 +1353,278 @@ rather than harder.
 
 ## 12. Sources consulted
 
-*(Web research on peer-review standards, benchmarking-paper failure modes, null-result reporting and
-statistical reporting for ML evaluation was commissioned in parallel with this audit and is recorded
-below.)*
+These are the external standards against which the judgements above were made. They are numbered
+**R-web-N** so they do not collide with the paper's own R1–R12.
 
-<!-- WEB-SOURCES -->
+### Venue reviewing standards and checklists
+
+- **R-web-1 — NeurIPS Paper Checklist.** <https://neurips.cc/public/guides/PaperChecklist>
+  Item 7 (Experiment Statistical Significance) is the operative standard for this paper: error bars
+  are required "at least for the experiments that support the main claims"; **"the factors of
+  variability that the error bars are capturing should be clearly stated"**; "the method for
+  calculating the error bars should be explained"; assumptions such as Normality must be stated;
+  and **"the paper should distinguish standard deviation from standard error"**. Item 8 requires
+  per-experiment compute *and a total estimate*, explicitly including **compute spent on runs not
+  reported** — which is the standard under which this study's quarantined and abandoned batteries
+  (S9d's degenerate run, S10's failed pilot, S11) belong in the cost accounting. Item 1 asks whether
+  the abstract's claims "accurately reflect the paper's contributions and scope" — the item V1 and
+  V11 fail against.
+- **R-web-2 — NeurIPS Reviewer Guidelines (2025).**
+  <https://neurips.cc/Conferences/2025/ReviewerGuidelines>
+  Overall-score anchor 2 is "Reject: paper with technical flaws, weak evaluation". Two guardrails
+  cited in the authors' favour throughout this review: **"answering 'no' to some questions is
+  typically not grounds for rejection"** and authors "should be rewarded rather than punished for
+  being up front about the limitations of their work". Originality explicitly includes work that
+  "provide[s] novel insights by evaluating existing methods" — relevant because this paper's
+  contribution is measurement, not method.
+- **R-web-3 — NeurIPS 2026 contribution types, including a formal Negative Results type.**
+  <https://neurips.cc/Conferences/2026/ReviewerGuidelines> ·
+  <https://blog.neurips.cc/2026/04/16/a-choice-of-contribution-types-at-neurips-2026/>
+  The single most useful frame for this paper. Negative Results are judged on: **Quality** — the
+  result "must not be simply an empirical observation" but be "grounded in deeper analysis, whether
+  through a combination of conceptually-informed conjectures and careful experimentation";
+  **Significance** — it should "change how the community addresses a question"; **Originality** —
+  "unexpected or surprising … running counter to a popularly held understanding". The blog states
+  "the significance and originality bar for these contributions is high." This is the rubric under
+  which PN-22 + PN-28 + PN-33 should be pitched, and the reason §11.3's "the assumption is live in
+  the literature" framing matters: it is what supplies the *Originality* limb.
+- **R-web-4 — ICLR Reviewer Guide.** <https://iclr.cc/Conferences/2026/ReviewerGuide>
+  Question 3 is "Does the paper support the claims?" Crucially for a null-result systems paper:
+  **"this does not necessarily require state-of-the-art results. Submissions bring value … when
+  they convincingly demonstrate new, relevant, impactful knowledge."**
+- **R-web-5 — ICML Reviewer Instructions (2025).**
+  <https://icml.cc/Conferences/2025/ReviewerInstructions>
+  The dedicated **"Claims and Evidence"** block: "Are the claims made in the submission supported by
+  clear and convincing evidence?" and **"Did you check the soundness/validity of any experimental
+  designs or analyses?"** Reviewers are told to verify "whether empirical claims do indeed follow
+  from empirical results" — the question V1, V2, V5, V6 and V11 answer negatively.
+- **R-web-6 — The ML Reproducibility Checklist (Pineau), v2.0.**
+  <https://www.cs.mcgill.ca/~jpineau/ReproducibilityChecklist.pdf> · report:
+  <https://jmlr.org/papers/v22/20-303.html>
+  For all reported results, requires **"the exact number of training and evaluation runs"** and **"a
+  description of results including central tendency (e.g. mean) **and** variation (e.g. error
+  bars)"**, plus "an explanation of any data that were excluded". PN-19 (n mislabelled), PN-33's
+  MK-NIAH (no artifact) and §6.2 (`variable_tracking` excluded without the numbers appearing) each
+  fail one of these.
+- **R-web-7 — ACM Artifact Review and Badging v1.1.**
+  <https://www.acm.org/publications/policies/artifact-review-and-badging-current> · mirrored:
+  <https://sigir.org/general-information/acm-sigir-artifact-badging/>
+  *Artifacts Evaluated – Functional* requires artifacts "documented, consistent, **complete**,
+  exercisable"; *Reusable* requires that "norms and standards of the research community for
+  artifacts of this type are strictly adhered to". V12's missing `s9_score.sh` and V1's missing
+  MK-NIAH data are Functional-level failures. **Terminology hazard worth checking in the
+  manuscript**: ACM *swapped* the meanings of reproducibility and replicability in the 2020
+  revision (now: Reproducible = different team, *same* setup; Replicable = different team,
+  *different* setup). Discussion: <https://arxiv.org/pdf/2402.07530>
+- **R-web-8 — MLSys artifact evaluation.** <https://mlsys.org/Conferences/2025/CallForAE> ·
+  <https://mlsys.org/Conferences/2025/CallForPapers>
+  MLSys AE is "based on the ACM Artifact Review and Badging policy"; participation is voluntary and
+  does not influence acceptance. Neither MLSys nor OSDI/SOSP publishes an ICML-style claims/evidence
+  rubric, which is why the community documents below are what PC members actually cite.
+
+### Why systems and benchmarking papers get rejected
+
+- **R-web-9 — Heiser, "Systems Benchmarking Crimes."**
+  <https://gernot-heiser.org/benchmarking-crimes.html>
+  Directly applicable crimes: **1.2 subsetting benchmarks without strong justification** (§6.2's
+  post-hoc `variable_tracking` exclusion); **2.3 downplaying overheads / incorrect reference
+  points** (§4.6's two spread denominators); **2.4 no indication of significance** ("results without
+  variance are unreliable … report at least standard deviations"); **2.5 arithmetic mean for
+  averaging benchmark scores**; **4.3 unfairly evaluating competitors**, which he labels
+  *"scientific misconduct"* — the frame under which §11.3's indefensible version of the DFlash
+  citation would be read; **5.3 relative numbers only** (accuracy-recovery percentages reported
+  without their counts).
+- **R-web-10 — van der Kouwe, Heiser, Andriesse, Bos, Giuffrida, "SoK: Benchmarking Flaws in Systems
+  Security", EuroS&P 2019.** <https://download.vusec.net/papers/benchmarking-crimes_eurosp19.pdf> ·
+  <https://arxiv.org/abs/1801.02381>
+  22-flaw taxonomy over 50 top-venue papers. Their headline: tier-1 papers average **five
+  benchmarking flaws** each, and **flaw B4, "no indication of significance of data", was present in
+  74–81 % of applicable papers** — the most prevalent flaw in the study. Their acceptance standard
+  for B4 is exactly what this paper should meet: multiple runs, and either the standard deviation or
+  "a general statement that ensures that variation is low". They note **SPEC CPU2006's own default
+  averages only three runs and fails this** — a useful precedent when defending n=3 designs, and a
+  useful caution when relying on them. Their guidance to reviewers: "any high-impact flaw we listed
+  should be a reason … to demand the paper be revised."
+- **R-web-11 — Hoefler & Belli, "Scientific Benchmarking of Parallel Computing Systems", SC'15.**
+  <https://htor.inf.ethz.ch/publications/img/hoefler-scientific-benchmarking.pdf>
+  The twelve rules. Most load-bearing here: **Rule 1** (never report a ratio without the absolute
+  base case — 38 % of speedup papers they surveyed omitted it); **Rule 5** ("report if the
+  measurement values are deterministic; for nondeterministic data, report confidence intervals");
+  **Rule 6** ("do not assume normality … without diagnostic checking" — directly applicable to
+  PN-13's Gaussian per-token KLD interval on a distribution whose mean is 1,266× its median);
+  **Rule 7** (compare nondeterministic data via non-overlapping CIs or ANOVA); **Rule 8** (check
+  whether a measure of central tendency is even the right thing to report); **Rule 9** (document all
+  varying factors — the rule PN-19 breaks by pooling four context depths). Also: **"n > 5
+  measurements are needed to assess confidence intervals nonparametrically"**, which rules out
+  n=3 designs for interval claims; and their concept of **interpretability** — "enough information
+  to allow scientists to understand the experiment, draw own conclusions, assess their certainty,
+  and possibly generalize" — is the achievable standard for a one-off machine and the one this
+  paper should explicitly adopt. Their survey found a measure of variation in only **17 of 95**
+  papers.
+- **R-web-12 — SIGPLAN Empirical Evaluation Checklist (Berger, Blackburn, Hauswirth, Hicks, 2018).**
+  <https://www.sigplan.org/Resources/EmpiricalEvaluation/> ·
+  <https://dream.cs.umass.edu/wp-content/uploads/2020/04/checklist.pdf>
+  The most usable one-page adversarial rubric. Items this paper trips: **"Claims not appropriately
+  scoped"** and implied generality (V11); **"Insufficient number of trials"** ("failure to do so
+  risks treating noise as signal"); **"No data distribution reported"** ("reporting just a measure
+  of central tendency can mislead the reader, especially when the distribution … has significant
+  variance" — V3's heavy tail); **"Misleading summary of results"** ("it is not appropriate to
+  summarize speedups of 4 %, 6 %, 7 %, and 49 % as 'up to 49 %'"); **"Unjustified use of
+  non-standard suites"**. Their own caveats are worth quoting back to any reviewer including me:
+  **"This checklist is meant to support informed judgement, not supplant it"** and "a paper with one
+  or two boxes unchecked may still merit acceptance."
+- **R-web-13 — Mytkowicz, Diwan, Hauswirth, Sweeney, "Producing Wrong Data Without Doing Anything
+  Obviously Wrong!", ASPLOS 2009.** <https://dl.acm.org/doi/10.1145/1508284.1508275>
+  Measurement bias from changes as trivial as UNIX environment size and link order is "significant
+  and commonplace" across architectures and compilers; in a survey of **133 papers from ASPLOS,
+  PACT, PLDI and CGO, none adequately considered measurement bias**. The canonical citation against
+  a single-machine, single-configuration result — and the reason this paper's unexplained 12–166 %
+  decode spread (§6.5) deserves a causal hypothesis rather than the label "noise".
+- **R-web-14 — Kalibera & Jones, "Rigorous Benchmarking in Reasonable Time", ISMM 2013.**
+  <https://kar.kent.ac.uk/33611/45/p63-kaliber.pdf>
+  Multi-level repetition (between builds / executions / iterations) with effect-size CIs, and a
+  budget-allocation cookbook: "repetition is most needed where most uncertainty arises." The right
+  citation for redesigning PN-19 and PN-32 within a fixed GPU budget.
+- **R-web-15 — Bouthillier et al., "Accounting for Variance in Machine Learning Benchmarks",
+  MLSys 2021.** <https://arxiv.org/abs/2103.03098>
+  Sampling seeds is not enough; larger uncontrolled sources exist. "The risk is that conclusions are
+  driven by differences due to arbitrary factors … rather than model improvements."
+
+### Reporting negative and null results credibly
+
+- **R-web-16 — Altman & Bland, "Absence of evidence is not evidence of absence", BMJ 1995;311:485.**
+  <https://www.bmj.com/content/311/7003/485>
+  A "negative" study typically shows "an **absence of evidence of a difference**", not evidence of
+  no difference — "these are quite different statements". Prescription: quantify the association and
+  report the interval rather than the p-value; recognise that intervals will be wide. Their worked
+  example is a trial at ~5 % power whose interval admitted differences of up to 20 points and whose
+  authors concluded equivalence — structurally identical to PN-28's and PN-22's McNemar tests (V8).
+- **R-web-17 — Lakens, "Equivalence Tests: A Practical Primer", SPPS 8(4):355–362, 2017.**
+  <https://pmc.ncbi.nlm.nih.gov/articles/PMC5502906/> · <https://github.com/Lakens/TOSTER>
+  TOST against prespecified equivalence bounds derived from the **smallest effect size of
+  interest**; where none is theoretically given, Lakens proposes setting bounds to "the smallest
+  effect size they have sufficient power to detect, which is determined by the resources they have
+  available" — exactly the honest move for a GPU-budget-limited study. His fourth outcome category,
+  **neither significant nor equivalent = "undetermined"**, is the correct label for PN-19, PN-22 and
+  PN-28 as currently powered; they are being reported as if they were "equivalent". Bounds must be
+  prespecified and stated in the abstract when equivalence is claimed.
+- **R-web-18 — Hoenig & Heisey, "The abuse of power", *The American Statistician* 55(1):19–24
+  (2001); Gelman, *Annals of Surgery* 269(1):e9–e10 (2019); Gelman & Carlin, *PPS* 9(6):641–651
+  (2014).** Cited via <https://aclanthology.org/2020.emnlp-main.745/>
+  Never compute post-hoc power from the observed effect. And **Type M / Type S errors**:
+  underpowered designs that *do* reach significance systematically exaggerate or reverse the true
+  effect — the reason PN-32's p = 0.0017 on a 3-repetition design should be treated with more
+  suspicion, not less.
+- **R-web-19 — Bayes factors for evidence *for* the null.** <https://arxiv.org/html/2510.10358v2> ·
+  caution: <https://arxiv.org/pdf/1907.05583>
+  Jeffreys' grades: **BF₁₀ < 1/3 is conventionally substantial evidence for H₀**; 1/3–3 is "no
+  strong support either way". A Bayes factor would let this paper say something positive about its
+  nulls that a p-value cannot. Caveat: prior-sensitive, and quantifies relative evidence between two
+  specified models.
+- **R-web-20 — TMLR acceptance criteria.** <https://jmlr.org/tmlr/acceptance-criteria.html>
+  Two questions only: "Are the claims made in the submission supported by accurate, convincing and
+  clear evidence?" and would some of TMLR's audience be interested. Decisively: **"It should not be
+  used to reject work lacking novelty or state-of-the-art results, as novelty is not a necessary
+  criterion for acceptance."** For a rigorous null on one hardware configuration, TMLR's bar is the
+  right shape, and it is the venue I would suggest if item 21 in §10 is not funded.
+- **R-web-21 — ICBINB ("I Can't Believe It's Not Better") workshops.**
+  <https://proceedings.mlr.press/v137/> · <https://sites.google.com/view/icbinb-2025>
+  Explicitly for "surprising and negative results" and "challenges and practical limitations that
+  are often overlooked in controlled benchmarks".
+
+### Statistical reporting for ML evaluation
+
+- **R-web-22 — Brown, Cai & DasGupta, "Interval Estimation for a Binomial Proportion", *Statistical
+  Science* 16(2):101–133 (2001).**
+  <https://projecteuclid.org/journals/statistical-science/volume-16/issue-2/Interval-Estimation-for-a-Binomial-Proportion/10.1214/ss/1009213286.full>
+  The Wald interval's coverage is "chaotic" and persists erratically even at large n; it **"cannot
+  be recommended for general use"**. Wilson or Jeffreys for small n. **This paper uses Wilson
+  correctly** (§4.1), and Wilson is specifically the right choice for PN-33's 12/12, where Wald
+  would return the degenerate [100.0, 100.0]. One note: the *uncorrected* Wilson at n=12 is mildly
+  anti-conservative and its upper bound is exactly 100.0 by construction; the continuity-corrected
+  form gives [69.87, 99.23]. Say **z = 1.96** rather than "the 95 % Wilson interval" — the quoted
+  lower bound of 75.7 pins that constant.
+- **R-web-23 — Dietterich, "Approximate Statistical Tests for Comparing Supervised Classification
+  Learning Algorithms", *Neural Computation* 10(7):1895–1923 (1998).**
+  <https://direct.mit.edu/neco/article-abstract/10/7/1895/6224/>
+  **"For algorithms that can be executed only once, McNemar's test is the only test with acceptable
+  type I error."** And two tests "should never be used", the first being the test for the difference
+  of two proportions — i.e. treating two paired accuracy figures as independent binomials. This
+  validates the study's choice of a paired design (PN-22, PN-28) and is the citation to use when
+  arguing that independent Wilson intervals must not be the basis of a between-arm comparison.
+- **R-web-24 — Fay, "Exact McNemar's Test and Matching Confidence Intervals" (`exact2x2`
+  vignette).** <https://cran.r-project.org/web/packages/exact2x2/vignettes/exactMcNemar.pdf>
+  Conditioning on b+c reduces McNemar exactly to a two-sided binomial test at p = 0.5, so **the
+  exact McNemar test *is* the sign test on the discordant pairs**. His worked example (b=2, c=9)
+  gives p = 0.070 corrected, 0.035 uncorrected and 0.0654 exact — **straddling 0.05** — which is why
+  the variant must be named. Standard threshold: use the exact form when **b + c < 25**
+  (<https://www.ncbi.nlm.nih.gov/books/NBK560699/>). PN-22's b+c ∈ {0,2,2,2,4,2} is far below it.
+- **R-web-25 — Miller (Anthropic), "Adding Error Bars to Evals", arXiv 2411.00640 (the paper's own
+  R6).** <https://arxiv.org/abs/2411.00640>
+  The study cites this for the paired-difference recommendation and honours it in S6. It does **not**
+  honour two of the other four recommendations. (a) **Clustered standard errors where questions are
+  grouped** — Miller measures **DROP: clustered SE 1.34 vs unclustered 0.44, a 3.05× inflation**;
+  MGSM 1.62 % vs 0.86 %. That is the magnitude of the correction V4 asks for on PN-13. (b) **Power
+  analysis to size a comparison** — his worked example: detecting a **3 % absolute difference at
+  80 % power and α = 0.05 requires ≈ 969 questions**, against HumanEval+'s 164. He also warns
+  against *lowering sampling temperature* to reduce variance, and recommends reporting the standard
+  error in parentheses beneath the mean — "65.5 % (0.7 %)".
+- **R-web-26 — Card, Henderson, Khandelwal, Jia, Mahowald, Jurafsky, "With Little Power Comes Great
+  Responsibility", EMNLP 2020.** <https://aclanthology.org/2020.emnlp-main.745/>
+  The closest published analogue to this paper's own argument, and it should be cited. Estimated
+  MDE at 80 % power: **WNLI (n=147) +5.26 pts; MRPC (n=1,725) +1.62; SST-2 (n=1,821) +1.02** — all
+  above the mean reported improvement on those sets. **Only 37 % of surveyed comparisons were
+  significant.** Their conclusion — **"underpowered experiments do not provide convincing evidence
+  of progress"** — and their recommendation that "for tasks which no longer have adequate power …
+  authors should consider expanding the test set or retiring the task" is precisely the
+  recommendation this paper's PN-22/PN-28 findings support for quantization evaluation. Note the
+  scale: HumanEval+ at n=164 is *smaller than WNLI*, the set Card et al. name as the least powered
+  in GLUE.
+- **R-web-27 — Dror & Reichart, "Recommended Statistical Significance Tests for NLP Tasks."**
+  <https://arxiv.org/pdf/1809.01448> · guide: <https://aclanthology.org/P18-1128/>
+  Their recommendation table matters for two of this paper's metrics: **2×2 contingency /
+  confusion-matrix comparisons → McNemar** ✓ (what the study does), and **perplexity → Wilcoxon
+  signed-rank, with no valid parametric test** — relevant if any PPL/NLL comparison enters the paper
+  as a test rather than a description. Also: "when comparing the performance of two algorithms
+  applied on the same dataset, one should use the **paired** version".
+- **R-web-28 — Demšar, "Statistical Comparisons of Classifiers over Multiple Data Sets", JMLR 7:1–30
+  (2006).** <https://jmlr.org/papers/v7/demsar06a.html>
+  Wilcoxon signed-ranks for two systems; **Friedman + Nemenyi post-hoc for more than two**. The
+  standard answer to PN-22's uncorrected 6-pair grid.
+- **R-web-29 — Abadie, Athey, Imbens & Wooldridge, "When Should You Adjust Standard Errors for
+  Clustering?", *QJE* 138(1):1–35 (2023).** <https://www.nber.org/system/files/working_papers/w24003/w24003.pdf>
+  **"Clustering is in essence a design problem, either a sampling design or an experimental design
+  issue."** The right framing for V4: whether the 32 chunks of a single django concatenation
+  constitute clusters is a question about how the corpus was assembled — and §6.1/V3 shows it was
+  assembled by path-ordered concatenation with repetition, which is about as clustered as a sample
+  gets. Design effect: **DEFF = 1 + (m̄ − 1)·ICC**, effective n = n/DEFF.
+- **R-web-30 — Chen et al., "Evaluating Large Language Models Trained on Code" (HumanEval),
+  arXiv 2107.03374.** <https://arxiv.org/abs/2107.03374>
+  HumanEval is **164 problems** — the fixed ceiling behind V8. Also the unbiased pass@k estimator
+  `1 − C(n−c, k)/C(n, k)`, which matters if the paper ever reports pass@k for k > 1.
+- **R-web-31 — "Don't Pass@k: A Bayesian Framework for Large Language Model Evaluation",
+  arXiv 2510.04265.** <https://arxiv.org/abs/2510.04265>
+  Argues pass@k "often produces unstable and potentially misleading rankings, especially when the
+  number of trials is limited", and replaces it with posterior means plus credible intervals and a
+  non-overlap decision rule. Cite it as evidence that the field is converging on interval-aware,
+  small-sample-valid reporting — which is this paper's methodological position.
+- **R-web-32 — Dodge, Gururangan, Card, Schwartz & Smith, "Show Your Work", EMNLP 2019.**
+  <https://aclanthology.org/D19-1224/>
+  Reporting test scores alone is insufficient; report performance as a function of compute budget.
+  Compliance datum worth knowing: they sampled **fifty random EMNLP 2018 papers with experimental
+  results and found that none reported all of their checklist items.** Their budget-confounding
+  caution applies directly to comparing configurations that received unequal tuning effort — e.g.
+  a `-ts` ratio swept under n=2 and then used at n=4 and n=8 (the confound S9e was created to
+  address).
+
+### Method note on this review
+
+Every numeric claim above was recomputed locally in `python3` from the JSON artifacts in
+`data/raw/e12/` or from the mirrored harness source; no figure was taken on the authors' word. Where
+a computation is quoted (Wilson bounds, exact McNemar p-values, the sign-test tail, the σ
+separations, the spread denominators, the GPU-hour totals, the KLD tail-mass and CV back-computation),
+the inputs are named so the authors can re-derive it. `scipy` is not installed on this host, so all
+reference values are exact-combinatorial or closed-form.
 
 ---
 
@@ -1342,3 +1639,17 @@ The two exceptions matter. A thesis with no artifact behind it (V1) and a headli
 absent, undescribed, and self-evidently atypical (V3) are the two things a referee will find first,
 because they are the two things a referee checks first: *can I open the evidence, and do I believe
 the sample?* Fix those two and address the clustering, and this is a paper I would argue to accept.
+
+A closing observation on the speculative-decoding result, since the coordinator asked me to stress
+it (§11). It is the study's most robust finding — 164 problems, a determinism control, a divergence
+set that reproduces exactly — and it is the one most likely to be attacked, because the sentence
+that carries it is broader than the measurement behind it and because R12 invites a comparison the
+data cannot support. The fix costs nothing: name the drafter, concede that the verification rule is
+lossless in exact arithmetic, and claim only what you measured — that on one production stack it is
+not lossless in practice, deterministically. Stated that way, the result is harder to attack *and*
+more useful, because "verify losslessness on your own stack" is a rule a reader can act on, whereas
+"speculative decoding is not lossless" is one they will simply disbelieve.
+
+I would also note, in the authors' favour, that of the 34 paper notes, the great majority of the
+caveats I would have written as a reviewer were already there. That is rare. The problem is that the
+caveats stop at `PAPER-NOTES.md` and the claims keep travelling.

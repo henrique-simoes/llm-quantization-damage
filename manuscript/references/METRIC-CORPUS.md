@@ -1,6 +1,6 @@
 # METRIC-CORPUS — the canonical inventory of every measurement this project produced
 
-**Compiled 2026-09-02 by a full pass over `docs/paper/PAPER-NOTES.md` (PN-1…PN-34),
+**Compiled 2026-09-02 by a full pass over `docs/paper/PAPER-NOTES.md` (PN-1…PN-35),
 `docs/build-stream/2026-08-30-quant-bench-trackA.md` (DEC-1…DEC-15, L-1…L-18),
 `docs/paper/TRACK-A-DECISION.md`, all 173 files under `data/raw/e12/`, `data/archive/`, and the
 machine records mirrored at `data/multivac-src/`.**
@@ -78,8 +78,10 @@ cells: Q6_K_XL mkniah 131072 → 100.0 (n=12, 0 empty, 2164.6 s, prompt_n median
 plus `s12-preds-Q6_K_XL-mkniah-c131072.json` and `s12-preds-Q4_K_XL-mkniah-c131072.json`, and a
 `dedup_note` recording the duplicate-c8192 removal that the repo copy also lacks.
 
-**Action, before the repository is made public:** re-pull `ruler/` from the host
-(`tools/sync-multivac.sh artifact /srv/bench/e12/ruler data/raw/e12/ruler`). Until then the
+**Action, before the repository is made public:** re-pull `ruler/` from the host with
+`./tools/sync-multivac.sh artifact /srv/bench/e12/ruler data/raw/e12/`
+(the second argument is a destination **directory**; the tool extracts the basename into it, so
+passing `.../ruler` would create `data/raw/e12/ruler/ruler`). Until then the
 paper's long-context headline has **no evidence in the released artifact set**, and the repo copy
 of `s12-ruler.json` is a stale pre-MK-NIAH snapshot that also still contains the two duplicated
 c8192 cells L-18 says were deduplicated.
@@ -321,6 +323,13 @@ Unified Evaluation of llama.cpp Quantization on Llama-3.1-8B-Instruct"*, v1 2026
   χ² McNemar statistic (`chi2` field), while PN-28's S6 p-values are exact binomial
   (`p_two_sided_exact`). Two different tests, both correctly non-significant. Name each in the table.
 * **F-19** — `data/raw/e12/README.md` describes the tree as ~20 pulled files; it now holds 173.
+* **F-25** — **PN-35 cites ledger entry `L-19`, which does not exist.** The ledger stops at L-18
+  (S12/RULER, 2026-09-02T13:00Z). PN-35 is dated 2026-09-02T18:00Z and is a re-analysis of existing
+  data rather than a new run, so no GPU work is missing — but by the project's own hard rule
+  (*"a finding that is not written down did not happen"*; a stage that produced findings and
+  appended no ledger entry is incomplete), **L-19 needs writing before publication**, and until it
+  is, PN-35's provenance line points at nothing. The same gap bit S8, which sat undocumented for a
+  day (L-13).
 * **F-21** — **not minor; stated in full at §4.0.** Three distinct speculative implementations
   appear in this corpus and its references (llama.cpp's built-in MTP head · the DFlash2 drafter on
   the z-lab fork · the published DFlash / `dflash-mlx` port, never run here), and the pre-E12
@@ -427,7 +436,60 @@ survives quantization even as the distribution around it moves more.
 Artifact `ssa-results-parsed.json` · PN-16 · **CURRENT** (mechanism is interpretation, not a
 controlled test)
 
-### 1.7 Published KL divergence — cited, never measured here
+### 1.7 The quantile structure — where the code damage actually lives (PN-35)
+
+**PN-14's "code is ~2× worse than prose" is a mean that averages two opposite facts.** Read by
+quantile on the identical cells, the ordering **reverses between p90 and p95** for all three arms.
+Code ÷ prose ratio of per-token KL divergence:
+
+| statistic | UD-Q6_K | UD-Q5_K_XL | UD-Q4_K_XL | source |
+|---|---|---|---|---|
+| median | **0.005×** | **0.006×** | **0.005×** | artifact ✅ |
+| 90th pct | 0.449× | 0.541× | 0.613× | artifact ✅ |
+| **95th pct** | **1.527×** | **1.888×** | **2.184×** | artifact ✅ |
+| 99th pct | **4.988×** | **6.709×** | **8.090×** | artifact ✅ |
+| 99.9th pct | 6.35× | 8.53× | 8.45× | **serverlog only** ⚠ |
+| *mean (PN-14)* | *1.75×* | *2.30×* | *2.62×* | artifact ✅ |
+| maximum | 0.629× | 0.813× | 0.730× | artifact ✅ |
+
+Above the crossover the amplification is **monotone in quantization aggressiveness at every
+quantile**. The single worst token is *less* perturbed on code than on prose (max 0.63–0.81×), so
+the effect is a bounded **p95–p99.9 band**, not an unbounded tail.
+Artifact `ssa-results-parsed.json` (`metrics_reparsed`) · PN-35 · **CURRENT**
+
+> ✅ **INDEPENDENTLY RE-DERIVED 2026-09-02**: every ratio above except the p99.9 row was recomputed
+> from the shipped artifact and matches PN-35 to three decimal places
+> (e.g. UD-Q4_K_XL p99 = 0.562891 / 0.069578 = **8.090×**).
+
+⚑ **F-23 — PN-35's evidence line is wrong about where its own data lives, in a way that matters
+for the public repo.** It states: *"The parsed artifact `ssa-results-parsed.json` carries only
+`kld_95p`, `kld_99p` and `max_kld` — the median and decile fields exist ONLY in the raw
+serverlogs."* That describes the artifact's **`metrics`** field. The **`metrics_reparsed`** field —
+the authoritative one, per PN-17 — carries `median_kld`, `kld_90p`, `kld_95p`, `kld_99p`,
+`max_kld`, `mean_kld` ± err, `mean_dp_pct` ± err, `rms_dp_pct` ± err and `top1_agree_pct` ± err for
+**every** KLD cell. So **six of PN-35's seven rows are reproducible from the shipped repository**;
+only the **99.9th percentile** genuinely requires the host-only serverlogs (verified absent from
+the artifact). Correcting this turns the finding from "unevidenced in the public repo" into
+"evidenced except for one row" — worth fixing before publication.
+
+⚑ **F-24 — PN-35's median row is rounded in a direction that understates the effect.** Its table
+gives 0.01× / 0.01× / 0.005×; the artifact gives **0.005× / 0.006× / 0.005×**. PN-35's *prose*
+("100–200× LESS") is correct and matches the artifact (1/0.005 = 200, 1/0.006 = 167); only the
+table cells are coarsely rounded. Publish the computed values.
+
+**Why this is the mechanism the corpus was missing.** It explains PN-16's paradox quantitatively:
+top-1 agreement is *higher* on code (98.4–99.1 % vs 96.2–97.5 %) precisely because ~90 % of code
+tokens are trivially predictable and barely perturbed, while mean KLD is double because a thin band
+moves enormously. It also predicts the small paired discordances actually observed in the task
+benchmarks (3/164 and 5/164, PN-28): damage concentrated in ~1–5 % of positions changes an outcome
+only when a tail token lands somewhere decisive.
+
+⚠ **No intervals exist for these ratios.** The tool attaches its uncertainty estimate to the
+**mean only**, not to the quantiles. Report them as measured values, not as estimates with error
+bars. The crossover is read off a five-point grid, so *"between the 90th and 95th percentile"* is
+the resolution the instrument supports.
+
+### 1.8 Published KL divergence — cited, never measured here
 
 | source | figures |
 |---|---|
@@ -439,7 +501,7 @@ Artifact `/srv/bench/kl-divergence.json` + `/srv/bench/kl-evidence/` (host only)
 ⚠ These are a *different vendor's* measurement against FP16. They are not on the same axis as
 §1.1–§1.3, which are ladder-relative to UD-Q6_K_XL. Never place them in one table.
 
-### 1.8 Perplexity — pre-E12 corpus, three mutually incompatible protocols
+### 1.9 Perplexity — pre-E12 corpus, three mutually incompatible protocols
 
 **Protocol 1** — `llama-perplexity`, 602 chunks, n_ctx 512, batch 512, full WikiText-2 test set,
 second half of each window scored:
@@ -1588,6 +1650,7 @@ measurement, which is firmer ground. **n=8 does not load at 262,144.**
 | PN-32 | acceptance falls with draft depth (p=0.0017); the sweep cannot rank | 4.6 | CURRENT for acceptance; UNRANKABLE for speed |
 | PN-33 | 4-bit costs nothing on S-NIAH to 131,072; MK-NIAH −8.3 pts | 6.1 | **CURRENT ⚑F-1 — MK-NIAH unevidenced in repo** |
 | PN-34 | benchmark sensitivity is gated by task headroom, not modality or length | 6.1 | **CURRENT ⚑F-1** |
+| PN-35 | code damage lives in the p95–p99.9 tail; the code/prose ordering reverses between p90 and p95 | 1.7 | **CURRENT** — re-derived from the artifact ⚑F-23, ⚑F-24 |
 
 **Measurements with no PN entry (UNWRITTEN):** §3.2 prefill-vs-depth · §3.4 S6 decode medians ·
 §3.5 the S11 fixed-ratio cross-quant speed ladder · §6.2 the `variable_tracking` exclusion ·
