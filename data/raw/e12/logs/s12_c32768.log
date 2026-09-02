@@ -1,0 +1,8 @@
+[2026-09-02T04:28:15Z]   niah_32768: already generated
+[2026-09-02T04:38:41Z]     Q6_K_XL niah c32768: 10/25 (389s)
+[2026-09-02T04:45:51Z]     Q6_K_XL niah c32768: 20/25 (819s)
+[2026-09-02T04:49:08Z]   Q6_K_XL niah c32768: score 100.0 (n=25, 0 empty, 1015.6s, prompt_n median 32616)
+[2026-09-02T04:57:36Z]     Q4_K_XL niah c32768: 10/25 (341s)
+[2026-09-02T05:03:10Z]     Q4_K_XL niah c32768: 20/25 (675s)
+[2026-09-02T05:06:00Z]   Q4_K_XL niah c32768: score 100.0 (n=25, 0 empty, 845.2s, prompt_n median 32616)
+[2026-09-02T05:06:00Z] length 32768: 2 cells ok

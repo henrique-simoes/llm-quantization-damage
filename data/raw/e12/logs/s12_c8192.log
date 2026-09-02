@@ -1,15 +1,15 @@
-[2026-09-02T03:15:36Z]   niah_8192: already generated
-[2026-09-02T03:21:47Z]     Q6_K_XL niah c8192: 10/25 (147s)
-[2026-09-02T03:24:09Z]     Q6_K_XL niah c8192: 20/25 (290s)
-[2026-09-02T03:25:23Z]   Q6_K_XL niah c8192: score 100.0 (n=25, 0 empty, 363.6s, prompt_n median 8041)
-[2026-09-02T03:30:33Z]     Q4_K_XL niah c8192: 10/25 (123s)
-[2026-09-02T03:32:37Z]     Q4_K_XL niah c8192: 20/25 (247s)
-[2026-09-02T03:33:39Z]   Q4_K_XL niah c8192: score 100.0 (n=25, 0 empty, 309.2s, prompt_n median 8041)
-[2026-09-02T03:33:39Z]   variable_tracking_8192: already generated
-[2026-09-02T03:39:47Z]     Q6_K_XL variable_tracking c8192: 10/25 (96s)
-[2026-09-02T03:41:30Z]     Q6_K_XL variable_tracking c8192: 20/25 (199s)
-[2026-09-02T03:42:18Z]   Q6_K_XL variable_tracking c8192: score 16.8 (n=25, 1 empty, 246.8s, prompt_n median 8146)
-[2026-09-02T03:47:18Z]     Q4_K_XL variable_tracking c8192: 10/25 (97s)
-[2026-09-02T03:48:42Z]     Q4_K_XL variable_tracking c8192: 20/25 (180s)
-[2026-09-02T03:49:27Z]   Q4_K_XL variable_tracking c8192: score 18.4 (n=25, 0 empty, 225.5s, prompt_n median 8146)
-[2026-09-02T03:49:27Z] length 8192: 4 cells ok
+[2026-09-02T03:53:05Z]   niah_8192: already generated
+[2026-09-02T03:59:50Z]     Q6_K_XL niah c8192: 10/25 (147s)
+[2026-09-02T04:02:12Z]     Q6_K_XL niah c8192: 20/25 (288s)
+[2026-09-02T04:03:26Z]   Q6_K_XL niah c8192: score 100.0 (n=25, 0 empty, 363.1s, prompt_n median 8041)
+[2026-09-02T04:08:24Z]     Q4_K_XL niah c8192: 10/25 (128s)
+[2026-09-02T04:10:22Z]     Q4_K_XL niah c8192: 20/25 (245s)
+[2026-09-02T04:11:25Z]   Q4_K_XL niah c8192: score 100.0 (n=25, 0 empty, 308.4s, prompt_n median 8041)
+[2026-09-02T04:11:25Z]   variable_tracking_8192: already generated
+[2026-09-02T04:17:46Z]     Q6_K_XL variable_tracking c8192: 10/25 (120s)
+[2026-09-02T04:19:29Z]     Q6_K_XL variable_tracking c8192: 20/25 (224s)
+[2026-09-02T04:20:22Z]   Q6_K_XL variable_tracking c8192: score 27.2 (n=25, 1 empty, 276.2s, prompt_n median 8146)
+[2026-09-02T04:24:57Z]     Q4_K_XL variable_tracking c8192: 10/25 (93s)
+[2026-09-02T04:26:25Z]     Q4_K_XL variable_tracking c8192: 20/25 (181s)
+[2026-09-02T04:27:15Z]   Q4_K_XL variable_tracking c8192: score 36.8 (n=25, 0 empty, 230.5s, prompt_n median 8146)
+[2026-09-02T04:27:15Z] length 8192: 6 cells ok

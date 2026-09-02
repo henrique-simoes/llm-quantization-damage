@@ -62,31 +62,63 @@
   },
   {
    "arm": "Q6_K_XL",
-   "task": "variable_tracking",
+   "task": "niah",
    "length": 8192,
    "ok": true,
-   "score": 16.8,
+   "score": 100.0,
    "n": 25,
    "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 8192 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080",
-   "prompt_n_median": 8146,
-   "prompt_n_min": 8142,
-   "prompt_n_max": 8151,
-   "n_empty": 1,
-   "seconds": 246.8
+   "tokens_to_generate": 128,
+   "prompt_n_median": 8041,
+   "prompt_n_min": 8039,
+   "prompt_n_max": 8049,
+   "n_empty": 0,
+   "seconds": 363.1
   },
   {
    "arm": "Q4_K_XL",
-   "task": "variable_tracking",
+   "task": "niah",
    "length": 8192,
    "ok": true,
-   "score": 18.4,
+   "score": 100.0,
    "n": 25,
    "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 8192 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080",
-   "prompt_n_median": 8146,
-   "prompt_n_min": 8142,
-   "prompt_n_max": 8151,
+   "tokens_to_generate": 128,
+   "prompt_n_median": 8041,
+   "prompt_n_min": 8039,
+   "prompt_n_max": 8049,
    "n_empty": 0,
-   "seconds": 225.5
+   "seconds": 308.4
+  },
+  {
+   "arm": "Q6_K_XL",
+   "task": "niah",
+   "length": 32768,
+   "ok": true,
+   "score": 100.0,
+   "n": 25,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 32768 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "tokens_to_generate": 128,
+   "prompt_n_median": 32616,
+   "prompt_n_min": 32614,
+   "prompt_n_max": 32624,
+   "n_empty": 0,
+   "seconds": 1015.6
+  },
+  {
+   "arm": "Q4_K_XL",
+   "task": "niah",
+   "length": 32768,
+   "ok": true,
+   "score": 100.0,
+   "n": 25,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 32768 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "tokens_to_generate": 128,
+   "prompt_n_median": 32616,
+   "prompt_n_min": 32614,
+   "prompt_n_max": 32624,
+   "n_empty": 0,
+   "seconds": 845.2
   }
  ],
  "smoke": {
@@ -102,5 +134,38 @@
   "prompt_n_max": 3968,
   "n_empty": 0,
   "seconds": 48.3
- }
+ },
+ "variable_tracking_excluded_cells": [
+  {
+   "arm": "Q6_K_XL",
+   "task": "variable_tracking",
+   "length": 8192,
+   "ok": true,
+   "score": 27.2,
+   "n": 25,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q6_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 8192 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "tokens_to_generate": 120,
+   "prompt_n_median": 8146,
+   "prompt_n_min": 8142,
+   "prompt_n_max": 8151,
+   "n_empty": 1,
+   "seconds": 276.2
+  },
+  {
+   "arm": "Q4_K_XL",
+   "task": "variable_tracking",
+   "length": 8192,
+   "ok": true,
+   "score": 36.8,
+   "n": 25,
+   "launch_cmd": "docker run -d --name llamasrv-e12 --gpus all --network host -v /srv/models:/models:ro -v /srv/bench/models:/models2:ro llamacpp-mtp:latest -m /models/Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -ts 56,44 -c 8192 -fit off -fa on -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 --seed 20260830 --host 0.0.0.0 --port 8080",
+   "tokens_to_generate": 120,
+   "prompt_n_median": 8146,
+   "prompt_n_min": 8142,
+   "prompt_n_max": 8151,
+   "n_empty": 0,
+   "seconds": 230.5
+  }
+ ],
+ "variable_tracking_exclusion": "variable_tracking excluded from the depth comparison. RULER budgets it at 30 generated tokens, which assumes a model that continues the answer_prefix directly. This instruct-tuned model instead writes a markdown step-by-step trace: at 30 tokens it named 1 of 5 variables (16.8 / 18.4), and at a raised 120 tokens still truncated mid-way through the second (27.2 / 36.8). The tracking itself is CORRECT \u2014 the named variables match the references in order \u2014 so this measures output verbosity against a fixed budget, not long-context ability. Both attempts put the reference arm BELOW the cheaper arm (109 % and 135 % apparent recovery), which is the signature of a floor-scored comparison. Data retained, excluded from the accuracy-recovery table."
 }

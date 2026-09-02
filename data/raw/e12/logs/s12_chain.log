@@ -5,3 +5,11 @@
       [2026-09-02T03:33:39Z]   Q4_K_XL niah c8192: score 100.0 (n=25, 0 empty, 309.2s, prompt_n median 8041)
       [2026-09-02T03:42:18Z]   Q6_K_XL variable_tracking c8192: score 16.8 (n=25, 1 empty, 246.8s, prompt_n median 8146)
       [2026-09-02T03:49:27Z]   Q4_K_XL variable_tracking c8192: score 18.4 (n=25, 0 empty, 225.5s, prompt_n median 8146)
+[2026-09-02T03:49:32Z]   git: pushed (after s12 c8192)
+[2026-09-02T03:49:32Z] === PHASE c32768 START ===
+[2026-09-02T04:28:15Z] s12_chain pid 39721 — RULER; smoke already PASSED (score 100.0 @4K, metric verified == RULER's)
+[2026-09-02T04:28:15Z] === c8192 already done — skipping ===
+[2026-09-02T04:28:15Z] === PHASE c32768 START ===
+[2026-09-02T05:06:02Z] === PHASE c32768 OK ===
+      [2026-09-02T04:49:08Z]   Q6_K_XL niah c32768: score 100.0 (n=25, 0 empty, 1015.6s, prompt_n median 32616)
+      [2026-09-02T05:06:00Z]   Q4_K_XL niah c32768: score 100.0 (n=25, 0 empty, 845.2s, prompt_n median 32616)

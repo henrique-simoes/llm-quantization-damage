@@ -70,7 +70,30 @@ LENGTHS = [8192, 32768, 131072]    # cheapest first; each length is a usable sli
 # there (Red Hat: 85-88 % recovery for INT W4A16 at 128K, i.e. 12-15 point drops).
 N_SAMPLES = {8192: 25, 32768: 25, 131072: 12}
 N_SMOKE = 3
-TASKS = ["niah", "variable_tracking"]
+# variable_tracking DROPPED after two measured attempts — see VT_EXCLUSION below. niah is the
+# canonical RULER retrieval task, is reported individually throughout the literature, and works
+# cleanly here (100.0 / 100.0 at 8,192 with zero empty responses).
+TASKS = ["niah"]
+VT_EXCLUSION = (
+    "variable_tracking excluded from the depth comparison. RULER budgets it at 30 generated "
+    "tokens, which assumes a model that continues the answer_prefix directly. This instruct-tuned "
+    "model instead writes a markdown step-by-step trace: at 30 tokens it named 1 of 5 variables "
+    "(16.8 / 18.4), and at a raised 120 tokens still truncated mid-way through the second "
+    "(27.2 / 36.8). The tracking itself is CORRECT — the named variables match the references in "
+    "order — so this measures output verbosity against a fixed budget, not long-context ability. "
+    "Both attempts put the reference arm BELOW the cheaper arm (109 % and 135 % apparent "
+    "recovery), which is the signature of a floor-scored comparison. Data retained, excluded from "
+    "the accuracy-recovery table.")
+
+# DOCUMENTED DEVIATION from RULER's constants.py, made after measuring the failure at 8,192.
+# RULER budgets variable_tracking at 30 generated tokens, which assumes a model that continues
+# the answer_prefix directly. This model is instruct-tuned and preambles (~25 tokens of "Based on
+# the text provided, here is the step-by-step tracking...") before listing, so the budget expired
+# after the FIRST of five variable names: score 16.8 / 18.4 with the tracking itself CORRECT
+# (LTVHU, SVXZN, CAIRY were each the right first answer). That is an output-format artifact, not a
+# long-context result, and at a floor score the arms cannot be compared. niah is unaffected — its
+# 128-token budget is ample for a short numeric answer, and both arms scored 100.0 at 8,192.
+TOKENS_OVERRIDE = {"variable_tracking": 120}
 
 
 def log(*a):
@@ -114,7 +137,7 @@ def generate(task, length, n=None, seed=42):
 
 def run_arm(arm, length, rows, task):
     """Serve one task's samples to one arm at one length. Greedy, no-spec."""
-    ntok = ruler_template(task, "tokens_to_generate")
+    ntok = TOKENS_OVERRIDE.get(task, ruler_template(task, "tokens_to_generate"))
     cmd, rc, err = L.launch(ARMS[arm], length, kv="q4_0", spec="none", sm="layer",
                             ts=TS, ctxcp=32, extra="")
     if rc != 0 or not L.wait_health(900)[0]:
@@ -146,7 +169,7 @@ def run_arm(arm, length, rows, task):
     score = string_match_all(preds, refs)
     pn = [m.get("prompt_n") for m in meta if m.get("prompt_n")]
     rec = {"arm": arm, "task": task, "length": length, "ok": True, "score": score,
-           "n": len(rows), "launch_cmd": cmd,
+           "n": len(rows), "launch_cmd": cmd, "tokens_to_generate": ntok,
            "prompt_n_median": sorted(pn)[len(pn)//2] if pn else None,
            "prompt_n_min": min(pn) if pn else None, "prompt_n_max": max(pn) if pn else None,
            "n_empty": sum(1 for p in preds if not p.strip()),
@@ -177,6 +200,10 @@ def main():
         "sampling": "greedy (temperature 0, top_k 1)", "lengths": LENGTHS,
         "n_samples_per_length": N_SAMPLES, "tasks": TASKS,
         "metric": "RULER string_match_all; headline = accuracy recovery vs the reference arm per length",
+        "variable_tracking_exclusion": VT_EXCLUSION,
+        "deviation_tokens_to_generate": ("variable_tracking raised 30 -> 120 after measuring that "
+                                         "RULER's budget truncates this instruct-tuned model after "
+                                         "its preamble; niah unchanged at 128"),
         "started_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "cells": []})
 
     if a.phase == "gen":
@@ -210,6 +237,15 @@ def main():
                 continue
             rows = [json.loads(x) for x in open(f)][:N_SAMPLES.get(length, 25)]
             for arm in [REFERENCE] + [x for x in ARMS if x != REFERENCE]:
+                prior = next((c for c in out["cells"]
+                              if c.get("arm") == arm and c.get("task") == task
+                              and c.get("length") == length and c.get("ok")
+                              and c.get("tokens_to_generate") ==
+                                  TOKENS_OVERRIDE.get(task, ruler_template(task, "tokens_to_generate"))),
+                             None)
+                if prior:
+                    log(f"  {arm} {task} c{length}: already measured (score {prior['score']}) — skipping")
+                    continue
                 rec = run_arm(arm, length, rows, task)
                 side = f"{OUTD}/s12-preds-{arm}-{task}-c{length}.json"
                 json.dump({"preds": rec.pop("preds", []), "refs": rec.pop("refs", [])},
