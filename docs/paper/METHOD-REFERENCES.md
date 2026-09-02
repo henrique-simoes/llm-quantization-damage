@@ -157,6 +157,44 @@ averaged token-level metric would have been the wrong instrument for the questio
 independent reason S12 uses a task benchmark instead. Cite it so the switch reads as a
 methodological choice rather than a workaround for a memory limit.
 
+## R11 — PaperBanana: the figure-generation tool this project is REQUIRED to use
+<https://arxiv.org/abs/2601.23265> · <https://github.com/llmsresearch/paperbanana>
+
+**Project prerequisite (owner, 2026-09-02).** Figures for this report are to be produced with
+PaperBanana — Google Research's method for automating academic illustration, and the open-source
+implementation of it. Multi-agent pipeline: a retriever selects reference exemplars, a planner
+writes a detailed figure description, a stylist refines it, a visualizer renders, and a critic
+iterates (≈3 rounds, or until satisfied under auto-refine). Produces methodology diagrams,
+statistical plots from CSV/JSON, and multi-panel composite figures; batch generation supported.
+
+*What it produces:* **figures only** — not LaTeX, not prose, not full papers.
+
+⚠️ *Constraint that affects planning:* it is **cloud-dependent and cannot run offline**. It needs
+API keys for OpenAI (GPT-5.2 + GPT-Image-1.5), Google Gemini (free tier available:
+gemini-2.5-flash + gemini-3-pro-image-preview), Atlas Cloud, or Azure OpenAI/Foundry. This host has
+no such keys configured. Figure specifications must therefore be authored here as precise
+descriptions plus the CSV/JSON the plots draw from, and rendered wherever the keys live. Every
+figure spec in the manuscript should be written to be directly consumable by PaperBanana's planner.
+
+## R12 — DFlash, and a published losslessness claim our measurements contradict
+<https://arxiv.org/abs/2602.06036> (Chen, Liang & Liu, 2026, *DFlash: Block Diffusion for Flash
+Speculative Decoding*) · <https://github.com/Aryagm/dflash-mlx>
+
+The origin of the DFlash/DFlash2 drafter this study benchmarks (PN-29): a small block-diffusion
+model proposes several tokens at once, which the target verifies in a single pass. The MLX port
+states the method is **"bit-for-bit identical to plain target decoding"** and describes the
+verification rule as accepting the longest matching prefix plus one bonus correction token.
+
+*Why this matters to our argument:* it is a clean, citable instance of the assumption our
+measurements refute. PN-23 found MTP reproducing the no-spec baseline on only **131 of 164**
+problems at temperature 0 with a fixed seed, and PN-26 established that both configurations
+reproduce *themselves* byte-identically — so the divergence is **deterministic and systematic**,
+not noise. We are not contradicting DFlash's own implementation, which we could not measure
+losslessly (PN-25/PN-29 — different engine, different verification path); we are showing that
+**"speculative decoding is lossless" is an implementation property that must be verified per
+stack, not inherited from the algorithm's specification.** Cite R12 as the claim, PN-23/PN-26 as
+the counter-measurement, and be precise about which implementation each refers to.
+
 ---
 
 ## How the sources combine into SSA

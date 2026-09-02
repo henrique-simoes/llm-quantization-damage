@@ -98,6 +98,17 @@ git push origin main
 mirror's 69 KB, and a push would have destroyed four hours of work. `sync-multivac.sh both` runs
 pull-then-push, so the mirror lags the push by one step — re-run `pull` if you are comparing.
 
+## 3b. Project prerequisites for the report
+
+- **Figures are produced with PaperBanana** (R11, arXiv 2601.23265 ·
+  github.com/llmsresearch/paperbanana) — an owner requirement, recorded 2026-09-02 after it was
+  found missing from this file. It generates **figures only**, and is **cloud-dependent**: it needs
+  OpenAI, Gemini, Atlas Cloud or Azure keys, none of which are configured on this host. Author each
+  figure here as a precise PaperBanana-consumable description plus the CSV/JSON it plots, and
+  render where the keys are.
+- Citations, provenance and the metric corpus live under `manuscript/references/`.
+- Blind reviews and the insider pass live under `manuscript/review/`.
+
 ## 4. Hard rules — not style preferences
 
 1. **Logs before teardown.** A container that started is never removed until its `docker logs` are
