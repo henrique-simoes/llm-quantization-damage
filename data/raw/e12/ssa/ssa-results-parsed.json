@@ -342,5 +342,6 @@
   }
  ],
  "finished_utc": "2026-08-30T10:27:35Z",
- "reparsed_note": "metrics recovered from serverlogs 2026-08-30; ssa_kld.py's ASCII '+/-' patterns did not match llama.cpp's Unicode '\u00b1'/'\u0394' output. No re-run needed."
+ "reparsed_note": "metrics recovered from serverlogs 2026-08-30; ssa_kld.py's ASCII '+/-' patterns did not match llama.cpp's Unicode '\u00b1'/'\u0394' output. No re-run needed.",
+ "_WARNING_label_collision": "TWO cells share the label 'ssa-Q6_K_XL-code-base' and therefore ONE serverlog path. The f16 run executed second and OVERWROTE the q4_0 run's log, so ssa_reparse.py populated BOTH cells' metrics_reparsed from the f16 output: the q4_0 base cell's metrics_reparsed.ppl reads 1.1791 (the f16 value) while its own run-time metrics.ppl reads 1.1809. FOR THESE TWO CELLS, TRUST `metrics`, NOT `metrics_reparsed` \u2014 the reverse of the rule everywhere else in this file, where metrics_reparsed is the repaired one (PN-17). PN-15's PPL figures (1.1791 vs 1.1809, +0.15%) come from the run-time `metrics` and are correct; the E2 KL divergence itself (0.002955) is unaffected because it comes from the separately-labelled cell 'ssa-Q6_K_XL-code-kld-e2' with its own log. See PN-43."
 }
