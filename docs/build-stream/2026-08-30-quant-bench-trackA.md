@@ -2398,3 +2398,50 @@ Consequence: **no unverified reviewer claim remains.** The abstract, `CITATION.c
   evidence line now agree, closing the inconsistency L-25 flagged as outstanding.
 Next: PN-29's DFlash2 at-depth cell is still unchecked for the PN-30 probe defect (it is cited in
   OUTLINE §5.4); re-analyse speed conditioned on draft acceptance; then draft the report.
+
+### L-27 | 2026-09-03T20:15:00Z | S14-drafting | claude-opus-5 | conductor-manager | Drafting opens; authorship and scope recorded <!-- bsc-ledger:qbench-t1-DRAFT0 -->
+Did: opened the drafting stage. Wrote `manuscript/DRAFTING-PLAN.md` as the process of record, and
+  recorded two facts stated by the owner today that nothing in the repository carried.
+New facts, now binding on the whole document:
+  - **Authorship and scope.** The report is **solo-authored by Luiz Henrique Simões**, independent
+    researcher, **professional master's candidate in Data Science and Analytics, Universidade de São
+    Paulo (USP)**. It must state plainly — in the author block and again in §1 — that it is a
+    technical report by an independent practitioner, **not a peer-reviewed paper from a university
+    group or an AI lab**. The owner framed this as an honesty requirement, not a disclaimer to bury.
+    No institutional "we"; no implied peer review.
+  - **Density over compression.** Twelve-plus days of GPU time must be exercised technically. Prefer
+    a full table with n, estimator, interval and protocol over a summarising sentence; give each
+    substantive finding its own figure or table. Large and dense *and* readable.
+  Both are also written to project memory so they survive session boundaries.
+⚠️ **The gating item is endorsement, not writing.** Since 2026-01-21 arXiv no longer accepts an
+  institutional email as sole qualifier for a new author in any category; auto-endorsement needs an
+  institutional address **and** prior claimed authorship in the domain. A first-time solo author
+  with a personal address has neither, so **personal endorsement is the only route** and arXiv staff
+  cannot waive it. This is independent of drafting, takes weeks, and should start now. `cs` is a
+  single endorsement domain, so any active `cs.*` author qualifies for `cs.LG`/`cs.PF`.
+Resolved today: arXiv requires that code/data links resolve to a **publicly available** repository.
+  Reviewer B flagged the private repository as a submission blocker; publication of
+  `github.com/henrique-simoes/llm-quantization-damage` (L-25/L-26 work) clears it. Still outstanding
+  for compliance: a **Zenodo DOI** and a **Software Heritage SWHID**, printed in a page-1 footnote
+  and an *Artifact availability* section.
+Compliance settled and not to be re-derived (source: reviewer B's submission research): primary
+  `cs.LG`, one cross-list `cs.PF` (**not `cs.AI`** — arXiv defines it as excluding ML), ACM class
+  `D.4.8; I.2.6`, **LaTeX source not PDF**, `.bib` direct since 2025-11-05, vector PDF for line
+  plots, ≤ 50 MB and ≤ 34 megapixels per image, CC BY 4.0 (irrevocable per version), JSON artifacts
+  as ancillary files under `anc/`.
+Drafting order fixed as D0-D9, dependencies first: style guide and figures, then the LaTeX skeleton,
+  then §3/§4 (the measurement contract), **then §7 threats before §5 results** — writing results
+  first is how a section acquires claims the threats section must later retract — then §6/§8/§9,
+  §2, and §1 last because it promises what §5 delivers.
+Two agents dispatched in parallel: a visualisation architect designing the full figure and table
+  programme as PaperBanana-consumable specs plus an `extract.py` that regenerates every data file
+  from artifacts (PaperBanana is cloud-dependent and has no keys here, so the deliverable is
+  render-ready inputs, not images); and a technical-writing consultant producing `STYLE-GUIDE.md`,
+  whose hardest brief is how a solo practitioner report claims exactly the authority its evidence
+  supports without either apologising or overclaiming.
+Carried into the plan as open items drafting must not paper over: **PN-29's DFlash2 at-depth cell is
+  still unverified** for the PN-30 defect and is cited in OUTLINE §5.4; the speed data still wants
+  re-analysis conditioned on draft acceptance (free, and both reviewers found it independently); no
+  multiple-comparisons correction exists across ~19 tests; and the honest artifact tier is
+  **Artifacts Available only**, because every evidence chain ends in a gitignored serverlog.
+Next: D1 once the style guide and figure programme land — LaTeX skeleton, then §3/§4.
