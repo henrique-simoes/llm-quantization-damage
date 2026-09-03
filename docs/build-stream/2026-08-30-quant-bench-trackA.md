@@ -2165,3 +2165,69 @@ Consequence for the paper: **§5.2 now has a third instrument that separates**, 
 Next: measurement is closed for real this time. Remaining scope is drafting, plus two owner
   decisions blocking publication — no LICENSE file, and commit authorship carrying an internal LAN
   IP across the history.
+
+### L-21 | 2026-09-03T05:10:00Z | S3-report | claude-opus-5 | conductor-manager | PN-45 — a correction to a correction <!-- bsc-ledger:qbench-t1-PN45 -->
+Did: audited PN-36, which this session had itself written to supersede PN-19's within-arm speed
+  variance figure, after an archivist pass flagged the arithmetic. Two independent defects, both
+  mine, both in the same note.
+Result (PN-45): **the estimator was switched silently.** PN-19 computed within-arm spread as
+  `(max − min) / median`; PN-36 reported 46.7 %, which is `(max − min) / min`. Under PN-19's own
+  rule the maximum is **40.7 %**, not 32.9 % and not 46.7 % — so PN-36 was right that PN-19
+  understated the spread, and wrong about by how much, because it changed the denominator without
+  saying so. Second defect: the Q6_K `-ts 58,42` group **mixed `-ctxcp 4` and `-ctxcp 32` readings**
+  — the fourth reading, 11.48, is tagged `:ctxcp32` and is PN-18's A/B partner, not a repeat. Its
+  inclusion pulled the group median from 11.90 to 11.69 and manufactured a "8.6 % between-arm span"
+  that does not exist; **the corrected span is 6.74 %.**
+Consequence: §5.5's claim that speed does not discriminate **survives** — a 40.7 % within-arm spread
+  against a 6.74 % between-arm span argues it more strongly than the numbers it replaces. But the
+  defect class is the one this project has now hit three times: a comparison group assembled without
+  checking that every member shares the varied-variable's control settings (PN-43's label collision,
+  PN-9's depth/ratio confound, and now this). Also fixed F-27 in passing: `s12-ruler.json`'s
+  `accuracy_recovery` carried the stale n=12 value of 91.67 and no `mk100` entry; it now carries
+  88.76 and the stale figure is removed.
+Next: the historical corpus has no paper notes at all — see L-22.
+
+### L-22 | 2026-09-03T14:50:00Z | S13-historical-integration | claude-opus-5 | conductor-manager | The first nine days enter the record <!-- bsc-ledger:qbench-t1-HIST -->
+Did: audited the whole corpus against the paper notes rather than against the last wave, after the
+  owner observed that the review round and the outline were both built almost entirely from E12.
+  The audit is unambiguous: **every one of PN-1…PN-45 is dated 2026-08-29 or later, and the study
+  began around 2026-08-20** — so roughly nine days of measurement, including the study's only
+  full-size task-benchmark runs, had no paper note of any kind. Occurrence counts inside
+  `PAPER-NOTES.md` before this entry: `SWE-bench` 0, `vLLM` 0, `NVFP4` 0, `"Protocol 1"` 0,
+  `agentic` 1, `energy` 1.
+Result: **PN-46…PN-59 written**, every number verified against an artifact rather than against
+  prose, because two of the historical summaries turned out to be stale in ways that would have
+  propagated. The four that change what the paper can say:
+  - **PN-49 — the perplexity protocol reconciliation.** The same checkpoint reads +29 % worse or
+    +0.8 % worse than its comparison ladder depending only on corpus file, window coverage and
+    scoring rule: **a 36-fold swing in the reported effect from measurement convention alone**, with
+    the intuitive explanation (tokenizer mismatch) tested and disproven. This is the paper's
+    methodological thesis, already measured, and it belongs near the front.
+  - **PN-51 — Q3_K_XL.** Fastest configuration in the study (116.9 tok/s), acceptable HumanEval+
+    (84.1/81.7), **1.000 draft acceptance at 258,779 attended tokens**, and 6 of 6 instances at the
+    agent step limit against the reference's 0 of 6. Every cheap instrument rates it well; only the
+    expensive one rates it correctly. It also kills "acceptance is an accuracy signal" outright.
+  - **PN-50 — SWE-bench Verified.** Three arms at n≈50 resolve 77.6 / 76.0 / 75.5 %, **inverting**
+    the HumanEval+ and perplexity ordering, on a ±12-point bootstrap interval. The inversion is
+    noise, and saying so is the point: the study's most expensive instrument cannot rank its own
+    ladder.
+  - **PN-59 — the losslessness premise.** "No separate runs needed" was written into the reference
+    log on 2026-08-21 and refuted on 2026-08-30 (PN-23). The suppressed runs were never performed,
+    so the corpus has no divergence measurement of any speculative configuration. The cost of an
+    unmeasured premise, documented.
+  Also entered: PN-46/47/48 (the two HumanEval+ ladders and the PPL ladder, all monotonic, none
+  separating), PN-52 (agentic step counts, non-monotonic across the full ladder), PN-53/54 (the
+  1.19 GiB draft-worker wall across three engines, and SGLang producing no results at all),
+  PN-55 (cross-backend speed and energy), PN-56 (the 5.1× context gap), PN-57 (the deleted image),
+  PN-58 (the ten-defect instrumentation audit).
+⚠️ Two source documents are **stale and must not be quoted**: `PAPER-REFERENCES.md`'s SWE-bench
+  table carries the pre-ARM64-fix figures (36/47, 35/48) superseded twice over, and its
+  thinking-mode HumanEval+ table still shows four of seven arms as "running"/"queued". The machine
+  log has the corrected values in both cases. Recorded here rather than edited, per hard rule 6 —
+  both documents are owned by multivac and any repair is appended there.
+Next: two peer reviewers are auditing the full corpus in parallel — one on completeness and
+  historical integration, one adversarial on statistics and positioning — each also proposing a
+  title and abstract. Reconcile PN-46…PN-59 against their registers when they land; expect
+  additions, and expect some of these to be judged too thin to promote. The outline must then be
+  rewritten against a 59-note evidence base rather than a 45-note one, with §Agentic behavior
+  populated for the first time.
