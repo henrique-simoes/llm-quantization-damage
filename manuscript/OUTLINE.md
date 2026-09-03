@@ -35,8 +35,12 @@ PN-28's "p = 1.0", the "20 min vs 20 h" contrast, or PN-34's saturation mechanis
 ## The thesis, in one paragraph — post-review
 
 Quantization damage to a 27B coding model is **concentrated in the tail of the token distribution**:
-at the median, code tokens are perturbed 100–200× *less* than prose tokens, the ordering reverses
-between the 90th and 95th percentile, and by the 99th code is perturbed 5–8× *more* (PN-35). The
+at the median, code tokens are perturbed by **roughly two orders of magnitude less** than prose
+tokens, the ordering reverses between the 90th and 95th percentile, and by the 99th code is
+perturbed 5.0–8.1× *more* (PN-35, median row corrected by **PN-64**). ⚠️ **Do not write "100–200×"
+and do not tabulate the median per arm**: PN-64 shows two of three median cells were overstated ~2×,
+that the measured ratios are 199 / 181 / 206, and that print precision (±3–7 %) leaves the per-arm
+intervals overlapping — the row cannot rank the arms. The
 familiar "code is about twice as damaged as prose" is the mean of those two opposite facts. This
 structure supplies a mechanism with a numerical prediction: benchmarks score **outcomes**, not
 tokens, so a perturbation confined to ~1–5 % of positions changes an outcome only when a tail token
@@ -77,6 +81,15 @@ Contributions:
    **PN-43** — a size comparison, not an additive currency).
 
 ## 2. Background and related work
+> ⚠️ **Hard cap: 900 words.** Since **2025-10-31** arXiv's `cs` categories refuse review and position
+> papers without prior peer review. An assertive-thesis title over a long multi-thread background is
+> the shape a moderator declines. Every paragraph here must end on **what this report measures
+> differently**, not on what the literature says.
+> **Related work still to obtain and cite** (flagged by the style guide; *not yet verified against
+> the sources* — check before citing): **arXiv:2411.02355** (Kurtic et al., ACL 2025) — argues this
+> report's case with a different instrument and names KV-cache quantization as open, a direct hook
+> for PN-15; **arXiv:2607.08734** (Rababah et al., 2026) — reported as independent concurrent
+> confirmation in the same domain; **arXiv:2601.09527** — benchmarks the same GPU.
 KL divergence as the quantization-loss instrument and the case against perplexity's averaging bias
 (R1, R2, R4). Unsloth Dynamic GGUFs and calibration contamination (R3). Production quantization
 evaluation and the <0.007 band (R4). The closest published analogue (R5). Error bars, paired
@@ -107,23 +120,28 @@ and its ladder-relative consequence; the 65,536-token budget; pre-registered int
 
 ## 5. Results
 
-### 5.1 The ladder, and why the domain decides — PN-13, PN-14, PN-21, PN-16, **PN-62**
+### 5.1 The ladder, and why the domain decides — PN-13, PN-14, PN-21, PN-16, **PN-62**, **PN-64**
 Three-tier hierarchy (prose < code < task prompts); monotone in every domain; adjacent arms at
 3.7–11.8 σ with non-overlapping intervals. The metric-pair argument: top-1 agreement and mean KLD
 disagree about which domain is hurt, and a top-1-only table inverts the conclusion.
 
-### 5.2 Three instruments, three bounds — PN-22, PN-28, **PN-40**, PN-33, **PN-60**, **PN-63**
+### 5.2 Every instrument bounds, none resolves — PN-22, PN-28, **PN-40**, PN-33, **PN-60**, **PN-63**, PN-48, PN-50
 **The paper's centre.** Each instrument *bounds* the task-level effect rather than failing to find
 one — that reframing is PN-40's, and it is what makes the section a result instead of a null.
 - **Multiple-choice** (HellaSwag n=400): 1.0-point spread, the most-quantized arm nominally
   highest, two arms answering all 400 items identically, no pair differing on more than 4.
   ⚠️ PN-22's six McNemar tests **could not have reached p < 0.05 at any outcome** (max discordant 4,
   minimum attainable p = 0.125) — report paired differences and intervals, never those p-values.
-- **Generative coding** (HumanEval+ n=164, paired): the arms agree on 161 of 164. ⚠️ Report the
-  **paired difference and its interval — −0.61 pts, 95 % CI [−2.68, +1.46]** — *not* "McNemar
-  p = 1.0", which PN-40 shows could never have reached 0.05 with 3 discordant pairs (minimum
-  obtainable p = 0.25). State that explicitly: it is the paper's own instance of the error it
-  attributes to the field.
+- **Generative coding** (evalplus n=164, paired). ⚠️ **Report both rows and label them correctly** —
+  in evalplus, `base` is HumanEval and `base+extra` is HumanEval+, and the outline previously quoted
+  the *base* row under a HumanEval+ label:
+  | metric | Q4_K_XL − Q6_K_XL | 95 % CI | discordant |
+  |---|---|---|---|
+  | HumanEval (base) | −0.61 pts | [−2.68, +1.46] | 3 of 164 |
+  | **HumanEval+ (base+extra)** | **−0.61 pts** | **[−3.28, +2.06]** | **5 of 164** |
+  Report the paired difference and its interval, *not* "McNemar p = 1.0", which PN-40 shows could
+  never have reached 0.05 at these discordant counts (minimum obtainable p = 0.25). State that
+  explicitly: it is the paper's own instance of the error it attributes to the field.
 - **Long-context retrieval** (RULER): S-NIAH 100.0/100.0 at 8,192 / 32,768 / 131,072 — 16× more
   context, zero discrimination — and PN-63 verifies these are **genuine ceilings, not degenerate
   matches**: those cells close their reasoning block on 100 % of samples in both arms.
@@ -209,12 +227,21 @@ point**: 2.1 hours separated the arms at 3.7–11.8 σ; 4.8 hours bounded them a
    presets are temp 0.7/1.0; Qwen publishes LiveCodeBench v6, SWE-bench **Pro** and Terminal Bench,
    none set up here, and no HumanEval at all (G19).
 
-## 8. Practitioner appendix — the configuration
+## 8. Conclusion
+**Currently missing, and it must exist.** §7 runs straight into the appendices, so the paper has no
+closing argument. One page. What the twelve days establish: the instrument decides whether there is
+anything to see, and the cheapest sensitive instrument outranked five expensive insensitive ones.
+What it does not establish — long-context task accuracy, a non-ladder-relative reference, generated-
+code quality. What a practitioner should do differently on Monday. Close on the measurement record
+itself: three headline claims withdrawn on the study's own re-analysis, at no GPU cost, because the
+evidence was kept per-item rather than summarised.
+
+## Appendix A — Practitioner configuration
 `TRACK-A-DECISION.md` verbatim, framed as *what this analysis implies for one concrete deployment*
 and explicitly not as the paper's recommendation. Include Amendment 2 and why the draft-depth flag
 reverted — a worked example of a withdrawn claim.
 
-## 9. Reproducibility appendix — PN-5, 17, 20, 25, 27, 30, 31, 36, 38, 41, 42, 43
+## Appendix B — Reproducibility — PN-5, 17, 20, 25, 27, 30, 31, 36, 38, 41, 42, 43
 Now twelve entries, and they cluster into three families worth naming as such:
 **(i) an aggregate computed across cells differing in an untracked variable** — PN-20's three
 estimators in one column, PN-30's 17-token throughput, PN-36's four-depth "repetition" spread,

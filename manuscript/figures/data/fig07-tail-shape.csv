@@ -1,0 +1,11 @@
+source_cell,arm,corpus,perturbation,n_tokens,mean_kld_nats,median_over_mean,p90_over_mean,p95_over_mean,p99_over_mean,p999_over_mean,max_over_mean,top1_agreement_pct,evidence
+ssa-Q4_K_XL-code-kld,UD-Q4_K_XL,code (django),weights,65536,0.021529,0.0008,0.465,2.592,26.15,101.89,257.5,98.43,measured
+ssa-Q4_K_XL-humaneval-kld,UD-Q4_K_XL,task prompts (HumanEval+),weights,18432,0.036129,0.019,2.133,4.846,17.05,48.34,149.6,95.894,measured
+ssa-Q4_K_XL-wikitext2-kld,UD-Q4_K_XL,prose (WikiText-2),weights,65536,0.008207,0.4276,1.99,3.113,8.48,31.64,926.1,96.215,measured
+ssa-Q5_K_XL-code-kld,UD-Q5_K_XL,code (django),weights,65536,0.010285,0.001,0.466,2.558,24.35,103.51,541.4,98.87,measured
+ssa-Q5_K_XL-humaneval-kld,UD-Q5_K_XL,task prompts (HumanEval+),weights,18432,0.017285,0.02,2.033,4.765,18.17,46.74,107.2,97.339,measured
+ssa-Q5_K_XL-wikitext2-kld,UD-Q5_K_XL,prose (WikiText-2),weights,65536,0.004465,0.4054,1.983,3.121,8.36,27.96,1534.1,97.141,measured
+ssa-Q6_K-code-kld,UD-Q6_K,code (django),weights,65536,0.005829,0.0012,0.52,2.764,24.5,106.98,284.8,99.142,measured
+ssa-Q6_K-humaneval-kld,UD-Q6_K,task prompts (HumanEval+),weights,18432,0.010403,0.0189,1.949,4.821,18.25,55.29,81.3,98.045,measured
+ssa-Q6_K-wikitext2-kld,UD-Q6_K,prose (WikiText-2),weights,65536,0.003321,0.4192,2.03,3.176,8.62,29.56,794.7,97.504,measured
+ssa-Q6_K_XL-code-kld-e2,UD-Q6_K_XL,code (django),kv_dtype_q4_0_vs_f16,65536,0.002955,0.0014,0.517,2.771,22.87,109,445.9,99.401,measured

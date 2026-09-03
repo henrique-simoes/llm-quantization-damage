@@ -1,0 +1,13 @@
+panel,arm,instrument,value,ci_lo,ci_hi,n,estimator,protocol,evidence
+upper,UD-Q6_K_XL,HellaSwag (n=400),82.75,78.74,86.14,400,Wilson 95 %,greedy logprob scoring,measured
+upper,UD-Q6_K,HellaSwag (n=400),82.25,78.2,85.68,400,Wilson 95 %,greedy logprob scoring,measured
+upper,UD-Q5_K_XL,HellaSwag (n=400),82.75,78.74,86.14,400,Wilson 95 %,greedy logprob scoring,measured
+upper,UD-Q4_K_XL,HellaSwag (n=400),83.25,79.28,86.59,400,Wilson 95 %,greedy logprob scoring,measured
+upper,UD-Q6_K_XL,"HumanEval+ base+extra (n=164, paired)",90.24,84.74,93.91,164,Wilson 95 %,"DEC-2 official non-thinking, no-spec",measured
+upper,UD-Q4_K_XL,"HumanEval+ base+extra (n=164, paired)",89.63,84.03,93.43,164,Wilson 95 %,"DEC-2 official non-thinking, no-spec",measured
+upper,UD-Q6_K_XL,"RULER S-NIAH @131,072 (n=12)",100,75.75,100,12,Wilson 95 %,"greedy, thinking ON, n_predict 128",recomputed
+upper,UD-Q4_K_XL,"RULER S-NIAH @131,072 (n=12)",100,75.75,100,12,Wilson 95 %,"greedy, thinking ON, n_predict 128",recomputed
+lower,UD-Q6_K,"mean KL divergence, code (n=65,536 tokens)",0.005829,0.005596,0.006062,65536,+/-1 SE (tool-reported),"SSA divergence (llama-perplexity --kl-divergence), n_ctx 2048, q4_0 KV, seed 20260830",measured
+lower,UD-Q5_K_XL,"mean KL divergence, code (n=65,536 tokens)",0.010285,0.009827,0.010743,65536,+/-1 SE (tool-reported),"SSA divergence (llama-perplexity --kl-divergence), n_ctx 2048, q4_0 KV, seed 20260830",measured
+lower,UD-Q4_K_XL,"mean KL divergence, code (n=65,536 tokens)",0.021529,0.020695,0.022363,65536,+/-1 SE (tool-reported),"SSA divergence (llama-perplexity --kl-divergence), n_ctx 2048, q4_0 KV, seed 20260830",measured
+lower,UD-Q6_K_XL,"mean KL divergence, code (n=65,536 tokens)",0,,,65536,reference arm: 0 by construction,"SSA divergence (llama-perplexity --kl-divergence), n_ctx 2048, q4_0 KV, seed 20260830",measured

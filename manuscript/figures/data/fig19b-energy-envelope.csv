@@ -1,0 +1,9 @@
+window,quantity,value,unit,evidence,note
+12-hour host window (26 % GPU-busy),mean system power,149.2,W,modelled,GPU telemetry + RAPL package + fixed platform allowance; no wall-socket sensor
+12-hour host window,median system power,79.8,W,modelled,
+12-hour host window,peak system power,408.9,W,modelled,
+12-hour host window,mean system power under GPU load,334.1,W,modelled,
+12-hour host window,energy consumed,1.791,kWh,modelled,
+12-hour host window,of which the two GPUs,1.078,kWh,measured (nvidia-smi 1 Hz),
+12-hour host window,of which the CPU package,0.172,kWh,measured (RAPL),
+12-hour host window,GPU0 mean / peak temperature,90,C peak,measured,GPU1 peaked at 76 C on physically identical cards; observational and confounded (PN-12)

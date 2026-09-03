@@ -1,0 +1,7 @@
+arm,role,file,bytes,gib,sha256,evidence
+UD-IQ4_XS,historical corpus only,Qwen3.8-27B-UD-IQ4_XS.gguf,14252845984,13.27,40fac4050e940397dbf13087afd50f4734a11805bf9d65ef8ddd7483470e6199,measured
+UD-Q4_K_XL,arm,Qwen3.8-27B-UD-Q4_K_XL.gguf,17559178144,16.35,3f227079003add2511437e5b1e94812e363385225bf6a9b47b0054a72bc8b01e,measured
+UD-Q5_K_XL,arm,Qwen3.8-27B-UD-Q5_K_XL.gguf,20876938144,19.44,8601193d3d5760c37fb8ce1b43afebc69df5fb24e1fbc5a547c32e2200305276,measured
+UD-Q6_K_XL,divergence reference arm,Qwen3.8-27B-UD-Q6_K_XL.gguf,25299061664,23.56,701d8fa9ed214ab21bfc130cd2a7df19ca89bbef7713e2dfb19f3c63696aa917,measured
+DFlash2 drafter,speculative drafter sidecar,Qwen3.8-27B-DFlash2-Q4_K_M.gguf,1143006752,1.06,18a380efc9b7ed8d88677fc895f5c11ae170653434ee378f7348f715c14d0594,measured
+UD-Q6_K,arm,Qwen3.8-27B-UD-Q6_K.gguf,21983677344,20.47,c9c206812fbe4ac7b76a729e25928b63f2ae89d37f69da7a71c20aec763cd436,measured

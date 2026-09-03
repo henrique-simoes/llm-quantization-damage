@@ -1,0 +1,11 @@
+arm,domain,domain_label,mean_kld_nats,mean_kld_se_nats,top1_agreement_pct,rms_delta_p_pct,ppl_reference,ppl_arm,ppl_change_pct,n_tokens,evidence
+UD-Q6_K,wikitext2,prose,0.003321,0.000126,97.504,1.595,5.78929,5.794523,0.09,65536,measured
+UD-Q6_K,code,code,0.005829,0.000233,99.142,3.339,1.180632,1.182498,0.158,65536,measured
+UD-Q6_K,humaneval,task prompts,0.010403,0.000448,98.045,4.71,1.521981,1.524535,0.168,18432,measured
+UD-Q5_K_XL,wikitext2,prose,0.004465,0.000281,97.141,1.776,5.78929,5.794185,0.085,65536,measured
+UD-Q5_K_XL,code,code,0.010285,0.000458,98.87,4.375,1.180632,1.186223,0.474,65536,measured
+UD-Q5_K_XL,humaneval,task prompts,0.017285,0.000703,97.339,5.951,1.521981,1.524821,0.187,18432,measured
+UD-Q4_K_XL,wikitext2,prose,0.008207,0.00034,96.215,2.456,5.78929,5.795792,0.112,65536,measured
+UD-Q4_K_XL,code,code,0.021529,0.000834,98.43,6.238,1.180632,1.186201,0.472,65536,measured
+UD-Q4_K_XL,humaneval,task prompts,0.036129,0.001534,95.894,8.388,1.521981,1.545521,1.547,18432,measured
+UD-Q6_K_XL (KV-only control),code,code,0.002955,0.000127,99.401,2.392,1.178807,1.180905,0.178,65536,measured

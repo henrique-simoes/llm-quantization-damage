@@ -1,0 +1,7 @@
+configuration,temperature,top_p,top_k,min_p,presence_penalty,used_for,paper_notes,note,evidence
+measured engine default,1,0.95,20,0.05,0,no explicit sampling block sent,PN-1,matches neither the documented engine defaults nor either official preset,measured
+documented llama.cpp launch default,0.8,0.95,40,0.05,0,upstream documentation,PN-1,not what the server actually ran,cited
+Qwen official non-thinking (DEC-2),0.7,0.8,20,0,1.5,"task benchmarks: Wave 1, SSA S6, S9d/S9e","PN-16, DEC-2",the preset the model card publishes for instruct use,cited
+Qwen official thinking,1,0.95,20,0,0,not used for any measurement here,PN-16,listed for completeness,cited
+greedy,0,1,,,0,"logprob and equivalence instruments: SSA divergence, S7, S8, S9a/S9c, S11, S12","PN-23, PN-26",required for byte-exact comparison; not comparable to published scores,measured
+greedy with reasoning enabled,0,1,,,0,S12 RULER only,"PN-60, PN-63",a fourth configuration; the 128-token budget then bounds the answer (PN-60),measured

@@ -1,0 +1,9 @@
+backend,config,decode_tok_s_median,speedup_vs_own_nospec,draft_acceptance,mean_accepted_len,ttft_s,avg_power_w,peak_vram_mib,j_per_token,n_runs,context_ceiling_tokens,evidence,reproducibility
+vLLM NVFP4 (nightly),no-spec,12.443,1,,,0.314,126.053,15424,9.956,3,51200,"measured (speed) / modelled (power, J/tok)",historical
+vLLM NVFP4 (nightly),MTP n=2,28.112,2.26,0.709,,0.461,132.712,15528,4.573,3,49152,"measured (speed) / modelled (power, J/tok)",historical
+vLLM NVFP4 (nightly),MTP n=4,41.212,3.31,0.559,,0.511,148.351,15566,3.6,3,49152,"measured (speed) / modelled (power, J/tok)",historical
+llama.cpp UD-Q4_K_XL,no-spec,22.999,1,,,0.428,207.048,10062,9.002,3,262144,"measured (speed) / modelled (power, J/tok)",historical
+llama.cpp UD-Q4_K_XL,MTP n=2,32.692,1.42,0.728,2.46,0.437,214.084,11014,6.548,3,262144,"measured (speed) / modelled (power, J/tok)",historical
+llama.cpp UD-Q4_K_XL,DFlash2 n=4,38.511,1.67,0.714,3.86,0.445,218.224,11356,5.666,3,262144,"measured (speed) / modelled (power, J/tok)",historical
+vLLM NVFP4 (nightly),DFlash2,,,,,,,,,0,51200,INFEASIBLE — OOM 'Tried to allocate 1.19 GiB' at every utilisation 0.78-0.97,historical
+SGLang 0.5.18,EAGLE,,,,,,,,,0,,"NEVER STARTED — OOM 1.19 GiB at EagleDraftWorker init, at 16K/32K/64K/131K",historical

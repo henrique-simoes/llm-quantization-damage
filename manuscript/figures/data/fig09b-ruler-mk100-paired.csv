@@ -1,0 +1,4 @@
+comparison,n,both,reference_only,cheaper_arm_only,neither,discordant,exact_mcnemar_p,min_attainable_p,paired_diff_pts,ci95_lo,ci95_hi,evidence
+"retrieval score, all items",100,79,10,0,11,10,0.001953,0.001953125,-10,-15.88,-4.12,recomputed
+"reasoning-block closure, all items",100,55,22,5,18,27,0.001514,1.490116119e-08,-17,-26.62,-7.38,recomputed
+"retrieval score, both arms closed (budget-unbound)",55,55,0,0,0,0,1,1,0,0,0,recomputed
