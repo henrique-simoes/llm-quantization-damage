@@ -1,0 +1,59 @@
+FIGURE F25 — THE DEFECT TAXONOMY
+Type: methodology diagram (three labelled columns of cards), single panel, landscape.
+
+THE ONE SENTENCE THIS FIGURE MUST COMMUNICATE
+Twelve instrumentation defects cluster into three families, and each family produces plausible-looking
+output rather than an obvious failure.
+
+COLUMN 1 — "(i) an aggregate computed across cells that differ in an untracked variable"
+Cards, each a short title plus one line of consequence:
+  "three estimators in one column"        -> a speed ranking reversed before anyone noticed
+  "a throughput timed over 17 tokens"     -> 52 tok/s at 131,072 context, and acceptance exactly 1.000
+  "six readings spanning four depths"     -> 'within-arm repetition noise' that was mostly depth
+  "a cost ratio generalised from one arm" -> '20 minutes versus 20 hours', from no artifact
+  "an imbalance ordering read off n=1 cells" -> a monotone story the data does not contain
+  "a correction that switched estimator"  -> a third value for the same quantity
+Rule beneath the column:
+  "an aggregate is meaningful only if every cell entering it is identical in every dimension except
+   the one aggregated over — and the cell key is where you check that"
+
+COLUMN 2 — "(ii) a contract documented but not asserted in code"
+  "a depth gate that lived in a docstring"    -> a 79.7 % prefill reported as success
+  "a missing generation gate"                 -> a full timings object over 17 generated tokens
+  "a harness scoring a subprocess by exit code" -> ten cells marked ok with empty metrics after
+                                                  1.5 GPU-hours
+Rule beneath the column:
+  "publish the enforced gate, not the intended one — and assert that the MEASUREMENT exists, not
+   that the process exited 0"
+
+COLUMN 3 — "(iii) an identifier or binding that is not unique"
+  "a drafter bound to the wrong engine build" -> a clean 0.000 pass@1, indistinguishable in a table
+                                                 from catastrophic performance
+  "a safety predicate matching its own supervisor" -> an 11-hour campaign cascading to failure in
+                                                     8 minutes
+  "a label used for two cells, hence one log path" -> a well-formed file in which one cell's value
+                                                     is another cell's value
+Rule beneath the column:
+  "a label must include every dimension that varies"
+
+FOURTH BOX, standing alone beneath the three columns, full width:
+  "and one that is none of these: a metric that cannot work in principle.
+   Free-running greedy generation forks within a few characters, so every pairwise distance
+   saturates and the ladder ordering scrambles. It was found only by running it."
+
+FOOTER, in a distinct band:
+  "This is an audit of KNOWN defects. It establishes that twelve were found and fixed, not that none
+   remain. Three of them were found only because a number looked implausible to a reader, and every
+   one corrupted a derived summary while leaving the underlying evidence intact — which is the entire
+   argument for keeping per-item raw records."
+
+STYLE
+Three equal columns of cards with 1-pt borders and generous padding; the rule beneath each column set
+in italic or a tinted band. White background, sans-serif, no drop shadows, no gradients, no 3-D. One
+accent colour per column at most, and the columns must remain distinguishable in greyscale by
+position and heading, not by hue.
+
+CONSTRAINTS
+Do not add defects that are not listed, do not soften the consequence lines, and do not present the
+figure as an apology: the framing is method. Do not attach note identifiers or dates to the cards —
+they belong in the table, not the diagram.

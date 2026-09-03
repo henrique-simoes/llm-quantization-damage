@@ -1,0 +1,377 @@
+{
+ "run_id": "verified50-score",
+ "model": "openai__Q6_K",
+ "config": "Q6_K_XL non-thinking, llama.cpp MTP n=2, KV q4_0, seed 20260822",
+ "scored_on": "multivac x86_64, 2026-08-28 04:18-06:19 UTC",
+ "source": "per-instance report.json under /home/multivac/logs/run_evaluation/verified50-score/openai__Q6_K",
+ "preds_total": 50,
+ "preds_with_patch": 49,
+ "instances_scored": 49,
+ "unique_instances": 49,
+ "resolved": 37,
+ "unresolved": 12,
+ "resolve_rate_completed": 75.5,
+ "resolve_rate_of_50": 74.0,
+ "unresolved_ids": [
+  "astropy__astropy-13033",
+  "astropy__astropy-13398",
+  "astropy__astropy-13977",
+  "astropy__astropy-14365",
+  "astropy__astropy-14369",
+  "astropy__astropy-7166",
+  "django__django-10554",
+  "django__django-10999",
+  "django__django-11087",
+  "django__django-11141",
+  "django__django-11239",
+  "django__django-11400"
+ ],
+ "not_submitted_ids": [
+  "astropy__astropy-13236"
+ ],
+ "instances": [
+  {
+   "instance_id": "astropy__astropy-12907",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "astropy__astropy-13033",
+   "resolved": false,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "astropy__astropy-13398",
+   "resolved": false,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "astropy__astropy-13453",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "astropy__astropy-13579",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "astropy__astropy-13977",
+   "resolved": false,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "astropy__astropy-14096",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "astropy__astropy-14182",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "astropy__astropy-14309",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "astropy__astropy-14365",
+   "resolved": false,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "astropy__astropy-14369",
+   "resolved": false,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "astropy__astropy-14508",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "astropy__astropy-14539",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "astropy__astropy-14598",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "astropy__astropy-14995",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "astropy__astropy-7166",
+   "resolved": false,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "astropy__astropy-7336",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "astropy__astropy-7606",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "astropy__astropy-7671",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "astropy__astropy-8707",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "astropy__astropy-8872",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-10097",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-10554",
+   "resolved": false,
+   "patch_is_None": false,
+   "patch_successfully_applied": false,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-10880",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-10914",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-10973",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-10999",
+   "resolved": false,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-11066",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-11087",
+   "resolved": false,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-11095",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-11099",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-11119",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-11133",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-11138",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-11141",
+   "resolved": false,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-11149",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-11163",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-11179",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-11206",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-11211",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-11239",
+   "resolved": false,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-11265",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-11276",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-11292",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-11299",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-11333",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-11400",
+   "resolved": false,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-11433",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  },
+  {
+   "instance_id": "django__django-11451",
+   "resolved": true,
+   "patch_is_None": false,
+   "patch_successfully_applied": true,
+   "has_pred_patch": true
+  }
+ ]
+}

@@ -1,0 +1,39 @@
+# PaperBanana batch manifest — methodology diagrams.
+#
+#   paperbanana batch --manifest manuscript/figures/paperbanana/diagrams.yaml \
+#       --venue multivac --iterations 3 --optimize --format png \
+#       --output-dir manuscript/figures/rendered
+#
+# The diagram path needs BOTH a VLM provider and an image-generation provider (unlike the plot
+# path, which needs only a VLM). Paths resolve relative to this file's directory.
+#
+# Every literal in these three diagrams traces to a figure or table in ../FIGURE-PROGRAMME.md and
+# ../TABLES.md. If a rendered diagram contains a number that is not in its source text, DISCARD it:
+# that is a planner hallucination, not a style problem, and it will recur.
+
+items:
+  - id: F21
+    input: diagram-F21.txt
+    caption: >-
+      The measurement design. Divergence is measured on prompt tokens against the least quantized
+      arm available, so its precision grows with the token budget; task benchmarks resolve outcomes,
+      so their precision grows with the problem count, and at the sample sizes these benchmarks
+      actually contain that precision is coarser than the effect. Sample sizes, intervals and costs
+      are those reported in Figures 1, 3, 6 and 19.
+
+  - id: F20
+    input: diagram-F20.txt
+    caption: >-
+      Every correction the study made to its own published notes, by date, kind and cost. Arrows
+      point from a correction to the claim it corrects. Fourteen of the sixteen were made at no GPU
+      cost, because the underlying per-item records — completions, predictions, per-cell timings,
+      server logs — were retained rather than only their summaries. One node corrects an earlier
+      correction.
+
+  - id: F25
+    input: diagram-F25.txt
+    caption: >-
+      The study's instrumentation defects, grouped by mechanism. Each family produced plausible
+      output rather than an error: a value in the right range, a file that parses, a process that
+      exits zero. Offered as method — each is a trap another group would fall into. This is an audit
+      of known defects; it establishes that twelve were found and fixed, not that none remain.

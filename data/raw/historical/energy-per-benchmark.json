@@ -1,0 +1,366 @@
+{
+  "windows": {
+    "humaneval_thinking_v2/mtp-Q4_K_XL": {
+      "kind": "gpu_inference",
+      "note": "PARTIAL: power-log starts 16:21:53Z; only last 36.6 of 153.6 min covered",
+      "window_start_utc": "2026-08-27T16:21:53Z",
+      "window_end_utc": "2026-08-27T16:58:30Z",
+      "requested_span_s": 9337.0,
+      "covered_span_s": 2197.0,
+      "coverage_pct": 99.7,
+      "gpu_energy_wh": 131.7,
+      "gpu_energy_j": 474104.0,
+      "cpu_pkg_energy_wh": 13.95,
+      "est_system_energy_wh": 173.11,
+      "mean_gpu_w": 215.8,
+      "mean_cpu_pkg_w": 22.9
+    },
+    "humaneval_thinking_v2/mtp-Q5_K_XL": {
+      "kind": "gpu_inference",
+      "note": "full window covered",
+      "window_start_utc": "2026-08-27T16:58:37Z",
+      "window_end_utc": "2026-08-27T19:35:25Z",
+      "requested_span_s": 9408.0,
+      "covered_span_s": 9408.0,
+      "coverage_pct": 100.0,
+      "gpu_energy_wh": 563.6,
+      "gpu_energy_j": 2028948.0,
+      "cpu_pkg_energy_wh": 60.48,
+      "est_system_energy_wh": 741.67,
+      "mean_gpu_w": 215.7,
+      "mean_cpu_pkg_w": 23.1
+    },
+    "humaneval_thinking_v2/mtp-Q6_K_XL": {
+      "kind": "gpu_inference",
+      "note": "full window covered",
+      "window_start_utc": "2026-08-27T19:35:32Z",
+      "window_end_utc": "2026-08-27T22:08:06Z",
+      "requested_span_s": 9154.0,
+      "covered_span_s": 9154.0,
+      "coverage_pct": 99.9,
+      "gpu_energy_wh": 515.61,
+      "gpu_energy_j": 1856198.0,
+      "cpu_pkg_energy_wh": 59.28,
+      "est_system_energy_wh": 689.32,
+      "mean_gpu_w": 202.8,
+      "mean_cpu_pkg_w": 23.3
+    },
+    "humaneval_thinking_v2/dflash-IQ4_XS": {
+      "kind": "gpu_inference",
+      "note": "full window covered",
+      "window_start_utc": "2026-08-27T22:08:12Z",
+      "window_end_utc": "2026-08-27T23:30:41Z",
+      "requested_span_s": 4949.0,
+      "covered_span_s": 4949.0,
+      "coverage_pct": 99.4,
+      "gpu_energy_wh": 288.4,
+      "gpu_energy_j": 1038231.0,
+      "cpu_pkg_energy_wh": 31.56,
+      "est_system_energy_wh": 381.82,
+      "mean_gpu_w": 209.8,
+      "mean_cpu_pkg_w": 23.0
+    },
+    "humaneval_thinking_v2/dflash-Q4_K_XL": {
+      "kind": "gpu_inference",
+      "note": "full window covered",
+      "window_start_utc": "2026-08-27T23:30:54Z",
+      "window_end_utc": "2026-08-28T01:49:25Z",
+      "requested_span_s": 8311.0,
+      "covered_span_s": 8311.0,
+      "coverage_pct": 99.9,
+      "gpu_energy_wh": 501.89,
+      "gpu_energy_j": 1806790.0,
+      "cpu_pkg_energy_wh": 53.19,
+      "est_system_energy_wh": 658.96,
+      "mean_gpu_w": 217.4,
+      "mean_cpu_pkg_w": 23.0
+    },
+    "agentic_steps/iq4_xs+q5_k_xl_T3": {
+      "kind": "gpu_inference",
+      "note": "orchestrator job agentic-steps (T3-style agentic runs, both quants)",
+      "window_start_utc": "2026-08-28T02:52:48Z",
+      "window_end_utc": "2026-08-28T04:00:11Z",
+      "requested_span_s": 4043.0,
+      "covered_span_s": 4043.0,
+      "coverage_pct": 99.9,
+      "gpu_energy_wh": 207.61,
+      "gpu_energy_j": 747379.0,
+      "cpu_pkg_energy_wh": 24.94,
+      "est_system_energy_wh": 283.09,
+      "mean_gpu_w": 184.9,
+      "mean_cpu_pkg_w": 22.2
+    },
+    "score_verified50_scoring_cpu": {
+      "kind": "cpu_scoring",
+      "note": "orchestrator score-verified50 re-aggregation window (CPU-side; not model inference)",
+      "window_start_utc": "2026-08-28T04:18:48Z",
+      "window_end_utc": "2026-08-28T06:19:23Z",
+      "requested_span_s": 7235.0,
+      "covered_span_s": 7235.0,
+      "coverage_pct": 100.0,
+      "gpu_energy_wh": 40.44,
+      "gpu_energy_j": 145576.0,
+      "cpu_pkg_energy_wh": 24.02,
+      "est_system_energy_wh": 154.9,
+      "mean_gpu_w": 20.1,
+      "mean_cpu_pkg_w": 12.0
+    },
+    "nvfp4_ppl/legacy_failed_attempts": {
+      "kind": "gpu_retry_overhead",
+      "note": "22 failed vLLM startup attempts (startup/timeout energy = retry tax)",
+      "window_start_utc": "2026-08-28T04:06:48Z",
+      "window_end_utc": "2026-08-28T17:43:40Z",
+      "requested_span_s": 49012.0,
+      "covered_span_s": 49012.0,
+      "coverage_pct": 99.8,
+      "gpu_energy_wh": 377.17,
+      "gpu_energy_j": 1357794.0,
+      "cpu_pkg_energy_wh": 191.74,
+      "est_system_energy_wh": 1181.56,
+      "mean_gpu_w": 27.7,
+      "mean_cpu_pkg_w": 14.1
+    },
+    "nvfp4_ppl/legacy_success_run": {
+      "kind": "gpu_inference",
+      "note": "successful legacy NVFP4 PPL run (160 chunks, PPL 8.5848)",
+      "window_start_utc": "2026-08-28T17:43:40Z",
+      "window_end_utc": "2026-08-28T18:00:14Z",
+      "requested_span_s": 994.0,
+      "covered_span_s": 994.0,
+      "coverage_pct": 100.0,
+      "gpu_energy_wh": 14.43,
+      "gpu_energy_j": 51952.0,
+      "cpu_pkg_energy_wh": 5.38,
+      "est_system_energy_wh": 32.24,
+      "mean_gpu_w": 52.3,
+      "mean_cpu_pkg_w": 19.5
+    },
+    "nvfp4_ppl_p1/phaseA_gguf_tokenize": {
+      "kind": "gpu_inference",
+      "note": "llama-server GGUF tokenize+detokenize of 602 windows",
+      "window_start_utc": "2026-08-28T21:41:33Z",
+      "window_end_utc": "2026-08-28T21:59:35Z",
+      "requested_span_s": 1082.0,
+      "covered_span_s": 1082.0,
+      "coverage_pct": 99.6,
+      "gpu_energy_wh": 8.67,
+      "gpu_energy_j": 31206.0,
+      "cpu_pkg_energy_wh": 3.6,
+      "est_system_energy_wh": 25.79,
+      "mean_gpu_w": 28.8,
+      "mean_cpu_pkg_w": 12.0
+    },
+    "nvfp4_ppl_p1/phaseB_vllm_score": {
+      "kind": "gpu_inference",
+      "note": "vLLM NVFP4 scoring 602 windows -> PPL 6.7073",
+      "window_start_utc": "2026-08-28T21:59:35Z",
+      "window_end_utc": "2026-08-28T22:18:51Z",
+      "requested_span_s": 1156.0,
+      "covered_span_s": 1156.0,
+      "coverage_pct": 99.7,
+      "gpu_energy_wh": 24.12,
+      "gpu_energy_j": 86838.0,
+      "cpu_pkg_energy_wh": 6.7,
+      "est_system_energy_wh": 45.27,
+      "mean_gpu_w": 75.1,
+      "mean_cpu_pkg_w": 20.9
+    },
+    "nvfp4_ppl_p1/total": {
+      "kind": "gpu_inference",
+      "note": "end-to-end Protocol-1 reconciliation job",
+      "window_start_utc": "2026-08-28T21:41:33Z",
+      "window_end_utc": "2026-08-28T22:18:51Z",
+      "requested_span_s": 2238.0,
+      "covered_span_s": 2238.0,
+      "coverage_pct": 99.7,
+      "gpu_energy_wh": 32.79,
+      "gpu_energy_j": 118044.0,
+      "cpu_pkg_energy_wh": 10.3,
+      "est_system_energy_wh": 71.06,
+      "mean_gpu_w": 52.7,
+      "mean_cpu_pkg_w": 16.6
+    }
+  },
+  "uncovered_benchmarks": [
+    {
+      "benchmark": "perplexity_protocol1_llamacpp_ladder (IQ4/Q4/Q5/Q6)",
+      "window": "2026-08-25T22:38Z - 2026-08-26",
+      "reason": "power logger + telemetry stack started 2026-08-27T16:21Z; no 1Hz power data exists for this run"
+    },
+    {
+      "benchmark": "humaneval_thinking_v2/mtp-IQ4_XS",
+      "window": "2026-08-27T12:49:26Z - 14:18:36Z",
+      "reason": "ends 2h before power-log start; no data"
+    },
+    {
+      "benchmark": "humaneval_plus_nonthinking_ladder",
+      "window": "2026-08-26 or earlier",
+      "reason": "pre-telemetry; no data"
+    },
+    {
+      "benchmark": "swebench_verified50_patch_generation (+ thinking calib)",
+      "window": "2026-08-24",
+      "reason": "pre-telemetry; per-instance dirs dated Aug 24; no data"
+    },
+    {
+      "benchmark": "champion agentic runs 20260821",
+      "window": "2026-08-21",
+      "reason": "pre-telemetry; no data"
+    }
+  ],
+  "speed_matrix_phase4": {
+    "note": "gen energy per run measured inside speed-probe2.py via avg_power_w x wall_s (independent of power-log.csv); 1024-token generations, ctx 32768",
+    "per_config": {
+      "IQ4_XS__dflash2_n4": {
+        "n_runs": 1,
+        "median_j_per_tok": 3.7,
+        "median_gen_energy_j": 3805.745319263599,
+        "median_decode_tok_s": 57.523,
+        "median_avg_power_w": 213.787
+      },
+      "IQ4_XS__mtp_n2": {
+        "n_runs": 1,
+        "median_j_per_tok": 4.35,
+        "median_gen_energy_j": 4454.876055617163,
+        "median_decode_tok_s": 46.892,
+        "median_avg_power_w": 204.002
+      },
+      "IQ4_XS__nospec": {
+        "n_runs": 1,
+        "median_j_per_tok": 7.459,
+        "median_gen_energy_j": 7638.076031354654,
+        "median_decode_tok_s": 27.173,
+        "median_avg_power_w": 202.685
+      },
+      "MTP2": {
+        "n_runs": 3,
+        "median_j_per_tok": 4.731,
+        "median_gen_energy_j": 4844.368930666478,
+        "median_decode_tok_s": 28.298,
+        "median_avg_power_w": 131.6
+      },
+      "MTP2_clean": {
+        "n_runs": 1,
+        "median_j_per_tok": 4.573,
+        "median_gen_energy_j": 4834.130904951622,
+        "median_decode_tok_s": 28.112,
+        "median_avg_power_w": 132.712
+      },
+      "MTP4": {
+        "n_runs": 2,
+        "median_j_per_tok": 3.797,
+        "median_gen_energy_j": 4133.1008513952675,
+        "median_decode_tok_s": 38.857,
+        "median_avg_power_w": 150.991
+      },
+      "MTP4_clean": {
+        "n_runs": 1,
+        "median_j_per_tok": 3.6,
+        "median_gen_energy_j": 3686.096864990779,
+        "median_decode_tok_s": 41.212,
+        "median_avg_power_w": 148.351
+      },
+      "NOSPEC": {
+        "n_runs": 1,
+        "median_j_per_tok": 9.956,
+        "median_gen_energy_j": 10373.565217391304,
+        "median_decode_tok_s": 12.443,
+        "median_avg_power_w": 126.053
+      },
+      "Q4_K_XL__dflash2_n4": {
+        "n_runs": 1,
+        "median_j_per_tok": 5.646,
+        "median_gen_energy_j": 5781.7058104134685,
+        "median_decode_tok_s": 38.431,
+        "median_avg_power_w": 216.989
+      },
+      "Q4_K_XL__mtp_n2": {
+        "n_runs": 1,
+        "median_j_per_tok": 6.407,
+        "median_gen_energy_j": 6494.754978248881,
+        "median_decode_tok_s": 32.642,
+        "median_avg_power_w": 207.033
+      },
+      "Q4_K_XL__nospec": {
+        "n_runs": 1,
+        "median_j_per_tok": 8.963,
+        "median_gen_energy_j": 9178.072413642136,
+        "median_decode_tok_s": 22.841,
+        "median_avg_power_w": 204.723
+      },
+      "Q5_K_XL__dflash2_n4": {
+        "n_runs": 1,
+        "median_j_per_tok": 6.989,
+        "median_gen_energy_j": 7160.014961803024,
+        "median_decode_tok_s": 31.547,
+        "median_avg_power_w": 220.583
+      },
+      "Q5_K_XL__mtp_n2": {
+        "n_runs": 1,
+        "median_j_per_tok": 7.066,
+        "median_gen_energy_j": 7237.01206114564,
+        "median_decode_tok_s": 29.765,
+        "median_avg_power_w": 210.361
+      },
+      "Q5_K_XL__nospec": {
+        "n_runs": 1,
+        "median_j_per_tok": 10.499,
+        "median_gen_energy_j": 10750.65235877708,
+        "median_decode_tok_s": 19.756,
+        "median_avg_power_w": 207.412
+      },
+      "Q6_K_XL__dflash2_n4": {
+        "n_runs": 1,
+        "median_j_per_tok": 4.786,
+        "median_gen_energy_j": 4903.507092039912,
+        "median_decode_tok_s": 44.698,
+        "median_avg_power_w": 214.04
+      },
+      "Q6_K_XL__mtp_n2": {
+        "n_runs": 1,
+        "median_j_per_tok": 6.29,
+        "median_gen_energy_j": 6440.751283747599,
+        "median_decode_tok_s": 31.743,
+        "median_avg_power_w": 199.657
+      },
+      "Q6_K_XL__nospec": {
+        "n_runs": 1,
+        "median_j_per_tok": 11.781,
+        "median_gen_energy_j": 12063.902924402379,
+        "median_decode_tok_s": 16.482,
+        "median_avg_power_w": 194.177
+      },
+      "llamacpp_dflash2_n4": {
+        "n_runs": 1,
+        "median_j_per_tok": 5.666,
+        "median_gen_energy_j": 5802.533717639115,
+        "median_decode_tok_s": 38.511,
+        "median_avg_power_w": 218.224
+      },
+      "llamacpp_mtp_n2": {
+        "n_runs": 1,
+        "median_j_per_tok": 6.548,
+        "median_gen_energy_j": 6705.677719319711,
+        "median_decode_tok_s": 32.692,
+        "median_avg_power_w": 214.084
+      },
+      "llamacpp_nospec": {
+        "n_runs": 2,
+        "median_j_per_tok": 9.002,
+        "median_gen_energy_j": 9218.537849471717,
+        "median_decode_tok_s": 23.024,
+        "median_avg_power_w": 207.048
+      }
+    }
+  },
+  "method": {
+    "source": "/srv/bench/power-log.csv (1Hz, gpu_total_w from nvidia-smi power.draw, cpu_pkg_w from RAPL, est_system_w = gpu+cpu+RAM+overhead estimate)",
+    "integration": "sample-and-hold rectangle integral per second; Wh = sum(W*s)/3600",
+    "log_coverage": [
+      "2026-08-27T16:21:53Z",
+      "2026-08-29T05:23:52Z"
+    ],
+    "cross_check": "speed-matrix rows carry their own avg_power_w x wall_s energies (independent measurement path)",
+    "generated_utc": "2026-08-29T05:23:53Z"
+  }
+}

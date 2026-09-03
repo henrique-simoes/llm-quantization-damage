@@ -1,0 +1,63 @@
+FIGURE F20 — THE CORRECTION RECORD
+Type: methodology diagram (annotated timeline), single panel, landscape.
+Source data, one row per node: ../data/fig20-correction-record.csv
+
+THE ONE SENTENCE THIS FIGURE MUST COMMUNICATE
+The study corrected itself sixteen times in five days, fourteen of them at zero GPU cost, because
+per-item records were retained — and one of the corrections corrected a correction.
+
+LAYOUT
+Horizontal timeline running left to right from 2026-08-30 to 2026-09-03, with date ticks.
+Three horizontal lanes, labelled at the left:
+  Lane 1  "claim withdrawn"
+  Lane 2  "claim scoped or restated"
+  Lane 3  "numbers corrected"
+
+Place one node per correction at its date, in the lane matching its outcome:
+  2026-08-30  PN-23  lane 1  "speculative decoding is greedy-lossless" -> 131/164 byte-exact
+  2026-08-31  PN-26  lane 2  mechanism narrowed: both arms are individually deterministic
+  2026-09-01  PN-30  lane 1  at-depth speculative speedups withdrawn: every rep generated 17 tokens
+  2026-09-02  PN-36  lane 3  "within-arm noise 32.9 %" -> six readings spanned four context depths
+  2026-09-02  PN-37  lane 1  "saturation" mechanism retracted: false for two of three instruments
+  2026-09-02  PN-39  lane 2  "the ceiling is a split property" -> true for two of four arms
+  2026-09-02  PN-40  lane 2  "McNemar p = 1.0" -> that test's minimum attainable p was 0.25
+  2026-09-02  PN-41  lane 3  "20 minutes vs 20 hours" -> 2.15 h vs 4.8 h, recomputed
+  2026-09-02  PN-42  lane 2  "balance and throughput oppose" -> the most balanced was slowest
+  2026-09-02  PN-43  lane 2  a label collision: trust the run-time field for two cells
+  2026-09-03  PN-45  lane 3  "46.7 %" -> 40.7 % under a stated estimator   [DOUBLE OUTLINE]
+  2026-09-03  PN-60  lane 1  the long-context retrieval result -> a budget-closure effect
+  2026-09-03  PN-61  lane 1  "1.000 acceptance at 258,779 tokens" struck: 55 tokens, 36 draft events
+  2026-09-03  PN-62  lane 2  the tail's shape is a corpus property, not quantization's
+  2026-09-03  PN-63  lane 2  narrows PN-60: single-needle at the same depth is genuinely saturated
+  2026-09-03  PN-64  lane 3  "100-200x at the median" -> about 200x; per-arm ordering withdrawn
+
+ARROWS
+From each node, draw a thin curving arrow back to the claim it corrects, labelled with that claim's
+note id: PN-23 -> nine days of prior notes; PN-26 -> PN-23's mechanism; PN-30 -> PN-24 and S8
+at-depth; PN-36 -> PN-19; PN-37 -> PN-34; PN-39 -> PN-6; PN-40 -> PN-28; PN-42 -> PN-8; PN-43 ->
+PN-15; PN-45 -> PN-36; PN-60 -> PN-44; PN-61 -> PN-51's acceptance clause; PN-62 -> PN-35;
+PN-63 -> PN-60; PN-64 -> PN-35's median row.
+Draw PN-45 with a DOUBLE OUTLINE and the label "a correction correcting a correction".
+
+NODE FILL
+Solid fill  = corrected at zero GPU cost (fourteen nodes)
+Open outline = required GPU time (two nodes: PN-23, 1.3 h for the experiment that tested the
+               premise; PN-26, 1.0 h for the determinism control)
+
+ANNOTATIONS, placed as small blocks in free space
+  "fourteen of sixteen cost ZERO GPU time — the evidence was already on disk"
+  "PN-19 -> PN-36 -> PN-45: three passes over one measurement produced 32.9 %, 46.7 % and 40.7 %;
+   only the third named its estimator over matched cells"
+  "found by: adversarial review (6) · blind structural review (3) · the author re-reading an
+   artifact (3) · an integrity audit (2) · a planned control (2)"
+
+STYLE
+Clean academic timeline. Thin rules, sans-serif labels, white background, no drop shadows or
+gradients. Two accent colours at most (#0072B2 and #D55E00) plus greys; lanes distinguished by
+position and label, not by colour alone.
+
+CONSTRAINTS
+This is offered as method, not confession — but it must not soften the facts. Every node names a
+real claim that was published inside this project and later changed. Do not aggregate the nodes into
+a reassuring summary such as "the study was mostly right": the count is the finding. Do not invent
+dates, note ids or claims.
