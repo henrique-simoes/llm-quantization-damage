@@ -1,6 +1,6 @@
 # TIMELINE — twelve days, and how the method changed under measurement
 
-**2026-08-20 → 2026-09-02.** Built from the Ledger (L-1…L-18) and Decision log (DEC-1…DEC-15) in
+**2026-08-20 → 2026-09-03.** Built from the Ledger (L-1…L-20) and Decision log (DEC-1…DEC-15) in
 [`docs/build-stream/2026-08-30-quant-bench-trackA.md`](../../docs/build-stream/2026-08-30-quant-bench-trackA.md),
 cross-checked against artifact timestamps and against the machine record at
 `data/multivac-src/multivac-CLAUDE.md`.
@@ -24,7 +24,9 @@ All times UTC. The owner is in Brazil (UTC−3).
 | **S8** | 08-30 → 08-31 | speculative decoding is not lossless — a premise falls |
 | **S9 campaign** | 08-31 → 09-01 | determinism, the generative anchor, DFlash2 — and a self-inflicted outage |
 | **Corrections** | 09-01 | a withdrawal, an infeasibility, and a rejected instrument |
-| **S12** | 09-02 | RULER, and the finding that closed the argument |
+| **S12** | 09-02 | RULER, and the finding that reframed the argument |
+| **Review round** | 09-02 | two blind reviews + an archivist; **nine notes corrected** |
+| **mk100** | 09-02 → 09-03 | MK-NIAH at n=100 — the long-context question answered |
 
 ---
 
@@ -468,12 +470,107 @@ more, the thing this project keeps rediscovering.*
 
 ---
 
-## What the twelve days actually demonstrate
+## L-19 · 2026-09-02T20:00Z — the three-way review round, and nine corrections
 
-**Four published results were withdrawn by the project itself**: PN-23's mechanism (by PN-26),
+At the owner's direction, three researchers were spawned at maximum effort: **two performing
+independent blind reviews** — neither seeing the other's work, nor the author's own pass — and one
+building the reference corpus. Each read PN-1…PN-35, the 2,086-line build stream, all 173
+artifacts and both machine records, and each **recomputed values from the artifacts rather than
+trusting the notes**. A fourth, explicitly non-blind pass covered what only an author knows: which
+results are fragile for reasons never written down.
+
+**The two blind reviews converged independently on the same defects.** That is the strongest
+corroboration this process can produce, and it is worth saying in the paper: both found the missing
+MK-NIAH artifact, both found the PN-19 depth confound, both flagged scope creep on the losslessness
+claim.
+
+Nine notes were corrected. **In every case the conclusion survived and the numbers changed** —
+which is the useful pattern, because it means the errors were in execution and reporting, not in
+the science:
+
+| # | correction | what it did |
+|---|---|---|
+| **PN-36** | PN-19's "n=6 at 262,144" is six readings across **four depths** | its 32.9 % "repetition noise" was largely a *depth* effect. True within-configuration spread **46.7 %**; UD-Q4_K_XL has **no repetition group at all** at the full window. **The conclusion is better supported by the corrected numbers than by the originals** |
+| **PN-40** | PN-28's McNemar **could never have reached p<0.05** | with 3 and 5 discordant pairs the minimum obtainable p is 0.25 and 0.0625. Reporting "p = 1.0" as a null said nothing. Replaced by a *bound*: −0.61 pts, 95 % CI [−2.68, +1.46]. **This is exactly the error the paper accuses the field of, committed in the paper's own generative anchor** |
+| **PN-37** | PN-34's "saturation" mechanism is **false for two of three instruments** | HellaSwag has ~17 points of headroom, HumanEval+ ~5; only S-NIAH is at ceiling. And the broad framing — *divergence sees what accuracy hides* — belongs to **Dutta et al., NeurIPS 2024** (R13). What survives as ours is PN-35's tail structure |
+| **PN-39** | PN-6's "the ceiling belongs to the split" holds for **2 of 4 arms** | UD-Q4_K_XL loads at the default split; UD-Q6_K_XL was never tested there. And every default-split *failure* is a **single attempt**, against the project's own two-attempt bracketing rule |
+| **PN-41** | the "20 minutes vs 20 hours" contrast was **fabricated** | measured: **2.15 h vs ≈4.8 h**, a 2.2× ratio. The "20 minutes" described one arm on one domain; the "20 hours" had no basis in any artifact. All four sources are in the public repo, *which is precisely why the inflated version was dangerous* |
+| **PN-42** | PN-8's "least balanced is fastest" is **factually wrong** | `62,38` is the least balanced at 1,750 MiB and is not the fastest. The relation is not monotone. What survives: the *most* balanced ratio is decisively the slowest |
+| **PN-43** | a **label collision** corrupted PN-15's artifact | two cells shared one label and one serverlog; the f16 run overwrote the q4_0 log, so the reparsed block carries the wrong PPL for one cell. Also: "51 % of a quantization level" is a size comparison, **not additive** |
+| **PN-38** | S11 finally documented | free-running greedy generation **cannot** measure quantization distance: pairwise distances saturate at 0.61–0.79 with the ordering scrambled — the *adjacent* arms measuring further apart than the *extremes* |
+| **PN-35 fixes** | two errors in a note written hours earlier | its evidence line claimed the quantiles existed only in serverlogs (false — six of seven are in the committed artifact), and it cited ledger entry L-19 **before L-19 existed** |
+
+Two further findings from the round, both about the repository rather than the science:
+
+* **The MK-NIAH generation command existed nowhere.** The harness *read* a pre-generated dataset and
+  the `--num_needle_k 4` invocation was ad-hoc — so the study's declared headline dataset was **not
+  reproducible from a public repo at all**. Recorded as `s12_mkniah_generate.sh`.
+* **A citation that inverted its source.** R5/PN-14 cited LocalBench's "KLD 0.01–0.03 for Q4_K_M" as
+  a reference band; LocalBench **disclaims** it as an artifact of short-context Wikipedia protocols.
+  Corrected — and it now *supports* this paper's protocol-dependence thesis instead of standing
+  against it.
+
+And the observation that should embarrass the project into a permanent practice: **PN-35, now the
+study's headline, was found by review and not by us.** The median and decile KLD fields sat in the
+project's own artifacts, committed and synced, **for twelve days unexamined.**
+
+---
+
+## L-20 · 2026-09-03T03:00Z — MK-NIAH at n=100, and the long-context question is answered
+
+The review round left one result visibly weak: PN-33's MK-NIAH leg rested on **one discordant
+sample out of twelve**. Eleven GPU-hours were spent to settle it, and the pre-flight followed every
+discipline the earlier failures had forced — RULER's semantics read from **its own source**
+(`num_needle_k=4` → four keys planted, one queried, three hard distractors) and confirmed against
+the paper; the dataset generated and checked (100 samples, all needles unique, 130,439–131,072
+tokens); the full code path exercised by a **four-minute mock at 8,192**; the time estimate taken
+from the *measured* n=12 cells (170 s/sample) rather than guessed; and the paired analysis
+**written and committed before the second arm finished**, so the test was fixed in advance of the
+data.
+
+**UD-Q6_K_XL 89.0, UD-Q4_K_XL 79.0, accuracy recovery 88.76 %, exact McNemar p = 0.0020, paired
+difference −10.00 points [−15.88, −4.12].** Ten discordant items, **zero in the other direction** —
+the cheaper arm's failures are a strict superset of the reference's, and the test returned the
+minimum p its design permits. 200 full prefills, 0 empty responses.
+
+**This supersedes PN-33's MK-NIAH half, and the reason matters.** The n=12 reference score of 100.0
+was a **lucky draw** — P(12/12 | p = 0.89) ≈ 0.25. It was not merely imprecise: it implied a
+ceiling that does not exist, and it **pointed the wrong way**. The eleven hours bought the
+difference between *"consistent with published results, not established here"* and a separated
+result.
+
+**What it does to the argument.** §5.2 now has a third instrument, and the three order themselves
+by how close each task sits to the model's limit: multiple-choice and generative coding **bound**
+the effect to a few points, single-needle retrieval to zero, multi-key retrieval **separates** it.
+That ordering is what PN-35's tail mechanism predicts — on a task where 21 % of items are hard
+enough that even the reference fails, the cheaper arm fails on all of those *and ten more* — and it
+is a stronger argument than three bounds of differing width.
+
+**Measurement is closed, for real this time.** What remains is drafting, plus two owner decisions
+that block publication: **there is no LICENSE file**, and **commit authorship carries an internal
+LAN IP across the history**.
+
+---
+
+## What the thirteen days actually demonstrate
+
+**Fourteen published results were corrected or withdrawn by the project itself**, in two distinct
+phases with different mechanisms — and the distinction is the honest story.
+
+*Phase one, caught by rules the project had written for itself*: PN-23's mechanism (by PN-26),
 PN-24's at-depth half and Track A Amendment 1 (by PN-30), and S10/S11 as instruments (by DEC-15 and
-by S11's own data). None was withdrawn by an outside reviewer. Each was caught by a **rule** —
-a standing red-flag list, a pilot gate, a preserved log — rather than by luck.
+by S11's own data). Each was caught by a standing red-flag list, a pilot gate, or a preserved log.
+
+*Phase two, caught only by adversarial review* (L-19): **nine notes**, including the statistics
+behind the efficiency result, the mechanism behind the thesis, a fabricated cost ratio, a citation
+that inverted its source, and a label collision that silently corrupted an artifact. **None of
+these was caught by any rule.** Two independent blind reviewers converged on the same defects,
+which is why the round is worth reporting rather than hiding: *the rules caught the failures that
+produced obviously wrong numbers, and missed every failure that produced plausible ones.*
+
+The sharpest single instance: **a study arguing that the field's instruments are underpowered used,
+in its own generative anchor, a test whose maximum power was zero at the conventional threshold**
+(PN-40) — and found out only under review.
 
 **The instrument was chosen after three alternatives failed.** A task battery cannot rank these
 arms (S7, S6). KL divergence at depth is not measurable on this host (S10). Greedy trajectory

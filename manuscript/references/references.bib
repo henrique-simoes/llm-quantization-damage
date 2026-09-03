@@ -337,6 +337,37 @@
 }
 
 
+% --- R13: the prior work our broad framing belongs to ---------------------
+% VERIFIED 2026-09-02 on the arXiv abs page. Title EXACTLY "Accuracy is Not All
+% You Need" (no subtitle). Four authors: Abhinav Dutta, Sanjeev Krishnan,
+% Nipun Kwatra, Ramachandran Ramjee. v1 only, 12 Jul 2024. Primary cs.LG.
+% NeurIPS 2024 confirmed from the journal-reference link on the abs page.
+% UNVERIFIED: a NeurIPS proceedings DOI (NeurIPS does not mint them) and the
+% authors' affiliations (not displayed).
+%
+% ⚠ THIS MUST BE CITED IN THE INTRODUCTION, NOT IN RELATED WORK. It owns the
+% claim "divergence sees what accuracy hides": it establishes that baseline and
+% compressed models can score alike while behaving substantially differently,
+% introduces "flips" (answers changing correct<->incorrect at notable rates
+% despite matched accuracy), and proposes KL divergence and flips as the metrics
+% to use instead. This study's PN-13/PN-22/PN-28 are an INDEPENDENT CONFIRMATION
+% of it on a different model family, compression family and hardware class --
+% worth reporting, and NOT a novelty claim. What remains ours is PN-35's tail
+% decomposition, and their "flips" metric is the outcome-level counterpart of
+% exactly its prediction.
+@inproceedings{dutta2024accuracy,
+  title         = {Accuracy is Not All You Need},
+  author        = {Dutta, Abhinav and Krishnan, Sanjeev and Kwatra, Nipun and Ramjee, Ramachandran},
+  booktitle     = {Advances in Neural Information Processing Systems 37 (NeurIPS)},
+  year          = {2024},
+  eprint        = {2407.09141},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.LG},
+  doi           = {10.48550/arXiv.2407.09141},
+  url           = {https://arxiv.org/abs/2407.09141}
+}
+
+
 % ============================================================================
 % SECTION 2 — THE MODEL AND ITS QUANTIZATIONS
 % ============================================================================

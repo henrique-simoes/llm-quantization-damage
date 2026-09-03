@@ -279,13 +279,28 @@
     "baseline": 100.0,
     "accuracy_recovery_pct": 100.0
    },
-   "mkniah:Q4_K_XL": {
-    "score": 91.67,
-    "baseline": 100.0,
-    "accuracy_recovery_pct": 91.67
+   "mk100:Q4_K_XL": {
+    "score": 79.0,
+    "baseline": 89.0,
+    "accuracy_recovery_pct": 88.76,
+    "n": 100,
+    "mcnemar_p_exact": 0.002,
+    "discordant": 10,
+    "discordant_one_directional": true,
+    "paired_diff_pts": -10.0,
+    "paired_diff_ci95": [
+     -15.88,
+     -4.12
+    ]
    }
   }
  },
  "finished_utc": "2026-09-02T07:38:47Z",
- "dedup_note": "two niah c8192 cells were measured twice: the per-cell resume keyed on a tokens_to_generate field the first pair predated, so a restart re-ran them. Scores were identical (100.0); duplicates removed."
+ "dedup_note": "two niah c8192 cells were measured twice: the per-cell resume keyed on a tokens_to_generate field the first pair predated, so a restart re-ran them. Scores were identical (100.0); duplicates removed.",
+ "_note_superseded_mkniah": "the n=12 'mkniah' entry (100.0 vs 91.67, recovery 91.67%) is SUPERSEDED by mk100 at n=100: its reference score of 100.0 was a lucky draw (P(12/12 | p=0.89) ~ 0.25). See PN-44.",
+ "tasks_run": [
+  "niah",
+  "mkniah(n=12, superseded)",
+  "mk100(n=100)"
+ ]
 }
