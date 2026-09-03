@@ -1,0 +1,44 @@
+This repository is dual-licensed, because it contains two different kinds of work.
+
+────────────────────────────────────────────────────────────────────────────
+CODE — Apache License 2.0
+────────────────────────────────────────────────────────────────────────────
+Applies to all software: the measurement harness mirrored under
+data/raw/e12/harness-src/, the tooling under tools/ (including tools/retired/),
+and any script elsewhere in the tree (*.py, *.sh).
+
+Full text: LICENSE-CODE  ·  SPDX-License-Identifier: Apache-2.0
+
+Apache-2.0 is used rather than MIT for its explicit patent grant, which matters
+for code that measures and configures inference engines.
+
+────────────────────────────────────────────────────────────────────────────
+DATA, MEASUREMENTS AND DOCUMENTS — Creative Commons Attribution 4.0
+────────────────────────────────────────────────────────────────────────────
+Applies to everything else: the paper notes, ledger and decision log under
+docs/, the manuscript and its references under manuscript/, and every
+measurement artifact under data/ (*.json, *.jsonl, *.md, *.txt, *.log).
+
+Full text: LICENSE-DATA  ·  SPDX-License-Identifier: CC-BY-4.0
+
+CC BY 4.0 matches the licence selected for the accompanying arXiv submission, so
+the paper and the evidence behind it carry the same terms.
+
+────────────────────────────────────────────────────────────────────────────
+WHAT IS NOT COVERED
+────────────────────────────────────────────────────────────────────────────
+• Model weights. No GGUF, safetensors or other checkpoint is distributed here.
+  The models measured are third-party releases (Unsloth GGUF quantizations of
+  Qwen3.8-27B) under their own licences; this repository records only their
+  sha256 and byte sizes, in data/raw/e12/env-manifest.json.
+
+• Third-party benchmark code and data. RULER (NVIDIA, Apache-2.0), HumanEval+/
+  EvalPlus, HellaSwag and WikiText-2 are not redistributed here. Where this
+  repository reproduces a metric definition it says so and cites the source —
+  see manuscript/references/references.bib and docs/paper/METHOD-REFERENCES.md.
+
+• The code corpus used for the code-domain measurements is not redistributed;
+  data/raw/e12/corpus-manifest.json pins it by sha256 and describes how it was
+  built, together with its stated limitations.
+
+If you use this work, please cite the accompanying paper — see CITATION.cff.
