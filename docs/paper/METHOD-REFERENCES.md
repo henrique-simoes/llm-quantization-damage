@@ -268,3 +268,21 @@ and should be cited as such.
 | Why a task benchmark rather than a perplexity/divergence ladder at depth | R10 |
 | Two arms at the ladder's extremes rather than four | R6 (paired-difference, power) |
 | Reporting "not separated at n" rather than a ranking | R6 |
+
+## R14 — ACM Artifact Review and Badging, version 1.1
+`https://www.acm.org/publications/policies/artifact-review-and-badging-current` (retrieved
+2026-09-02). Defines the *Artifacts Available* / *Artifacts Evaluated — Functional* / *Results
+Reproduced* tiers. **Used to scope this study's honest claim: Artifacts Available only**, once a DOI
+exists. *Functional* requires the artifact to be complete, and it is not — every paper note's
+Evidence line terminates in a `.serverlog` that `.gitignore` excludes, so the chain cannot be walked
+from the public repository alone (reviewer D, §D3).
+⚠️ A verbatim scrape of this page was committed at the repository root as `acmtxt.md` (74 KB) and
+`acm.html` (45 KB), together with a copy of the Citation File Format JSON schema as `cff.json`
+(63 KB). All three were **removed before publication and purged from history**: they are third-party
+copyrighted web content, carried cookie-consent boilerplate and `blob:http://localhost/` image URLs,
+and are properly cited here rather than vendored.
+
+## R15 — Citation File Format, version 1.2.0
+`https://citation-file-format.github.io/1.2.0/schema.json` (retrieved 2026-09-02). Schema used to
+validate this repository's `CITATION.cff`. Validation was performed and passed; the schema copy
+itself is not vendored — see the note under R14.
