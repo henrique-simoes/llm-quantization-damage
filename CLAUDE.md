@@ -227,10 +227,9 @@ Recorded so nobody re-derives them as open work. Each becomes a **stated limitat
 
 ## 8. Owner context
 
-Solo researcher; multivac is a personal machine. **GPU hours are the scarce resource** — think
+Single-operator study; multivac is a dedicated benchmark host. **GPU hours are the scarce resource** — think
 before spending them and prefer the instrument that answers the question at the lowest cost; that
 preference is itself one of the study's findings. Say plainly what a measurement can and cannot
 support: an underpowered result reported as a ranking is worse than no result. The deliverable is a
 published report, so provenance and honest limitations matter more than favourable numbers.
 
-Communication is often in Portuguese; technical content stays in English.

@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+title: "Quantization Damage Lives in the Tail: domain-dependent divergence in a 27B coding model, and what task benchmarks can and cannot bound"
+abstract: >-
+  A measurement study of Qwen3.8-27B across four Unsloth GGUF quantizations on two
+  consumer 16 GB GPUs. Reports that quantization damage to code is concentrated in
+  the tail of the token distribution, that three independent classes of task
+  benchmark bound rather than resolve the effect, and the systems findings that
+  determine a long-context deployment on this class of hardware.
+type: dataset
+license: CC-BY-4.0
+repository-code: "https://github.com/henrique-simoes/multivac-paper"
+keywords:
+  - quantization
+  - large language models
+  - llama.cpp
+  - GGUF
+  - KL divergence
+  - long context
+  - speculative decoding
+  - benchmarking
+authors:
+  - alias: henrique-simoes
