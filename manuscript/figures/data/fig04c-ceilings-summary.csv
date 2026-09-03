@@ -1,0 +1,5 @@
+arm,ceiling_tokens,ratios_that_load_fastest_first,n_ratios_loading,ratios_that_failed_at_this_rung,fastest_ratio,n_reps_at_fastest,decode_tok_s_median,spread_across_loading_ratios_pct,ratio_difference_exceeds_noise_floor,vram_peak_gpu0_mib,vram_peak_gpu1_mib,imbalance_mib,mtp_acceptance,prefill_frac,failed_attempts_above,bracketing,engine_default_split_at_this_rung,evidence
+UD-Q6_K_XL,212992,"56,44",1,-,"56,44",1,12.982,0,false,15656,15414,242,0.5886,0.9469,2,bracketed by 2 failed attempt(s) above,never attempted,measured
+UD-Q6_K,262144,"58,42 56,44",2,"54,46 60,40 62,38 default","58,42",3,11.902,1.6,false,15322,15082,240,0.592,0.948,0,"native maximum, no rung above",fails (1 attempt(s)),measured
+UD-Q5_K_XL,262144,"54,46 56,44 60,40 62,38 58,42",5,default,"54,46",3,12.704,49.4,true,14660,15402,742,0.516,0.948,0,"native maximum, no rung above",fails (1 attempt(s)),measured
+UD-Q4_K_XL,262144,"default 56,44",2,-,default,1,12.137,0.3,false,12116,15094,2978,0.6176,0.948,0,"native maximum, no rung above",loads,measured

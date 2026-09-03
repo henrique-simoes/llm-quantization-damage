@@ -1,0 +1,23 @@
+arm,ctx_tokens,tensor_split,ctxcp,n_reps,decode_readings_tok_s,acceptance_readings,median_tok_s,spread_pct_over_median,spread_pct_over_min,acceptance_adjusted_spread_pct_over_median,is_true_repetition_group,evidence
+UD-Q4_K_XL,212992,"54,46",4,1,15.85,0.7905,15.854,0,0,0,false,measured
+UD-Q4_K_XL,212992,"56,44",4,3,15.96 | 13.12 | 13.33,0.7905 | 0.5920 | 0.5920,13.331,21.3,21.7,4.2,true,measured
+UD-Q4_K_XL,212992,"58,42",4,3,15.88 | 12.87 | 13.33,0.7905 | 0.5920 | 0.5920,13.326,22.6,23.4,5.4,true,measured
+UD-Q4_K_XL,212992,"60,40",4,1,15.60,0.7905,15.603,0,0,0,false,measured
+UD-Q4_K_XL,212992,"62,38",4,1,15.88,0.7905,15.877,0,0,0,false,measured
+UD-Q4_K_XL,212992,default,4,1,15.70,0.7905,15.699,0,0,0,false,measured
+UD-Q4_K_XL,229376,"56,44",4,1,11.81,0.4948,11.807,0,0,0,false,measured
+UD-Q4_K_XL,229376,default,4,1,11.83,0.4948,11.825,0,0,0,false,measured
+UD-Q4_K_XL,245760,"56,44",4,1,12.01,0.5642,12.007,0,0,0,false,measured
+UD-Q4_K_XL,245760,default,4,1,12.02,0.5642,12.018,0,0,0,false,measured
+UD-Q4_K_XL,262144,"56,44",4,1,12.10,0.6176,12.104,0,0,0,false,measured
+UD-Q4_K_XL,262144,default,4,1,12.14,0.6176,12.137,0,0,0,false,measured
+UD-Q5_K_XL,262144,"54,46",4,3,10.82 | 12.70 | 12.94,0.5160 | 0.6937 | 0.7338,12.704,16.7,19.6,2.9,true,measured
+UD-Q5_K_XL,262144,"56,44",4,3,10.78 | 12.51 | 12.91,0.5160 | 0.6937 | 0.7338,12.514,17.1,19.8,2.7,true,measured
+UD-Q5_K_XL,262144,"58,42",4,1,8.50,0.5160,8.503,0,0,0,false,measured
+UD-Q5_K_XL,262144,"60,40",4,1,10.67,0.5160,10.667,0,0,0,false,measured
+UD-Q5_K_XL,262144,"62,38",4,1,10.44,0.5160,10.44,0,0,0,false,measured
+UD-Q6_K,262144,"56,44",4,3,10.22 | 14.99 | 11.71,0.5920 | 0.9111 | 0.6105,11.714,40.7,46.7,10.2,true,measured
+UD-Q6_K,262144,"58,42",4,3,10.75 | 14.16 | 11.90,0.5920 | 0.9111 | 0.6105,11.902,28.6,31.7,9.5,true,measured
+UD-Q6_K,262144,"58,42",32,1,11.48,0.5920,11.482,0,0,0,false,measured
+UD-Q6_K_XL,196608,"56,44",4,1,17.26,0.8971,17.26,0,0,0,false,measured
+UD-Q6_K_XL,212992,"56,44",4,1,12.98,0.5886,12.982,0,0,0,false,measured

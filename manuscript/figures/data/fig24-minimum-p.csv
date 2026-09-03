@@ -1,0 +1,32 @@
+discordant_pairs,min_attainable_two_sided_p,can_reach_0.05,instance_in_this_study
+0,1,false,
+1,1,false,
+2,0.5,false,
+3,0.25,false,HumanEval+ base (PN-40)
+4,0.125,false,"HellaSwag, largest pair (PN-22)"
+5,0.0625,false,HumanEval+ base+extra (PN-40)
+6,0.03125,true,
+7,0.015625,true,
+8,0.0078125,true,
+9,0.00390625,true,
+10,0.001953125,true,RULER MK-NIAH score (PN-44)
+11,0.0009765625,true,
+12,0.00048828125,true,
+13,0.000244140625,true,
+14,0.0001220703125,true,
+15,6.103515625e-05,true,
+16,3.051757812e-05,true,
+17,1.525878906e-05,true,
+18,7.629394531e-06,true,
+19,3.814697266e-06,true,
+20,1.907348633e-06,true,
+21,9.536743164e-07,true,
+22,4.768371582e-07,true,
+23,2.384185791e-07,true,
+24,1.192092896e-07,true,
+25,5.960464478e-08,true,
+26,2.980232239e-08,true,
+27,1.490116119e-08,true,RULER MK-NIAH closure (PN-60)
+28,7.450580597e-09,true,
+29,3.725290298e-09,true,
+30,1.862645149e-09,true,
