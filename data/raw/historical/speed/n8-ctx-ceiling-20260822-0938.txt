@@ -1,0 +1,6 @@
+host=multivac Q6_K tensor q4_0 date=2026-08-22T09:38:40+00:00
+Q6_K ctx=262144  n=8  OK 37.53 tok/s n_ctx=262144 VRAM: 15182 MiB 15182 MiB 
+Q6_K ctx=196608  n=8  OK 37.50 tok/s n_ctx=196608 VRAM: 14158 MiB 14158 MiB 
+Q6_K ctx=131072  n=8  OK 37.64 tok/s n_ctx=131072 VRAM: 13134 MiB 13134 MiB 
+Q6_K ctx=262144  n=2  OK 40.90 tok/s n_ctx=262144 VRAM: 14734 MiB 14734 MiB 
+WROTE /srv/bench/n8-ctx-ceiling-20260822-0938.txt

@@ -1,0 +1,5 @@
+host=multivac Q3_K_XL n=8 repeticoes frias date=2026-08-22T00:08:29+00:00
+rep1  116.77 tok/s oracle=False
+rep2  116.62 tok/s oracle=False
+rep3  116.58 tok/s oracle=False
+WROTE /srv/bench/n8-repeat-20260822-0008.txt

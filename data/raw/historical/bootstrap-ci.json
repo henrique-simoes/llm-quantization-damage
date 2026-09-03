@@ -1,0 +1,316 @@
+{
+ "B": 10000,
+ "seed": 20260825,
+ "humaneval": {
+  "Q5_K_XL": {
+   "base": {
+    "point": 93.29,
+    "lo95": 89.02,
+    "hi95": 96.95,
+    "n": 164
+   },
+   "plus": {
+    "point": 90.85,
+    "lo95": 85.98,
+    "hi95": 95.12,
+    "n": 164
+   }
+  },
+  "lcpp-q6k": {
+   "base": {
+    "point": 93.29,
+    "lo95": 89.02,
+    "hi95": 96.95,
+    "n": 164
+   },
+   "plus": {
+    "point": 90.24,
+    "lo95": 85.37,
+    "hi95": 94.51,
+    "n": 164
+   }
+  },
+  "Q6_K": {
+   "base": {
+    "point": 43.29,
+    "lo95": 35.98,
+    "hi95": 51.22,
+    "n": 164
+   },
+   "plus": {
+    "point": 43.29,
+    "lo95": 35.98,
+    "hi95": 50.61,
+    "n": 164
+   }
+  },
+  "Q3_K_XL": {
+   "base": {
+    "point": 84.15,
+    "lo95": 78.66,
+    "hi95": 89.63,
+    "n": 164
+   },
+   "plus": {
+    "point": 81.71,
+    "lo95": 75.61,
+    "hi95": 87.2,
+    "n": 164
+   }
+  },
+  "Q6Kfix": {
+   "base": {
+    "point": 93.9,
+    "lo95": 90.24,
+    "hi95": 97.56,
+    "n": 164
+   },
+   "plus": {
+    "point": 91.46,
+    "lo95": 86.59,
+    "hi95": 95.73,
+    "n": 164
+   }
+  },
+  "deep-32768": {
+   "base": {
+    "point": 93.29,
+    "lo95": 89.02,
+    "hi95": 96.95,
+    "n": 164
+   },
+   "plus": {
+    "point": 90.24,
+    "lo95": 85.37,
+    "hi95": 94.51,
+    "n": 164
+   }
+  },
+  "deep-131072": {
+   "base": {
+    "point": 93.29,
+    "lo95": 89.02,
+    "hi95": 96.95,
+    "n": 164
+   },
+   "plus": {
+    "point": 90.24,
+    "lo95": 85.37,
+    "hi95": 94.51,
+    "n": 164
+   }
+  },
+  "IQ4fix": {
+   "base": {
+    "point": 90.24,
+    "lo95": 85.37,
+    "hi95": 94.51,
+    "n": 164
+   },
+   "plus": {
+    "point": 87.8,
+    "lo95": 82.93,
+    "hi95": 92.68,
+    "n": 164
+   }
+  },
+  "mtp-Q6_K_XL (thinking)": {
+   "base": {
+    "point": 90.85,
+    "lo95": 85.98,
+    "hi95": 95.12,
+    "n": 164
+   },
+   "plus": {
+    "point": 88.41,
+    "lo95": 83.54,
+    "hi95": 93.29,
+    "n": 164
+   }
+  },
+  "dflash-Q4_K_XL (thinking)": {
+   "base": {
+    "point": 90.24,
+    "lo95": 85.37,
+    "hi95": 94.51,
+    "n": 164
+   },
+   "plus": {
+    "point": 87.2,
+    "lo95": 81.71,
+    "hi95": 92.07,
+    "n": 164
+   }
+  },
+  "vllm-NVFP4 (thinking)": {
+   "base": {
+    "point": 85.37,
+    "lo95": 79.88,
+    "hi95": 90.85,
+    "n": 164
+   },
+   "plus": {
+    "point": 84.15,
+    "lo95": 78.05,
+    "hi95": 89.63,
+    "n": 164
+   }
+  },
+  "mtp-Q5_K_XL (thinking)": {
+   "base": {
+    "point": 89.02,
+    "lo95": 84.15,
+    "hi95": 93.29,
+    "n": 164
+   },
+   "plus": {
+    "point": 85.98,
+    "lo95": 80.49,
+    "hi95": 90.85,
+    "n": 164
+   }
+  },
+  "mtp-IQ4_XS (thinking)": {
+   "base": {
+    "point": 86.59,
+    "lo95": 81.1,
+    "hi95": 91.46,
+    "n": 164
+   },
+   "plus": {
+    "point": 85.98,
+    "lo95": 80.49,
+    "hi95": 90.85,
+    "n": 164
+   }
+  },
+  "dflash-IQ4_XS (thinking)": {
+   "base": {
+    "point": 89.02,
+    "lo95": 84.15,
+    "hi95": 93.29,
+    "n": 164
+   },
+   "plus": {
+    "point": 87.8,
+    "lo95": 82.32,
+    "hi95": 92.68,
+    "n": 164
+   }
+  },
+  "mtp-Q4_K_XL (thinking)": {
+   "base": {
+    "point": 87.8,
+    "lo95": 82.32,
+    "hi95": 92.68,
+    "n": 164
+   },
+   "plus": {
+    "point": 85.98,
+    "lo95": 80.49,
+    "hi95": 90.85,
+    "n": 164
+   }
+  }
+ },
+ "swebench": {
+  "dflash2-calibration": {
+   "point": 100.0,
+   "lo95": 100.0,
+   "hi95": 100.0,
+   "n": 2,
+   "source": "per-instance report.json"
+  },
+  "iq4_xs-verified50": {
+   "point": 77.55,
+   "lo95": 65.31,
+   "hi95": 87.76,
+   "n": 49,
+   "source": "per-instance report.json"
+  },
+  "mtp-n1-calib": {
+   "point": 66.67,
+   "lo95": 0.0,
+   "hi95": 100.0,
+   "n": 3,
+   "source": "per-instance report.json"
+  },
+  "mtp-n8-calib": {
+   "point": 100.0,
+   "lo95": 100.0,
+   "hi95": 100.0,
+   "n": 3,
+   "source": "per-instance report.json"
+  },
+  "q5_k_xl-verified50": {
+   "point": 76.0,
+   "lo95": 64.0,
+   "hi95": 88.0,
+   "n": 50,
+   "source": "per-instance report.json"
+  },
+  "thinking/dflash-IQ4_XS": {
+   "point": 66.67,
+   "lo95": 0.0,
+   "hi95": 100.0,
+   "n": 3,
+   "source": "per-instance report.json"
+  },
+  "thinking/dflash-Q4_K_XL": {
+   "point": 66.67,
+   "lo95": 0.0,
+   "hi95": 100.0,
+   "n": 3,
+   "source": "per-instance report.json"
+  },
+  "thinking/mtp-IQ4_XS": {
+   "point": 100.0,
+   "lo95": 100.0,
+   "hi95": 100.0,
+   "n": 1,
+   "source": "per-instance report.json"
+  },
+  "thinking/mtp-Q4_K_XL": {
+   "point": 66.67,
+   "lo95": 0.0,
+   "hi95": 100.0,
+   "n": 3,
+   "source": "per-instance report.json"
+  },
+  "thinking/mtp-Q5_K_XL": {
+   "point": 66.67,
+   "lo95": 0.0,
+   "hi95": 100.0,
+   "n": 3,
+   "source": "per-instance report.json"
+  },
+  "thinking/mtp-Q6_K_XL": {
+   "point": 100.0,
+   "lo95": 100.0,
+   "hi95": 100.0,
+   "n": 3,
+   "source": "per-instance report.json"
+  },
+  "thinking/vllm-NVFP4-mtp": {
+   "point": 100.0,
+   "lo95": 100.0,
+   "hi95": 100.0,
+   "n": 1,
+   "source": "per-instance report.json"
+  },
+  "thinking/vllm-NVFP4": {
+   "point": 66.67,
+   "lo95": 0.0,
+   "hi95": 100.0,
+   "n": 3,
+   "source": "per-instance report.json"
+  },
+  "verified50": {
+   "point": 75.51,
+   "lo95": 63.27,
+   "hi95": 87.76,
+   "n": 49,
+   "source": "per-instance report.json"
+  }
+ }
+}

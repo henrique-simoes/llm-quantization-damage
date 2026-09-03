@@ -3,7 +3,7 @@
 *Divergence Ranks What Benchmarks Bound: quantization, context and speculative decoding for a 27B
 coding model on two 16 GB GPUs.*
 
-**What this file is.** The complete visual programme for the report: 27 figures and 22 tables, each
+**What this file is.** The complete visual programme for the report: 28 figures and 23 tables, each
 with the single claim it makes, the paper notes and artifacts behind it, a full encoding
 specification, a publication-ready caption, alt text, and the honesty constraints that govern how it
 may be drawn. Every figure has a companion data file in [`data/`](data/), generated from the
@@ -23,7 +23,7 @@ Each entry carries:
 
 | field | meaning |
 |---|---|
-| **Tier** | `ESSENTIAL` (5), `CORE` (14), `SUPPORTING` (8) — the paper stands without a supporting figure and is diminished without an essential one |
+| **Tier** | `ESSENTIAL` (5), `CORE` (16), `SUPPORTING` (7) — the paper stands without a supporting figure and is diminished without an essential one |
 | **Section** | the `OUTLINE.md` section it serves |
 | **Type** | `statistical plot` (PaperBanana's CSV path) or `methodology diagram` (its retriever/stylist path) — never mixed in one request |
 | **Claim** | the single sentence the figure exists to make. If a figure needs two sentences it is two figures |
@@ -37,8 +37,8 @@ Each entry carries:
 
 ### 0.1 Rules that apply to every figure
 
-1. **Protocols never mix inside one panel.** Perplexity Protocols 1, 2 and 4 are different
-   instruments; depth-0 and at-depth decode differ 2–3×; greedy and official-sampling rows are not
+1. **Protocols never mix inside one panel.** Perplexity Protocol 1, Protocol 2 and the SSA divergence
+   protocol are three different instruments; depth-0 and at-depth decode differ 2–3×; greedy and official-sampling rows are not
    comparable. Where a figure must show two protocols, they are separated by panel or by an explicit
    in-figure label, and the caption names both.
 2. **Pre-2026-08-29 rows carry `irreproducible-on-current-images`** (PN-57) in the legend or as a
@@ -120,10 +120,57 @@ Ranked by importance. "Claim" is the one sentence the figure makes.
 | **F25** | SUPPORTING | 9 | Defect taxonomy | Twelve instrumentation defects, three families, each one another group would hit |
 | **F26** | SUPPORTING | 5.2 | Perplexity cannot certify its own ranking | The ladder spans 0.033 PPL against ±0.041 of standard error on every point |
 | **F27** | SUPPORTING | 5.6 | KV quantization is not free | A KV-dtype change moves the token distribution about half as far as dropping a quantization level, and moves perplexity by 0.15 % |
+| **F28** | CORE | 5.2, 7 | Multiplicity and clustering | Every divergence separation survives Holm and Benjamini–Hochberg over the whole 19-test family; no task-benchmark test does |
 
-Tables **T1–T22** are specified in [`TABLES.md`](TABLES.md) and cross-referenced below.
+### 1.1 The tables
 
-### 1.1 The five essential figures
+Full publication-form versions, with n, estimator, interval and protocol inside each table, are in
+[`TABLES.md`](TABLES.md). Ranked the same way: `ESSENTIAL` (4), `CORE` (12), `SUPPORTING` (7).
+
+| ID | Tier | § | Table | What it carries that no figure can |
+|---|---|---|---|---|
+| **T3** | ESSENTIAL | 5.1 | Divergence master table, all ten cells | every quantile, top-1 agreement, RMS Δp and perplexity per cell — the numbers F1, F2, F7, F8 and F27 each show one slice of |
+| **T6** | ESSENTIAL | 5.2 | What each instrument bounds | the min-attainable-p column, per comparison |
+| **T12** | ESSENTIAL | 5.5 | Decode at the full window, and its variance | three published values for one quantity, the estimator that reconciles them, and the regression |
+| **T18** | ESSENTIAL | 5.2 | Perplexity — three protocols, never mixed | the only place all three protocols appear, deliberately in separate blocks |
+| T1 | CORE | 3 | Host, engines and arms | sha256 and byte counts, including for two deleted files |
+| T2 | CORE | 3 | The four sampling configurations | the measured engine default that matches nothing |
+| T4 | CORE | 5.1 | Code-to-prose amplification by quantile | the interval basis per row, and why the median row cannot rank |
+| T5 | CORE | 5.1 | Tail shape normalised by own mean | all ten cells including the KV-only control and a third corpus |
+| T9 | CORE | 5.2 | RULER, all fourteen cells with closure | the audit that distinguishes a ceiling from a degenerate match |
+| T10 | CORE | 5.3 | The complete Wave-1 sweep | every cell, every failure mode, every VRAM pair |
+| T11 | CORE | 5.3 | Context ceilings | which ratios load, which failed, and the default-split status per arm |
+| T13 | CORE | 5.4 | Speculative decoding at ctx 32,768 | equivalence, acceptance, pass@1 and the length-quartile hazard together |
+| T14 | CORE | 5.4 | Draft depth at matched depth | the implied per-token match probability beside the acceptance ratio |
+| T15 | CORE | 5.2 | HumanEval+ historical ladders | the empty-response column beside every pass@1 |
+| T16 | CORE | Agentic | SWE-bench Verified | all three generations of the same numbers |
+| T17 | CORE | 5.7 | Cross-backend | acceptance, mean accepted length, power, VRAM and ceiling in one row each |
+| T19 | SUPPORTING | 6 | What the measurements cost | per-experiment GPU hours from the artifacts' own timings |
+| T20 | SUPPORTING | 9 | The defect register | twelve defects, their family, and how each was found |
+| T21 | SUPPORTING | 9 | Withdrawn and superseded claims | the before/after of all sixteen corrections |
+| T7 | SUPPORTING | 5.2 | HellaSwag paired, six pairs | the b/c counts behind the forest plot |
+| T8 | SUPPORTING | 5.2 | HumanEval+ paired | the 2×2 tables behind the bound |
+| T22 | SUPPORTING | 5.7 | Power and thermal envelope | the modelling caveat, in place of a figure that should not exist |
+| T23 | SUPPORTING | 5.2, 7 | Multiplicity across all 19 tests | Holm, Benjamini–Hochberg and the design-effect sensitivity |
+
+### 1.1b Sub-figures and companion data
+
+Some figures render as two requests and are composed afterwards, and some carry a companion data file
+that is not a figure of its own. The naming convention is the parent's ID plus a letter, and each is
+described inside its parent's spec:
+
+| id | role | rendered separately? |
+|---|---|---|
+| F1b | adjacent-arm separation in σ, the numbers behind F1's claim | yes — small companion plot, or a table row |
+| F4-inset | decode against VRAM imbalance for UD-Q5_K_XL's five loading ratios | yes — composed into F4 as an inset |
+| F9b | the three paired 2×2 tables for the RULER n=100 cell | yes — placed beside F9 |
+| F12b | raw versus acceptance-adjusted spread per repetition group | yes — F12's panel (b) |
+| F13b | the per-problem record (164 rows) behind F13's quartiles | **no** — data only, for checking |
+| F14b | per-repetition draft acceptance and decode | **no** — supplies F14's translucent markers |
+| F17b | per-instance agentic step counts | **no** — appears as a table beside F17 |
+| F27b | the perplexity contrast on the identical KV pair | yes — F27's panel (b) |
+
+### 1.2 The five essential figures
 
 **F1, F2, F3, F4, F5.** F1 and F3 are the title: divergence ranks, benchmarks bound. F2 is the
 paper's novel contribution and the only figure that carries its own scoping control. F4 is the
@@ -295,7 +342,7 @@ Artifacts: `ssa/ssa-s7-paired.json`, `s9/s9-scores.json` (`s6_paired`), the four
   available) use an open marker and **no bar**, with the label "no paired estimator available".
 - **second channel, on the right of the panel**: a small text column per row giving
   `discordant` and `min attainable p`. Rows whose minimum attainable p exceeds 0.05 get a grey
-  背景 stripe and the tag **"could not have reached p<0.05"**.
+  background stripe and the tag **"could not have reached p<0.05"**.
 
 **Annotations.**
 - The RULER MK-NIAH row (as published) is drawn **greyed and struck through**, with a callout: "as
@@ -1521,6 +1568,72 @@ same change moves perplexity by less than two tenths of a per cent.*
 
 ---
 
+### F28 · Multiplicity, and how far the intervals can be wrong before a claim dies
+
+**Tier** CORE · **§5.2, §7** · **Type** statistical plot, two panels · **Data** [`data/fig28-multiplicity.csv`](data/fig28-multiplicity.csv) (20 rows)
+
+**Claim.** All nine divergence separations survive Holm and Benjamini–Hochberg over the study's entire
+family of nineteen inferential tests, and no task-benchmark test does — but the weakest divergence
+separation dies at a clustering design effect of only 1.5.
+
+**Evidence.** PN-13, PN-21 (the separations), PN-22, PN-28, PN-40 (the task tests), PN-32 (the sign
+test), PN-60 (which test belongs in the family). The multiplicity treatment is reviewer D's §2
+(`reviewer-d-adversarial.md`), **recomputed here** — with one consequential difference, below.
+Artifacts: `ssa/ssa-kld-tables.json`, `ssa/ssa-s7-paired.json`, `s9/s9-scores.json`,
+`ruler/s12-preds-*-mk100-*.json`, `s9/s9d-depthsweep.json`.
+
+**Encoding.** Two panels.
+- **Panel (a) — the family.** Rank-ordered dot plot: x = p-value on a **log scale**, 1e-75 to 1;
+  y = the 19 tests in ascending p order. Two step lines across the panel: the Holm threshold
+  `0.05/(m−i+1)` and the Benjamini–Hochberg threshold `0.05·i/m`. Points coloured by family
+  (divergence / task benchmark / speculative decoding); a marker outline distinguishes pass from fail
+  under Holm. The withdrawn MK-NIAH retrieval test is drawn as a 20th, greyed, off-family row.
+- **Panel (b) — clustering sensitivity.** For the nine divergence separations: x = design effect
+  (DEFF), log scale 1–100; y = effective σ = σ/√DEFF, log scale. One line per separation, plus two
+  horizontal rules at z = 1.96 and at the Bonferroni z = 3.02 (m = 19). Mark where each line crosses.
+
+**Annotations.**
+- Panel (a): "**all nine divergence separations pass Holm**; every HellaSwag and HumanEval+ test
+  fails, and could not have passed at any outcome (F24)".
+- Panel (a), on rank 11: "**the draft-depth sign test fails Holm once its pair count is corrected**
+  (10 of 11 adjacent pairs, p = 0.0059, threshold 0.0056); it passes Benjamini–Hochberg. Under
+  PN-32's uncorrected 12-of-13 count it passed both."
+- Panel (b): "the weakest separation — prose, UD-Q6_K vs UD-Q5_K_XL at 3.71 σ — falls below the
+  Bonferroni threshold at **DEFF 1.5** and below z = 1.96 at DEFF 3.6. The code-domain separations
+  survive to DEFF 8–36."
+- Panel (b): "the tool's ± is a per-token Gaussian standard error over 32 contiguous 2,048-token
+  windows of one document, so DEFF > 1 is expected and is not estimated anywhere in this study."
+
+**Caption.** *Multiple-comparison treatment of every inferential test in the study. **(a)** The
+nineteen tests ranked by p-value against the Holm and Benjamini–Hochberg thresholds at α = 0.05. All
+nine divergence separations pass both; the six HellaSwag and two HumanEval+ paired tests fail both,
+as they must — their minimum attainable p-values are 0.125 to 1.0 (Figure 24). The greyed twentieth
+row is the withdrawn MK-NIAH retrieval test, shown outside the family. **(b)** How far the divergence
+intervals can be understated before each separation dies: effective σ against a clustering design
+effect, with the conventional and the Bonferroni-corrected critical values marked. The divergence
+uncertainties are per-token Gaussian standard errors over contiguous windows of a single document, so
+the true design effect exceeds one and is not estimated here — which is why the weakest separation is
+reported as the study's most fragile claim.*
+
+**Alt text.** *Two panels. The first ranks nineteen statistical tests by p-value against
+multiple-comparison thresholds: the nine divergence separations sit far to the left and pass, while
+the task-benchmark tests sit at the right and fail. The second shows how much the divergence
+uncertainty would have to be understated for each separation to stop being significant, ranging from
+a factor of 1.5 for the weakest to 36 for the strongest.*
+
+**Honesty constraints.**
+- **This figure reports one result reviewer D's version could not**: with PN-32's adjacent-pair count
+  corrected from 12/13 to 10/11 (F14), the sign test's p rises from 0.0017 to 0.0059 and it **fails
+  Holm** at its rank while still passing BH. The paper must print the corrected value.
+- The DEFF panel is a **sensitivity analysis, not an estimate**. No design effect was measured; the
+  panel says how fragile each claim is, not how fragile it actually is.
+- The family definition must be stated. Including or excluding the withdrawn retrieval test changes
+  m from 19 to 20 and moves every threshold; the sign test fails Holm under both.
+- Do not present "all divergence separations survive multiplicity correction" without panel (b). The
+  correction is the easy half; clustering is the hard half.
+
+---
+
 ## 3. Figures I do not recommend, and why
 
 Recorded so nobody re-derives them as open work.
@@ -1602,7 +1715,7 @@ Both are recorded in the relevant figure's honesty constraints and should be res
 
 ## 5. Data files
 
-Thirty-six files under [`data/`](data/), listed with row counts, hashes, source artifacts and paper
+Thirty-eight files under [`data/`](data/), listed with row counts, hashes, source artifacts and paper
 notes in [`data/INDEX.csv`](data/INDEX.csv). Regenerate with:
 
 ```bash

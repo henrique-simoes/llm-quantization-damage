@@ -1,0 +1,7 @@
+domain,domain_label,arm_a,arm_b,n_tokens,mean_kld_a,se_a,mean_kld_b,se_b,difference_nats,combined_se_nats,sigma,intervals_disjoint_at_1se,evidence
+wikitext2,prose,UD-Q6_K,UD-Q5_K_XL,65536,0.003321,0.000126,0.004465,0.000281,0.001144,0.000308,3.71,true,measured
+wikitext2,prose,UD-Q5_K_XL,UD-Q4_K_XL,65536,0.004465,0.000281,0.008207,0.00034,0.003742,0.000441,8.48,true,measured
+code,code,UD-Q6_K,UD-Q5_K_XL,65536,0.005829,0.000233,0.010285,0.000458,0.004456,0.000514,8.67,true,measured
+code,code,UD-Q5_K_XL,UD-Q4_K_XL,65536,0.010285,0.000458,0.021529,0.000834,0.011244,0.000951,11.82,true,measured
+humaneval,task prompts,UD-Q6_K,UD-Q5_K_XL,18432,0.010403,0.000448,0.017285,0.000703,0.006882,0.000834,8.26,true,measured
+humaneval,task prompts,UD-Q5_K_XL,UD-Q4_K_XL,18432,0.017285,0.000703,0.036129,0.001534,0.018844,0.001687,11.17,true,measured

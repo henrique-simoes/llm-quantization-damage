@@ -1,0 +1,5 @@
+T3 INTERROMPIDO em 6/50: 6 de 6 instancias atingiram o limite de 250 passos.
+Q6_K: media 45 passos, mediana 37, max 132, zero no limite.
+Q3_K_XL: media 250, mediana 250, TODAS no limite.
+Conclusao ja determinada com n=6; as 44 restantes custariam ~88h por zero
+informacao nova. Ver secao 13.53 do log.

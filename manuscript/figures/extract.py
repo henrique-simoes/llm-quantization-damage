@@ -366,6 +366,33 @@ QUANTILES = [("kld_median", "median"), ("kld_p90", "p90"), ("kld_p95", "p95"),
 PRINT_ULP = 5e-7   # llama-perplexity prints 6 decimals; half-ULP bound on any printed value
 
 
+def fig01b():
+    """Adjacent-pair separation in units of the combined standard error."""
+    cells = kld_cells()
+    s5 = load_json("ssa_s5")
+    n_tok = {"wikitext2": 65536, "code": 65536, "humaneval": s5["tokens_per_cell"]}
+    rows = []
+    for dom, dom_label in DOMAINS:
+        for a, b in [("Q6_K_XL", "Q6_K"), ("Q6_K", "Q5_K_XL"), ("Q5_K_XL", "Q4_K_XL")]:
+            if a == "Q6_K_XL":
+                continue  # the reference has no measured divergence of its own
+            ca, cb = cells[f"ssa-{a}-{dom}-kld"], cells[f"ssa-{b}-{dom}-kld"]
+            diff = cb["kld_mean"] - ca["kld_mean"]
+            se = math.sqrt(ca["kld_mean_err"] ** 2 + cb["kld_mean_err"] ** 2)
+            rows.append([dom, dom_label, f"UD-{a}", f"UD-{b}", n_tok[dom],
+                         ca["kld_mean"], ca["kld_mean_err"], cb["kld_mean"], cb["kld_mean_err"],
+                         round(diff, 6), round(se, 6), round(diff / se, 2),
+                         "true" if (ca["kld_mean"] + ca["kld_mean_err"] <
+                                    cb["kld_mean"] - cb["kld_mean_err"]) else "false",
+                         "measured"])
+    emit("F1b", "fig01b-adjacent-separation.csv",
+         ["domain", "domain_label", "arm_a", "arm_b", "n_tokens", "mean_kld_a", "se_a",
+          "mean_kld_b", "se_b", "difference_nats", "combined_se_nats", "sigma",
+          "intervals_disjoint_at_1se", "evidence"],
+         rows, [A["ssa_tables"], A["ssa_s5"]], "PN-13, PN-21",
+         "separation in units of the combined standard error; this is the 3.7-11.8 sigma range the paper quotes")
+
+
 def fig02():
     cells = kld_cells()
     rows = []
@@ -566,6 +593,83 @@ def fig24():
 # --------------------------------------------------------------------------------------
 
 HEADLINE_CTX = {"Q4_K_XL": 262144, "Q5_K_XL": 262144, "Q6_K": 262144, "Q6_K_XL": 196608}
+
+
+def fig28():
+    """The full family of inferential tests, with Holm and Benjamini-Hochberg, and the
+    design-effect sensitivity of each divergence separation.
+
+    Family definition (post-PN-60): nine divergence z-separations (3 domains x 3 arm pairs),
+    six HellaSwag paired tests, two HumanEval+ paired tests, the RULER MK-NIAH closure test, and
+    the draft-depth sign test = 19 tests. The withdrawn MK-NIAH *retrieval* test is carried as a
+    20th row, marked, so both family definitions can be read off one table.
+    """
+    cells = kld_cells()
+    tests = []
+    for dom, lab in [("wikitext2", "prose"), ("code", "code"), ("humaneval", "task prompts")]:
+        for a, b in [("Q6_K", "Q5_K_XL"), ("Q5_K_XL", "Q4_K_XL"), ("Q6_K", "Q4_K_XL")]:
+            ca, cb = cells[f"ssa-{a}-{dom}-kld"], cells[f"ssa-{b}-{dom}-kld"]
+            d = cb["kld_mean"] - ca["kld_mean"]
+            se = math.sqrt(ca["kld_mean_err"] ** 2 + cb["kld_mean_err"] ** 2)
+            z = d / se
+            tests.append({"test": f"KLD {lab}: UD-{a} vs UD-{b}", "family": "divergence",
+                          "sigma": round(z, 2), "p": math.erfc(abs(z) / math.sqrt(2)),
+                          "in_family": True})
+    for pair, v in load_json("ssa_s7_paired")["paired"].items():
+        a, b = pair.split("_vs_")
+        tests.append({"test": f"HellaSwag paired: UD-{a} vs UD-{b}", "family": "task benchmark",
+                      "sigma": None, "p": mcnemar_exact_two_sided(v["b"], v["c"]), "in_family": True})
+    for t in load_json("s9_scores")["s6_paired"]["tests"]:
+        tests.append({"test": f"HumanEval+ paired ({t['metric']}): UD-Q4_K_XL vs UD-Q6_K_XL",
+                      "family": "task benchmark", "sigma": None,
+                      "p": mcnemar_exact_two_sided(t["a_only"], t["b_only"]), "in_family": True})
+    rp, _ = ruler_preds("Q6_K_XL", "mk100", 131072)
+    qp, _ = ruler_preds("Q4_K_XL", "mk100", 131072)
+    rc = [1 if "</think>" in p else 0 for p in rp]
+    qc = [1 if "</think>" in p else 0 for p in qp]
+    b = sum(1 for x, y in zip(rc, qc) if y and not x)
+    c = sum(1 for x, y in zip(rc, qc) if x and not y)
+    tests.append({"test": "RULER MK-NIAH @131,072: reasoning-block closure", "family": "task benchmark",
+                  "sigma": None, "p": mcnemar_exact_two_sided(b, c), "in_family": True})
+    tests.append({"test": "MTP acceptance falls with draft depth (10 of 11 adjacent pairs, one-sided)",
+                  "family": "speculative decoding", "sigma": None,
+                  "p": sum(math.comb(11, k) for k in range(10, 12)) / 2 ** 11, "in_family": True})
+    tests.append({"test": "RULER MK-NIAH @131,072: retrieval score (WITHDRAWN as retrieval, PN-60)",
+                  "family": "task benchmark", "sigma": None,
+                  "p": mcnemar_exact_two_sided(10, 0), "in_family": False})
+
+    core = sorted([t for t in tests if t["in_family"]], key=lambda t: t["p"])
+    m = len(core)
+    holm_ok = True
+    bh_cut = 0
+    for i in range(m - 1, -1, -1):
+        if core[i]["p"] <= 0.05 * (i + 1) / m:
+            bh_cut = i + 1
+            break
+    rows = []
+    for i, t in enumerate(core):
+        ht = 0.05 / (m - i)
+        if holm_ok and t["p"] > ht:
+            holm_ok = False
+        zb = 3.0233  # two-sided Bonferroni z at alpha=0.05, m=19
+        rows.append([i + 1, t["test"], t["family"], t["sigma"] if t["sigma"] else "",
+                     t["p"], ht, "pass" if holm_ok else "fail",
+                     round(0.05 * (i + 1) / m, 5), "y" if i < bh_cut else "n",
+                     round((t["sigma"] / 1.96) ** 2, 2) if t["sigma"] else "",
+                     round((t["sigma"] / zb) ** 2, 2) if t["sigma"] else "",
+                     "in family (m=19)", "recomputed"])
+    w = [t for t in tests if not t["in_family"]][0]
+    rows.append(["-", w["test"], w["family"], "", w["p"], "", "", "", "", "", "",
+                 "excluded from the family: withdrawn as a retrieval result (PN-60)", "recomputed"])
+    emit("F28", "fig28-multiplicity.csv",
+         ["rank", "test", "family", "sigma", "p_value", "holm_threshold", "holm",
+          "bh_threshold", "bh", "deff_to_drop_below_z1.96", "deff_to_drop_below_bonferroni_z",
+          "membership", "evidence"],
+         rows, [A["ssa_tables"], A["ssa_s7_paired"], A["s9_scores"],
+                A["preds:Q6_K_XL:mk100:131072"], A["preds:Q4_K_XL:mk100:131072"], A["s9d"]],
+         "PN-13, PN-21, PN-22, PN-28, PN-32, PN-40, PN-60",
+         "Holm and Benjamini-Hochberg over the whole 19-test family at alpha 0.05; DEFF columns give the "
+         "design effect that would drop each divergence separation below the named critical value")
 
 
 def fig04():
@@ -1544,7 +1648,7 @@ def fig19b_energy():
 # --------------------------------------------------------------------------------------
 
 FIGURES = [
-    ("F1", fig01), ("F2", fig02), ("F3", fig03), ("F4", fig04), ("F4b", fig04b), ("T11", fig04c),
+    ("F1", fig01), ("F1b", fig01b), ("F2", fig02), ("F3", fig03), ("F28", fig28), ("F4", fig04), ("F4b", fig04b), ("T11", fig04c),
     ("F5", fig05), ("F6", fig06), ("F7", fig07), ("F8", fig08), ("F9", fig09),
     ("F9b", fig09b), ("F10", fig10), ("F11", fig11), ("F12", fig12), ("F13", fig13),
     ("F14", fig14), ("F15", fig15), ("F16", fig16), ("F17", fig17), ("F17b", fig17b),

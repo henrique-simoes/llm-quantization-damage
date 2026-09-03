@@ -1,0 +1,634 @@
+# PaperBanana plot-batch manifest — statistical plots for
+# "Divergence Ranks What Benchmarks Bound".
+#
+#   paperbanana plot-batch --manifest manuscript/figures/paperbanana/plots.yaml \
+#       --venue multivac --iterations 3 --optimize --format png \
+#       --output-dir manuscript/figures/rendered
+#
+# Paths are resolved relative to THIS file's directory (README, `plot-batch`).
+# Full specifications, captions, alt text and honesty constraints: ../FIGURE-PROGRAMME.md
+# House style (palette, markers, greyscale rule, the seven non-negotiable rules) is NOT repeated in
+# every intent: it lives in the venue pack at ./venue-multivac/ — copy it to
+# ~/.config/paperbanana/venues/multivac and pass --venue multivac. See ../RENDERING.md §4.4.
+# Each intent below carries only what is specific to that figure, including its honesty constraints
+# and the caption to render verbatim.
+
+items:
+
+  - id: F1
+    data: ../data/fig01-divergence-ladder.csv
+    intent: |-
+      Publication figure for an arXiv systems paper. Dot plot with horizontal error bars — NOT a bar
+      chart, because a divergence has no zero baseline. X axis: mean KL divergence in nats, LOG
+      scale, about 0.002 to 0.05, labelled "mean KL divergence vs UD-Q6_K_XL reference (nats)". Y
+      axis: categorical, one row per CSV row, grouped into three blocks by `arm` (UD-Q6_K, then
+      UD-Q5_K_XL, then UD-Q4_K_XL), and inside each block one row per `domain` in the order
+      wikitext2, code, humaneval, labelled with `domain_label`. Insert visible whitespace between
+      blocks. Put the final row — the KV-only control — below all three blocks, visually detached.
+      Each point carries a symmetric horizontal bar of ±`mean_kld_se_nats`; at this scale most bars
+      are smaller than their markers, which is the point of the figure: DO NOT rescale, jitter or
+      enlarge them. Marker fill encodes domain: open circle for prose, filled square for code,
+      half-filled diamond for task prompts. Colour encodes arm: UD-Q6_K #0072B2, UD-Q5_K_XL #009E73,
+      UD-Q4_K_XL #D55E00, the control #CC79A7. Two shaded vertical reference bands behind the data:
+      0 to 0.007 labelled "Fireworks: high-quality deployment threshold (external)", and 0.01 to 0.03
+      labelled "LocalBench: observed Q4_K_M range (external, disclaimed by its source)". Annotate the
+      three humaneval rows with a bracket reading "no arm passes the external threshold on the actual
+      task distribution". Label the control row "q4_0 vs f16 KV cache, reference weights". Note on
+      the axis: "reference arm UD-Q6_K_XL is 0 by construction". Colour must never be the only
+      distinction; the figure must survive greyscale. White background, no gradients, no 3-D.
+      Caption to render: "Mean KL divergence against the UD-Q6_K_XL reference, by arm and evaluation
+      domain. Bars are ±1 standard error as emitted by llama-perplexity --kl-divergence. n = 65,536
+      tokens per cell for prose and code, 18,432 for HumanEval+ prompts. Protocol: SSA divergence,
+      n_ctx 2,048, q4_0 KV, seed 20260830. The bottom row is a control in which the weights are not
+      quantized and only the KV cache dtype changes. Shaded bands are external reference points, not
+      this study's criteria. Divergence is ladder-relative: no FP16 reference fits this host."
+
+  - id: F1b
+    data: ../data/fig01b-adjacent-separation.csv
+    intent: |-
+      Small companion plot. Horizontal lollipop chart. X axis: `sigma`, linear, 0 to 13, labelled
+      "separation between adjacent arms (combined standard errors)". Y axis: six rows, one per CSV
+      row, labelled "<domain_label>: <arm_a> → <arm_b>", grouped by domain. Vertical reference lines
+      at 1.96 (dashed, "z = 1.96") and 3.02 (solid grey, "Bonferroni z at m = 19"). Colour by domain:
+      prose #0072B2, code #D55E00, task prompts #009E73; also vary marker shape. Annotate the
+      smallest bar: "the study's most fragile separation". Greyscale-safe, white background.
+      Caption: "Adjacent-arm separation in units of the combined standard error, by domain. Every
+      adjacent pair has disjoint ±1 SE intervals in every domain; the range 3.7–11.8 σ quoted in the
+      paper is the minimum and maximum of these six values. n = 65,536 tokens per cell (18,432 for
+      task prompts)."
+
+  - id: F2
+    data: ../data/fig02-tail-amplification.csv
+    intent: |-
+      Two-panel figure, panels stacked vertically, sharing a categorical x axis. Filter the CSV on
+      the `panel` column. Panel (a), rows where panel = a: x axis is the `quantile` column as evenly
+      spaced categories in the order median, p90, p95, p99, p99.9 (EXCLUDE the mean and max rows from
+      the x axis — the mean values are drawn as annotations, see below). Y axis: `ratio`, LOG scale,
+      about 0.003 to 20, labelled "code ÷ prose per-token KL divergence". One connected line per
+      `series` (UD-Q6_K #0072B2 circle solid, UD-Q5_K_XL #009E73 square dashed, UD-Q4_K_XL #D55E00
+      triangle dash-dot). A heavy grey horizontal line at y = 1 labelled inline at the right "code
+      and prose equally perturbed"; shade below it faintly and label once at the left "code less
+      perturbed than prose". CRITICAL: at the median tick, do NOT draw three separate points. Draw a
+      single shaded band spanning the three arms' values with the annotation "median ≈ 0.005×, about
+      200× less than prose; print precision here is ±3–7 % and the arms' intervals overlap — this
+      column cannot rank them". Add three small open markers with short leader lines between the p95
+      and p99 ticks at y = 1.755, 2.304 and 2.623 (the mean rows in the CSV), labelled once "mean —
+      the commonly quoted figure sits out in the tail". Draw a vertical dashed rule between the p90
+      and p95 ticks labelled "crossover". Panel (b), rows where panel = b: same x categories, y axis
+      `ratio` = quantile ÷ that cell's own mean, LOG scale, labelled "quantile ÷ own mean". Draw the
+      three code series as solid lines, the series named "KV-only control (no weight quantization)"
+      as a dotted #CC79A7 line with diamond markers, and the three prose series as a single grey
+      min–max band labelled "prose cells, all three arms". Annotate: "p99/mean ≈ 24–26 for quantized
+      weights, 22.9 for the KV-only control" and "prose 8.4–8.6". Colour-blind safe, greyscale-legible,
+      white background, no 3-D. Caption to render: "Where quantization damage lives. (a) Code-to-prose
+      amplification of per-token KL divergence by quantile, three arms, reference UD-Q6_K_XL,
+      n = 65,536 tokens per cell; the ordering reverses between the 90th and 95th percentile and the
+      commonly quoted mean is the average of two opposite facts. The median column is drawn as a band
+      because the tool prints six decimals and the arms cannot be ranked there. (b) The same
+      distributions normalised by their own mean: the code cells and a control with no weight
+      quantization share a tail shape, while prose is flat across the ladder. Quantiles carry no
+      interval — the tool attaches uncertainty to the mean only."
+
+  - id: F3
+    data: ../data/fig03-instrument-bounds.csv
+    intent: |-
+      Forest plot. X axis: `effect`, linear, symmetric about zero, roughly −30 to +20, labelled
+      "paired difference, cheaper arm − reference (points)". Heavy vertical line at 0. Y axis:
+      categorical, one row per CSV row in file order, grouped by `instrument` family with a light
+      horizontal rule between families. Draw the point estimate with a 95 % interval bar from
+      `ci95_lo` to `ci95_hi`. Rows whose interval columns are empty (SWE-bench, perplexity) get an
+      OPEN marker and NO bar, labelled "unpaired — no paired estimator available". Marker size in
+      three discrete steps by `n`. To the right of the panel add a text column per row showing
+      `discordant` and `min_attainable_p`; give every row whose min_attainable_p exceeds 0.05 a light
+      grey background stripe and the tag "could not have reached p < 0.05". Grey out and strike
+      through the row whose verdict mentions PN-60, with a callout "as published: −10.0 pts,
+      p = 0.002. Re-analysis: every failure is a truncation; the retrieval claim is withdrawn". Put a
+      boxed note in a corner: "Divergence, on the same arms, separates every pair with non-overlapping
+      intervals at 3.7–11.8 σ." Colour by instrument family, but also vary marker shape; greyscale
+      must remain readable. Caption to render: "Paired differences between the cheaper arm and the
+      reference with 95 % intervals across every task instrument. Estimator: difference in paired
+      proportions with the Wald interval; exact conditional McNemar p-values are given beside the
+      smallest p the test could have returned at its discordant count. Six of the eleven paired
+      comparisons could not have reached p < 0.05 at any outcome. HellaSwag n = 400; HumanEval+
+      n = 164; RULER n = 12–100; SWE-bench Verified n ≈ 50 with unequal denominators; WikiText-2
+      perplexity Protocol 1, n = 602 windows."
+
+  - id: F4
+    data: ../data/fig04-ceiling-matrix.csv
+    intent: |-
+      Categorical matrix (heatmap-style grid), 4 rows × 7 columns, plus a scatter inset. Rows: `arm`
+      in the order UD-Q6_K_XL, UD-Q6_K, UD-Q5_K_XL, UD-Q4_K_XL, each annotated on the right with its
+      `ctx_requested_tokens` (212,992 / 262,144 / 262,144 / 262,144). Columns: `tensor_split` in the
+      order default, 52,48, 54,46, 56,44, 58,42, 60,40, 62,38. Cell appearance is driven by `status`:
+      "loaded" = solid fill with `decode_tok_s` printed inside in a small font; "failed" = diagonal
+      hatch on grey with the short failure label "oom"; "not_tested" = empty with a light outline.
+      Use fill and hatch, NEVER red/green, so the figure survives greyscale and colour-blind viewing.
+      Add a bracket over the `default` column: "the engine default fails at this rung for two of the
+      three arms tried there, and was never attempted for UD-Q6_K_XL". Annotate the UD-Q4_K_XL row
+      "counter-example: loads at the default split" and the UD-Q6_K_XL row "one feasible ratio, with
+      failures on both sides". Footer strip: "every failure shown is a single attempt except
+      UD-Q6_K_XL at 229,376". Caption to render: "Load success and decode throughput across
+      tensor-split ratios, each arm at the context where its ratio sweep ran. -sm layer, q4_0 KV,
+      MTP draft depth 2, -fit off, -ctxcp 4, official non-thinking sampling; each cell is one launch
+      and every successful cell reached ≥ 0.9469 of its window before decoding. Failure classes are
+      read from the preserved server log. Single attempts: the failures are demonstrated once each,
+      not bracketed."
+
+  - id: F4-inset
+    data: ../data/fig12b-speed-groups.csv
+    intent: |-
+      Small scatter plot to be placed as an inset in Figure 4. Filter to rows where `arm` is
+      UD-Q5_K_XL and `ctx_tokens` is 262144. X axis: VRAM imbalance in MiB, 0 to 1,800 — take the
+      values 742, 166, 28, 1176, 1750 for tensor splits 54,46 / 56,44 / 58,42 / 60,40 / 62,38
+      respectively (they are in ../data/fig04-ceiling-matrix.csv, column imbalance_mib). Y axis:
+      `median_tok_s` where n_reps ≥ 1, 8 to 13.5, labelled "decode at full window (tok/s)". Label
+      each point with its tensor split. DO NOT draw a trend line — the relationship is not monotone
+      and implying one would be wrong. Annotate the 58,42 point: "most balanced (28 MiB) and slowest
+      (8.50 tok/s); the other four cluster within 3.6 %, inside a 40.7 % within-configuration noise
+      floor". Caption: "Decode throughput against per-GPU VRAM imbalance for UD-Q5_K_XL's five loading
+      ratios at 262,144 tokens; single readings except 54,46 and 56,44 (median of 3)."
+
+  - id: F5
+    data: ../data/fig05-speculation.csv
+    intent: |-
+      Two-panel bar chart, panels side by side, same four categories in the same order from the
+      `config` column: no-spec, MTP n=2, MTP n=4, DFlash2 n=4. Left panel: y axis
+      `decode_tok_s_median`, linear 0 to 60, labelled "decode throughput at ctx 32,768 (tok/s),
+      median over 164 generations"; label each bar above with `speedup_vs_nospec` formatted like
+      "2.03×". Right panel: y axis `byte_exact_pct`, linear 0 to 105, labelled "byte-exact
+      reproduction of the unspeculated baseline (%)", with a horizontal reference line at 100 %;
+      print `byte_exact_vs_baseline_n`/`n_problems` inside or above each bar as "131/164". Use a
+      different fill texture in the right panel so the two quantities are not read as one. Hatch the
+      DFlash2 bar in the right panel and label it "engine-confounded — different engine build".
+      Callout on the right panel's no-spec bar: "self-repeat control: the same configuration re-run a
+      day later reproduced all 164 completions byte-for-byte". Footnote strip under both panels:
+      "pass@1 moves 91.5 → 90.2 → 90.9 → 90.2 on HumanEval+, far inside ±4.6 points at n = 164 — this
+      figure is not a ranking of accuracy". Colour-blind safe; greyscale must remain readable.
+      Caption to render: "Decode throughput and byte-exact reproduction of the unspeculated baseline,
+      164 HumanEval+ problems, UD-Q6_K at ctx 32,768, -ts 58,42, -ctxcp 32, q4_0 KV, greedy
+      (temperature 0, top_p 1, seed 20260830). The no-spec bar in the right panel is a self-repeat
+      control run a day later. The DFlash2 bar is hatched because that arm ran on a different engine
+      build, so an engine-version difference is inseparable from the speculation effect."
+
+  - id: F6
+    data: ../data/fig06-two-instruments.csv
+    intent: |-
+      Two panels stacked vertically sharing a categorical x axis of the four arms in ladder order
+      UD-Q6_K_XL, UD-Q6_K, UD-Q5_K_XL, UD-Q4_K_XL, with x tick labels drawn only under the lower
+      panel; heights roughly 55 % / 45 %. Filter on the `panel` column. Upper panel (panel = upper):
+      y axis "accuracy (%)", linear, 74 to 103; three series distinguished by `instrument`, each with
+      vertical error bars from `ci_lo` to `ci_hi`; distinguish series by marker shape AND colour; a
+      compact in-panel legend. Some series cover only two of the four arms — do not interpolate a
+      line across the missing arms. Add a horizontal bracket between the two HumanEval+ points
+      labelled "paired 95 % CI on the difference: −3.28 to +2.06 points (n = 164)". Annotate the
+      RULER points "both arms at ceiling; the interval bounds almost nothing at n = 12". Lower panel
+      (panel = lower): y axis "mean KL divergence, code (nats)", LOG scale; three points with ±1 SE
+      connected by a line, plus an open marker on the axis at UD-Q6_K_XL annotated "reference: 0 by
+      construction". Annotate "adjacent arms separated at 3.7–11.8 σ". DO NOT use a twin or shared y
+      axis across the panels. Caption to render: "Task-benchmark scores (upper) and code-domain KL
+      divergence (lower) for the same four arms. Upper: Wilson 95 % intervals; the bracket is the
+      Wald interval on the paired per-problem difference. HellaSwag n = 400; HumanEval+ n = 164,
+      official non-thinking preset, no speculation; RULER S-NIAH n = 12 at 131,072 tokens. Lower: ±1
+      SE, n = 65,536 tokens per cell. The panels use different y-scales and are not comparable in
+      magnitude."
+
+  - id: F7
+    data: ../data/fig07-tail-shape.csv
+    intent: |-
+      Grouped dot plot. X axis: ratio of a quantile to that cell's own mean, LOG scale, about 0.0005
+      to 1000, labelled "quantile ÷ own mean". Y axis: categorical, ten rows (one per CSV row),
+      grouped into three blocks by `corpus` in the order prose, code, task prompts, with whitespace
+      between blocks; label each row with its `arm`. For each row plot five points from the columns
+      median_over_mean, p90_over_mean, p95_over_mean, p99_over_mean, p999_over_mean, joined by a thin
+      line; encode which statistic each point is by marker shape with a shared legend. DO NOT plot
+      max_over_mean — it swings over three orders of magnitude and would dominate the axis. Draw
+      light vertical guides at the block-typical p99/mean values with labels "prose ≈ 8.5",
+      "code ≈ 24–26", "task prompts ≈ 17–18". Label the row whose `perturbation` is
+      kv_dtype_q4_0_vs_f16 as "no weight quantization — q4_0 vs f16 KV only, p99/mean = 22.9" and
+      give it the #CC79A7 colour and a dotted connector. Boxed note: "within a corpus the shape is
+      flat across a 7× range of mean divergence". Caption to render: "Divergence distributions
+      normalised by their own mean, all ten measured cells. Within each corpus the shape is nearly
+      invariant across the quantization ladder while the three corpora differ by roughly a factor of
+      three at the 99th percentile. The code block includes a control with no weight quantization.
+      n = 65,536 tokens per cell (18,432 for task prompts). Quantiles carry no interval."
+
+  - id: F8
+    data: ../data/fig08-metric-pair.csv
+    intent: |-
+      Scatter plot. X axis: `mean_kld_nats`, LOG scale, 0.002 to 0.05, labelled "mean KL divergence
+      (nats)". Y axis: `top1_agreement_pct`, linear, 95.5 to 99.6, labelled "top-1 token agreement
+      with the reference (%)". One point per row; colour by `arm`, marker fill by `domain` (open =
+      prose, filled = code, half-filled = task prompts). Join the cells belonging to one arm with a
+      thin line so the per-arm trajectory across domains is visible. Shade the upper-right region
+      faintly and label it "higher agreement AND higher divergence — the region a single-metric table
+      cannot describe". Draw an arrow from the prose cluster to the code cluster labelled "→ code:
+      agreement +1.6 to +2.2 pts, divergence ×1.75 to ×2.62". Add a note: "the code corpus is far
+      more predictable (reference PPL 1.18 vs 5.79), so the argmax usually survives while the
+      distribution around it moves". Mark the task-prompt points as smaller n. Caption to render:
+      "Top-1 token agreement against mean KL divergence for every measured cell. Points to the upper
+      right have higher agreement and higher divergence at once: on code every arm agrees with the
+      reference on more tokens than on prose while diverging roughly twice as far. n = 65,536 tokens
+      per cell (18,432 for task prompts). The mechanism is an interpretation consistent with the
+      perplexity gap, not a controlled test."
+
+  - id: F9
+    data: ../data/fig09-ruler-closure.csv
+    intent: |-
+      Horizontal stacked bar chart, one bar per CSV row (14 bars), grouped by `task` with whitespace
+      between groups; label each bar "<arm> · <context_tokens> tokens". X axis: number of items, 0 to
+      `n_samples`, labelled "items"; print n at the end of each bar. Segments left to right, computed
+      from the columns: (1) closed AND correct = items_closed_think_block − closed_and_wrong, solid;
+      (2) correct without closing = correct_without_closing, light fill; (3) closed and wrong =
+      closed_and_wrong, dark fill — this is ZERO in every row and that is the point of the figure, so
+      keep it in the legend and annotate "closed and wrong: 0 in all fourteen cells"; (4) the
+      remainder = not closed and wrong, diagonal hatch on grey. Bracket the three single-needle rows
+      spanning 8,192 / 32,768 / 131,072: "100 % correct AND 100 % closed in both arms — a genuine
+      ceiling, not a degenerate string match". Annotate the variable_tracking rows "excluded from the
+      study's comparison; 0 of 25 items fully correct in either arm, 0 closures" and the mkmock rows
+      "passes entirely from output that never finished reasoning (n = 3)". Colour-blind safe,
+      greyscale-legible. Caption to render: "RULER outcomes decomposed by whether the model closed its
+      reasoning block, all fourteen committed cells. Scored with RULER's own string_match_all — which
+      reproduces every published cell score exactly — and classified by the presence of </think>.
+      Greedy with reasoning enabled and n_predict 128: a sampling configuration used nowhere else in
+      the study. Nowhere in this battery did the model finish reasoning and answer wrongly."
+
+  - id: F9b
+    data: ../data/fig09b-ruler-mk100-paired.csv
+    intent: |-
+      Three small 2×2 contingency panels side by side, one per CSV row, to be placed beside Figure 9.
+      Each panel is a labelled quadrant block: rows "reference correct / incorrect", columns "cheaper
+      arm correct / incorrect", cells filled with `both`, `reference_only`, `cheaper_arm_only`,
+      `neither`. Title each panel with its `comparison`. Beneath each panel print the exact McNemar p
+      and the paired difference with its 95 % interval, e.g. "−10.00 pts [−15.88, −4.12], exact
+      p = 0.0020". Shade cell backgrounds by count. Annotate the middle panel "same length, same
+      arms, same 128-token budget — only task difficulty differs" and the third "on the items where
+      neither arm's budget bound, the arms are identical". Caption to render: "Paired analysis of the
+      100-sample RULER multi-key cell at 131,072 tokens. The published retrieval separation coincides
+      with a reasoning-block closure separation; restricted to the 55 items where neither arm's output
+      budget bound, the arms are identical item for item. n = 100 paired items (55 in the restricted
+      panel); estimator: exact conditional McNemar and the Wald paired difference."
+
+  - id: F10
+    data: ../data/fig10-protocol-swing.csv
+    intent: |-
+      Waterfall / step chart. Use the first three rows (the three `step` values that are not "GGUF
+      ladder reference") as three ordered x positions, left to right in file order. Y axis:
+      `perplexity`, linear, 6.4 to 8.8, labelled "WikiText-2 perplexity (same NVFP4 weights)". Draw
+      the three values as steps connected by descending connectors. Behind them draw a horizontal
+      shaded band spanning the four "GGUF ladder reference" rows (6.6511 to 6.6839) labelled "the
+      GGUF ladder on the same windows". Annotate each step with
+      `apparent_degradation_vs_Q6_K_XL_pct` as "+29.1 %", "+21.4 %", "+0.8 %". Add a bracket spanning
+      the first and last step: "36× swing in the estimated effect, same weights". Add a note under
+      the middle step: "two conventions changed together — corpus file and window coverage. They were
+      not varied one at a time, so this step is not decomposable." Add a footnote: "a fourth suspected
+      axis, tokenizer mismatch, was investigated and disproven: the two tokenizations agree exactly
+      on both files." Mark the figure "pre-2026-08-29 · irreproducible-on-current-images".
+      Caption to render: "One checkpoint, one benchmark corpus, three measurement conventions. The
+      vLLM NVFP4 arm was first scored at 8.5848 against a GGUF ladder at 6.65–6.68; re-scored on the
+      ladder's exact 602 windows with its half-window rule the same weights return 6.7073. The
+      intermediate point changes corpus file and coverage together and is not a single-axis
+      decomposition. Protocol 1 throughout the band. Measured 2026-08-28."
+
+  - id: F11
+    data: ../data/fig11-vram-asymmetry.csv
+    intent: |-
+      Paired horizontal bar chart ("tornado" layout). Filter to the ceiling-relevant rows: for each
+      `arm`, keep the rows at its largest `ctx_requested_tokens` plus, for UD-Q6_K_XL, the 196,608
+      rows — about 20 rows; drop repetitions beyond rep 1. Y axis: categorical, grouped by arm,
+      labelled "<arm> · <ctx> · -ts <tensor_split>". X axis: peak VRAM per card in MiB, 0 to 16,500,
+      drawn as two bars per row from a shared centre line — `vram_peak_gpu0_mib` growing left,
+      `vram_peak_gpu1_mib` growing right. Draw a vertical rule at 16,311 MiB on both sides labelled
+      "card capacity" and a dashed rule at 15,650 labelled "highest stable observation". Hatch the
+      rows where `ok` is false. Annotate the row with the largest `stranded_on_lighter_card_mib`:
+      "2,978 MiB stranded on the lighter card — physically present, unreachable"; annotate the
+      UD-Q6_K 58,42 row "rebalanced: the full native window loads". Boxed note: "with -sm layer each
+      layer's weights AND its slice of the KV cache live on one card; MTP additionally builds a
+      separate draft context against the target model, which is why enabling it costs window."
+      Caption to render: "Peak per-GPU memory at each arm's headline context, sampled at 1 Hz and
+      taken after a deep prefill (≥ 0.9469 of the window) rather than at load. The two RTX 5060 Ti
+      cards have no NVLink, so with layer-wise splitting the binding constraint is the fuller card's
+      16,311 MiB, never the 32,622 MiB aggregate. Hatched rows failed to allocate compute buffers.
+      Layer-split VRAM carries ±100–200 MiB of run-to-run noise."
+
+  - id: F12
+    data: ../data/fig12-decode-acceptance.csv
+    intent: |-
+      Scatter plot with one fitted line. X axis: `mtp_acceptance`, linear, 0.45 to 0.95, labelled
+      "MTP draft acceptance". Y axis: `decode_tok_s`, linear, 8 to 17, labelled "decode throughput at
+      depth (tok/s)". Plot every row; rows with `in_regression_set` = true are filled markers, the
+      rest open. Colour and marker shape both by `arm`. Draw ONE ordinary-least-squares line fitted
+      to the in_regression_set rows only and print inside the panel: "decode = 4.53 + 11.32 ×
+      acceptance · r = 0.909 · R² = 0.827 · residual SD 0.68 tok/s vs raw SD 1.57 (n = 17)". Callout
+      on the group of points sharing acceptance 0.516: "acceptance is identical across every -ts ratio
+      within a repetition index — it is a property of the generated continuation, not of the
+      configuration". Label the single lowest point (8.50 tok/s, acceptance 0.516): "the one reading
+      that survives conditioning: a genuine ratio effect of about −2.2 tok/s". Footer: "the speed
+      probe ran under official sampling (temperature 0.7), which makes the generated text — and
+      therefore acceptance — vary between repetitions". Caption to render: "Decode throughput against
+      speculative draft acceptance. Estimator: ordinary least squares over the 17 successful cells at
+      262,144 tokens and -ctxcp 4 (three arms, five split ratios). All cells: -sm layer, q4_0 KV, MTP
+      draft depth 2, official non-thinking sampling, at ≥ 0.948 of the window. The regression is
+      observational: acceptance is recorded, not manipulated."
+
+  - id: F12b
+    data: ../data/fig12b-speed-groups.csv
+    intent: |-
+      Dumbbell chart. Filter to rows where `is_true_repetition_group` is true (four rows). Y axis:
+      one row per group labelled "<arm> · <ctx_tokens> · -ts <tensor_split> · -ctxcp <ctxcp> · n=3".
+      X axis: spread in per cent, linear, 0 to 45, labelled "within-configuration decode spread,
+      (max − min) / median". For each row draw two markers joined by a line: `spread_pct_over_median`
+      (open marker, "raw") and `acceptance_adjusted_spread_pct_over_median` (filled marker,
+      "conditioned on acceptance"); print the reduction beside each pair. Add a vertical dashed line
+      at 6.74 labelled "between-arm span at matched depth". Do not include the n = 1 groups. Caption
+      to render: "Within-configuration decode spread over true repetition groups — matched on arm,
+      context, split ratio and -ctxcp — before and after adjusting each reading to its group's mean
+      draft acceptance. Estimator: (max − min)/median, stated once and used throughout; earlier
+      published values of 32.9 % and 46.7 % for this quantity used different estimators or mixed
+      cells. UD-Q4_K_XL has no repetition group at this context (n = 1) and is absent."
+
+  - id: F13
+    data: ../data/fig13-divergence-length.csv
+    intent: |-
+      Grouped bar chart with an overlaid model line. X axis: `quartile` as four categories, labelled
+      with their character ranges from `len_lo_chars`–`len_hi_chars` (≤464, 465–700, 701–989, >989),
+      titled "quartile of the no-spec baseline completion length (characters)". Y axis:
+      `divergence_rate_pct`, linear, 0 to 70, labelled "completions differing from the unspeculated
+      baseline (%)", with error bars from `wilson_lo` to `wilson_hi`. Four series from `config`: MTP
+      n=2, MTP n=4, DFlash2 n=4 (hatched, labelled "engine-confounded"), and the no-spec self-repeat
+      control which is 0 % in every quartile. Overlay a thin grey line showing the constant-hazard
+      prediction 1 − exp(−h·L) evaluated at each quartile's midpoint with h = 3.0e-4 per character,
+      labelled "constant-hazard fit, one divergence per ≈ 950 generated tokens". Annotate the MTP n=2
+      Q1 and Q4 bars with "2.4 %" and "53.7 %". Add a callout: "observed rates fall below the fit at
+      short lengths and above it at long ones — the hazard rises with position, which progressive
+      numerical drift predicts and a flat verification-rule error does not". Caption to render:
+      "Divergence from the unspeculated baseline by completion length. Bars are the fraction of
+      problems in each quartile whose speculative completion differs, with Wilson 95 % intervals;
+      n = 41 problems per quartile. The grey line is a constant-hazard model fitted by maximum
+      likelihood with right censoring at each problem's baseline length. UD-Q6_K, ctx 32,768, greedy,
+      seed 20260830. The DFlash2 series ran on a different engine build."
+
+  - id: F14
+    data: ../data/fig14-draftdepth.csv
+    intent: |-
+      Two panels side by side, one per matched depth, filtered on `ctx_tokens` = 131072 and 196608
+      (omit the 262144 rows or add them as a third narrow panel). Shared y axis labelled only on the
+      left. X axis: `n_draft` as three categories 2, 4, 8, labelled "MTP draft depth". Y axis:
+      `acceptance_pooled`, linear, 0 to 1.0, labelled "draft acceptance". Four series by `arm`,
+      distinguished by colour AND marker. Add a second, dashed series per arm at 50 % alpha in the
+      same colour showing `implied_per_token_match_q`, labelled "implied per-token match probability
+      q". Cells where `valid` is false or `failure_mode` is set must be drawn as an OPEN marker ON THE
+      AXIS with a label — never as zero: "UD-Q6_K_XL at 196,608, n=8: failed to load"; "two cells
+      invalidated by the generation gate (55 and 124 tokens of 512)". On one representative cell draw
+      two intervals side by side: a thin cap of ±0.02 labelled "pooled over draft events
+      (misleading)" and a wide bracket of ±0.3 labelled "between generations (honest)". Panel header:
+      "acceptance falls in 10 of 11 adjacent draft-depth pairs (one-sided sign test p = 0.0059); the
+      implied per-token match probability is flat to within ±0.19". Caption to render: "Speculative
+      draft acceptance against draft depth at two matched context depths (prompt lengths held
+      identical at 123,670 and 186,270 tokens), four arms, each at its own split ratio, q4_0 KV,
+      -ctxcp 32, official non-thinking sampling, three 512-token generations per cell. Dashed lines
+      are the per-token draft-match probability implied by inverting acceptance(n) = q(1−qⁿ)/(n(1−q)),
+      the expected ratio under stop-at-first-mismatch verification: the ratio must fall with depth for
+      every q < 1. The two intervals on one cell contrast a binomial interval pooled over draft events
+      with the spread between generations; the unit of independence is the generation."
+
+  - id: F15
+    data: ../data/fig15-humaneval-ladders.csv
+    intent: |-
+      Two panels. Panel (a): rows where `mode` starts with "non-thinking". X axis: `arm` ordered
+      UD-Q3_K_XL, UD-IQ4_XS, UD-Q5_K_XL, UD-Q6_K_XL, labelled "quantization (increasing bit-width →)".
+      Y axis: pass@1 (%), linear, 78 to 100. Two series: `humaneval_pass1` and
+      `humaneval_plus_pass1`, the latter with Wilson intervals from `plus_wilson_lo`/`plus_wilson_hi`.
+      Add the two "context control" rows as offset open markers joined by a bracket labelled
+      "identical scores at 4× the window". Annotate: "the only step larger than the interval is
+      UD-Q3_K_XL → UD-IQ4_XS (6.1 pts against a ±4.6-pt half-width)". Panel (b): rows where `mode`
+      starts with "thinking". Bars for `humaneval_plus_pass1` on the left axis (80 to 92) and a line
+      with square markers for `empty_response_pct` on a right axis (0 to 15 %, INVERTED so that
+      better is up on both axes), grouped by `arm` with `spec_method` distinguished by marker shape.
+      Annotate: "three of four MTP arms score identically at 86.0 and are distinguished only by how
+      often they produce nothing". Warning strip: "MTP and DFlash2 rows are not comparable at fixed
+      quantization — speculation is not output-identical here". DO NOT plot the row whose `mode` is
+      "EXCLUDED — dirty run". Put a corner badge on both panels: "pre-2026-08-29 ·
+      irreproducible-on-current-images". Caption to render: "HumanEval+ pass@1 across the ladder.
+      (a) Non-thinking greedy: monotone in bit-width, but only the largest step exceeds the Wilson
+      interval at n = 164; open markers are a context-length control that returned bit-identical
+      scores at a 4× larger window. (b) With reasoning enabled and a 4,096-token budget every arm
+      scores lower and three of four MTP arms score identically; the monotone signal is in the
+      empty-response rate. n = 164 per arm, greedy temperature 0, which matches neither documented
+      preset, so absolute values are not comparable to published numbers."
+
+  - id: F16
+    data: ../data/fig16-swebench-verified.csv
+    intent: |-
+      Dot plot with intervals. Y axis: categorical, one row per arm (UD-IQ4_XS, UD-Q5_K_XL, UD-Q6_K)
+      plus a fourth row for the bootstrap estimate. X axis: `resolve_rate_pct`, linear, 55 to 95,
+      labelled "SWE-bench Verified resolve rate (%)". Filled markers with 95 % interval bars for rows
+      whose `generation` starts with "final"; a wider bar for the bootstrap row. Draw the rows whose
+      `generation` starts with "superseded" as small grey OPEN markers on the same arm's row,
+      connected to the final value by a thin arrow labelled "ARM64-scored → correction → x86_64
+      final". Add a vertical band spanning the three final point estimates labelled "2.0 points
+      separates the arms", and a separate horizontal bar labelled "24.5 points: the bootstrap
+      interval on one arm alone". Notes: "denominators differ (49 / 50 / 49) — the rates are not over
+      a common instance set"; "SWE-bench Verified, not Pro". Corner badge: "pre-2026-08-29 ·
+      irreproducible-on-current-images". Caption to render: "SWE-bench Verified resolve rates,
+      non-thinking greedy, mini-swe-agent 2.4.6, per-instance report aggregation. Filled markers are
+      the final x86_64-corrected totals with Wilson 95 % intervals; grey markers are two earlier
+      generations superseded by a host-architecture scoring defect. The bootstrap interval
+      (B = 10,000, seed 20260825) on one arm alone contains all three point estimates several times
+      over."
+
+  - id: F17
+    data: ../data/fig17-q3-profile.csv
+    intent: |-
+      Two-column slope chart (parallel coordinates with two axes). Left column: UD-Q3_K_XL's value on
+      each instrument, normalised so the reference arm reads 100 % on that instrument. Right column:
+      the reference arm at 100 %. One line per CSV row, labelled with `instrument`. Colour by
+      `instrument_class`: "cheap instrument" in #0072B2, "expensive instrument" in #D55E00 and drawn
+      markedly thicker, "withdrawn" in grey, dashed and struck through. Where `reference_value` is
+      empty, draw the line to the right column at 100 % and mark it "no reference value — throughput
+      leadership". Annotate the agentic lines: "0 of 6 instances converged; mean 250 steps, median
+      250, max 250 — the harness limit. The reference arm converged on 6 of 6, mean 45 steps." On the
+      struck-through row: "withdrawn: 1.000 acceptance at 258,779 tokens was 55 generated tokens over
+      36 draft events". Note: "the run was deliberately stopped at 6 of 50 instances". Caption to
+      render: "UD-Q3_K_XL against the reference arm on every instrument that measured it, each
+      normalised so the reference reads 100 %. The quantization leads on raw throughput, scores
+      84.1/81.7 on HumanEval/HumanEval+ with zero empty responses and ties on perplexity — and hits
+      the 250-step agent limit on 6 of 6 instances attempted. n = 6 instances, one scaffold, single
+      seed, deliberately truncated: a qualitative disqualification, not a magnitude. The
+      struck-through row is a withdrawn claim retained as a worked example."
+
+  - id: F18
+    data: ../data/fig18-cross-backend.csv
+    intent: |-
+      Three panels. Panel (a): grouped bars of `decode_tok_s_median`, y 0 to 45, labelled "decode
+      tok/s (3-run median, 1,024-token generation, near-empty KV cache)", grouped by `backend` and
+      ordered by `config`; label each bar with `speedup_vs_own_nospec` as "×2.26". Panel (b): the same
+      categories, y = `j_per_token`, 0 to 11, labelled "energy per token (J) — MODELLED"; use a
+      distinct hatch for every bar in this panel and add a legend entry "modelled: GPU telemetry +
+      RAPL + fixed platform allowance; no wall-socket sensor". Panel (c): horizontal bars of
+      `context_ceiling_tokens`, x 0 to 262,144, labelled "context ceiling served (tokens)", with a
+      dashed rule at 262,144 labelled "model's native window" and the ratio "5.1× short" printed on
+      the vLLM bars. The two rows with no numbers (vLLM + DFlash2, SGLang) get zero-length bars with
+      their `evidence` text drawn beside them. Banner across all panels: "different quantizations on
+      different engines — NVFP4 (W4A4, fp8 KV) against UD-Q4_K_XL (q4_0 KV); backend, quantization, KV
+      dtype and speculative method all vary at once". Annotate panel (a): "vLLM's --enforce-eager
+      requirement cripples its own baseline and thereby manufactures speculative headroom; the best
+      absolute figures differ by 7 %" and "MTP acceptance cross-validates across engines: 0.728 vs
+      0.709 at matched depth". Annotate the vLLM bar in panel (c): "boot-verified KV pool, not a
+      behaviourally verified ceiling". Corner badge: "pre-2026-08-29 ·
+      irreproducible-on-current-images". Caption to render: "Cross-backend comparison on one probe
+      (greedy, 3-run median, 1,024-token generation, single stream, decode into a nearly empty KV
+      cache — these rows must never be read as long-context throughput). Power and energy are
+      modelled. No single-variable conclusion follows from any pairwise comparison."
+
+  - id: F19
+    data: ../data/fig19-cost.csv
+    intent: |-
+      Horizontal stacked bar chart. Exclude the rows whose `class` starts with "TOTAL" from the bars
+      and use them for the totals labels. Three bars, one per `class` (divergence, task benchmark,
+      equivalence), each segmented by `experiment`; x axis `gpu_hours`, 0 to 15, labelled "GPU
+      wall-clock hours (including model loads)". Label each segment with its experiment and hours. To
+      the right of each bar print the class total and its outcome in words: "divergence 2.32 h → all
+      three arms separated, non-overlapping intervals"; "task benchmarks 14.31 h → every comparison
+      bounded, none resolved on its intended construct"; "equivalence 2.67 h → a premise retired
+      after nine days". Annotate the RULER segment: "9.4 h of this is the single 100-sample cell at
+      131,072 tokens, whose separation turned out to be a difference in reasoning length". Footnote:
+      "an earlier published contrast (2.15 h vs ≈4.8 h) predates that cell; recomputed from the
+      artifacts the ratio is 6.2×". Caption to render: "GPU wall-clock hours by instrument class,
+      summed from each experiment artifact's own per-cell timings. Figures include model loading and
+      are single measurements on one host. Divergence runs process a fixed token budget while task
+      runs process a fixed problem count — the asymmetry the protocol was designed around — so this is
+      what each instrument bought for a few hours of the same machine, not a controlled efficiency
+      benchmark."
+
+  - id: F22
+    data: ../data/fig22-depth-decode.csv
+    intent: |-
+      Two panels sharing an x axis. Exclude the rows whose `protocol` begins "REFERENCE ONLY" from the
+      series and use them for a reference band instead (see below). X axis: `prompt_n_tokens`, linear,
+      0 to 260,000, labelled "filled context depth (prompt tokens)", with ticks at 123,670, 186,270
+      and 248,527. Panel (a): y = `prefill_tok_s`, 450 to 800, labelled "prefill (tok/s)". Panel (b):
+      y = `decode_tok_s_median`, 10 to 35, labelled "decode at depth (tok/s)". In both panels draw one
+      line per `arm` at `n_draft` = 2 (solid, marker per arm) and lighter lines for n_draft 4 and 8.
+      In panel (b) add a horizontal hatched band from 18.5 to 47.0 labelled "ctx 32,768, near-empty
+      cache, greedy — a DIFFERENT protocol, shown for scale only"; do not connect it to the depth
+      series. Annotate panel (a): "prefill falls in every arm and at every draft depth: 782 → 650 →
+      507 tok/s". Annotate panel (b): "at draft depth 2 decode falls with depth in three of four arms;
+      at higher draft depths the acceptance lottery dominates and no trend is resolvable at n = 3".
+      DO NOT fit or draw a trend line in panel (b). Caption to render: "Prefill and decode against
+      filled context depth, four arms, matched prompt lengths at each rung, each arm at its own split
+      ratio, q4_0 KV, -ctxcp 32, official non-thinking sampling, three 512-token generations per
+      cell. The hatched band is the same model at ctx 32,768 with a nearly empty cache under greedy
+      sampling — a different protocol, shown for scale."
+
+  - id: F23
+    data: ../data/fig23-generation-saturation.csv
+    intent: |-
+      Two panels. Panel (a): scatter. X axis: `ladder_distance_steps` as three categories 1, 2, 3,
+      labelled "distance between the two arms on the quantization ladder (steps)". Y axis:
+      `normalised_edit_distance`, linear, 0 to 1, labelled "normalised edit distance between
+      generations". One point per row (18 points), coloured by `pair`, with a dashed horizontal line
+      at the pooled mean. Panel (b): strip plot of `first_divergence_char`, LOG x axis 1 to 2,000,
+      labelled "character at which the two generations first differ", with a vertical band marking
+      the completion lengths (1,093–1,918 characters) labelled "full completion length". Annotate
+      panel (a): "the two arms ADJACENT on the ladder measure further apart (mean 0.739) than the two
+      EXTREMES (0.731)" and "the reference arm opens '- Files scanned: 1000' while all three other
+      arms open '- Total files: 1000'". Caption to render: "Pairwise distance between free-running
+      greedy generations from a fixed prompt, four arms, three prompts, 512 tokens each, ctx 8,192,
+      no speculation, on an engine verified byte-reproducible beforehand. Estimator: character-level
+      Levenshtein distance divided by the longer string. Every pair saturates in the 0.39–0.82 band
+      and the ordering does not track ladder distance: a negative methodological result showing that
+      divergence must be measured on distributions at fixed context, not on emitted trajectories."
+
+  - id: F24
+    data: ../data/fig24-minimum-p.csv
+    intent: |-
+      Step plot. X axis: `discordant_pairs`, linear, 0 to 30, labelled "number of discordant pairs".
+      Y axis: `min_attainable_two_sided_p`, LOG scale, 1 down to 1e-9, labelled "smallest attainable
+      two-sided exact McNemar p". Draw as a descending step curve. Horizontal rule at 0.05; shade the
+      region ABOVE it and label "no outcome in this region can reach significance". Mark and label
+      the five rows whose `instance_in_this_study` column is non-empty with their text. Annotate:
+      "with 3 discordant pairs the smallest obtainable p is 0.25; with 5 it is 0.0625; six of this
+      study's eleven paired comparisons sit in the shaded region". Caption to render: "The smallest
+      two-sided exact McNemar p-value obtainable as a function of the discordant count, with this
+      study's own paired comparisons marked. Below six discordant pairs no outcome can reach p < 0.05.
+      Before reporting a null for paired binary data, state the smallest effect the test could have
+      detected — which is set by the discordant count, not by the sample size."
+
+  - id: F26
+    data: ../data/fig26-perplexity-ladder.csv
+    intent: |-
+      Dot plot with error bars. Y axis: categorical, the four GGUF arms in file order plus the
+      cross-backend row visually separated below them. X axis: `perplexity`, linear, 6.60 to 6.75,
+      labelled "WikiText-2 perplexity, Protocol 1 (602 windows, n_ctx 512, half-window scoring)".
+      Error bars from `se_lo` to `se_hi`; the cross-backend row has no SE and gets an open marker with
+      the note "no SE reported for the re-score". Add a horizontal span annotation showing the full
+      ladder range (0.033) drawn against one point's interval width (0.082) with the label "ladder
+      span 0.033 · one point's interval 0.082 · every adjacent pair overlaps, and so do the extremes".
+      Put the protocol name INSIDE the plot area, not only in the caption, because this study contains
+      two other perplexity protocols. Corner badge: "pre-2026-08-29 · irreproducible-on-current-images".
+      Caption to render: "WikiText-2 perplexity, Protocol 1: llama-perplexity, 602 chunks at n_ctx
+      512, scoring the second half of each window with the first half as context; ± is the tool's own
+      reported standard error. The ordering is correct and no step in it is separated. The fifth row
+      is the vLLM NVFP4 arm re-scored on the identical windows. Protocol 1 only — this study contains
+      two other perplexity protocols that return different absolute values on the same weights and
+      must never share a table with these."
+
+  - id: F27
+    data: ../data/fig27-kv-quantization.csv
+    intent: |-
+      Horizontal dot plot with error bars. X axis: `mean_kld_nats`, LOG scale, 0.002 to 0.03,
+      labelled "mean KL divergence vs the same reference, code corpus (nats)". Y axis: four rows in
+      file order labelled with `perturbation`. Colour the KV-dtype row #CC79A7 with a diamond marker
+      and the three weight rows by arm. Error bars are ±`mean_kld_se_nats`. Draw a bracket between the
+      KV row and the UD-Q6_K row labelled "≈ half the magnitude of one quantization level, against
+      the same reference and corpus". Add a mandatory annotation: "NOT ADDITIVE — two KV steps do not
+      equal one quantization step; no experiment here applies both perturbations together". Caption to
+      render: "What a KV-cache dtype change costs. Mean KL divergence on the code corpus for a q4_0
+      versus f16 KV cache with identical weights, against the three weight-quantization steps, all
+      measured against the same reference arm on the same corpus, n = 65,536 tokens per cell, ±1 SE.
+      Top-1 agreement under the KV-only perturbation stays at 99.401 ± 0.043 %. Measured on the
+      reference arm only, the code domain only, at n_ctx 2,048 — not at the depths where the KV cache
+      dominates memory."
+
+  - id: F27b
+    data: ../data/fig27b-kv-ppl-contrast.csv
+    intent: |-
+      Very small companion plot for Figure 27. Two points with ±SE error bars: "f16 KV" at 1.1791 ±
+      0.00605 and "q4_0 KV" at 1.1809 ± 0.0061. Y axis: perplexity on the code corpus, linear, with
+      limits tight enough that the two error bars visibly overlap (about 1.170 to 1.190). X axis: two
+      categories. Annotate "+0.15 %" between them and add the note "the same perturbation that moves
+      KL divergence by 0.002955". DO NOT plot the fourth CSV row (the corrupted field) — it is
+      included in the data only so the defect is visible in the record. Caption to render:
+      "Perplexity on the identical pair behind Figure 27: the per-token distribution demonstrably
+      moved while the corpus mean moved by 0.15 %, inside its own standard error. n = 65,536 tokens;
+      the q4_0 value is read from the run-time field because a label collision corrupted the reparsed
+      field for this cell."
+
+  - id: F28
+    data: ../data/fig28-multiplicity.csv
+    intent: |-
+      Two panels. Panel (a): rank-ordered dot plot of the 19 in-family rows (exclude the row whose
+      `membership` says "excluded from the family" from the ranking, but draw it greyed at the bottom
+      as an off-family row). X axis: `p_value`, LOG scale, 1e-75 to 1, labelled "p-value". Y axis:
+      the tests in ascending p order, labelled with `test`. Draw two step lines across the panel from
+      the `holm_threshold` and `bh_threshold` columns, labelled "Holm threshold" and "Benjamini–
+      Hochberg threshold". Colour points by `family` (divergence #0072B2, task benchmark #D55E00,
+      speculative decoding #009E73) and outline them by `holm` (filled = pass, open = fail). Annotate:
+      "all nine divergence separations pass Holm; every HellaSwag and HumanEval+ test fails, and could
+      not have passed at any outcome" and, on the draft-depth row, "fails Holm once its pair count is
+      corrected (10 of 11 adjacent pairs, p = 0.0059 against a 0.0056 threshold); it passes
+      Benjamini–Hochberg". Panel (b): for the nine rows that have a `sigma`, plot effective σ = σ/√DEFF
+      against DEFF. X axis: design effect, LOG scale, 1 to 100. Y axis: effective σ, LOG scale, 1 to
+      20. One line per separation, coloured by domain, labelled at the right. Horizontal rules at 1.96
+      ("z = 1.96") and 3.02 ("Bonferroni z at m = 19"); mark where each line crosses the Bonferroni
+      rule using the `deff_to_drop_below_bonferroni_z` values. Annotate: "the weakest separation —
+      prose, UD-Q6_K vs UD-Q5_K_XL at 3.71 σ — falls below the Bonferroni threshold at DEFF 1.5; the
+      code-domain separations survive to DEFF 8–36" and "the tool's ± is a per-token Gaussian standard
+      error over 32 contiguous windows of one document, so DEFF > 1 is expected and is not estimated
+      anywhere in this study". Caption to render: "Multiple-comparison treatment of every inferential
+      test in the study. (a) Nineteen tests ranked by p-value against the Holm and Benjamini–Hochberg
+      thresholds at α = 0.05; all nine divergence separations pass both and every task-benchmark test
+      fails both, as it must. The greyed row is the withdrawn MK-NIAH retrieval test, shown outside
+      the family. (b) A sensitivity analysis, not an estimate: how far the divergence uncertainties
+      would have to be understated, as a clustering design effect, for each separation to stop being
+      significant."

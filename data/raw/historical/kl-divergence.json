@@ -1,0 +1,56 @@
+{
+  "item": "KL divergence citation (per remaining-work list; local BF16 measurement infeasible: BF16 model does not fit 2x16GB)",
+  "generated_utc": "2026-08-29T05:30:00Z",
+  "policy": "cite published numbers only; every claim carries its source; figure-read values are labeled APPROXIMATE; nothing locally measured is mixed in",
+  "sources": [
+    {
+      "id": "unsloth-qwen38-guide",
+      "title": "Unsloth Docs - Qwen3.8 guide, 'Quantization Analysis' + 'NVFP4' sections",
+      "url": "https://unsloth.ai/docs/models/qwen3.8",
+      "retrieved_utc": "2026-08-29T05:26Z",
+      "archived": "/srv/bench/kl-evidence/qwen38-guide.html"
+    },
+    {
+      "id": "unsloth-dynamic30",
+      "title": "Unsloth Docs - Dynamic 3.0 GGUFs (per-quant KLD/Divergence-300 methodology; Qwen3.8-27B GGUF values published as figures)",
+      "url": "https://unsloth.ai/docs/basics/dynamic-3.0-ggufs",
+      "retrieved_utc": "2026-08-29T05:26Z",
+      "archived": "/srv/bench/kl-evidence/dynamic-3.0-ggufs.html"
+    },
+    {
+      "id": "hf-gguf-card",
+      "title": "HuggingFace unsloth/Qwen3.8-27B-GGUF model card (source of the local GGUF files)",
+      "url": "https://huggingface.co/unsloth/Qwen3.8-27B-GGUF",
+      "retrieved_utc": "2026-08-29T05:27Z",
+      "archived": "/srv/bench/kl-evidence/hf-qwen38-gguf-readme.md"
+    }
+  ],
+  "gguf_dynamic_v3_published_figures": {
+    "note": "Unsloth publishes per-quant KLD and Top-1% accuracy for Qwen3.8-27B as two figures ('Qwen3.8-27B-GGUF Mean KLD', 'Qwen3.8-27B-GGUF Top-1% Accuracy'); no text tables. Values below are read from the archived figures (green 'Un (New)' series = Unsloth Dynamic v3, the exact quant family used in this study). X axis = quant size in GB with MTP removed.",
+    "figures": [
+      {"file": "/srv/bench/kl-evidence/mean-kld-qwen38.png", "sha256": null, "caption": "Qwen3.8-27B-GGUF Mean KLD (log-y)"},
+      {"file": "/srv/bench/kl-evidence/top1-accuracy-qwen38.png", "sha256": null, "caption": "Qwen3.8-27B-GGUF Top-1% Accuracy"}
+    ],
+    "approximate_values_read_from_figures": {
+      "UD-IQ4_XS":  {"size_gb_mtp_removed": 14.0, "mean_kld": 0.019, "top1_accuracy_pct": 94.0},
+      "UD-Q4_K_XL": {"size_gb_mtp_removed": 16.8, "mean_kld": 0.0085, "top1_accuracy_pct": 96.2},
+      "UD-Q5_K_XL": {"size_gb_mtp_removed": 19.8, "mean_kld": 0.0038, "top1_accuracy_pct": 97.2},
+      "UD-Q6_K_XL": {"size_gb_mtp_removed": 23.7, "mean_kld": 0.0016, "top1_accuracy_pct": 98.4},
+      "reference_points": {"UD-Q6_K_L_mean_kld": 0.0018, "Q8_0_mean_kld": 0.001}
+    }
+  },
+  "nvfp4_published_text_table": {
+    "note": "Verbatim from the archived Qwen3.8 guide page ('For accuracy benchmarks we ran KLD and Top-1% agreement over Code, Chat and many domains. NVFP4 is consistency 92% to 97% accuracy recovery vs BF16'). This is the same unsloth/Qwen3.8-27B-NVFP4 checkpoint benchmarked on multivac.",
+    "claims": ["NVFP4 quants are 1.5x faster than BF16 and retains 92 to 97% top-1% accuracy"],
+    "kld_mean_and_top1_by_corpus": [
+      {"corpus": "zh", "kld_mean": 0.01628, "top1_agreement_pct": 93.55},
+      {"corpus": "code", "kld_mean": 0.02600, "top1_agreement_pct": 96.68},
+      {"corpus": "refgen", "kld_mean": 0.03993, "top1_agreement_pct": 94.46},
+      {"corpus": "chat", "kld_mean": 0.05818, "top1_agreement_pct": 92.15}
+    ]
+  },
+  "consistency_crosscheck": {
+    "note": "Independent validation: the published figure-derived ranking matches multivac's measured perplexity ladder (PAPER section, Protocol 1-matched). KLD ordering IQ4_XS > Q4_K_XL > Q5_K_XL > Q6_K_XL mirrors PPL ordering 6.6839 > 6.6617 > 6.6556 > 6.6511, and NVFP4's published 92-97% top-1 recovery brackets UD-IQ4_XS's ~94%, consistent with NVFP4 PPL 6.7073 sitting just above IQ4_XS 6.6839.",
+    "status": "published KL ranking and locally measured PPL ranking AGREE"
+  }
+}
