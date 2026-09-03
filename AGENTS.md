@@ -25,8 +25,9 @@ Together they tell you exactly where the last agent stopped.
 - Git syncs to a bare repo on the host **and** to the public remote
   `github.com/henrique-simoes/llm-quantization-damage` (published 2026-09-03). The earlier
   "no public remote, ever" rule is retired — arXiv requires code links to resolve publicly.
-- **Three subagents maximum.** Prefer doing the work directly; fan-out is expensive and creates
-  reconciliation work.
+- **At most 3 subagents per turn**, `claude-opus-5` at `medium` effort, dispatched through a
+  **`Workflow`** — the Agent tool has no `effort` parameter. Full rules in `~/.claude/CLAUDE.md`;
+  `claude-conductor` routing overrides them. Prefer doing the work directly.
 - **Speculative decoding is not lossless on this stack** (PN-23). If a document tells you otherwise,
   it is stale.
 
