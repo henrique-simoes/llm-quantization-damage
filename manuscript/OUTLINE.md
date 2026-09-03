@@ -4,7 +4,24 @@
 number, interval and caveat.** A section with no PN reference is not yet supported and must not be
 written as though it were.
 
-Working title: **Quantization Damage Lives in the Tail: domain-dependent divergence in a 27B
+Title: **Divergence Ranks What Benchmarks Bound: quantization, context and speculative decoding for a 27B coding model on two 16 GB GPUs**
+
+> Chosen 2026-09-03 from the second review round (reviewer D's T2), replacing
+> *"Quantization Damage Lives in the Tail…"*. Reviewer D ranked T2 second behind a deliberately
+> safe descriptive title, but made the ordering conditional on the MK-NIAH re-analysis landing as
+> predicted. It did — **PN-60** — so D's stated preference applies. PN-60 also strengthens the
+> title: while PN-44 stood, a task benchmark *did* resolve the ladder, contradicting "what
+> benchmarks bound"; with MK-NIAH re-analysed no task instrument separates the arms on its
+> intended construct. Reviewer C's T9 was rejected on C's own caution against "cannot" — PN-60
+> found budget closure *did* separate the arms at p = 0.0015, so something was seen, on a
+> different construct. **PN-62 does not touch this title**: scoping the tail leaves PN-13's
+> separations intact, which is the only claim "ranks" rests on.
+>
+> **Abstract: reviewer D's A2**, the only proposal that already contains PN-62's control, drops
+> the 3.7 sigma endpoint that does not survive Bonferroni at design effect 1.5, and carries no
+> MK-NIAH sentence. Two edits applied: the KV-only control now cites **PN-62** rather than PN-15,
+> and **PN-49's 36-fold protocol swing was added** — A2 omitted the corpus's best-provenanced
+> single result, and reviewer C's A1 led with it. Median ratio corrected to 181-206x per D-8.
 coding model, and what task benchmarks can and cannot bound**
 
 ⚠️ **Revised 2026-09-02 after a three-way review round (L-19).** Nine paper notes were corrected or
