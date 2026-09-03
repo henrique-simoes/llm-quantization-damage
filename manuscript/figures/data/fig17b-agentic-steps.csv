@@ -1,0 +1,5 @@
+instance,UD-IQ4_XS_steps,UD-Q5_K_XL_steps,UD-Q6_K_XL_steps,UD-Q3_K_XL_steps
+astropy__astropy-12907,25,32,,250 (limit)
+django__django-10880,19,32,,250 (limit)
+django__django-10973,25,23,,250 (limit)
+mean (n=3 instances),23,29,"~45 (n=6, different instance set)",250

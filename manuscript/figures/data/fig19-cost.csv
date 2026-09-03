@@ -1,0 +1,13 @@
+class,experiment,gpu_hours,cells,sample_size,sample_unit,what_it_resolved,evidence
+divergence,"SSA S0-S4: KL divergence, prose + code, 4 arms",1.95,10,65536,tokens per cell,"separated all three arms at 3.7-11.8 sigma, non-overlapping intervals",measured
+divergence,SSA S5: KL divergence over HumanEval+ task prompts,0.37,4,18432,tokens per cell,third domain tier; no arm passes the <0.007 band on the task distribution,measured
+task benchmark,"SSA S7: HellaSwag n=400, 4 arms",0.54,4,400,items per arm,1.0-point spread; two arms answered all 400 identically,measured
+task benchmark,"SSA S6 / S9b: generative HumanEval+, paired, 2 arms",1.29,2,164,problems per arm,"paired difference -0.61 pts, 95 % CI [-3.28, +2.06]",measured
+task benchmark,"S12 RULER: S-NIAH + MK-NIAH (12 cells incl. n=100 at 131,072)",12.34,12,8192-131072,context tokens,"S-NIAH saturated; MK-NIAH separated on output budget, not retrieval (PN-60)",measured
+task benchmark,"S12 RULER: variable_tracking cells, excluded",0.14,2,25,items per arm,excluded for an output-format artifact; 0 items fully correct in either arm,measured
+equivalence,"S8: speculative equivalence + speed at ctx 32,768",1.35,3,164,problems per arm,MTP is not output-identical: 131/164 byte-exact,measured
+equivalence,S9a: determinism control (re-run of two S8 arms),1.04,2,164,problems per arm,both arms reproduced themselves byte-exactly: the divergence is deterministic,measured
+equivalence,S9c: DFlash2 on its own engine build,0.28,1,164,problems,"fastest at 32 K, cannot reach the deployment window",measured
+TOTAL divergence,,2.32,,,,ranked the ladder,measured
+TOTAL task benchmark,,14.31,,,,bounded the effect; resolved nothing on its intended construct,measured
+TOTAL equivalence,,2.67,,,,retired the losslessness premise the study had carried for nine days,measured

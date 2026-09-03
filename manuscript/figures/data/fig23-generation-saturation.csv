@@ -1,0 +1,19 @@
+pair,ladder_distance_steps,prompt_index,len_a_chars,len_b_chars,normalised_edit_distance,first_divergence_char,evidence
+UD-Q6_K_XL / UD-Q6_K,1,0,1761,1487,0.7808,2,recomputed
+UD-Q6_K_XL / UD-Q6_K,1,1,1859,1177,0.7687,5,recomputed
+UD-Q6_K_XL / UD-Q6_K,1,2,1341,1655,0.6671,71,recomputed
+UD-Q6_K_XL / UD-Q5_K_XL,2,0,1761,1282,0.7655,2,recomputed
+UD-Q6_K_XL / UD-Q5_K_XL,2,1,1859,1918,0.5589,62,recomputed
+UD-Q6_K_XL / UD-Q5_K_XL,2,2,1341,1388,0.5346,126,recomputed
+UD-Q6_K_XL / UD-Q4_K_XL,3,0,1761,1576,0.795,2,recomputed
+UD-Q6_K_XL / UD-Q4_K_XL,3,1,1859,1093,0.7961,14,recomputed
+UD-Q6_K_XL / UD-Q4_K_XL,3,2,1341,1904,0.6014,10,recomputed
+UD-Q6_K / UD-Q5_K_XL,1,0,1487,1282,0.4311,131,recomputed
+UD-Q6_K / UD-Q5_K_XL,1,1,1177,1918,0.7805,5,recomputed
+UD-Q6_K / UD-Q5_K_XL,1,2,1655,1388,0.5468,71,recomputed
+UD-Q6_K / UD-Q4_K_XL,2,0,1487,1576,0.4835,131,recomputed
+UD-Q6_K / UD-Q4_K_XL,2,1,1177,1093,0.7043,5,recomputed
+UD-Q6_K / UD-Q4_K_XL,2,2,1655,1904,0.6239,10,recomputed
+UD-Q5_K_XL / UD-Q4_K_XL,1,0,1282,1576,0.394,131,recomputed
+UD-Q5_K_XL / UD-Q4_K_XL,1,1,1918,1093,0.816,14,recomputed
+UD-Q5_K_XL / UD-Q4_K_XL,1,2,1388,1904,0.4753,10,recomputed

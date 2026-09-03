@@ -1,0 +1,6 @@
+arm,perplexity,standard_error,se_lo,se_hi,delta_vs_best,delta_pct,n_windows,estimator,protocol,reproducibility
+UD-Q6_K_XL,6.6511,0.04111,6.60999,6.69221,0,0,602,tool-reported standard error,Protocol 1,historical
+UD-Q5_K_XL,6.6556,0.04114,6.61446,6.69674,0.0045,0.068,602,tool-reported standard error,Protocol 1,historical
+UD-Q4_K_XL,6.6617,0.04116,6.62054,6.70286,0.0106,0.159,602,tool-reported standard error,Protocol 1,historical
+UD-IQ4_XS,6.6839,0.04133,6.64257,6.72523,0.0328,0.493,602,tool-reported standard error,Protocol 1,historical
+"vLLM NVFP4 (cross-backend, re-scored)",6.7073,,,,0.0562,0.845,602,no SE reported for the re-score,Protocol 1 (matched windows),historical

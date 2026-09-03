@@ -1,0 +1,10 @@
+instrument,unit,q3_k_xl_value,reference_value,verdict_for_q3,reproducibility,source,instrument_class
+"peak decode throughput (MTP n=8, ctx 32,768)",tok/s,116.9,,UD-Q3_K_XL leads,historical,n8-ctx-ceiling-20260822-0938 (host),cheap instrument
+"decode throughput @262,144",tok/s,54.64,,UD-Q3_K_XL leads,historical,quant x context matrix (host),cheap instrument
+"HumanEval pass@1 (non-thinking, greedy)",%,84.1,93.9,"acceptable, 6.1 pts below the reference",historical,ledger-data.json,cheap instrument
+"HumanEval+ pass@1 (non-thinking, greedy)",%,81.7,91.5,"acceptable, 9.8 pts below the reference",historical,ledger-data.json,cheap instrument
+empty responses,%,0,0,clean run,historical,ledger-data.json,cheap instrument
+"WikiText-2 perplexity, Protocol 2 (20 chunks @ c4096)",PPL,5.55,5.51,essentially tied with the reference,historical,ppl-allquants-20260821-2213 (host),cheap instrument
+"draft acceptance at 258,779 attended tokens",ratio,1,,"WITHDRAWN by PN-61: 55 generated tokens over 36 draft events, a degenerate probe",historical,champion-timings.json,withdrawn
+"agentic instances converged (SWE-bench-style, 250-step limit)",of 6,0,6,"0 of 6 converged; mean 250 steps, median 250, max 250",historical,rigor/T3-INTERROMPIDO.txt (host),expensive instrument
+mean steps to convergence,steps,250,45,hit the harness limit on every instance,historical,rigor/T3-INTERROMPIDO.txt (host),expensive instrument

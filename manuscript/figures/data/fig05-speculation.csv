@@ -1,0 +1,5 @@
+config,decode_tok_s_median,speedup_vs_nospec,draft_acceptance,byte_exact_vs_baseline_n,n_problems,byte_exact_pct,engine_image,engine_confounded,pass1_base_pct,pass1_base_wilson_lo,pass1_base_wilson_hi,pass1_plus_pct,pass1_plus_wilson_lo,pass1_plus_wilson_hi,note,evidence
+no-spec (baseline; identity vs its own repeat),18.463,1,,164,164,100,llamacpp-mtp:latest,false,94.51,89.9,97.09,91.46,86.18,94.85,"self-repeat control run one day later: 164/164 byte-identical, decode 18.485 tok/s on the repeat",measured
+MTP n=2,37.443,2.028,0.9536,131,164,79.88,llamacpp-mtp:latest,false,93.9,89.14,96.65,90.24,84.74,93.91,identity measured against the no-spec baseline,measured
+MTP n=4,47.029,2.547,0.8922,131,164,79.88,llamacpp-mtp:latest,false,93.9,89.14,96.65,90.85,85.46,94.38,identity measured against the no-spec baseline,measured
+DFlash2 n=4,51.78,2.805,0.9172,132,164,80.49,llama-dflash2:latest,true,93.29,88.39,96.21,90.24,84.74,93.91,"ENGINE-CONFOUNDED: baseline produced on llamacpp-mtp:latest, this arm on llama-dflash2:latest",measured

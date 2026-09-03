@@ -1,0 +1,5 @@
+cell,perplexity_or_change_pct,standard_error,which_field,evidence
+f16 KV,1.1791,0.00605,metrics_reparsed — this cell's own serverlog survived the collision,measured
+q4_0 KV,1.1809,0.0061,metrics (run-time) — this cell's metrics_reparsed is CORRUPTED by the label collision and reads the f16 value (PN-43),measured
+change,0.153,,percent,recomputed
+"q4_0 KV, as metrics_reparsed WOULD report it",1.1791,,"DO NOT USE — the corrupted field, shown so the defect is visible in the record",measured

@@ -1,0 +1,9 @@
+arm,resolved,instances_scored,resolve_rate_pct,ci_lo,ci_hi,generation,source,reproducibility
+UD-IQ4_XS,38,49,77.6,64.12,86.98,final (x86_64-corrected),per-instance report.json via swebench_agg.py,historical
+UD-Q5_K_XL,38,50,76,62.59,85.7,final (x86_64-corrected),per-instance report.json via swebench_agg.py,historical
+UD-Q6_K,37,49,75.5,61.91,85.4,final (x86_64-corrected),"per-instance manifest, 49 unique instances",historical
+UD-IQ4_XS,36,47,76.6,,,superseded generation 1 (ARM64-scored),ledger-data.json swebench,historical
+UD-Q5_K_XL,35,48,72.9,,,superseded generation 1 (ARM64-scored),ledger-data.json swebench,historical
+UD-IQ4_XS,37,49,75.5,,,superseded generation 2 (§13.66),multivac-CLAUDE.md,historical
+UD-Q5_K_XL,37,50,74,,,superseded generation 2 (§13.66),multivac-CLAUDE.md,historical
+UD-Q6_K (bootstrap),37,49,75.51,63.27,87.76,"bootstrap B=10,000, seed 20260825",bootstrap-ci.json (host),historical

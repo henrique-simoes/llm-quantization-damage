@@ -1,0 +1,17 @@
+date,note,corrects,claim_before,claim_after,gpu_cost_to_correct,found_by,outcome
+2026-08-30,PN-23,9 days of prior notes,speculative decoding is greedy-lossless,MTP reproduces the baseline on 131/164 problems,"1 experiment (S8, ~1.3 h)",first experiment that tested the premise,premise refuted
+2026-08-31,PN-26,PN-23's mechanism,float nondeterminism from batch shape,both arms are individually deterministic; speculation is a different decode path,1 control run (~1.0 h),planned control,mechanism narrowed
+2026-09-01,PN-30,"PN-24 at-depth, S8 at-depth","MTP n=4 leads n=2 by 46 % at 262,144 and the margin grows with depth",withdrawn: every rep generated 17 tokens,0 (re-read of the artifact),author re-reading a serverlog,claim withdrawn
+2026-09-02,PN-36,PN-19,within-arm repetition noise reaches 32.9 %,the n=6 group spanned four context depths,0 (regrouped from cell keys),two independent blind reviews,numbers corrected
+2026-09-02,PN-37,PN-34,benchmark insensitivity is explained by saturation,saturation is false for two of three instruments; the framing is Dutta et al. 2024,0,review,mechanism retracted
+2026-09-02,PN-39,PN-6,"the ceiling is a property of the split, not the quant",holds for 2 of 4 arms; the smallest arm loads at the engine default,0,review,claim scoped
+2026-09-02,PN-40,PN-28,McNemar p = 1.0 shows the arms are indistinguishable,that test could not have reached p<0.05: min attainable p = 0.25,0,adversarial review,null converted to a bound
+2026-09-02,PN-41,the project's cost contrast,20 minutes vs 20 hours,"2.15 h vs 4.8 h, recomputed from timestamps",0,review,headline ratio corrected
+2026-09-02,PN-42,PN-8,balance and throughput are opposing objectives,the most balanced ratio is the slowest; the rest cluster within 3.6 %,0,review,framing corrected
+2026-09-02,PN-43,PN-15,the reparsed block is the repaired one everywhere,a label collision overwrote one serverlog; trust `metrics` for those two cells,0,adversarial review,artifact annotated
+2026-09-03,PN-45,PN-36 (itself a correction),within-configuration spread 46.7 %,estimator was switched silently; 40.7 % under PN-19's rule,0,archivist re-verification,correction corrected
+2026-09-03,PN-60,PN-44,"4-bit costs 10 points of retrieval accuracy at 131,072",every failure is a truncation; the separated effect is reasoning-block closure,0,adversarial review,headline restated
+2026-09-03,PN-61,PN-51's acceptance clause,"1.000 draft acceptance at 258,779 attended tokens",degenerate: 50-55 tokens over 34-36 draft events,0,review,clause struck
+2026-09-03,PN-62,PN-35,the tail structure is something quantization does,shape is a corpus property; magnitude is the quantization property,0,adversarial review (using this study's own KV control),claim scoped
+2026-09-03,PN-63,PN-60,the long-context result is confounded,single-needle at the same depth is genuinely saturated; the defect is task difficulty,0,integrity audit,correction narrowed
+2026-09-03,PN-64,PN-35's median row,code is perturbed 100-200x less at the median,about 200x; the per-arm ordering is an artifact of print precision,0,verification pass,precision withdrawn

@@ -2445,3 +2445,42 @@ Carried into the plan as open items drafting must not paper over: **PN-29's DFla
   multiple-comparisons correction exists across ~19 tests; and the honest artifact tier is
   **Artifacts Available only**, because every evidence chain ends in a gitignored serverlog.
 Next: D1 once the style guide and figure programme land — LaTeX skeleton, then §3/§4.
+
+### L-28 | 2026-09-03T21:30:00Z | S14-drafting | claude-opus-5 | conductor-manager | Style guide lands; four verified defects fixed in the outline <!-- bsc-ledger:qbench-t1-STYLE -->
+Did: received `manuscript/STYLE-GUIDE.md` (2,004 lines, 97 sourced references) and **verified every
+  structural and statistical claim it made about the outline before acting on any of them.** All
+  confirmed; all fixed.
+Result — four defects, one of which would have put a wrong number in the paper:
+  1. ⚠️ **The outline's thesis paragraph still said "100–200×" at the median**, which **PN-64
+     withdrew** hours earlier. Replaced with "roughly two orders of magnitude", plus an explicit
+     prohibition on tabulating that row per arm — PN-64 showed two of three cells were overstated
+     ~2×, the measured ratios are 199/181/206, and print precision (±3–7 %) leaves the intervals
+     overlapping so the row cannot rank the arms. §5.1 also did not cite PN-64; it does now.
+  2. ⚠️ **§5.2 quoted the HumanEval *base* row under a HumanEval+ label.** In evalplus `base` is
+     HumanEval and `base+extra` is HumanEval+. The outline carried −0.61 pts [−2.68, +1.46] with
+     3 discordant — that is the **base** row. The true HumanEval+ row is −0.61 pts **[−3.28, +2.06]**
+     with **5** discordant. Both rows are now tabulated and labelled explicitly. Three different
+     intervals for "the paired HumanEval+ difference" were circulating in the corpus; this is why.
+  3. **The paper had no conclusion.** §7 ran straight into two appendices numbered as body sections.
+     Added **§8 Conclusion**, and renumbered the appendices to **A** and **B** so they stop reading
+     as results.
+  4. **§5.2's heading said "Three instruments"** over text listing five. Retitled *"Every instrument
+     bounds, none resolves"*, which is also the claim that survives PN-60.
+⚠️ **New moderation risk, not in L-27's compliance table.** Since **2025-10-31** arXiv's `cs`
+  categories refuse review and position papers without prior peer review. An assertive-thesis title
+  over a long multi-thread background is the shape a moderator declines, so §2 now carries a **hard
+  900-word cap** and a rule that every paragraph ends on what *this report measures differently*.
+Positioning decisions adopted from the guide: **first-person singular "I", used sparingly and only
+  for acts of judgement**; the default subject of a measurement sentence is the instrument or the
+  number; the harness takes an agentless past; **"we/our/us" banned outright** — a plural voice for a
+  one-person, one-host study is the same overclaim in the register that PN-40 corrects in the
+  statistics. USP appears as a **qualification, never an affiliation**; the author block reads
+  *Independent researcher*.
+  The most useful finding for framing: the closest published comparator — arXiv:2601.14277, a solo
+  llama.cpp quantization evaluation — has **no affiliation, no limitations section and no confidence
+  intervals**, verified by PDF extraction. **This report is the strong entry in its genre, not the
+  weak one**, and the drafting should stop hedging defensively.
+Recorded but **NOT verified**, and must be checked before citing: three related-work items the guide
+  says are missing — arXiv:2411.02355 (Kurtic et al., ACL 2025), arXiv:2607.08734 (Rababah et al.,
+  2026), arXiv:2601.09527 (same GPU). Flagged inline in §2.
+Next: the figure programme agent is still running. D1 (LaTeX skeleton) once it lands.

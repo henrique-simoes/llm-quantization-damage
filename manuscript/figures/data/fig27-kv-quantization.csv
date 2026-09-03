@@ -1,0 +1,5 @@
+perturbation,perturbation_class,mean_kld_nats,mean_kld_se_nats,top1_agreement_pct,kld_p99_nats,n_tokens,evidence
+q4_0 KV cache vs f16 KV cache (weights identical),kv_dtype,0.002955,0.000127,99.401,0.067592,65536,measured
+UD-Q6_K vs UD-Q6_K_XL (KV dtype identical),weights,0.005829,0.000233,99.142,0.142839,65536,measured
+UD-Q5_K_XL vs UD-Q6_K_XL (KV dtype identical),weights,0.010285,0.000458,98.87,0.250389,65536,measured
+UD-Q4_K_XL vs UD-Q6_K_XL (KV dtype identical),weights,0.021529,0.000834,98.43,0.562891,65536,measured

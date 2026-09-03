@@ -1,0 +1,27 @@
+arm,ctx_tokens,n_draft,tensor_split,prompt_n_tokens,prefill_frac,decode_tok_s_median,prefill_tok_s,acceptance,decode_spread_pct,n_reps_or_problems,ctxcp,protocol,evidence
+UD-Q4_K_XL,131072,2,"56,44",123670,0.9435,19.124,782.4,0.6727,19.9,3,32,"DEC-2 official non-thinking, /completion + continuation cue, 512 tokens",measured
+UD-Q4_K_XL,131072,4,"56,44",123670,0.9435,20.252,759.1,0.5123,23.6,3,32,"DEC-2 official non-thinking, /completion + continuation cue, 512 tokens",measured
+UD-Q4_K_XL,131072,8,"56,44",123670,0.9435,26.32,725.2,0.4036,17.2,3,32,"DEC-2 official non-thinking, /completion + continuation cue, 512 tokens",measured
+UD-Q4_K_XL,196608,2,"56,44",186270,0.9474,14.721,649.6,0.6662,21.5,3,32,"DEC-2 official non-thinking, /completion + continuation cue, 512 tokens",measured
+UD-Q4_K_XL,196608,8,"56,44",186270,0.9474,23.588,626.7,0.3725,70.2,3,32,"DEC-2 official non-thinking, /completion + continuation cue, 512 tokens",measured
+UD-Q5_K_XL,131072,2,"54,46",123670,0.9435,19.764,727.7,0.8139,27.7,3,32,"DEC-2 official non-thinking, /completion + continuation cue, 512 tokens",measured
+UD-Q5_K_XL,131072,4,"54,46",123670,0.9435,17.699,713.8,0.4925,30,3,32,"DEC-2 official non-thinking, /completion + continuation cue, 512 tokens",measured
+UD-Q5_K_XL,131072,8,"54,46",123670,0.9435,24.701,703.4,0.4485,110,3,32,"DEC-2 official non-thinking, /completion + continuation cue, 512 tokens",measured
+UD-Q5_K_XL,196608,2,"54,46",186270,0.9474,14.254,612.5,0.7461,26,3,32,"DEC-2 official non-thinking, /completion + continuation cue, 512 tokens",measured
+UD-Q5_K_XL,196608,4,"54,46",186270,0.9474,13.862,594.4,0.4286,3.7,3,32,"DEC-2 official non-thinking, /completion + continuation cue, 512 tokens",measured
+UD-Q5_K_XL,196608,8,"54,46",186270,0.9474,26.199,595.6,0.5734,68.7,3,32,"DEC-2 official non-thinking, /completion + continuation cue, 512 tokens",measured
+UD-Q6_K,131072,2,"58,42",123670,0.9435,18.507,674.1,0.7747,34.1,3,32,"DEC-2 official non-thinking, /completion + continuation cue, 512 tokens",measured
+UD-Q6_K,131072,4,"58,42",123670,0.9435,20.111,653.2,0.5578,50.6,3,32,"DEC-2 official non-thinking, /completion + continuation cue, 512 tokens",measured
+UD-Q6_K,131072,8,"58,42",123670,0.9435,15.331,673.4,0.251,74.8,3,32,"DEC-2 official non-thinking, /completion + continuation cue, 512 tokens",measured
+UD-Q6_K,196608,2,"58,42",186270,0.9474,18.749,603.9,0.9198,12.6,3,32,"DEC-2 official non-thinking, /completion + continuation cue, 512 tokens",measured
+UD-Q6_K,196608,4,"58,42",186270,0.9474,24.997,580.9,0.7899,42.1,3,32,"DEC-2 official non-thinking, /completion + continuation cue, 512 tokens",measured
+UD-Q6_K,196608,8,"58,42",186270,0.9474,33.985,579.8,0.5168,166.1,3,32,"DEC-2 official non-thinking, /completion + continuation cue, 512 tokens",measured
+UD-Q6_K_XL,131072,2,"56,44",123670,0.9435,17.948,719,0.759,24.9,3,32,"DEC-2 official non-thinking, /completion + continuation cue, 512 tokens",measured
+UD-Q6_K_XL,131072,8,"56,44",123670,0.9435,17.695,694.9,0.3316,155.1,3,32,"DEC-2 official non-thinking, /completion + continuation cue, 512 tokens",measured
+UD-Q6_K_XL,196608,2,"56,44",186270,0.9474,13.87,596.8,0.7044,33.8,3,32,"DEC-2 official non-thinking, /completion + continuation cue, 512 tokens",measured
+UD-Q6_K_XL,196608,4,"56,44",186270,0.9474,17.983,567.3,0.5558,86.7,3,32,"DEC-2 official non-thinking, /completion + continuation cue, 512 tokens",measured
+UD-Q6_K,262144,2,"58,42",248527,0.9481,12.474,506.5,0.7381,29.7,3,32,"DEC-2 official non-thinking, /completion + continuation cue, 512 tokens",measured
+UD-Q6_K,262144,4,"58,42",248527,0.9481,12.875,494.3,0.4915,53,3,32,"DEC-2 official non-thinking, /completion + continuation cue, 512 tokens",measured
+UD-Q6_K,32768,0,"58,42",,,18.463,,,,164,32,"REFERENCE ONLY — greedy temp 0, HumanEval+ prompts, near-empty KV cache; not comparable to the rows above",measured
+UD-Q6_K,32768,2,"58,42",,,37.443,,0.9536,,164,32,"REFERENCE ONLY — greedy temp 0, HumanEval+ prompts, near-empty KV cache; not comparable to the rows above",measured
+UD-Q6_K,32768,4,"58,42",,,47.029,,0.8922,,164,32,"REFERENCE ONLY — greedy temp 0, HumanEval+ prompts, near-empty KV cache; not comparable to the rows above",measured
