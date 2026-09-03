@@ -1,0 +1,35 @@
+chunk             PPL               ln(PPL(Q)/PPL(base))          KL Divergence              Δp RMS            Same top p
+Mean PPL(Q)                   :   5.795792 ±   0.074236
+Mean PPL(base)                :   5.789290 ±   0.074187
+Cor(ln(PPL(Q)), ln(PPL(base))):  99.81%
+Mean ln(PPL(Q)/PPL(base))     :   0.001123 ±   0.000793
+Mean PPL(Q)/PPL(base)         :   1.001123 ±   0.000794
+Mean PPL(Q)-PPL(base)         :   0.006502 ±   0.004595
+Mean    KLD:   0.008207 ±   0.000340
+Maximum KLD:   7.600239
+99.9%   KLD:   0.259651
+99.0%   KLD:   0.069578
+95.0%   KLD:   0.025546
+90.0%   KLD:   0.016333
+Median  KLD:   0.003509
+10.0%   KLD:   0.000024
+ 5.0%   KLD:   0.000006
+ 1.0%   KLD:   0.000000
+ 0.1%   KLD:  -0.000002
+Minimum KLD:  -0.000030
+Mean    Δp: -0.072 ± 0.014 %
+Maximum Δp: 79.467%
+99.9%   Δp: 15.544%
+99.0%   Δp:  6.949%
+95.0%   Δp:  2.952%
+90.0%   Δp:  1.703%
+75.0%   Δp:  0.329%
+Median  Δp: -0.000%
+25.0%   Δp: -0.403%
+10.0%   Δp: -1.950%
+ 5.0%   Δp: -3.237%
+ 1.0%   Δp: -7.477%
+ 0.1%   Δp: -18.943%
+Minimum Δp: -51.745%
+RMS Δp    :  2.456 ± 0.059 %
+Same top p: 96.215 ± 0.105 %

@@ -2231,3 +2231,66 @@ Next: two peer reviewers are auditing the full corpus in parallel — one on com
   additions, and expect some of these to be judged too thin to promote. The outline must then be
   rewritten against a 59-note evidence base rather than a 45-note one, with §Agentic behavior
   populated for the first time.
+
+### L-23 | 2026-09-03T15:40:00Z | S13-adversarial-review | claude-opus-5 | conductor-manager | Two reviewers, and the long-context headline does not survive <!-- bsc-ledger:qbench-t1-REV2 -->
+Did: ran two independent peer reviews over the full corpus — one on completeness and historical
+  integration, one adversarial on statistics and positioning — after the owner observed that the
+  first review round and the outline were both built almost entirely from the last four days.
+  Outputs: `manuscript/review/reviewer-c-corpus.md` (1,168 lines) and `reviewer-d-adversarial.md`
+  (1,214 lines). **Every consequential claim below was recomputed here from committed artifacts
+  before being accepted; none is taken on a reviewer's word.**
+Result — two corrections, both confirmed, both free:
+  **PN-60 supersedes PN-44 and PN-37's mechanism clause.** The MK-NIAH n=100 battery ran through
+  `/completion` with `n_predict=128` and thinking on, so every generation is a `<think>` block
+  competing with the answer for 128 tokens. Recomputed from the committed predictions:
+  **closed-and-wrong = 0 in both arms** — every failure is a truncation — and on the **55 of 100
+  items where neither arm's budget bound, both score 55/55 with zero discordance.** The real,
+  still-separated effect is budget closure: 77 vs 60, discordance 22/5, exact McNemar
+  **p = 0.001514**. The 89.0/79.0/88.76 %/p = 0.0020 headline is a reasoning-verbosity result, not a
+  retrieval result, and the Red Hat 85-88 % recovery comparison (R9) is **void**. This is the same
+  defect that got `variable_tracking` excluded from this very battery; the budget check that
+  justified keeping the needle tasks ran at 8,192 on the single-needle variant and was never re-run
+  at 131,072 on the multi-key one.
+  **PN-61 corrects PN-51, written four hours earlier in this same session.** The historical
+  acceptance figures of exactly 1.000 at 99K-259K are **degenerate-generation artifacts**: 50-55
+  generated tokens over 34-36 draft events, the PN-30 signature. The rows that actually generated
+  1,024 tokens record 0.9221 (MTP n2 @168,011) and 0.553 (DFlash2 n4 @184,011). PN-51's agentic
+  finding (6/6 at the step limit vs the reference's 0/6) **stands**; its acceptance clause is
+  struck, and with it the tidy "perfect acceptance beside total agentic failure" line. The
+  Q3-embedded speed-versus-depth curve inherits the same defect, so "graceful degradation, no
+  cliff" is not supported by it; the MTP-vs-DFlash2 reversal survives because both its arms
+  generated 1,024 tokens.
+Also raised, verified, not yet acted on:
+  - **PN-35's tail quantiles are in no committed file.** `ssa-results.json` carries only `ppl` and
+    `ppl_err`; the KLD distribution tables exist solely in 14 host serverlogs under
+    `/srv/bench/server-timings/`, which `.gitignore` excludes. The paper's novel contribution is
+    currently not reproducible from the public repository at all. Extraction is free and is next.
+  - **Multiple comparisons:** Holm and BH over all 19 tests leave all 11 positive results standing,
+    but the weakest (prose Q6_K-Q5, 3.71 sigma) dies at design effect 1.5 under Bonferroni — so the
+    signature phrase "3.7-11.8 sigma" quotes a range whose lower endpoint does not survive.
+  - **PN-22's six McNemar tests could not have reached p < 0.05 at any outcome** (max discordant 4,
+    minimum attainable p = 0.125). PN-40 was written to fix exactly this error and fixed PN-28 only.
+  - **The "unexplained" decode noise is the acceptance lottery.** Both reviewers found it
+    independently: `draft_n`/`draft_n_accepted` are byte-identical across `-ts` ratios within a rep,
+    and decode regresses on acceptance at r-squared 0.83-0.99. Conditioning collapses within-config
+    spread from 17-41 % to 3-11 %. Three passes (PN-19 -> 36 -> 45) missed it.
+  - **PN-32 tests a tautology** — acceptance = accepted/drafted is strictly decreasing in draft
+    depth for any per-token probability below 1 — and its pair count is 11, not 13 (two are n2->n8
+    skips), giving p = 0.0059 rather than 0.0017.
+  - **PN-29's DFlash2 at-depth cell reportedly uses the same unrepaired probe** as PN-30's withdrawn
+    claims and was never withdrawn. **Unverified here.** It is cited in OUTLINE §5.4.
+  - **PN-41's cost contrast is stale by 9.4 h** (mk100 landed after it): approximately 2.2 h vs
+    14.3 h, about 6x, not 2.2x.
+  - Artifact-badging: honest tier is **Artifacts Available only**, after a DOI. `acmtxt.md` is a
+    76 KB scraped web page with cookie-banner text at the repo root and should go; `CITATION.cff`
+    declares a repository URL that does not exist yet.
+Consequence for the paper: **§5.2 loses its third instrument.** The ordering "multiple-choice and
+  generative coding bound the effect, single-needle bounds it to zero, multi-key separates it" —
+  L-20's strongest structural claim — no longer holds, because multi-key separates on closure and
+  not on retrieval. What replaces it is arguably better evidenced and comes from the first nine
+  days: SWE-bench Verified **inverting** the ladder at n≈50 on a ±12-point interval (PN-50), and
+  Protocol-1 perplexity spanning 0.033 against its own ±0.041 standard error (PN-48). Both reviewers
+  independently proposed retitling away from the tail finding as the load-bearing claim.
+Next: extract the KLD tables from the 14 serverlogs and commit them; verify the PN-29 exposure;
+  re-analyse the speed data conditioned on acceptance; then rewrite the outline against a 61-note
+  base. Title and abstract remain the owner's call — both reviewers' proposals are in their files.
