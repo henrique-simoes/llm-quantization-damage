@@ -24,7 +24,7 @@ abstract: >-
   unspeculated decoding. Artifacts and the full measurement record are released.
 type: dataset
 license: CC-BY-4.0
-repository-code: "https://github.com/henrique-simoes/multivac-paper"
+repository-code: "https://github.com/henrique-simoes/llm-quantization-damage"
 keywords:
   - quantization
   - large language models
