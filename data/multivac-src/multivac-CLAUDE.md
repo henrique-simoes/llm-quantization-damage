@@ -1019,7 +1019,7 @@ Run P0 in this order — see TEST PLAN for exact commands and decision rules:
 
 ## User context
 
-The user (simoeshz@gmail.com) operates from a Mac Studio, SSHing into multivac. Sessions often run from the Mac-side Claude Code instance. This Claude Code session runs directly on multivac. Communication is often in Portuguese but technical content is in English.
+The owner operates from a Mac Studio, SSHing into multivac. Sessions often run from the Mac-side Claude Code instance. This Claude Code session runs directly on multivac. Communication is often in Portuguese but technical content is in English.
 
 ## Important rules
 
