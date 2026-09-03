@@ -105,10 +105,20 @@ one — that reframing is PN-40's, and it is what makes the section a result ins
   p = 1.0", which PN-40 shows could never have reached 0.05 with 3 discordant pairs (minimum
   obtainable p = 0.25). State that explicitly: it is the paper's own instance of the error it
   attributes to the field.
-- **Long-context retrieval** (RULER): S-NIAH 100.0/100.0 at 8,192 / 32,768 / 131,072 — 16× more
-  context, zero discrimination. MK-NIAH at 131,072 at n=100 — **awaiting the second arm; the
-  reference scored 89.0, not the 100.0 the n=12 pilot suggested.** Do not write this subsection
-  until that lands.
+- **Long-context retrieval** (RULER, PN-44): S-NIAH 100.0/100.0 at 8,192 / 32,768 / 131,072 —
+  16× more context, zero discrimination. Then MK-NIAH at 131,072, n=100: **89.0 vs 79.0, recovery
+  88.76 %, exact McNemar p = 0.0020**, paired difference −10.00 pts [−15.88, −4.12]. Ten discordant
+  items, **all in the same direction** — the cheaper arm's failures are a strict superset of the
+  reference's. This is the one instrument that *separates* the arms, and it does so only where the
+  task is hard enough that the reference itself fails 11 % of the time.
+**PN-44 is what makes this section an argument rather than a list.** The three instruments do not
+merely bound the effect by differing amounts — they order themselves by how close the task sits to
+the model's limit. Multiple-choice (82.75 %, far from ceiling) and generative coding (94.5 %) bound
+it to a few points; single-needle retrieval at any depth is perfect for both arms and bounds it to
+zero; and multi-key retrieval — the only task where the *reference* fails 11 % of the time —
+separates the arms decisively. That ordering is what the tail mechanism predicts: damage confined
+to ~1–5 % of token positions changes an outcome only where an outcome was already marginal.
+
 **The mechanism is PN-37's, not PN-34's.** Do not claim saturation: HellaSwag has ~17 points of
 headroom, HumanEval+ ~5, and MK-NIAH's reference sits at 89 %. Claim instead that damage confined to
 ~1–5 % of token positions (PN-35) changes an outcome only when a tail token lands decisively, which

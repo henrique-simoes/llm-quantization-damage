@@ -2136,3 +2136,32 @@ Verified: I independently re-derived the PN-19 depth confound from the cells' `k
 Next: 33 numbered repairs are listed in reviewer-a-rigor.md; most cost no GPU. The one that does —
   MK-NIAH at n≈100, ~11 h — decides whether a long-context claim can stay in the title. Outstanding
   documentation debt: S11 ran, produced 12 cells and still has no paper note.
+
+### L-20 | 2026-09-03T03:00:00Z | S3-report | claude-opus-5 | conductor-manager | MK-NIAH n=100 — the long-context question is answered <!-- bsc-ledger:qbench-t1-MK100 -->
+Did: ran MK-NIAH at n=100 on both ladder extremes at 131,072 (9.4 h, 200 full prefills, 0 empty
+  responses). Pre-flight followed the discipline the earlier failures forced: RULER's semantics read
+  from its own source (`num_needle_k=4` → four keys, one queried, three hard distractors) and
+  confirmed against the paper; the dataset generated and checked (100 samples, all needles unique,
+  130,439-131,072 tokens); the full code path exercised by a 4-minute mock at 8,192; the time
+  estimate taken from the measured n=12 cells (170 s/sample) rather than guessed; and the paired
+  analysis **written and committed before the second arm finished**, so the test was fixed in
+  advance of the data.
+Result (PN-44): **UD-Q6_K_XL 89.0, UD-Q4_K_XL 79.0, recovery 88.76 %, exact McNemar p = 0.0020**,
+  paired difference −10.00 pts [−15.88, −4.12]. Ten discordant items, **zero in the other
+  direction** — the cheaper arm's failures are a strict superset of the reference's, and the test
+  returned the minimum p its design permits. The figure sits inside Red Hat's published 85-88 %
+  band for 4-bit at 128K (R9), reached independently on a different model, compression family and
+  hardware class.
+  ⚠️ **This supersedes PN-33's MK-NIAH half.** Its n=12 reference of 100.0 was a lucky draw
+  (P(12/12 | p=0.89) ≈ 0.25) and implied a ceiling that does not exist — the n=12 estimate was not
+  merely imprecise, it pointed the wrong way. The 11 GPU-hours bought the difference between
+  "consistent with published results, not established here" and a separated result.
+Consequence for the paper: **§5.2 now has a third instrument that separates**, and the three order
+  themselves by how close each task sits to the model's limit — multiple-choice and generative
+  coding bound the effect to a few points, single-needle retrieval to zero, multi-key retrieval
+  separates it. That ordering is what PN-35's tail mechanism predicts, and it is a stronger
+  argument than three bounds of differing width. OUTLINE §5.2 updated; the "do not write until this
+  lands" marker is removed.
+Next: measurement is closed for real this time. Remaining scope is drafting, plus two owner
+  decisions blocking publication — no LICENSE file, and commit authorship carrying an internal LAN
+  IP across the history.
