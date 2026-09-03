@@ -111,7 +111,7 @@ def ruler_template(task, key):
     distractor keys instead of one. S-NIAH saturated at 100.0 for BOTH arms at all three
     lengths, so it cannot discriminate; MK-NIAH is RULER's standard harder retrieval variant."""
     import constants
-    return constants.TASKS["niah" if task == "mkniah" else task][key]
+    return constants.TASKS["niah" if task in ("mkniah", "mkmock", "mk100") else task][key]
 
 
 def generate(task, length, n=None, seed=42):
@@ -121,7 +121,7 @@ def generate(task, length, n=None, seed=42):
     out = f"{DATA}/{name}/validation.jsonl"
     if os.path.exists(out):
         log(f"  {name}: already generated"); return out
-    script = {"niah": "niah.py", "mkniah": "niah.py",
+    script = {"niah": "niah.py", "mkniah": "niah.py", "mkmock": "niah.py", "mk100": "niah.py",
               "variable_tracking": "variable_tracking.py"}[task]
     cmd = [PY, script, "--save_dir", DATA, "--save_name", name,
            "--tokenizer_path", TOKENIZER, "--tokenizer_type", "hf",
@@ -186,7 +186,8 @@ def run_arm(arm, length, rows, task):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--phase", required=True, choices=["gen", "smoke", "mk131072"] +
+    ap.add_argument("--phase", required=True,
+                    choices=["gen", "smoke", "mk131072", "mkmock", "mk100"] +
                     [f"c{l}" for l in LENGTHS] + ["summarize"])
     a = ap.parse_args()
     os.makedirs(OUTD, exist_ok=True)
@@ -231,6 +232,33 @@ def main():
         good = rec.get("ok") and rec.get("score", 0) > 0
         log(f"SMOKE: {'PASS' if good else 'FAIL'} — score {rec.get('score')}")
         sys.exit(0 if good else 2)
+
+    if a.phase in ("mkmock", "mk100"):
+        # mkmock: the FULL mk100 code path at 8,192 with n=3, so a defect costs ~4 min not ~12 h.
+        # mk100: MK-NIAH at n=100, powered to separate the ~8-point effect the n=12 run hinted at
+        # (McNemar with 0 vs ~8 discordant gives p ~ 0.008; at n=12, 0 vs 1 gave p = 1.0).
+        mock = a.phase == "mkmock"
+        length, task = (8192, "mkmock") if mock else (131072, "mk100")
+        src = f"{DATA}/{'mkmock_8192' if mock else 'mkniah100_131072'}/validation.jsonl"
+        if not os.path.exists(src):
+            log(f"data missing: {src}"); sys.exit(2)
+        rows = [json.loads(x) for x in open(src)]
+        log(f"{a.phase}: {len(rows)} samples at {length}, arms {list(ARMS)}")
+        L.preflight()
+        for arm in [REFERENCE] + [x for x in ARMS if x != REFERENCE]:
+            prior = next((c for c in out["cells"] if c.get("arm") == arm
+                          and c.get("task") == task and c.get("ok")), None)
+            if prior:
+                log(f"  {arm} {task}: already measured (score {prior['score']}) — skipping")
+                continue
+            rec = run_arm(arm, length, rows, task)
+            json.dump({"preds": rec.pop("preds", []), "refs": rec.pop("refs", [])},
+                      open(f"{OUTD}/s12-preds-{arm}-{task}-c{length}.json", "w"), indent=1)
+            out["cells"].append(rec)
+            json.dump(out, open(path, "w"), indent=1)
+        n = sum(1 for c in out["cells"] if c.get("task") == task and c.get("ok"))
+        log(f"{a.phase}: {n} cells ok")
+        sys.exit(0 if n else 2)
 
     if a.phase == "mk131072":
         length, task = 131072, "mkniah"
