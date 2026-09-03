@@ -1,7 +1,8 @@
 # METRIC-CORPUS — the canonical inventory of every measurement this project produced
 
-**Compiled 2026-09-02 by a full pass over `docs/paper/PAPER-NOTES.md` (PN-1…PN-35),
-`docs/build-stream/2026-08-30-quant-bench-trackA.md` (DEC-1…DEC-15, L-1…L-18),
+**Compiled 2026-09-02, revised 2026-09-03 after the three-way review round (L-19) and the mk100
+run (L-20). Built from a full pass over `docs/paper/PAPER-NOTES.md` (PN-1…PN-44),
+`docs/build-stream/2026-08-30-quant-bench-trackA.md` (DEC-1…DEC-15, L-1…L-20),
 `docs/paper/TRACK-A-DECISION.md`, all 173 files under `data/raw/e12/`, `data/archive/`, and the
 machine records mirrored at `data/multivac-src/`.**
 
@@ -35,6 +36,26 @@ artifact disagree, the row carries a **⚑ FLAG** and §0 explains it.
 | **HISTORICAL-PRE-E12** | from the 2026-08-20…08-29 corpus. Different protocol, usually different image; label in any table |
 | **UNWRITTEN** | a valid measurement that exists in an artifact but no PN entry claims it. Usable, but it has had no review pass |
 
+### Supersession map — read this before quoting any pre-2026-09-02 note
+
+Nine notes were corrected in the 2026-09-02 review round (L-19) and one result was replaced by a
+larger run (L-20). **Every correction was found by review, not by the authors.** In each case the
+*conclusion* survived and the *numbers* changed.
+
+| original | superseded/corrected by | what changed | what survived |
+|---|---|---|---|
+| **PN-19** (decode noise 32.9 %) | **PN-36** | its n=6 spans four context depths; true within-configuration spread **46.7 %**; Q4_K_XL has **n=1** at 262,144 | decode does not discriminate the arms — *better* supported |
+| **PN-34** (saturation mechanism) | **PN-37** | saturation is false for 2 of 3 instruments; broad framing belongs to Dutta et al. (R13) | PN-35's tail structure, which is the real mechanism |
+| **PN-33** MK-NIAH half | **PN-44** | n=12's 100.0 reference was a lucky draw; at n=100 it is 89.0 and the effect **separates** | the S-NIAH half (100.0/100.0 at three lengths) |
+| **PN-28** (McNemar p = 1.0) | **PN-40** | the test could never reach p<0.05; minimum attainable p was 0.25 / 0.0625 | replaced by a *bound*: −0.61 pts, 95 % CI [−2.68, +1.46] |
+| **PN-6** (ceiling belongs to the split) | **PN-39** | holds for 2 of 4 arms; Q4_K_XL loads at the default split; each failure is a single attempt | the rebalance moved two arms to the native window |
+| **PN-8** (least-balanced is fastest) | **PN-42** | `54,46` is not the least balanced; `62,38` is, at 1,750 MiB; not monotone | balance and throughput are different objectives |
+| **PN-15** ("51 % of a quant level") | **PN-43** | a **label collision** corrupted `metrics_reparsed.ppl`; the ratio is a size comparison, not additive | KLD 0.002955 ± 0.000127 and the PPL contrast, both intact |
+| **PN-14 / prose** ("20 min vs 20 h") | **PN-41** | measured 2.15 h vs ≈4.8 h — a **2.2×** ratio. The 60× was fabricated | the *power* ratio, which is what carries the argument |
+| **PN-23** mechanism | **PN-26** | float-nondeterminism hypothesis refuted; both arms are individually deterministic | 131/164, and "deterministically non-equivalent" |
+| **PN-24** at-depth half · Amendment 1 | **PN-30** | the cells timed 17 generated tokens | the ctx-32,768 half |
+| S11 (undocumented) | **PN-38** | now written up as a methodological negative result | free-running greedy generation cannot measure quantization distance |
+
 ### Four rules that govern every table built from this file
 
 1. **Never mix protocols.** PPL Protocol 1 / 2 / SSA-KLD are three instruments. Greedy rows and
@@ -54,12 +75,158 @@ artifact disagree, the row carries a **⚑ FLAG** and §0 explains it.
 Found during the cross-check. **Nothing here is smoothed over.** Each item states what the note
 says, what the artifact says, and what a paper writer should do.
 
+**Status after the 2026-09-03 revision.** Of the 25 flags raised on 2026-09-02, **twelve are
+resolved**, ten stand, and three are partially addressed. **Three new flags (F-26, F-27, F-28) were
+raised against the correction round itself** — the corrections were checked as hard as the notes
+they corrected.
+
+| resolved | by |
+|---|---|
+| F-1 (MK-NIAH unevidenced) | synced, **and superseded** by the n=100 run — PN-44, §6.1 |
+| F-2 (PN-19 pools four depths) | PN-36 — but see **F-26**, which finds two further problems in the fix |
+| F-4 (`s8-scores-reparsed.json` missing) | file now in the repo, verified |
+| F-5 (S11 undocumented) | PN-38 |
+| F-6 (PN-33 cites R8 for Red Hat) | R-numbering corrected upstream |
+| F-7 (LocalBench band inverted) | corrected in R5 and PN-14 |
+| F-13 (model identity) | recorded; the multimodal caveat still needs to reach the manuscript |
+| F-16, F-17, F-19 | corrected upstream |
+| F-22 (R11/R12 attribution) | corrected upstream |
+| F-23, F-24, F-25 (PN-35's evidence line, median rounding, dangling L-19) | all three confirmed correct and fixed; L-19 now exists |
+
+| still open | why |
+|---|---|
+| **F-3** | `wave1-summary.md` still carries the wrong default-split column and the 13.33 tok/s at the wrong context. PN-39 now covers the substance; the file itself is unedited by design |
+| **F-8** | the Unsloth Dynamic 2.0 URL is still a 404 |
+| **F-9** | the Red Hat date is still impossible, and the source still disclaims the band PN-44 is now compared against |
+| **F-10** | superseded in substance by PN-43, which wrote the warning **into** the artifact — the trust inversion is now documented at source |
+| **F-11** | PN-7's VRAM figures for `196608:58,42` still disagree with the artifact |
+| **F-12** | serverlogs and `power-log.csv` still do not ship |
+| **F-14** | Terminal-Bench 2.1 still has no paper |
+| **F-18** | S7 χ² vs S6 exact — now sharpened by PN-40 |
+| **F-20** | `progress.json` **is** now in the repo; `s11-pads-manifest.json` still is not |
+| **F-21** | the three-implementation delineation (§4.0) still needs to reach the manuscript |
+| **F-26, F-27, F-28** | **NEW — raised against the correction round itself** |
+
 ---
 
-### ⚑ F-1 — **CRITICAL: the MK-NIAH headline result is NOT in the repository's artifact**
+### ⚑ F-26 — **NEW: PN-36 changes the spread estimator without saying so, and its Q6_K group mixes two `-ctxcp` settings**
 
-PN-33 and PN-34 make the study's long-context headline on **MK-NIAH at 131,072: UD-Q6_K_XL 100.0
-vs UD-Q4_K_XL 91.67, accuracy recovery 91.67 %**, citing
+PN-36 supersedes PN-19's statistics and is right to. But two of its own numbers do not survive the
+same scrutiny it applied.
+
+**(a) The estimator changed silently.** PN-19's "32.9 %" is `(max−min)/median`. PN-36's spreads are
+`(max−min)/min`. Recomputed both ways on PN-36's own groups:
+
+| group | readings | `(max−min)/min` (PN-36) | `(max−min)/median` (PN-19's rule) |
+|---|---|---|---|
+| Q5_K_XL `54,46` | 10.82 · 12.70 · 12.94 | **19.6 %** | 16.7 % |
+| Q5_K_XL `56,44` | 10.78 · 12.51 · 12.91 | **19.8 %** | 17.0 % |
+| Q6_K `58,42` (n=4) | 10.75 · 14.16 · 11.90 · 11.48 | **31.7 %** | 29.2 % |
+| Q6_K `56,44` | 10.22 · 14.99 · 11.71 | **46.7 %** | 40.7 % |
+
+So the headline sentence *"true within-configuration spread reaches **46.7 %**, not 32.9 %"*
+compares two numbers computed by different formulas. Under PN-19's own definition the corrected
+maximum is **40.7 %**. Both statements are individually defensible; the *comparison* is not.
+**Pick one estimator, name it in the table, and restate both figures on it.**
+
+**(b) PN-36's Q6_K `58,42` group of four mixes `-ctxcp 4` and `-ctxcp 32`.** The fourth cell is
+`262144:58,42:1:ctxcp32` — the *other arm of PN-18's A/B pair*, a deliberately different
+configuration. Its inclusion does not change the spread (11.48 is neither max nor min) but it does
+change the **median**:
+
+| group | median |
+|---|---|
+| four cells, `-ctxcp` 4 **and** 32 (PN-36) | **11.69** |
+| three cells, `-ctxcp 4` only | **11.90** ← the value `TRACK-A-DECISION.md` cites |
+
+That propagates into PN-36's second headline. The matched-depth between-arm span is:
+
+* **8.64 %** using PN-36's ctxcp-mixed 11.69 (PN-36 reports "about 8.6 %")
+* **6.72 %** using the clean n=3 median 11.90 — **which is exactly PN-19's original 6.7 %**
+
+**This is the very defect PN-36 exists to correct, one dimension deeper** — and PN-36 states the
+rule it breaks: *"an aggregate is only meaningful if every cell entering it is identical in every
+dimension except the one being aggregated over."* Here the varying dimension is `-ctxcp`.
+**Neither error touches PN-36's conclusion** — noise still exceeds the between-arm difference by
+roughly 5× on any of these definitions — but the specific figures **46.7 %** and **8.6 %** should
+not be printed as they stand. Verified against `tsweep-v2-Q6_K.json`, whose cells carry an explicit
+`ctxcp` field.
+
+---
+
+### ⚑ F-28 — **NEW: PN-38's pairwise distances cite an artifact that is not in the repository, and do not reproduce from the one that is**
+
+PN-38 reports normalized edit distances of **0.794** (Q6_K_XL/Q6_K, adjacent), **0.779**
+(Q6_K_XL/Q4_K_XL, the extremes) and **0.613** (Q5_K_XL/Q4_K_XL, closest), citing
+`data/raw/e12/quarantine/s11-divdepth.json.n1-padoverflow-20260901` **and stating that the figures
+come from the repaired run**.
+
+**That file is not in the repository.** `quarantine/` contains no `s11-*` entry. The S11 data that
+*is* shipped — `s11/s11-divdepth.json` and `s11/s11-gen-c8192.json` — is the **original** run, the
+one PN-38 says was superseded by the pad-overflow repair.
+
+Recomputed from the shipped generations (`1 − SequenceMatcher.ratio()`, median over 3 pads):
+
+| pair | ladder | PN-38 | recomputed here |
+|---|---|---|---|
+| Q6_K_XL / Q6_K | adjacent | 0.794 | **0.947** |
+| Q6_K_XL / Q5_K_XL | — | — | 0.861 |
+| Q6_K_XL / Q4_K_XL | extremes | 0.779 | **0.951** |
+| Q6_K / Q5_K_XL | adjacent | — | 0.933 |
+| Q6_K / Q4_K_XL | — | — | **0.860** (closest here) |
+| Q5_K_XL / Q4_K_XL | adjacent | 0.613 (closest) | 0.905 |
+
+**Two independent reasons this is not a contradiction, and both need stating rather than resolving
+in PN-38's favour:** (i) these are **different generations** — repaired run vs original; (ii) PN-38
+does **not state its metric definition**, and "normalized edit distance" is ambiguous (Levenshtein ÷
+max-length, ÷ sum-length, or a similarity-ratio complement all give materially different numbers).
+
+**What survives, and it is the note's actual claim:** on *both* computations the distances are
+**uniformly high and the ordering is unrelated to ladder distance**. On mine the extremes (0.951)
+measure marginally *further* apart than the adjacent pair (0.947), and the closest pair is
+Q6_K/Q4_K_XL rather than Q5_K_XL/Q4_K_XL — a different scrambling, but a scrambling. **The
+methodological conclusion — free-running greedy generation cannot measure quantization distance —
+is independently reproduced.**
+
+**Action:** sync the quarantined repaired-run artifact, and state the metric definition in the
+note. Until then PN-38's specific numbers are **not reproducible from the public repository**, and
+only its qualitative claim should be printed.
+
+---
+
+### ⚑ F-27 — **NEW: `s12-ruler.json`'s summary blocks were never updated for mk100 or mkmock**
+
+The `cells` array is correct and complete — all twelve cells including `mk100` (89.0 / 79.0, n=100)
+and `mkmock` are present and verified. But three top-level summary fields still describe the
+original design:
+
+| field | says | should say |
+|---|---|---|
+| `tasks` | `["niah", "variable_tracking"]` | also `mkniah`, `mkmock`, `mk100` |
+| `n_samples` | `25` | 25 / 12 / 100 by cell — it varies |
+| `accuracy_recovery` | S-NIAH ×3 and `mkniah` (91.67) only | **no `mk100` entry at all** |
+
+So the study's headline long-context number — **88.76 % recovery** — is *computable* from `cells`
+(79.0 / 89.0) but is **not stored anywhere in the artifact**, and the `accuracy_recovery` block a
+reader would naturally consult still shows the superseded n=12 value of 91.67 with no marker that
+PN-44 replaced it. This is the same class as F-1: the summary a reader trusts lags the data.
+**Add an `mk100` entry to `accuracy_recovery` and a `_WARNING_` on the `mkniah` one**, following
+the pattern the review round already established in four other artifacts.
+
+---
+
+### ⚑ F-1 — **RESOLVED, then superseded** — the MK-NIAH result
+
+> **Resolved 2026-09-02, and then made moot.** The `ruler/` tree was synced, so the n=12 MK-NIAH
+> cells and their predictions are now in the repository. The review also found something worse than
+> the missing file: **the generation command existed nowhere** — the harness *read* a pre-generated
+> dataset and the `--num_needle_k 4` invocation was ad-hoc, so the dataset was not reproducible
+> from a public repo at all. It is now recorded as `harness-src/s12_mkniah_generate.sh`.
+> **And the result itself has since been replaced**: PN-44's n=100 run supersedes the n=12 reading
+> entirely (§6.1). The original flag text is kept below because it is why the run happened.
+
+*(original 2026-09-02 text)* PN-33 and PN-34 made the study's long-context headline on
+**MK-NIAH at 131,072: UD-Q6_K_XL 100.0 vs UD-Q4_K_XL 91.67, accuracy recovery 91.67 %**, citing
 `data/raw/e12/ruler/s12-ruler.json` (`accuracy_recovery`).
 
 **That file in this repository does not contain it.** Its `accuracy_recovery` block holds only the
@@ -88,9 +255,14 @@ c8192 cells L-18 says were deduplicated.
 
 ---
 
-### ⚑ F-2 — **PN-19 / TRACK-A-DECISION: the UD-Q4_K_XL decode row pools four different context lengths**
+### ⚑ F-2 — **RESOLVED by PN-36** — PN-19's UD-Q4_K_XL decode row pools four different context lengths
 
-PN-19 and `TRACK-A-DECISION.md` both state the decode comparison was made *"at each arm's winning
+> **Resolved 2026-09-02.** Found independently by both blind reviews. PN-36 supersedes PN-19's
+> statistics and reaches the same conclusion on correct numbers. ⚠ **But the fix introduced two
+> new problems of its own — see ⚑F-26**: the spread estimator changed silently, and PN-36's Q6_K
+> group of four mixes `-ctxcp 4` with `-ctxcp 32`. The corrected table is at §3.1.
+
+*(original 2026-09-02 text)* PN-19 and `TRACK-A-DECISION.md` both state the decode comparison was made *"at each arm's winning
 ratio **at 262,144**, every repetition"*, and give UD-Q4_K_XL as **n=6, [11.81, 12.01, 12.10,
 13.12, 13.33, 15.96], median 12.61, within-arm spread 32.9 %**.
 
@@ -160,7 +332,15 @@ The true scores are recoverable from the same file's `raw_tail` and from the per
 
 ---
 
-### ⚑ F-5 — S11 ran, produced data, and has no paper note
+### ⚑ F-5 — **RESOLVED by PN-38** — S11 ran, produced data, and had no paper note
+
+> **Resolved 2026-09-02.** PN-38 documents it, and goes further than this flag did: the metric did
+> not merely saturate, it **scrambled the ordering** — the two arms *adjacent* on the ladder
+> measured further apart (0.794) than the two *extremes* (0.779). Full numbers at §6.4. PN-38 also
+> discloses a second defect this flag missed: S11 suffered its own pad-sizing failure (PN-5's root
+> cause repeated), fixed before the numbers now published.
+
+*(original 2026-09-02 text)*
 
 L-17 and L-18 say S11's *"instrument was measured and rejected on its own data"*, and DEC-15
 designed it. **No PN entry records S11 at all.** The artifact
@@ -567,6 +747,56 @@ All ten cells at 262,144, prefill depth 0.948 (248,522 of 262,144 tokens), one v
 
 Nine of ten cells ok. **CURRENT.** Supersedes E11a's 196,608 and E1's 163,840 for this arm.
 
+⚑ **PN-39 SCOPES this claim: "the ceiling belongs to the split" holds for TWO of four arms, not for
+the ladder.** Every default-split attempt at 262,144:
+
+| arm | default split at 262,144 | attempts |
+|---|---|---|
+| UD-Q4_K_XL | **LOADS** — ok, decode 12.14 tok/s | 1 |
+| UD-Q5_K_XL | fails (compute-buffer-oom) | **1** |
+| UD-Q6_K | fails (compute-buffer-oom) | **1** |
+| UD-Q6_K_XL | **never attempted** at this length | 0 |
+
+So the claim is demonstrated for UD-Q5_K_XL and UD-Q6_K, **false for UD-Q4_K_XL** — the smallest
+arm is the counter-example — and **untested for UD-Q6_K_XL**. The rebalance finding survives: a
+ratio sweep moved two arms from failing to reaching the full native window.
+
+⚠ **A second limitation on the same claim: each default-split failure is a SINGLE attempt.** The
+project's own bracketing rule (hard rule 4) requires a failed rung to be attempted **twice**,
+because layer-split VRAM carries ±100–200 MiB of noise and single failures lie. PN-6's headline and
+the README's non-monotonicity headline (`54,46` fails where `58,42` loads) each rest on **one
+unreplicated failure**. Re-testing would cost ~20 minutes of GPU and was not done. Until it is,
+write **"failed on the single attempt made"**, not "fails". Nothing here affects the *successes* —
+every loading ratio is confirmed by a completed run with a real prefill and generation.
+
+**The defensible sentence (PN-39):** *"on this host the tensor split, not the quantization, set the
+reachable window for three of the four arms we measured — including both arms in the middle of the
+ladder — while the smallest arm reached the native maximum at the engine default."*
+
+⚑ **PN-42 CORRECTS PN-8: "the least balanced ratio that still loads is the fastest" is factually
+wrong.** Ordered by imbalance, the same five loading ratios above:
+
+| `-ts` | imbalance | decode | |
+|---|---|---|---|
+| `58,42` | **28 MiB** — most balanced | **8.50** | slowest by far |
+| `56,44` | 166 MiB | 10.78 | |
+| `54,46` | 742 MiB | **10.82** | **fastest** |
+| `60,40` | 1,176 MiB | 10.67 | |
+| `62,38` | **1,750 MiB** — least balanced | 10.44 | |
+
+`54,46` sits in the **middle** of the imbalance ordering, not at the extreme; `62,38` is the least
+balanced and is *not* the fastest. **The relationship is not monotone.** Verified against
+`tsweep-v2-Q5_K_XL.json` rep-1 cells.
+
+**What survives, and it is the part that mattered:** the *most balanced* ratio is decisively the
+slowest (8.50 vs 10.44–10.82, a 27 % gap), so **balance and throughput are different objectives**,
+and the selection rule "keep the fastest that loads" is correct while "keep the most balanced"
+would have cost ~21 % of decode. What does not survive is any claim of a monotone
+imbalance→throughput relationship.
+⚠ These are rep-1 readings; the D2 median-of-3 contest (54,46 → 12.70, 56,44 → 12.51) is the
+sturdier comparison, and the rep-to-rep spread on a single cell (10.82 → 12.94) is **larger than
+most of the inter-ratio gaps** in the table above.
+
 ### 2.3 UD-Q6_K — 262,144 reachable at two ratios only
 
 | `-ts` | ok | decode reps | VRAM GPU0/GPU1 | imbalance |
@@ -682,18 +912,39 @@ They differ by 3–5×. Never place two of them in one table.
 
 DEC-2 official sampling · q4_0 KV · MTP n=2 · `-ctxcp 4` · depth 0.948 · 192 generated tokens.
 
-| arm | `-ts` | reps at **262,144** | median | fixed-config spread |
-|---|---|---|---|---|
-| UD-Q5_K_XL | `54,46` | 10.82 · 12.70 · 12.94 (n=3) | **12.70** | 16.7 % |
-| UD-Q6_K | `58,42` | 10.75 · 14.16 · 11.90 (n=3) | **11.90** | 28.6 % |
-| UD-Q4_K_XL | `56,44` | **12.10 (n=1)** | 12.10 | — |
-| UD-Q4_K_XL | default | 12.14 (n=1) | 12.14 | — |
+**TRUE repetition groups only** — same arm, same context, same `-ts`, **same `-ctxcp`** — recomputed
+here from the cells' own `key` and `ctxcp` fields. Both spread estimators are given, because PN-19
+and PN-36 use different ones (⚑F-26):
 
-⚑ **This table corrects PN-19 / TRACK-A-DECISION — see F-2.** As published, UD-Q4_K_XL's row is
-n=6 pooled across 212,992 / 229,376 / 245,760 / 262,144 giving median 12.61 and spread 32.9 %.
-The **conclusion is unchanged**: the three medians span 6.7 %, within-arm noise is 16.7–28.6 %,
-and the arms are **not separated on decode throughput at n=3**.
-Artifacts `tsweep-v2-*.json` · PN-19, PN-20 · **CURRENT with correction**
+| arm | `-ts` | `-ctxcp` | n | readings | median | `(max−min)/min` | `(max−min)/median` |
+|---|---|---|---|---|---|---|---|
+| UD-Q5_K_XL | `54,46` | 4 | 3 | 10.82 · 12.70 · 12.94 | **12.70** | 19.6 % | 16.7 % |
+| UD-Q5_K_XL | `56,44` | 4 | 3 | 10.78 · 12.51 · 12.91 | 12.51 | 19.8 % | 17.0 % |
+| UD-Q6_K | `58,42` | 4 | 3 | 10.75 · 14.16 · 11.90 | **11.90** | 31.7 % | 28.7 % |
+| UD-Q6_K | `56,44` | 4 | 3 | 10.22 · 14.99 · 11.71 | 11.71 | **46.7 %** | **40.7 %** |
+| UD-Q6_K | `58,42` | **32** | 1 | 11.48 | — | — | — |
+| UD-Q4_K_XL | `56,44` | 4 | **1** | 12.10 | — | not computable | not computable |
+| UD-Q4_K_XL | default | 4 | **1** | 12.14 | — | not computable | not computable |
+
+**Matched-depth between-arm span** (each arm's winning ratio, `-ctxcp 4` only):
+UD-Q5_K_XL 12.70 · UD-Q4_K_XL 12.10 (n=1) · UD-Q6_K 11.90 → **6.7 %**.
+⚠ PN-36 reports **8.6 %**, which comes from a UD-Q6_K median of 11.69 computed over a group that
+includes the `-ctxcp 32` cell. See ⚑F-26 — the clean figure is 6.7 %, and it is also what
+`TRACK-A-DECISION.md` cites.
+
+**The conclusion, on any of these definitions:** within-configuration noise (**19.6–46.7 %**)
+exceeds the between-arm difference (**6.7–8.6 %**) by roughly **5×**. The arms are **not separated
+on decode throughput.** PN-36 is right that the corrected numbers support this *better* than the
+originals did.
+
+⚑ **UD-Q4_K_XL has no repetition group at 262,144 at all** — a single reading. Any three-arm speed
+comparison at the full window is two arms with medians of three and one arm with **n=1**, and must
+be reported that way.
+
+**A separately reportable observation** that contaminated the original figure: on UD-Q4_K_XL decode
+falls with depth — ~13.3 tok/s at 212,992 → 12.10 at 262,144 (§2.1 cells).
+
+Artifacts `tsweep-v2-*.json` · **PN-36 supersedes PN-19** · PN-20 · **CURRENT**
 
 ### 3.2 Prefill at depth (Wave 1, ~0.948 of window, 248,522 prompt tokens)
 
@@ -1069,9 +1320,44 @@ n_ctx 2,048.
 | PPL, f16 KV | 1.1791 ± 0.00605 |
 | PPL, q4_0 KV | 1.1809 ± 0.00610 (**+0.15 %**) |
 
-**Interpretation:** 0.002955 is **51 %** of the divergence of dropping a whole quantization level
-(UD-Q6_K_XL → UD-Q6_K on code = 0.005829). It sits below Fireworks' <0.007 threshold, so q4_0 KV is
-**defensible but not free** and must be declared with every accuracy claim.
+**Interpretation — and PN-43 qualifies how it may be phrased.** 0.002955 is **51 %** of the
+divergence of dropping a whole quantization level (UD-Q6_K_XL → UD-Q6_K on code = 0.005829). It
+sits below Fireworks' <0.007 threshold, so q4_0 KV is **defensible but not free** and must be
+declared with every accuracy claim.
+
+⚠ **"51 % of a quantization level" is a comparison of sizes, NOT a currency conversion.** The
+arithmetic is sound — both quantities are KL from the same reference arm on the same corpus — but
+the phrasing reads as though the two perturbations were commensurable and additive, so that two KV
+steps would equal one quant step. **Nothing here establishes that.** KL divergences from a common
+reference do not add, and no experiment in this study applies both perturbations together to check.
+The defensible sentence is: *"the divergence introduced by q4_0 KV is roughly half the magnitude of
+the divergence introduced by dropping one quantization level, measured against the same
+reference."* (PN-43)
+
+⚑ **A LABEL COLLISION corrupted part of this artifact — the trust rule inverts for two cells.**
+The f16 and q4_0 reference-arm base runs on the code domain were given the **identical label**
+`ssa-Q6_K_XL-code-base`, hence one serverlog path. The f16 run executed second and **overwrote**
+the q4_0 run's log, so when `ssa_reparse.py` repopulated `metrics_reparsed` from the surviving log
+it wrote the **f16 value into both cells**. The q4_0 cell now reads `metrics_reparsed.ppl = 1.1791`
+against its own run-time `metrics.ppl = 1.1809`.
+
+> **For these two cells only, trust `metrics`, NOT `metrics_reparsed`** — the reverse of the rule
+> everywhere else in this file, where `metrics_reparsed` is the repaired one (PN-17). A reader
+> trusting the reparsed block would conclude PPL moved by 0.00 % and that PN-15's contrast is
+> fabricated. The warning is now written **into the artifact** as `_WARNING_label_collision`.
+
+**What survives:** PN-15's PPL figures (1.1791 → 1.1809, **+0.15 %**) come from the run-time
+`metrics` field and are **correct**. The headline KLD **0.002955 ± 0.000127 is unaffected** — it
+comes from a separately-labelled cell (`ssa-Q6_K_XL-code-kld-e2`) with its own intact serverlog.
+Only these two cells collide; every other label in the file was checked and is unique. (PN-43,
+superseding ⚑F-10)
+
+**The lesson, and it is a new member of this corpus's defect family:** *an identifier that is not
+unique silently destroys evidence, and the destruction is invisible because the surviving file is
+well-formed.* It pairs with the log-preservation rule — **preserving raw output only helps if each
+run's output has somewhere of its own to go.** A label must include every dimension that varies;
+here the KV dtype was varied and not named. Found by adversarial review; nothing in the harness
+would have caught it.
 
 **The PPL contrast is itself a result**: the per-token distribution demonstrably moved (KLD
 0.002955, one token in 168 changing its argmax) while the mean perplexity moved 0.15 %. This is a
@@ -1131,29 +1417,67 @@ image `feb0231976b6…` · `tokens_to_generate` 128.
 | 32,768 | 25 | **100.0** | **100.0** | 100 % | 32,616 | 0 / 0 |
 | 131,072 | 12 | **100.0** | **100.0** | 100 % | 130,941 | 0 / 0 |
 
-**MK-NIAH (four distractor keys), 131,072:**
+**MK-NIAH (four keys planted, one queried, three hard distractors — `num_needle_k=4,
+num_needle_v=1, num_needle_q=1`), 131,072 — THE RESULT OF RECORD (PN-44):**
 
-| arm | n | score | accuracy recovery | prompt_n median | wall s |
-|---|---|---|---|---|---|
-| UD-Q6_K_XL | 12 | **100.0** | — (baseline) | 130,935 | 2,164.6 |
-| UD-Q4_K_XL | 12 | **91.67** | **91.67 %** | 130,935 | 1,949.1 |
+| arm | n | score | Wilson 95 % | accuracy recovery | prompt_n median | empties | wall s |
+|---|---|---|---|---|---|---|---|
+| UD-Q6_K_XL | **100** | **89.0** | **[81.4, 93.7]** | — (baseline) | 130,936 | 0 | 17,490.9 |
+| UD-Q4_K_XL | **100** | **79.0** | **[70.0, 85.8]** | **88.76 %** | 130,936 | 0 | 16,195.0 |
 
-Smoke gate: UD-Q6_K_XL, S-NIAH @4,096, n=3 → 100.0, metric verified identical to RULER's.
-Artifacts: S-NIAH in `data/raw/e12/ruler/s12-ruler.json` + `s12-preds-*-niah-*.json` ·
-**MK-NIAH only on the host** — see ⚑**F-1**. PN-33, PN-34 ·
-**CURRENT (S-NIAH) / CURRENT-BUT-UNEVIDENCED-IN-REPO (MK-NIAH)**
+**Paired, and this is the striking part:**
 
-⚠ **The MK-NIAH difference is ONE failed sample of twelve and is NOT statistically separated.**
-Wilson 95 % intervals: reference **[75.7, 100.0]**, UD-Q4_K_XL **[64.6, 98.5]** — near-total
-overlap. Separating an 8-point drop needs n ≈ 100 ≈ 11 h of GPU at this depth (every sample needs
-its own full prefill; prefix caching cannot help because each haystack differs). The correct
-sentence is *"consistent with published results, not established here."*
-The **S-NIAH nulls are the sturdier half**: three lengths, n = 25/25/12, clean 100 % recovery.
+| both correct | reference only | Q4_K_XL only | neither |
+|---|---|---|---|
+| 79 | **10** | **0** | 11 |
 
-**The finding that emerged (PN-34):** sixteen-fold more context bought **no** discrimination,
-because S-NIAH is saturated. Holding depth at 131,072 and raising **difficulty** produced a
-difference. Benchmark sensitivity to quantization damage is gated by **task headroom**, not by
-modality and not by length.
+**Every one of the ten discordant items runs the same way** — there is no case where the cheaper
+arm succeeded and the reference failed. UD-Q4_K_XL's failures are a **strict superset** of the
+reference's. Exact McNemar **p = 0.0020**, which is also the *minimum attainable* with 10 discordant
+pairs, so the test returned the most extreme outcome its design permits. Paired difference
+**−10.00 points, 95 % CI [−15.88, −4.12]**.
+
+Dataset generated by RULER's own generator via `harness-src/s12_mkniah_generate.sh`; the analysis
+script `harness-src/mk100_analyse.py` was **written and committed before the second arm finished**,
+so the test was fixed in advance of the data. 9.4 h of GPU, 200 full prefills.
+Artifacts `s12-ruler.json` cells `mk100`, predictions in `s12-preds-*-mk100-c131072.json` ·
+PN-44 · **CURRENT**
+
+> ✅ **INDEPENDENTLY RE-DERIVED 2026-09-03 from the raw predictions**, with RULER's
+> `string_match_all` reimplemented from its definition rather than read from the artifact:
+> 89.0 / 79.0 · both 79 · reference-only 10 · Q4-only **0** · neither 11 · exact McNemar
+> **p = 0.0020** · paired difference **−10.00 [−15.88, −4.12]** · Wilson **[81.4, 93.7]** and
+> **[70.0, 85.8]** · recovery **88.76 %** · 0 empty predictions in either arm.
+> **Every figure in PN-44 reproduces exactly.**
+
+⚠ **This SUPERSEDES PN-33's MK-NIAH half.** The n=12 reading (100.0 vs 91.67) had a reference
+score that was a **lucky draw** — P(12/12 | p = 0.89) ≈ 0.25. It was not merely imprecise: it
+implied a ceiling that does not exist and pointed the wrong way. The n=12 cells remain in the
+artifact and are **SUPERSEDED**, not deleted.
+⚠ **`s12-ruler.json`'s `accuracy_recovery` block still shows only the superseded 91.67** and has no
+`mk100` entry — see ⚑**F-27**.
+⚠ One task variant, one length, one pair of arms. **S-NIAH at the same length remains 100.0/100.0**
+(PN-33), so this is a statement about *multi-key retrieval at depth*, not about long-context
+behaviour generally. RULER's own protocol uses 500 samples per length; ours is 100.
+
+**Where it sits against published work:** inside Red Hat's 85–88 % band for INT W4A16 at 128K (R9),
+reached independently on a different model, compression family and hardware class. ⚠ But see
+⚑**F-9** — that source explicitly disclaims conclusions at 128K, *"even unquantized models perform
+poorly… making it difficult to draw definitive conclusions"*. Cite the agreement and the caveat
+together.
+
+**Mechanism (PN-37, superseding PN-34).** The earlier "saturation" story is **withdrawn**: it is
+false for two of the three instruments — HellaSwag scores 82.75 % (~17 points of headroom),
+HumanEval+ 94.5 % (~5 points); only S-NIAH is genuinely at ceiling. What replaces it is PN-35's
+**tail structure** (§1.7): damage confined to ~1–5 % of token positions changes an *outcome* only
+when a tail token lands somewhere decisive. That predicts the discordance rates actually observed
+— 3/164 and 5/164 (PN-28), 0/12 and 1/12 (PN-33) — and it predicts PN-44: on a task where 21 % of
+items are hard enough that even the reference fails, the cheaper arm fails on all of those **and
+ten more**. ⚠ PN-37 also discloses the counter-example inside this study: `variable_tracking` is
+the *harder* task and was **excluded** (§6.2); if difficulty were the gate it should have shown
+the effect most clearly. **That disclosure must appear in the same paragraph as the claim.**
+⚠ The tail mechanism is *"consistent with, and predicts the magnitude of"* — not *"explains"*. No
+experiment here manipulates the tail and observes benchmark movement.
 
 ### 6.2 `variable_tracking` — EXCLUDED, and why (a reportable instrument failure)
 
@@ -1189,12 +1513,39 @@ mean damage grows with context.
 | UD-Q5_K_XL | 2 · 62 · 126 | **62** | 0 / 3 |
 | UD-Q4_K_XL | 2 · 10 · 14 | **10** | 0 / 3 |
 
-`self_consistency: null` — the mandated control never ran.
-Artifact `data/raw/e12/s11/s11-divdepth.json`; generations `s11-gen-c8192.json` ·
-**no PN — UNWRITTEN · rejected as an instrument.**
-The metric saturates at "diverges immediately" at the *shallowest* rung, so it cannot grade depth,
-and the ordering it produces (Q5 > Q4 > Q6) is not monotone in quantization. Reportable as a
-negative result about metric design.
+**Pairwise normalized edit distance between arms — the number that actually killed the metric:**
+
+| pair | ladder distance | distance |
+|---|---|---|
+| Q6_K_XL / Q6_K | **adjacent** | **0.794** |
+| Q6_K_XL / Q4_K_XL | **the extremes** | **0.779** |
+| Q5_K_XL / Q4_K_XL | adjacent | **0.613** (closest pair) |
+
+Every pair sits at **0.61–0.79 regardless of ladder distance, with the ordering scrambled** — the
+two arms *adjacent* on the ladder measure **further apart** than the two *extremes*. Visible
+directly in the outputs: the reference opens `- Files scanned: 1000` while all three other arms
+open `- Total files: 1000`, so the reference is the odd one out and "distance from the reference"
+is a poor proxy for quantization distance.
+
+**Root cause is structural, not statistical.** Greedy decoding is a trajectory: after the first
+differing token the two arms are continuing *different texts*, and the comparison stops being about
+the models. More samples would not have helped.
+
+Artifacts `data/raw/e12/quarantine/s11-divdepth.json.n1-padoverflow-20260901` and the generations
+sidecar; pairwise distances recomputed offline from the preserved texts · **PN-38** ·
+**CURRENT — a methodological negative result**
+
+⚠ S11 also suffered a **separate** pad-sizing defect — a fixed chars-per-token constant against a
+corpus running 2.86–4.63 chars/token, so two of three prompts overflowed the context and were
+rejected. That is **PN-5's root cause repeated**. It was found and fixed, and the numbers above come
+from the repaired run at n=3 per cell. The metric failure is independent of it.
+⚠ One depth only (8,192); the deeper slices were never run, because the metric had already failed
+at the cheapest rung. `self_consistency: null` — the mandated control never ran.
+
+**The pairing that makes this worth publishing:** it is the counterpart to PN-35. **Divergence must
+be measured on distributions at fixed context, not on emitted trajectories** — free generation
+destroys the comparison it is meant to make. And the failure was not foreseeable: S11 was designed
+on the strength of a *correct* determinism result (PN-26) and still failed.
 
 ### 6.5 Historical long-context retrieval (Code-NIAH probes)
 
@@ -1328,20 +1679,39 @@ top_k 20 / min_p 0.0 / presence_penalty 1.5) · seed 20260830 · **no speculatio
 | UD-Q4_K_XL | 154/164 | **93.90** | [89.14, 96.65] | 147/164 | **89.63** | [84.03, 93.43] | 0 | 22.153 tok/s |
 | UD-Q6_K_XL | 155/164 | **94.51** | [89.90, 97.09] | 148/164 | **90.24** | [84.74, 93.91] | 0 | 16.063 tok/s |
 
-**Paired per-problem (exact McNemar):**
+**Paired per-problem — REPORT AS A BOUND, NOT AS A NULL (PN-40 corrects PN-28):**
 
-| metric | both pass | neither | Q4-only | Q6-only | discordant | p (exact, two-sided) | separated? |
-|---|---|---|---|---|---|---|---|
-| base | 153 | 8 | 1 | 2 | **3** | **1.0** | no |
-| plus | 145 | 14 | 2 | 3 | **5** | **1.0** | no |
+| metric | both pass | neither | Q4-only | Q6-only | discordant | Δ (Q4 − Q6) | **95 % CI** | McNemar p | **minimum p obtainable** |
+|---|---|---|---|---|---|---|---|---|---|
+| base | 153 | 8 | 1 | 2 | **3** | **−0.61 pts** | **[−2.68, +1.46]** | 1.0 | **0.25** |
+| plus | 145 | 14 | 2 | 3 | **5** | **−0.61 pts** | **[−3.28, +2.06]** | 1.0 | **0.0625** |
 
-Δ = **−0.61 points on both metrics**. These are the same two arms that differ **3.69×** in mean KLD
-on code and 2.15 points in top-1 agreement on task prompts.
+⚑ **PN-28's "McNemar p = 1.0" could never have reached significance.** With 3 discordant pairs the
+smallest two-sided exact p obtainable — even from the most extreme possible split, 0 vs 3 — is
+**0.25**; with 5 discordant pairs it is **0.0625**. Neither can cross 0.05 under *any* outcome. So
+"p = 1.0" says nothing about the arms; it says the test had **no power to say anything**.
+**This is precisely the error the paper accuses the field of, committed in the paper's own
+generative anchor**, and it was found only under adversarial review.
+
+**The repair converts a vacuous null into a quantitative bound**, using the paired difference in
+proportions `d = (b−c)/n`, `SE = sqrt((b+c−(b−c)²/n)/n²)`. The publishable sentence becomes:
+**"a 3.69× increase in code-prompt KL divergence moves HumanEval+ pass@1 by at most about 3 points,
+with the point estimate at −0.6."** That is a measured relation between two instruments, not an
+admission that a benchmark found nothing.
+
+> ✅ **Re-derived 2026-09-03**: minimum two-sided exact p at 3 and 5 discordant pairs = **0.25** and
+> **0.0625**; both intervals reproduce to the stated precision.
+
 Artifacts `s9-scores.json` (`s6_paired`, `arms.s6-*`), `s9-s6.json`,
-`s9-s6-{Q4_K_XL,Q6_K_XL}.jsonl` · PN-28 · **CURRENT**
-⚠ A null is not proof of equality. **The informative quantity is the discordance (3 and 5 of 164),
-not the p-value** — and the direction is inconsistent across metrics. Single-sample pass@1 at
-temp 0.7 carries sampling variance on top of the binomial.
+`s9-s6-{Q4_K_XL,Q6_K_XL}.jsonl` · **PN-40 supersedes PN-28's statistics** · **CURRENT**
+⚠ The interval is the Wald form for a paired difference — standard, but approximate at these
+discordant counts. An exact conditional interval would be slightly wider and is the more
+conservative choice if a reviewer presses.
+⚠ The bound is on *this* task under DEC-2 sampling at one seed; it does not generalise to other
+tasks or across seeds. The arms remain separated at 3.7–11.8 σ on divergence, which is why both
+are reported.
+⚠ **General rule for the report: before reporting a null, state the smallest effect the test could
+have detected.** For paired binary data that is set by the **discordant count**, not by n.
 
 ### 8.3 HumanEval+ across speculative settings (S8 / S9)
 
@@ -1373,9 +1743,42 @@ Artifacts `s8-humaneval.json`, `s8-scores.json` (⚠ its `parsed` field is broke
 | RULER MK-NIAH | 12 samples | **[64.6, 98.5]** | 8.3 pts |
 | SWE-bench Verified (historical) | 49–50 | **±12 pts** | 1–3 pts |
 
-**The through-line:** ~20 min of divergence per arm separates these arms decisively; ~20 h of task
-benchmarking across three modalities separates them nowhere. Divergence draws power from **token
-count**, task benchmarks from **problem count**.
+### 8.4b MEASURED cost of each instrument — and the correction of a fabricated contrast
+
+⚑ **PN-41: the "≈20 minutes of divergence versus ≈20 hours of task benchmarking" contrast used
+throughout this project's prose is NOT supported by its own artifacts.** The "20 minutes" described
+one arm on one domain and was silently generalised to the whole protocol; **the "20 hours" figure
+has no basis in any artifact.** Measured wall-clock, summed from the records:
+
+| instrument | measured | source |
+|---|---|---|
+| **SSA divergence, S0–S4** (4 arms × 2 domains + KV) | **2.15 h** | `progress.json` step timestamps |
+| SSA S6 — generative HumanEval+, 2 arms | 1.29 h | `s9-s6.json` `runs[].seconds` |
+| S12 RULER — 8 cells | 2.97 h | `s12-ruler.json` `cells[].seconds` |
+| S7 HellaSwag — 4 arms | ≈0.53 h | ledger L-12 |
+| **task benchmarking total** | **≈4.8 h** | |
+| **cost ratio** | **2.2×**, not 60× | |
+
+> ✅ **Re-derived 2026-09-03**: SSA 08:18:50Z→10:27:35Z = **2.146 h**; S6 = **1.29 h**;
+> RULER 8 niah+mkniah cells = **2.97 h**. All three reproduce.
+> *(The mk100 run adds a further **9.36 h**, so post-PN-44 the task-benchmark total is ≈14.2 h and
+> the ratio ≈6.6× — but that run is the one that finally* separated *the arms, so it belongs on the
+> other side of the argument.)*
+
+**The argument survives, restated on measured numbers:** *2.1 hours of divergence measurement
+separated the arms at 3.7–11.8 σ with non-overlapping intervals, while 4.8 hours of task
+benchmarking across three instrument classes separated them nowhere.* The **cost** ratio is modest;
+the **power** ratio is what carries the point — and a 2.2× stated honestly is more persuasive than a
+60× a reader can falsify in five minutes from this repository.
+
+⚠ Wall-clock including model loads, and not perfectly comparable: the divergence runs process a
+fixed **token** budget while the task runs process a fixed **problem** count — which is the very
+asymmetry SSA was designed around. Single measurements, one host, no repetition. Quote as
+"approximately", framed as *what each instrument bought for a few hours of the same machine*, not
+as a controlled efficiency benchmark. (PN-41)
+
+**The through-line, corrected:** divergence draws power from **token count**, task benchmarks from
+**problem count** — and at roughly comparable cost on this host, only the first separated the arms.
 
 ### 8.5 Historical task benchmarks
 
@@ -1621,20 +2024,20 @@ measurement, which is firmer ground. **n=8 does not load at 262,144.**
 | PN-3 | `reasoning_effort: none` raises a Jinja exception | 9.2 | CURRENT |
 | PN-4 | `-fit on` did not shrink at 262,144 on this engine | 9.3 | CURRENT |
 | PN-5 | documented-but-unasserted depth gate → 0.797 prefill | 9.5 | CURRENT |
-| PN-6 | the tensor split, not the quant, sets the ceiling (Q5_K_XL) | 2.2 | CURRENT |
+| PN-6 | the tensor split, not the quant, sets the ceiling (Q5_K_XL) | 2.2 | **SCOPED by PN-39** — holds for 2 of 4 arms |
 | PN-7 | the optimal `-ts` is quant-specific and non-portable | 2.4 | CURRENT ⚑F-11 |
-| PN-8 | minimum imbalance ≠ maximum throughput | 2.2 | CURRENT |
+| PN-8 | minimum imbalance ≠ maximum throughput | 2.2 | **CORRECTED by PN-42** — the relation is not monotone |
 | PN-9 | MTP acceptance varies across quants | 4.3 | CURRENT but **confounded, permanently** |
 | PN-10 | three orchestration defects producing plausible wrong output | 9.5 | CURRENT |
 | PN-11 | host power envelope, 12 h, 43,182 samples | 7.1 | CURRENT |
 | PN-12 | 14 °C thermal asymmetry under GPU0-weighted splits | 7.2 | CURRENT — confounded |
 | PN-13 | KLD separates the ladder at 3.7–11.8 σ | 1.1, 1.2 | CURRENT |
 | PN-14 | code degrades ~2× prose, widening with aggressiveness | 1.4 | CURRENT ⚑F-7 |
-| PN-15 | q4_0 KV costs 51 % of a quantization level | 5.1 | CURRENT |
+| PN-15 | q4_0 KV costs 51 % of a quantization level | 5.1 | **QUALIFIED by PN-43** — label collision; size comparison, not additive |
 | PN-16 | top-1 and KLD disagree about which domain is hurt | 1.6 | CURRENT |
 | PN-17 | exit-code-only success reports a run that measured nothing | 9.5 | CURRENT |
 | PN-18 | `-ctxcp 32` is free throughput | 2.5 | CURRENT — directional |
-| PN-19 | decode does not discriminate the arms at 262,144 | 3.1 | **CURRENT with correction ⚑F-2** |
+| PN-19 | decode does not discriminate the arms at 262,144 | 3.1 | **STATISTICS SUPERSEDED by PN-36** — conclusion stands |
 | PN-20 | an unnamed estimator reversed a ranking | 9.5 | CURRENT — incomplete ⚑F-3 |
 | PN-21 | three-tier domain hierarchy; none passes on the task distribution | 1.3, 1.4 | CURRENT |
 | PN-22 | a multiple-choice battery cannot see quantization damage | 8.1 | CURRENT |
@@ -1643,17 +2046,30 @@ measurement, which is firmer ground. **n=8 does not load at 262,144.**
 | PN-25 | a mis-bound drafter produces a clean silent zero | 9.5 | CURRENT — the 5 cells EXCLUDED |
 | PN-26 | the divergence is deterministic and systematic | 4.2 | CURRENT |
 | PN-27 | the supervision killed the campaign it was built to protect | 9.5 | CURRENT — incident |
-| PN-28 | a generative coding benchmark cannot see it either | 8.2 | CURRENT |
+| PN-28 | a generative coding benchmark cannot see it either | 8.2 | **STATISTICS CORRECTED by PN-40** — report the bound, not p=1.0 |
 | PN-29 | DFlash2: fastest at 32 K, strictly dominated at depth | 4.4 | CURRENT — equivalence engine-confounded |
 | PN-30 | a throughput measurement is only as valid as the generation it timed | 9.5, 4.5, 4.7 | CURRENT — **withdraws PN-24 at depth + Amendment 1** |
 | PN-31 | KLD is not measurable at long context on 14 GiB | 9.4 | CURRENT — footnote material |
 | PN-32 | acceptance falls with draft depth (p=0.0017); the sweep cannot rank | 4.6 | CURRENT for acceptance; UNRANKABLE for speed |
-| PN-33 | 4-bit costs nothing on S-NIAH to 131,072; MK-NIAH −8.3 pts | 6.1 | **CURRENT ⚑F-1 — MK-NIAH unevidenced in repo** |
-| PN-34 | benchmark sensitivity is gated by task headroom, not modality or length | 6.1 | **CURRENT ⚑F-1** |
-| PN-35 | code damage lives in the p95–p99.9 tail; the code/prose ordering reverses between p90 and p95 | 1.7 | **CURRENT** — re-derived from the artifact ⚑F-23, ⚑F-24 |
+| PN-33 | 4-bit costs nothing on S-NIAH to 131,072 | 6.1 | S-NIAH half **CURRENT**; **MK-NIAH half SUPERSEDED by PN-44** |
+| PN-34 | benchmark sensitivity is gated by task headroom | 6.1 | **MECHANISM SUPERSEDED by PN-37** — saturation is false for 2 of 3 instruments |
+| PN-35 | code damage lives in the p95–p99.9 tail; the code/prose ordering reverses between p90 and p95 | 1.7 | **CURRENT — the study's headline.** Re-derived from the artifact |
+| PN-36 | supersedes PN-19's statistics: n=6 spanned four depths; true spread 46.7 %; Q4_K_XL n=1 | 3.1 | **CURRENT** — but see ⚑F-26 (estimator switch, `-ctxcp` mixing) |
+| PN-37 | supersedes PN-34's mechanism: saturation false for 2 of 3 instruments; framing is Dutta et al. (R13) | 6.1 | CURRENT |
+| PN-38 | free-running greedy generation cannot measure quantization distance | 6.4 | CURRENT — methodological negative result |
+| PN-39 | scopes PN-6: the split sets the ceiling for 2 of 4 arms; failures are single attempts | 2.2 | CURRENT |
+| PN-40 | corrects PN-28: its McNemar could not reach p<0.05; use the paired bound | 8.2 | CURRENT |
+| PN-41 | corrects the cost contrast: 2.15 h vs ≈4.8 h, a 2.2× ratio — the 60× was fabricated | 8.4b | CURRENT |
+| PN-42 | corrects PN-8: `54,46` is not the least balanced ratio; not monotone | 2.2 | CURRENT |
+| PN-43 | qualifies PN-15: a label collision corrupted `metrics_reparsed.ppl`; "51 %" is a size comparison | 5.1 | CURRENT |
+| PN-44 | **supersedes PN-33's MK-NIAH**: n=100 gives 89.0 vs 79.0, p = 0.0020, −10.00 pts [−15.88, −4.12] | 6.1 | **CURRENT — the long-context result.** Re-derived from raw predictions |
 
-**Measurements with no PN entry (UNWRITTEN):** §3.2 prefill-vs-depth · §3.4 S6 decode medians ·
-§3.5 the S11 fixed-ratio cross-quant speed ladder · §6.2 the `variable_tracking` exclusion ·
-§6.4 S11's rejection as an instrument · §2.7 E6 split-mode reproducibility.
-The last three are each publishable, and the S11 rejection (⚑F-5) is the largest single gap
-between what was measured and what is written down.
+**Measurements with no PN entry (UNWRITTEN), after the review round:** §3.2 prefill-vs-depth ·
+§3.4 S6 decode medians · §3.5 the S11 fixed-ratio cross-quant speed ladder · §6.2 the
+`variable_tracking` exclusion · §2.7 E6 split-mode reproducibility.
+
+S11's rejection — the largest gap on 2026-09-02 — **is now written up as PN-38**. The
+`variable_tracking` exclusion (§6.2) is now the largest remaining one, and it has become
+**load-bearing**: PN-37 requires it to be disclosed *in the same paragraph* as the difficulty
+claim, because it is the one harder task this study ran and excluded. It still has no note of its
+own.

@@ -255,18 +255,60 @@ tables are depth-0 and are **not** long-context throughput.
 | `*.kld` reference-logit files (~16 GB each) | ❌ | deleted after extraction; 50 GB reclaimed 2026-08-30 |
 | generated pads, corpora, GGUFs, container images | ❌ | excluded by `.gitignore`; provenance in `env-manifest.json` |
 
-**Known gaps between the repo and the host, as of 2026-09-02** — each is a file the paper cites and
-the public repo does not contain:
+**Gaps between the repo and the host — status after the 2026-09-02 review round.** Nearly all are
+now closed:
 
-| missing from repo | consequence |
+| item | 2026-09-02 | now |
+|---|---|---|
+| `ruler/s12-ruler.json` stale (pre-MK-NIAH, pre-dedup) | **missing** | ✅ synced, and **superseded** by the mk100 cells |
+| `ruler/s12-preds-*-mkniah-c131072.json` | missing | ✅ synced |
+| `s8/s8-scores-reparsed.json` | missing | ✅ synced and verified |
+| `progress.json` | missing | ✅ present — and it is the evidence behind PN-41's 2.15 h |
+| `s11-pads-manifest.json` | missing | ❌ still host-only (minor) |
+
+⚠ **One summary block is still stale inside a synced artifact**: `s12-ruler.json`'s
+`accuracy_recovery` has **no `mk100` entry** and still shows the superseded n=12 value of 91.67,
+while its `tasks` and `n_samples` fields describe the original design. See `METRIC-CORPUS.md`
+⚑**F-27**. The `cells` array is correct and complete.
+
+Pull anything else with
+`./tools/sync-multivac.sh artifact /srv/bench/e12/<path> data/raw/e12/<dest-dir>/`
+(the second argument is a destination **directory**).
+
+### 7.1 Artifacts added by the review round and the mk100 run
+
+| artifact | what it fixes |
 |---|---|
-| `ruler/s12-ruler.json` is **stale** (pre-MK-NIAH, pre-dedup) | **the long-context headline (PN-33/PN-34) has no evidence in the released artifacts** |
-| `ruler/s12-preds-{Q6_K_XL,Q4_K_XL}-mkniah-c131072.json` | the MK-NIAH predictions |
-| `s8/s8-scores-reparsed.json` | the repo publishes only the **broken** scorer output |
-| `s11-pads-manifest.json`, `state/progress.json`, `quarantine/s11-gen-c8192.json` | minor; the quarantine register is incomplete |
+| `corpus-manifest.json` | the code corpus (D2) was **gitignored and unmanifested** — every code-domain number in the study rested on a file with no digest. Now pinned: **9,097,163 B**, `sha256:049d12efad53048bbadf7b8f2c79afeedfbdfb7cbf316633f5673cd8a9f915af` |
+| `harness-src/s12_mkniah_generate.sh` | the MK-NIAH **generation command existed nowhere** — the harness read a pre-generated file and the `--num_needle_k 4` invocation was ad-hoc, so the dataset was not reproducible from a public repo |
+| `harness-src/mk100_analyse.py` | the paired analysis, **written and committed before the second arm finished**, so the test was fixed in advance of the data |
+| `s8/s8-scores-reparsed.json` | the repaired S8 scoring with Wilson intervals; `s8-scores.json` is left unedited and superseded |
+| `_WARNING_` fields in four artifacts | see below |
 
-Fix before publication: `tools/sync-multivac.sh artifact /srv/bench/e12/<path> data/raw/e12/<path>`.
-Details in `METRIC-CORPUS.md` ⚑F-1 and ⚑F-4.
+**`corpus-manifest.json` carries a stated limitation that is load-bearing for the headline** and
+must travel with any citation of the code domain: reference-arm perplexity on this corpus is
+**1.1809 (0.240 bits/token)** against **5.7898** on WikiText-2, and median per-token KLD is
+**1.7e-05** against a mean of **0.021529** — *the mean is ~1,266× the median.* **The corpus is far
+more predictable than general source code.** It is a path-sorted concatenation of a Python/django
+tree, **not deduplicated**, and whole passes repeat when the requested length exceeds the tree. A
+public reader cannot regenerate it byte-for-byte without the same checkout; the sha256 pins the
+exact file used.
+
+### 7.2 In-artifact warnings — the review round's most reusable practice
+
+Four artifacts now carry a `_WARNING_` field written *into the JSON*, so a reader who never opens
+the paper notes still cannot misread them:
+
+| artifact | field | says |
+|---|---|---|
+| `ssa/ssa-results-parsed.json` | `_WARNING_label_collision` | two cells share `ssa-Q6_K_XL-code-base` and one serverlog; **for these two cells trust `metrics`, not `metrics_reparsed`** — the reverse of the rule everywhere else |
+| `s8/s8-humaneval.json` | `_WARNING_equivalence_dflash4` | the dflash4 entry records 0/164 for a server that **never loaded**; excluded data (PN-25) |
+| `s9/s9d-depthsweep.json` | `_WARNING_best_n_per_arm_per_depth` | **superseded** — it names a winning draft depth, which PN-32 shows is unanswerable at n=3 |
+| `s9/s9e-n262k.json` | `_WARNING_best_n_per_arm_per_depth` | **superseded** — "best n=4" is a 3 % difference far inside the noise |
+
+This is worth stating in the paper as method: **when a summary field in a machine-readable artifact
+contradicts the note that cites it, correct the artifact in place with a warning rather than
+deleting the field** — deletion loses the record that the mistake was made.
 
 ---
 
@@ -318,7 +360,16 @@ Key entry points: `lib_e12.py` (launch contract, 1 Hz VRAM sampler, `save_and_ki
 `classify_failure`, `preflight`) · `validate_v2.py` (the C1–C4 gate + F1–F4 self-test) ·
 `tsweep_v2.py` (Wave 1) · `ssa_kld.py`, `ssa_s5.py`, `ssa_s7.py`, `ssa_reparse.py` (SSA) ·
 `s8_spec.py`, `s9_final.py`, `s9d_depthsweep.py` (speculative decoding) · `s11_divdepth.py` ·
-`s12_ruler.py` · `pad_e12.py`, `prebuild_pads.py`.
+`s12_ruler.py`, **`s12_mkniah_generate.sh`** (the MK-NIAH dataset generator, added by the review
+round), **`mk100_analyse.py`** (the pre-registered paired analysis) · `pad_e12.py`,
+`prebuild_pads.py`.
+
+### 9.1 Reproducing the study's two headline results
+
+| result | command path |
+|---|---|
+| **PN-35** — the tail quantiles | read `median_kld`, `kld_90p`, `kld_95p`, `kld_99p`, `max_kld` from `metrics_reparsed` in `ssa/ssa-results-parsed.json` and take code ÷ wikitext2 per arm. **Six of the seven rows need no GPU and no serverlog**; only the p99.9 row requires the host-only serverlogs |
+| **PN-44** — MK-NIAH at n=100 | regenerate with `s12_mkniah_generate.sh` (RULER's own generator, `num_needle_k=4`), serve at `-c 131072 -ts 56,44 -ctk/-ctv q4_0 -ctxcp 32`, greedy, no-spec, then `mk100_analyse.py`. Or score the shipped `ruler/s12-preds-*-mk100-c131072.json` directly with RULER's `string_match_all` — **every figure in PN-44 reproduces from those two files alone**, verified 2026-09-03 |
 
 ---
 
