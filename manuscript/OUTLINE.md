@@ -107,41 +107,44 @@ and its ladder-relative consequence; the 65,536-token budget; pre-registered int
 
 ## 5. Results
 
-### 5.1 The ladder, and why the domain decides — PN-13, PN-14, PN-21, PN-16
+### 5.1 The ladder, and why the domain decides — PN-13, PN-14, PN-21, PN-16, **PN-62**
 Three-tier hierarchy (prose < code < task prompts); monotone in every domain; adjacent arms at
 3.7–11.8 σ with non-overlapping intervals. The metric-pair argument: top-1 agreement and mean KLD
 disagree about which domain is hurt, and a top-1-only table inverts the conclusion.
 
-### 5.2 Three instruments, three bounds — PN-22, PN-28, **PN-40**, PN-33, **PN-37**
+### 5.2 Three instruments, three bounds — PN-22, PN-28, **PN-40**, PN-33, **PN-60**, **PN-63**
 **The paper's centre.** Each instrument *bounds* the task-level effect rather than failing to find
 one — that reframing is PN-40's, and it is what makes the section a result instead of a null.
 - **Multiple-choice** (HellaSwag n=400): 1.0-point spread, the most-quantized arm nominally
   highest, two arms answering all 400 items identically, no pair differing on more than 4.
+  ⚠️ PN-22's six McNemar tests **could not have reached p < 0.05 at any outcome** (max discordant 4,
+  minimum attainable p = 0.125) — report paired differences and intervals, never those p-values.
 - **Generative coding** (HumanEval+ n=164, paired): the arms agree on 161 of 164. ⚠️ Report the
   **paired difference and its interval — −0.61 pts, 95 % CI [−2.68, +1.46]** — *not* "McNemar
   p = 1.0", which PN-40 shows could never have reached 0.05 with 3 discordant pairs (minimum
   obtainable p = 0.25). State that explicitly: it is the paper's own instance of the error it
   attributes to the field.
-- **Long-context retrieval** (RULER, PN-44): S-NIAH 100.0/100.0 at 8,192 / 32,768 / 131,072 —
-  16× more context, zero discrimination. Then MK-NIAH at 131,072, n=100: **89.0 vs 79.0, recovery
-  88.76 %, exact McNemar p = 0.0020**, paired difference −10.00 pts [−15.88, −4.12]. Ten discordant
-  items, **all in the same direction** — the cheaper arm's failures are a strict superset of the
-  reference's. This is the one instrument that *separates* the arms, and it does so only where the
-  task is hard enough that the reference itself fails 11 % of the time.
-**PN-44 is what makes this section an argument rather than a list.** The three instruments do not
-merely bound the effect by differing amounts — they order themselves by how close the task sits to
-the model's limit. Multiple-choice (82.75 %, far from ceiling) and generative coding (94.5 %) bound
-it to a few points; single-needle retrieval at any depth is perfect for both arms and bounds it to
-zero; and multi-key retrieval — the only task where the *reference* fails 11 % of the time —
-separates the arms decisively. That ordering is what the tail mechanism predicts: damage confined
-to ~1–5 % of token positions changes an outcome only where an outcome was already marginal.
+- **Long-context retrieval** (RULER): S-NIAH 100.0/100.0 at 8,192 / 32,768 / 131,072 — 16× more
+  context, zero discrimination — and PN-63 verifies these are **genuine ceilings, not degenerate
+  matches**: those cells close their reasoning block on 100 % of samples in both arms.
+  ⚠️ **The MK-NIAH result is withdrawn as a retrieval finding (PN-60).** The battery ran a 128-token
+  output budget with reasoning enabled, so `closed-and-wrong` is **exactly zero** in every cell and
+  every failure is a truncation; on the **55 of 100 items where neither arm's budget bound, both
+  score 55/55 with zero discordance.** What separates is **budget closure** — 77 vs 60, discordance
+  22/5, exact McNemar **p = 0.001514** — i.e. reasoning verbosity, not retrieval. The Red Hat
+  85–88 % recovery comparison (R9) is **void**.
 
-**The mechanism is PN-37's, not PN-34's.** Do not claim saturation: HellaSwag has ~17 points of
-headroom, HumanEval+ ~5, and MK-NIAH's reference sits at 89 %. Claim instead that damage confined to
-~1–5 % of token positions (PN-35) changes an outcome only when a tail token lands decisively, which
-predicts the discordance magnitudes above. And disclose in this same subsection that
-`variable_tracking` — the *harder* RULER task — was excluded for an output-format artifact (PN-33),
-because it is the obvious counter-example to any difficulty-based reading.
+**How to write this section now.** The old framing — three instruments ordering themselves by how
+close each task sits to the model's limit, with multi-key separating — **does not survive PN-60**
+and must not be reused. What replaces it is stronger, because it holds across all twelve days:
+*every* task instrument the study ran bounds the effect and none resolves it, and the ones that
+appeared to resolve it were measuring something else. The supporting evidence is now four-wide, not
+three: multiple-choice (PN-22), generative coding (PN-40), retrieval (PN-63's verified ceilings),
+and — from the first nine days — **SWE-bench Verified inverting the ladder at n≈50 on a ±12-point
+interval (PN-50)** and **corpus perplexity spanning 0.033 against a ±0.041 standard error (PN-48)**.
+PN-63 supplies the mechanism for the withdrawal itself: at the same depth, same arms and same budget,
+single-needle closes 12/12 while multi-key closes 77/100 — the truncation is driven by **task
+difficulty lengthening the reasoning**, not by context depth.
 
 ### 5.3 What sets the reachable window — PN-6 scoped by **PN-39**, PN-7, PN-8 corrected by **PN-42**
 For two of the four arms the tensor split, not the quantization, set the reachable context: Q5_K_XL

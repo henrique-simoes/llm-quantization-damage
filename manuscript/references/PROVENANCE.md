@@ -1,5 +1,14 @@
 # PROVENANCE — the reproducibility record
 
+> ⚠️ **Correction, 2026-09-03 (PN-60, PN-61, PN-62).** Entries in this file that cite **PN-44**
+> or PN-37's mechanism clause as a long-context *retrieval* result are **superseded**: that battery
+> measured output-budget closure, not retrieval (`closed-and-wrong` = 0 in every cell; on the 55 of
+> 100 unbounded items both arms score 55/55). Entries attributing the divergence tail's **shape** to
+> quantization are scoped by PN-62 — the KV-dtype-only control reproduces it. Any **draft acceptance
+> of exactly 1.000** is a degenerate-generation artifact (PN-61). Rows are left unedited per the
+> append-never-rewrite rule; read them with this banner.
+
+
 **Everything needed to say exactly what produced each number in this study.**
 Compiled 2026-09-02 from `data/raw/e12/env-manifest.json`, the `env` block embedded in every
 Wave-1 artifact, the `launch_cmd` recorded per cell, and the machine records at
