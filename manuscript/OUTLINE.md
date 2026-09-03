@@ -7,7 +7,7 @@ written as though it were.
 Title: **Divergence Ranks What Benchmarks Bound: quantization, context and speculative decoding for a 27B coding model on two 16 GB GPUs**
 
 > Chosen 2026-09-03 from the second review round (reviewer D's T2), replacing
-> *"Quantization Damage Lives in the Tail…"*. Reviewer D ranked T2 second behind a deliberately
+> the former working title *"Quantization Damage Lives in the Tail…"*. Reviewer D ranked T2 second behind a deliberately
 > safe descriptive title, but made the ordering conditional on the MK-NIAH re-analysis landing as
 > predicted. It did — **PN-60** — so D's stated preference applies. PN-60 also strengthens the
 > title: while PN-44 stood, a task benchmark *did* resolve the ladder, contradicting "what
@@ -153,7 +153,7 @@ the default split** and Q6_K_XL was never attempted there — so state "for two 
 measured", and note that each default-split failure is a **single** attempt, short of this project's
 own two-attempt bracketing rule. The `-ts` optimum is quant-specific and not monotone-safe (PN-7).
 On balance vs throughput: the most balanced ratio was the slowest by 21 %, while the other four
-clustered within 3.6 % — inside the 46.7 % noise floor, so only the outlier survives. Report the
+clustered within 3.6 % — inside the 40.7 % noise floor (PN-45), so only the outlier survives. Report the
 practical rule ("keep the fastest that loads") and drop PN-8's "opposing objectives" framing.
 
 ### 5.4 Speculative decoding is not free — PN-23, PN-26, PN-29, PN-32, PN-9
@@ -162,9 +162,18 @@ non-equivalent. DFlash2 fastest at 32 K and unable to reach the deployment windo
 with draft depth (12/13 pairs, p = 0.0017). **Report PN-32's clustering lesson explicitly**: pooled
 per-event intervals of ±0.02 against a true between-run spread of ±0.3.
 
-### 5.5 Speed does not discriminate — PN-36 (supersedes PN-19), PN-42 (corrects PN-8), PN-18
-Over *true* repetition groups: an 8.6 % between-arm span against a within-configuration spread
-reaching 46.7 %. PN-19's 32.9 % mixed four context depths and is withdrawn. On splits: the most
+### 5.5 Speed does not discriminate — **PN-45** (corrects PN-36, which superseded PN-19), PN-42, PN-18
+Over *true* repetition groups: a **6.74 %** between-arm span against a within-configuration spread
+reaching **40.7 %**. ⚠️ Use PN-45's figures, not PN-36's. PN-19's 32.9 % mixed four context depths
+and is withdrawn; PN-36's replacement 46.7 % silently switched estimator from `(max−min)/median` to
+`(max−min)/min`, and its Q6_K `58,42` group mixed `-ctxcp 4` and `-ctxcp 32` readings, which pulled
+the median 11.90 → 11.69 and manufactured the "8.6 %" span. Under PN-19's own rule the correct
+figures are 40.7 % and 6.74 %.
+⚠️ **Both reviewers found independently that this noise is not unexplained.** `draft_n` and
+`draft_n_accepted` are byte-identical across `-ts` ratios within a repetition index, and decode
+regresses on acceptance at r² = 0.83–0.99; conditioning on it collapses within-config spread from
+17–41 % to 3–11 %. Three passes (PN-19 → PN-36 → PN-45) missed it. **This section should explain the
+noise rather than report it**, and the fix — running the speed probe greedy — costs nothing. On splits: the most
 balanced ratio was the slowest by 21 %, and among the rest imbalance barely mattered — PN-8's
 "balance and throughput oppose" framing is corrected by PN-42. The cheaper arm is not meaningfully faster, only less
 accurate; it earns its place on VRAM footprint alone.
