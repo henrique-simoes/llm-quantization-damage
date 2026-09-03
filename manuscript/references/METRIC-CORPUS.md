@@ -1,5 +1,14 @@
 # METRIC-CORPUS — the canonical inventory of every measurement this project produced
 
+> ⚠️ **Correction, 2026-09-03 (PN-60, PN-61, PN-62).** Entries in this file that cite **PN-44**
+> or PN-37's mechanism clause as a long-context *retrieval* result are **superseded**: that battery
+> measured output-budget closure, not retrieval (`closed-and-wrong` = 0 in every cell; on the 55 of
+> 100 unbounded items both arms score 55/55). Entries attributing the divergence tail's **shape** to
+> quantization are scoped by PN-62 — the KV-dtype-only control reproduces it. Any **draft acceptance
+> of exactly 1.000** is a degenerate-generation artifact (PN-61). Rows are left unedited per the
+> append-never-rewrite rule; read them with this banner.
+
+
 **Compiled 2026-09-02, revised 2026-09-03 after the three-way review round (L-19) and the mk100
 run (L-20). Built from a full pass over `docs/paper/PAPER-NOTES.md` (PN-1…PN-44),
 `docs/build-stream/2026-08-30-quant-bench-trackA.md` (DEC-1…DEC-15, L-1…L-20),

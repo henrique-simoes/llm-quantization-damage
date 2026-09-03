@@ -38,12 +38,13 @@ Model: **Qwen3.8-27B**, Unsloth GGUFs. Arms: **UD-Q4_K_XL, UD-Q5_K_XL, UD-Q6_K, 
 | S9d/S9e — draft depth at matched depth | **closed** (L-17) — underpowered; PN-32 |
 | S10 — KL divergence at depth | **INFEASIBLE** (DEC-15, PN-31) — 14 GiB caps the tool at n_ctx 8,192 |
 | S11 — greedy divergence at depth | **REJECTED on its own data** — trajectories fork; metric saturated |
-| S12 — RULER long-context accuracy | **closed** (L-18) — PN-33, **PN-34** |
+| S12 — RULER long-context accuracy | **closed** (L-18); **retrieval half VOID** — PN-60/PN-63 supersede PN-44 |
 | Track A decision | **decided** (L-10), amended twice (S8, then withdrawn by PN-30) |
 | Wave 2 breadth · Wave 4 energy curve | **CANCELLED** (DEC-12) |
+| Title + abstract | **decided** (L-25) — reviewer D's T2 and A2 |
 | The report | **not drafted** — this is the remaining work |
 
-**MEASUREMENT IS CLOSED (L-18, 2026-09-02).** No GPU work is queued and none is required.
+**MEASUREMENT IS CLOSED (L-18, 2026-09-02).** Re-analysis has continued to L-25 at zero GPU cost. No GPU work is queued and none is required.
 
 Ceilings, MTP n=2 + q4_0 KV + `-sm layer`, each at its own winning ratio:
 **Q4_K_XL 262,144 @ `-ts 56,44` · Q5_K_XL 262,144 @ `54,46` · Q6_K 262,144 @ `58,42` ·
@@ -155,11 +156,24 @@ pull-then-push, so the mirror lags the push by one step — re-run `pull` if you
   `--entrypoint /app/llama-server`); on `llamacpp-mtp:latest` it fails to load and the harness
   records a clean `0.000` that looks like a result (PN-25).
 - `/srv/models` is a **separate disk** from `/`. New GGUFs go to `/srv/bench/models/`.
+- **The MK-NIAH long-context result is void as retrieval** (PN-60). The battery ran with a 128-token
+  output budget and reasoning on, so every failure in both arms is a truncation and `closed-and-wrong`
+  is exactly zero. What separates is budget closure, not retrieval. Do not cite PN-44, PN-37's
+  mechanism clause, or `s12-ruler.json`'s `accuracy_recovery` for the mk100 entry.
+- **The divergence tail's *shape* is a corpus property, not a quantization property** (PN-62). The
+  KV-dtype-only control reproduces it. Quantization sets magnitude. Do not attribute tail structure
+  to compression.
+- **Any draft acceptance of exactly 1.000 in the historical corpus is a degenerate-generation
+  artifact** (PN-61) — 50-token generations over ~34 draft events. Only the 1,024-token rows are
+  usable.
+- **PN-35's printed median row is wrong by 2×** for two of three arms (reviewer D, D-8). The correct
+  code/prose median ratio is **181–206×**, not "100–200×". The abstract already states the corrected
+  figure; the note has not yet been superseded.
 
 ## 6. Where the evidence is
 
 Every headline number traces: **paper note → artifact → serverlog**. Start at
-[`docs/paper/PAPER-NOTES.md`](docs/paper/PAPER-NOTES.md) (PN-1…PN-25) and follow its Evidence line.
+[`docs/paper/PAPER-NOTES.md`](docs/paper/PAPER-NOTES.md) (PN-1…PN-63) and follow its Evidence line.
 
 | you want | go to |
 |---|---|

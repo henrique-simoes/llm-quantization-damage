@@ -1,4 +1,6 @@
-# multivac-paper
+# Divergence Ranks What Benchmarks Bound
+
+*Quantization, context and speculative decoding for a 27B coding model on two 16 GB GPUs.*
 
 **How much does quantization actually cost a coding model, and would you notice with the
 instruments the field usually reaches for?**
@@ -13,7 +15,7 @@ arm nominally highest while a divergence measurement separated the same arms at 
 
 - **Deliverable** — [`manuscript/`](manuscript/) · outline and evidence map in
   [`manuscript/OUTLINE.md`](manuscript/OUTLINE.md). **Status: measurement complete, not yet drafted.**
-- **Findings, individually cited** — [`docs/paper/PAPER-NOTES.md`](docs/paper/PAPER-NOTES.md) (PN-1…PN-25)
+- **Findings, individually cited** — [`docs/paper/PAPER-NOTES.md`](docs/paper/PAPER-NOTES.md) (PN-1…PN-63)
 - **The deployment answer** — [`docs/paper/TRACK-A-DECISION.md`](docs/paper/TRACK-A-DECISION.md)
 - **How the work was run** — [`docs/build-stream/2026-08-30-quant-bench-trackA.md`](docs/build-stream/2026-08-30-quant-bench-trackA.md)
 
@@ -46,8 +48,10 @@ Mean KL divergence against the UD-Q6_K_XL reference, 65,536 tokens per cell:
 
 Monotone in every domain, adjacent arms separated at 3.7–11.8 σ. Against the <0.007 band published
 for high-quality deployment, **two of three arms pass on prose, one on generic code, and none on
-the actual task distribution** — and the prose-to-task amplification itself grows with
-aggressiveness, so the cheap arm is penalised twice. (PN-13, PN-14, PN-21)
+the actual task distribution** — and the prose-to-task amplification grows with
+aggressiveness (3.13× → 4.40×). ⚠️ That *widening* clause is an **upper bound**, not a
+reference-invariant result: it shrinks ~16 % under a plausible reference correction and vanishes in
+the limit. The *level* — code roughly twice prose — is invariant. (PN-13, PN-14, PN-21)
 
 **2 — A task battery is structurally insensitive to this, not merely underpowered.**
 HellaSwag at n=400 on all four arms: 82.75 / 82.25 / 82.75 / 83.25 % — a 1.0-point spread inside
@@ -73,8 +77,8 @@ property of the split, not of the model.
 
 **4 — Speed does not discriminate the ladder.** At the full window the three arms that reach it
 over *true* repetition groups (same arm, same context, same split) the arms span
-**11.69–12.70 tok/s, about 8.6 %**, against a within-configuration spread reaching **46.7 %**
-(PN-36 — the earlier "32.9 %" figure mixed four context depths). The usual case for quantizing down ("meaningfully faster for slightly less
+**11.71–12.70 tok/s, about 6.74 %**, against a within-configuration spread reaching **40.7 %**
+(PN-45 — PN-36's "46.7 %" silently switched estimator, and its group mixed `-ctxcp 4` and `32`). The usual case for quantizing down ("meaningfully faster for slightly less
 accurate") does not hold here: the cheaper arm is **only** less accurate. It earns its place on
 VRAM footprint alone. (PN-19)
 
@@ -91,6 +95,42 @@ which none of these context ceilings exist — costs 0.002955 ± 0.000127 KLD ag
 of the divergence of dropping a whole quantization level**. Defensible; not free; and it must be
 quoted with every accuracy claim. Perplexity on the identical pair moves +0.15 %, a clean
 demonstration of the averaging bias that makes PPL a poor quantization metric. (PN-15)
+
+**7 — The same weights, measured two defensible ways, differ 36-fold in reported damage.**
+One checkpoint scored against the same benchmark corpus reads **+29 % worse** than its comparison
+ladder under one perplexity protocol and **+0.8 % worse** under another — a 36× swing in the
+estimated effect, attributable to corpus file, window coverage and scoring rule alone. The intuitive
+explanation, tokenizer mismatch, was tested and **disproven**: the two tokenizations agree exactly.
+Three protocols exist in this study and must never share a table. (PN-49)
+
+**8 — Across twelve days, the instruments the field reaches for did not separate this ladder.**
+Corpus perplexity spans **0.033** across four arms against a per-point standard error of **0.041**.
+HumanEval+ at n=164 is monotonic but its three upper rungs sit inside a ±4.6-point interval.
+SWE-bench Verified at n≈50 **inverts** the ladder outright — 77.6 / 76.0 / 75.5 % — on a ±12-point
+bootstrap interval, so the inversion carries no information. And the one arm that leads every cheap
+instrument in the study (fastest configuration measured, acceptable HumanEval+) reached the agent
+step limit on **6 of 6** instances where the reference converged on 6 of 6. Single-shot benchmarks
+did not predict agentic competence. (PN-46, PN-48, PN-50, PN-51)
+
+## Where this report corrects itself
+
+Three headline claims were withdrawn or scoped by this project's own re-analysis, at no GPU cost,
+after the measurements were complete. They are listed here rather than in an appendix because the
+corpus's central argument is about what instruments can and cannot show:
+
+- **The long-context result was measuring the wrong thing.** A multi-key retrieval battery at
+  131,072 tokens appeared to show the 4-bit arm losing 10 points (p = 0.002). Re-analysed: the
+  harness ran with a 128-token output budget and reasoning enabled, so **every failure in both arms
+  is a truncation** — `closed-and-wrong` is exactly **zero** across all fourteen cells. On the 55 of
+  100 items where neither arm's budget bound, **both score 55/55 with zero discordance**. The real,
+  still-separated effect is budget closure (77 vs 60, p = 0.0015): reasoning verbosity, not
+  retrieval. Retrieval at that depth is now *unanswered*, not answered. (PN-60, PN-63)
+- **The tail structure is a corpus property, not a quantization property.** Normalised by its own
+  mean, the KV-dtype-only control — no weight quantization at all — shows p99/mean of **22.9** on
+  code against **24.3–26.1** for the quantized arms, with prose flat at **8.4–8.6** throughout.
+  Quantization moves the *magnitude*; the corpus sets the *shape*. (PN-62)
+- **A draft-acceptance figure of 1.000 at 259K tokens was an artifact** of 50-token generations over
+  34 draft events. Rows that actually generated 1,024 tokens record 0.92 and 0.55. (PN-61)
 
 ## The deployment answer
 
@@ -116,7 +156,12 @@ Stated here rather than buried, because an underpowered result reported as a ran
 no result:
 
 - **Long-context task accuracy is unmeasured for every arm.** No 100K–250K task outputs exist
-  anywhere in the corpus. This is the largest hole.
+  anywhere in the corpus, and the one long-context battery that appeared to separate the arms was
+  measuring output-budget exhaustion (PN-60). This is the largest hole.
+- **No multiple-comparisons correction is applied across the study's ~19 hypothesis tests.** Under
+  Holm and Benjamini–Hochberg all 11 positive results survive, but the weakest separation (3.71 σ)
+  does not survive Bonferroni once clustering is allowed for — so "3.7–11.8 σ" quotes a range whose
+  lower endpoint is fragile.
 - **Divergence is ladder-relative** — measured against UD-Q6_K_XL because no FP16 reference fits
   the host. These are distances along the ladder, not from the unquantized model.
 - **Divergence is measured on prompt tokens** — it ranks distribution shift, not generated-code
@@ -130,7 +175,7 @@ no result:
 ```
 manuscript/          the arXiv report — the deliverable
 docs/
-  paper/             findings: PAPER-NOTES (PN-1..25), method references, the Track A decision
+  paper/             findings: PAPER-NOTES (PN-1..63), method references, the Track A decision
   build-stream/      how the work was run: the plan, its decision log (DEC-*) and ledger (L-*)
 data/
   raw/e12/           current evidence — artifacts, logs, quarantine, harness source
@@ -148,4 +193,5 @@ Read [`CLAUDE.md`](CLAUDE.md) — it holds the ownership map, the hard rules, th
 that are easy to get wrong, and the live TODO. The rules exist because each one has already cost
 this project a wrong number or a near-miss on data loss.
 
-Git syncs to a private bare repository on the host. There is no public remote by design.
+Git syncs to a bare repository on the host and to this public remote. The measurement record,
+including withdrawn claims and the instrumentation-defect register, is published in full.
