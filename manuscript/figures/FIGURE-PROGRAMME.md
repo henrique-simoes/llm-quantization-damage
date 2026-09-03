@@ -23,7 +23,7 @@ Each entry carries:
 
 | field | meaning |
 |---|---|
-| **Tier** | `ESSENTIAL` (5), `CORE` (16), `SUPPORTING` (7) — the paper stands without a supporting figure and is diminished without an essential one |
+| **Tier** | `ESSENTIAL` (6), `CORE` (16), `SUPPORTING` (6) — the paper stands without a supporting figure and is diminished without an essential one |
 | **Section** | the `OUTLINE.md` section it serves |
 | **Type** | `statistical plot` (PaperBanana's CSV path) or `methodology diagram` (its retriever/stylist path) — never mixed in one request |
 | **Claim** | the single sentence the figure exists to make. If a figure needs two sentences it is two figures |
@@ -170,13 +170,25 @@ described inside its parent's spec:
 | F17b | per-instance agentic step counts | **no** — appears as a table beside F17 |
 | F27b | the perplexity contrast on the identical KV pair | yes — F27's panel (b) |
 
-### 1.2 The five essential figures
+### 1.2 The six essential figures
 
-**F1, F2, F3, F4, F5.** F1 and F3 are the title: divergence ranks, benchmarks bound. F2 is the
+**F1, F2, F3, F4, F5, F16.** F1 and F3 are the title: divergence ranks, benchmarks bound. F2 is the
 paper's novel contribution and the only figure that carries its own scoping control. F4 is the
 systems result a practitioner acts on. F5 retires the premise three of this project's own documents
-asserted for nine days. F9 and F12 are the closest contenders and would be promoted if the paper had
-seven.
+asserted for nine days.
+
+**F16 was promoted from CORE on 2026-09-04** (owner review). The programme had all six task-benchmark
+and speculative-decoding figures at CORE, which under-represented the balance of what was actually
+measured: a four-day SWE-bench Verified campaign across three quantizations, two HumanEval+ ladders
+spanning seven configurations, and an MTP-versus-DFlash2 comparison are not supporting material for a
+paper whose title claims benchmarks *bound*. F16 is the sharpest single instance of the thesis
+anywhere in the corpus — the study's most expensive instrument, four days of GPU time, **inverting**
+the ladder that every cheaper instrument ordered correctly, inside a ±12-point interval. A reader who
+sees only F1–F5 would conclude this was a quantization study with benchmark asides; it was not.
+
+**F22 was promoted to CORE** in the same pass: token-generation throughput against *filled* context
+depth is a headline practitioner number, and the depth-0 tables it corrects are the ones most often
+quoted elsewhere. F9 and F12 remain the closest further contenders.
 
 ---
 
@@ -1027,7 +1039,7 @@ three quantizations score identically and differ only in how often they returned
 
 ### F16 · The most expensive instrument inverts the ladder
 
-**Tier** CORE · **§Agentic behaviour** · **Type** statistical plot · **Data** [`data/fig16-swebench-verified.csv`](data/fig16-swebench-verified.csv) (8 rows)
+**Tier** ESSENTIAL · **§Agentic behaviour** · **Type** statistical plot · **Data** [`data/fig16-swebench-verified.csv`](data/fig16-swebench-verified.csv) (8 rows)
 
 **Claim.** SWE-bench Verified at roughly 50 instances per arm places the cheapest quantization first
 — and the inversion carries no information, because a single instance is worth two points and the
@@ -1323,7 +1335,7 @@ against about fourteen for the task benchmarks.*
 
 ### F22 · Throughput against filled context depth
 
-**Tier** SUPPORTING · **§5.5** · **Type** statistical plot, two panels · **Data** [`data/fig22-depth-decode.csv`](data/fig22-depth-decode.csv) (26 rows)
+**Tier** CORE · **§5.5** · **Type** statistical plot, two panels · **Data** [`data/fig22-depth-decode.csv`](data/fig22-depth-decode.csv) (26 rows)
 
 **Claim.** Prefill throughput falls monotonically with filled depth in every arm and at every draft
 depth; decode's depth trend is not resolvable at three repetitions — and both are far below the
