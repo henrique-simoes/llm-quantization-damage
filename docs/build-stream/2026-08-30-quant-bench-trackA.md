@@ -2294,3 +2294,36 @@ Consequence for the paper: **§5.2 loses its third instrument.** The ordering "m
 Next: extract the KLD tables from the 14 serverlogs and commit them; verify the PN-29 exposure;
   re-analyse the speed data conditioned on acceptance; then rewrite the outline against a 61-note
   base. Title and abstract remain the owner's call — both reviewers' proposals are in their files.
+
+### L-24 | 2026-09-03T16:25:00Z | S13-integrity-audit | claude-opus-5 | conductor-manager | S12 integrity audit — the S-NIAH cells are clean, and PN-60 gets its control <!-- bsc-ledger:qbench-t1-S12AUDIT -->
+Did: ran a requested integrity pass over the S12 RULER battery. **Premise correction first: nothing
+  is running and nothing is hung.** S12 completed 2026-09-02T06:22Z and the mk100 arm 2026-09-03T02:55Z;
+  all five phase markers carry `.done`, no `.failed`, both GPUs idle at 2 MiB, no llama-server or
+  chain process alive, only the six telemetry containers up. Disk on `/` is 71 GB free (well above
+  the 20 GB floor). There is no active phase to verify and no new length slice to write up.
+Result: the per-cell screen passes on every criterion except one, and that one is a **false alarm
+  worth recording**. All 12 cells have non-null scores, `n` matching N_SAMPLES for their length,
+  `n_empty` = 0 everywhere, and `prompt_n_median` at 98.2-99.9 % of target (8,041 / 32,616 /
+  130,936-130,941) — no haystack truncation anywhere. The screen's degenerate-match rule
+  ("no cell at exactly 0.0 or exactly 100.0 across both arms") flags **five slices**: single-needle
+  at 8,192, 32,768 and 131,072, plus the mock. **PN-63 clears them on independent evidence** — those
+  cells close their reasoning block on 100 % of samples in both arms with zero truncations, so the
+  100.0 is a real ceiling, not a broken prompt. A score alone cannot make that distinction; closure
+  can.
+  The audit also hands PN-60 the control it was missing. At the **same** 131,072 length, same arms,
+  same 128-token budget, single-needle closes 12/12 in both arms while multi-key closes 77/100 and
+  60/100 — so the truncation that voids PN-44 is caused by **task difficulty lengthening the
+  reasoning, not by depth**. That narrows the correction from "confounded" to a specific,
+  defensible mechanism. Across all fourteen cells `closed-and-wrong` is **exactly zero**: not one
+  instance in the whole battery of the model finishing its reasoning and answering wrongly.
+  Two further confirmations: `variable_tracking` is 0/25 in both arms with zero closures and a
+  127-character median output — the existing exclusion was right, and this is the same defect at its
+  extreme; and `mkmock` scores 3/3 in both arms with **zero** closures, a direct demonstration that
+  the scoring rule passes truncated generations.
+⚠️ The requested comparison of accuracy-recovery against Red Hat's published points (>99.5 % short,
+  85-88 % for 4-bit at 128K) was **not performed, deliberately**: PN-60 established that the mk100
+  numbers measure budget closure rather than retrieval, so checking them against a retrieval-recovery
+  band would re-commit the error PN-60 corrects. `s12-ruler.json`'s `accuracy_recovery` field should
+  be read as void for the mk100 entry until a re-run with thinking disabled exists.
+Next: unchanged from L-23 — verify the PN-29 exposure, re-analyse speed conditioned on acceptance,
+  rewrite the outline against what is now a 63-note base.
