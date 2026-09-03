@@ -166,9 +166,10 @@ pull-then-push, so the mirror lags the push by one step — re-run `pull` if you
 - **Any draft acceptance of exactly 1.000 in the historical corpus is a degenerate-generation
   artifact** (PN-61) — 50-token generations over ~34 draft events. Only the 1,024-token rows are
   usable.
-- **PN-35's printed median row is wrong by 2×** for two of three arms (reviewer D, D-8). The correct
-  code/prose median ratio is **181–206×**, not "100–200×". The abstract already states the corrected
-  figure; the note has not yet been superseded.
+- **PN-35's median row is corrected by PN-64** and cannot rank the arms. Two of three cells were
+  overstated ~2×; measured prose/code medians are 199 / 181 / 206, but print precision (6 dp on
+  medians of 1–2 significant figures) puts ±3–7 % on each and the intervals overlap. Say **"about
+  200×"**; never tabulate the median per arm. The other 18 cells of PN-35 verify exactly.
 
 ## 6. Where the evidence is
 

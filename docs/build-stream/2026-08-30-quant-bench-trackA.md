@@ -2369,3 +2369,32 @@ Result — **title: reviewer D's T2**, *"Divergence Ranks What Benchmarks Bound:
 Next: rewrite OUTLINE §5 against the 63-note base — §5.2 loses its third instrument (PN-60), §5.1
   gains PN-62's shape/magnitude separation, and §Agentic behavior needs a section that does not yet
   exist. Then verify the PN-29 exposure and re-analyse speed conditioned on acceptance.
+
+### L-26 | 2026-09-03T19:10:00Z | S13-verification | claude-opus-5 | conductor-manager | PN-35's median row verified, corrected, and found unrankable <!-- bsc-ledger:qbench-t1-PN35MED -->
+Did: verified reviewer D's D-8 — the last unverified claim from either review — by recomputing all
+  twenty cells of PN-35's quantile table from `ssa-kld-tables.json`.
+Result (PN-64): **D-8 is confirmed, and the table is otherwise sound.** Eighteen of twenty cells
+  reproduce exactly — every p90, p95, p99 and p99.9 across all three arms — and the crossover claim
+  holds (p90 below unity at 0.449/0.541/0.613, p95 above it at 1.527/1.888/2.184). **Two of three
+  median cells are wrong**: Q6_K prints `0.01x` for a measured **0.0050x** (2.0x overstated) and
+  Q5_K_XL prints `0.01x` for **0.0055x** (1.8x); Q4_K_XL's `0.005x` is correct. The prose sentence
+  "100-200x less at the median" is wrong at both ends — measured ratios are **199 / 181 / 206** —
+  and the mechanism is visible: **100 is the reciprocal of the rounded 0.01x cell**, so the sentence
+  was written from the rounded table rather than from the data.
+  **Beyond D-8, and new here: the median row cannot rank the arms at all.** `llama-perplexity`
+  prints six decimal places, so the code medians (0.000007 / 0.000010 / 0.000017) carry one to two
+  significant figures. Half-ULP propagation gives 199 [185.6, 214.2], 181 [172.4, 190.5] and
+  206 [200.5, 212.7] — **±7.2 %, ±5.0 %, ±2.9 % from print precision alone** — and Q6_K's interval
+  overlaps both others. Only the Q5/Q4 pair separates, in the *non-monotone* direction. So even the
+  corrected "181-206x" over-states resolution, and any per-arm ordering read off that row is a
+  rounding artifact. The paper should say **"about 200x"** and not tabulate the median per arm.
+  This is the study's own standing rule (G22) applied to its own headline table.
+  `CITATION.cff`'s abstract carried "181-206x" from D-8; corrected to "about 200x" in the same
+  commit. The tail finding is unaffected — median far below prose, crossover between p90 and p95,
+  5.0-8.1x prose at p99, all verified. Withdrawn is a spuriously precise range and an ordering the
+  instrument cannot resolve. Independent of **PN-62**, which scopes the tail's *interpretation*;
+  both corrections apply.
+Consequence: **no unverified reviewer claim remains.** The abstract, `CITATION.cff` and PN-35's
+  evidence line now agree, closing the inconsistency L-25 flagged as outstanding.
+Next: PN-29's DFlash2 at-depth cell is still unchecked for the PN-30 probe defect (it is cited in
+  OUTLINE §5.4); re-analyse speed conditioned on draft acceptance; then draft the report.
