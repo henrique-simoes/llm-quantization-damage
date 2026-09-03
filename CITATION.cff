@@ -16,7 +16,7 @@ abstract: >-
   defensible perplexity protocols, from 29 per cent worse to 0.8 per cent worse,
   attributable to corpus file, window coverage and scoring rule alone. The divergence
   distribution explains what the benchmarks miss: on this code corpus the median token
-  is perturbed 181-206x less than on prose while the top percentile is perturbed
+  is perturbed about 200x less than on prose while the top percentile is perturbed
   5.0-8.1x more -- a shape we show is set by the corpus rather than by the
   compression, since changing only the KV-cache dtype reproduces it. We also report
   that GPU tensor placement rather than quantization sets the reachable context window
