@@ -1,0 +1,21 @@
+rank,test,family,sigma,p_value,holm_threshold,holm,bh_threshold,bh,deff_to_drop_below_z1.96,deff_to_drop_below_bonferroni_z,membership,evidence
+1,KLD code: UD-Q6_K vs UD-Q4_K_XL,divergence,18.13,1.825148799e-73,0.002631578947,pass,0.00263,y,85.56,35.96,in family (m=19),recomputed
+2,KLD task prompts: UD-Q6_K vs UD-Q4_K_XL,divergence,16.1,2.632007775e-58,0.002777777778,pass,0.00526,y,67.47,28.36,in family (m=19),recomputed
+3,KLD prose: UD-Q6_K vs UD-Q4_K_XL,divergence,13.48,2.193518522e-41,0.002941176471,pass,0.00789,y,47.3,19.88,in family (m=19),recomputed
+4,KLD code: UD-Q5_K_XL vs UD-Q4_K_XL,divergence,11.82,3.175765441e-32,0.003125,pass,0.01053,y,36.37,15.29,in family (m=19),recomputed
+5,KLD task prompts: UD-Q5_K_XL vs UD-Q4_K_XL,divergence,11.17,5.888850823e-29,0.003333333333,pass,0.01316,y,32.48,13.65,in family (m=19),recomputed
+6,KLD code: UD-Q6_K vs UD-Q5_K_XL,divergence,8.67,4.260608565e-18,0.003571428571,pass,0.01579,y,19.57,8.22,in family (m=19),recomputed
+7,KLD prose: UD-Q5_K_XL vs UD-Q4_K_XL,divergence,8.48,2.184889732e-17,0.003846153846,pass,0.01842,y,18.72,7.87,in family (m=19),recomputed
+8,KLD task prompts: UD-Q6_K vs UD-Q5_K_XL,divergence,8.26,1.511215851e-16,0.004166666667,pass,0.02105,y,17.76,7.46,in family (m=19),recomputed
+9,KLD prose: UD-Q6_K vs UD-Q5_K_XL,divergence,3.71,0.0002033528921,0.004545454545,pass,0.02368,y,3.58,1.51,in family (m=19),recomputed
+10,"RULER MK-NIAH @131,072: reasoning-block closure",task benchmark,,0.001513719559,0.005,pass,0.02632,y,,,in family (m=19),recomputed
+11,"MTP acceptance falls with draft depth (10 of 11 adjacent pairs, one-sided)",speculative decoding,,0.005859375,0.005555555556,fail,0.02895,y,,,in family (m=19),recomputed
+12,HellaSwag paired: UD-Q6_K vs UD-Q4_K_XL,task benchmark,,0.125,0.00625,fail,0.03158,n,,,in family (m=19),recomputed
+13,HellaSwag paired: UD-Q6_K_XL vs UD-Q6_K,task benchmark,,0.5,0.007142857143,fail,0.03421,n,,,in family (m=19),recomputed
+14,HellaSwag paired: UD-Q6_K_XL vs UD-Q4_K_XL,task benchmark,,0.5,0.008333333333,fail,0.03684,n,,,in family (m=19),recomputed
+15,HellaSwag paired: UD-Q6_K vs UD-Q5_K_XL,task benchmark,,0.5,0.01,fail,0.03947,n,,,in family (m=19),recomputed
+16,HellaSwag paired: UD-Q5_K_XL vs UD-Q4_K_XL,task benchmark,,0.5,0.0125,fail,0.04211,n,,,in family (m=19),recomputed
+17,HellaSwag paired: UD-Q6_K_XL vs UD-Q5_K_XL,task benchmark,,1,0.01666666667,fail,0.04474,n,,,in family (m=19),recomputed
+18,HumanEval+ paired (base): UD-Q4_K_XL vs UD-Q6_K_XL,task benchmark,,1,0.025,fail,0.04737,n,,,in family (m=19),recomputed
+19,HumanEval+ paired (plus): UD-Q4_K_XL vs UD-Q6_K_XL,task benchmark,,1,0.05,fail,0.05,n,,,in family (m=19),recomputed
+-,"RULER MK-NIAH @131,072: retrieval score (WITHDRAWN as retrieval, PN-60)",task benchmark,,0.001953125,,,,,,,excluded from the family: withdrawn as a retrieval result (PN-60),recomputed
