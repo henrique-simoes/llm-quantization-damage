@@ -2327,3 +2327,45 @@ Result: the per-cell screen passes on every criterion except one, and that one i
   be read as void for the mk100 entry until a re-run with thinking disabled exists.
 Next: unchanged from L-23 — verify the PN-29 exposure, re-analyse speed conditioned on acceptance,
   rewrite the outline against what is now a 63-note base.
+
+### L-25 | 2026-09-03T17:10:00Z | S3-report | claude-opus-5 | conductor-manager | Title and abstract chosen <!-- bsc-ledger:qbench-t1-TITLE -->
+Did: selected the paper's title and abstract from the six title sets and six abstracts proposed by
+  the second review round, and retired the incumbent working title in `CITATION.cff` and
+  `manuscript/OUTLINE.md`.
+Result — **title: reviewer D's T2**, *"Divergence Ranks What Benchmarks Bound: quantization, context
+  and speculative decoding for a 27B coding model on two 16 GB GPUs"*. D ranked T2 **second**, behind
+  a deliberately safe descriptive title, but made the ordering explicitly conditional: *"If the
+  MK-NIAH re-analysis is done and comes back as I predict, T2 becomes clearly correct and I would
+  prefer it."* It was done and it came back as predicted (**PN-60**), so this takes D's stated
+  preference rather than its hedge. PN-60 does not merely permit T2, it strengthens it: while PN-44
+  stood, a task benchmark *did* resolve the ladder, which contradicted "what benchmarks bound"; with
+  MK-NIAH re-analysed, no task instrument separates the arms on its intended construct and the
+  contrast is cleanly true across all twelve days.
+  Reviewer C's T9 (*"What the Benchmarks Cannot See, and What the Protocol Decides"*) was rejected on
+  **C's own caution against putting "cannot" in the title**. C's stated reason has since evaporated
+  — it was that PN-44 resolved the ladder — but the word still overclaims, because PN-60 found
+  budget closure *did* separate the arms at p = 0.001514. Something was seen, on a different
+  construct. D's "bound" is precise where "cannot see" is not. T2 additionally names the paper's
+  actual three-part structure, and **PN-62 does not touch it**: scoping the tail leaves PN-13's
+  separations intact, and those are the only claim "ranks" rests on.
+  **Abstract: reviewer D's A2** (249 words as proposed, 251 as adopted). It is the only one of the
+  six that **already contains PN-62's control** — "a shape we show is set by the corpus rather than
+  by the compression, since changing only the KV-cache dtype reproduces it" — written before that
+  correction existed as a note and independently confirmed here hours later. It also drops the
+  3.7-sigma lower endpoint that does not survive Bonferroni at design effect 1.5 (using 8.7-18.1
+  instead), and carries **no MK-NIAH sentence**, which is what makes D's A3 unusable after PN-60.
+  Reviewer C's A1 was the runner-up and led with PN-49's 36-fold protocol swing — the
+  best-provenanced number in the corpus — but opens on a checkpoint that is not one of the paper's
+  four arms and leads with a claim the chosen title does not name.
+  **Three edits applied to A2 as adopted**: the KV-only control now cites **PN-62** rather than
+  PN-15; **PN-49's 36-fold swing was added**, since A2 omitted the study's best-evidenced single
+  result and C's A1 was right to lead with it; and the median ratio is stated as **181-206x** rather
+  than "100-200x", per D-8 — PN-35's printed median row is wrong by 2x for two of three arms and
+  must not be quoted until that note is superseded.
+⚠️ Outstanding: **PN-35's median row is still misprinted in the note itself** (D-8), and the abstract
+  now states the corrected figure while the note it derives from does not. That inconsistency must be
+  closed by a superseding note before submission — the abstract is currently more correct than its
+  own evidence line.
+Next: rewrite OUTLINE §5 against the 63-note base — §5.2 loses its third instrument (PN-60), §5.1
+  gains PN-62's shape/magnitude separation, and §Agentic behavior needs a section that does not yet
+  exist. Then verify the PN-29 exposure and re-analyse speed conditioned on acceptance.
