@@ -2530,3 +2530,44 @@ Where the data cannot support a figure the outline wants: no divergence at deplo
   *unanswered*, not negative; no accuracy-vs-context for any arm; nothing at temperature > 0; no
   per-arm best draft depth; UD-Q4_K_XL has no repetition group at 262,144.
 Next: verify the three unverified items above, then D1 — the LaTeX skeleton.
+
+### L-30 | 2026-09-04T00:40:00Z | S14-drafting | claude-opus-5 | conductor-manager | Rebalance: the study is not only a quantization study <!-- bsc-ledger:qbench-t1-REBAL -->
+Did: acted on owner review of the README (2026-09-03). The criticism is correct and it applies to
+  the figure programme as well: **both were indexed on the four-arm divergence ladder and the E12
+  wave, under-representing what was actually measured.** A reader would have concluded this was a
+  quantization study with benchmark asides. It is not — a four-day SWE-bench Verified campaign
+  across three quantizations, two HumanEval+ ladders spanning seven configurations, an
+  MTP-versus-DFlash2 comparison, draft-depth sweeps and a three-backend comparison are body material.
+Result — README restructured, +104 lines:
+  - **New scope inventory, "What was actually measured"**, immediately after the setup. It states
+    plainly that the four arms are the *divergence ladder*, not the extent of the study, and
+    tabulates the real coverage: **nine quantizations** (Q3_K_XL, IQ4_XS, Q4_K_M, Q4_K_XL, Q5_K_XL,
+    Q6_K, Q6_K_XL, NVFP4, plus six named-untested), **three backends** (llama.cpp on two images,
+    vLLM stable and nightly, SGLang which never started), **six task benchmarks**, three perplexity
+    protocols, speculative decoding at four draft depths across two methods, and the systems axes.
+  - **New section, "The benchmark campaign."** SWE-bench Verified with all three arms and their
+    intervals (IQ4_XS 38/49 = 77.6 %, Q5_K_XL 38/50 = 76.0 %, Q6_K 37/49 = 75.5 %), the ARM64
+    scoring defect that produced three superseded generations, both HumanEval+ ladders at n=164 with
+    the context-length control, the thinking-mode empty-rate finding, HellaSwag, RULER and agentic
+    steps.
+  - **New section, "Speculative decoding — a configuration axis, not a free speed knob."** The
+    MTP-vs-DFlash2 table at ctx 32,768 with decode, speedup, acceptance and byte-exactness
+    (DFlash2 n=4 fastest at 51.78 tok/s but **engine-confounded** and labelled so), the 131/164
+    non-identity result, draft depth at matched 131,072 where **Q6_K n=8 is slower than n=2** at
+    acceptance 0.251, the 1.19 GiB draft-worker wall across three engines, and the cross-backend
+    probe.
+  - Opening answer rewritten: it now leads on twelve days, nine quantizations, three backends and
+    five benchmark families rather than on the divergence result alone.
+  Figure programme re-tiered: **F16 promoted CORE → ESSENTIAL** (six essential now). F16 is the
+  sharpest single instance of the paper's thesis in the whole corpus — the most expensive instrument
+  run, four days of GPU time, **inverting** the ladder every cheaper instrument ordered correctly,
+  inside a ±12-point interval. **F22 promoted SUPPORTING → CORE**: throughput against *filled*
+  context depth is a headline practitioner number and it corrects the depth-0 tables that are the
+  ones most often quoted elsewhere. Rationale recorded inline in §1.2 so the promotion is not
+  silently reversible.
+All numbers taken from the committed figure CSVs (`fig15-humaneval-ladders.csv`,
+  `fig16-swebench-verified.csv`, `fig05-speculation.csv`, `fig14-draftdepth.csv`,
+  `fig18-cross-backend.csv`), which PN-65 had just placed under artifact control — the README's
+  benchmark numbers are now traceable rather than prose-sourced.
+Next: unchanged — verify the three items L-29 flagged unverified (cost contrast 6.2×, PN-38's
+  distances, PN-29's median), then D1, the LaTeX skeleton. Endorsement remains the long pole.
