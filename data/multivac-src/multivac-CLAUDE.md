@@ -22,7 +22,7 @@
 
 A technical report benchmarking **Qwen3.8-27B** across quantization levels and inference backends on **2× NVIDIA RTX 5060 Ti 16GB** (Blackwell, sm120). The study compares **llama.cpp GGUF quantizations** (IQ4_XS, Q4_K_XL, Q5_K_XL, Q6_K_XL, Q3_K_XL) against **vLLM NVFP4** (W4A4, FP8 KV cache), with speculative decoding methods (MTP and DFlash2).
 
-The host machine is called **multivac** — a headless Ubuntu server accessed via SSH from a Mac Studio. This Claude Code session runs ON multivac itself.
+The host machine is called **multivac** — a headless Ubuntu server accessed over SSH from a workstation. This session runs on multivac itself.
 
 ## PROJECT OBJECTIVES — two separate deliverables (do NOT conflate)
 
@@ -1019,7 +1019,7 @@ Run P0 in this order — see TEST PLAN for exact commands and decision rules:
 
 ## User context
 
-The owner operates from a Mac Studio, SSHing into multivac. Sessions often run from the Mac-side Claude Code instance. This Claude Code session runs directly on multivac. Communication is often in Portuguese but technical content is in English.
+The host is operated remotely over SSH from a workstation. Agent sessions run either remotely or directly on the host. Technical content is recorded in English.
 
 ## Important rules
 

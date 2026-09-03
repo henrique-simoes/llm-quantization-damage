@@ -4,7 +4,7 @@
 instruments the field usually reaches for?**
 
 A measurement study of **Qwen3.8-27B** across four Unsloth GGUF quantizations on **two consumer
-16 GB GPUs**, run on a single personal machine. Its deliverable is a technical report for arXiv.
+16 GB GPUs**, run on a single consumer workstation. Its deliverable is a technical report for arXiv.
 
 The short answer: quantization damage measured on **code** is roughly **twice** what the same
 instrument reports on **prose**, the gap widens as quantization gets more aggressive, and a
