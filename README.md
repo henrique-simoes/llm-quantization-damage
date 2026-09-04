@@ -8,12 +8,13 @@ instruments the field usually reaches for?**
 A measurement study of **Qwen3.8-27B** across four Unsloth GGUF quantizations on **two consumer
 16 GB GPUs**, run on a single consumer workstation. Its deliverable is a technical report for arXiv.
 
-The short answer: across **twelve days, nine quantizations, three inference backends and five
+The short answer: across **twelve days, eight quantizations, three inference backends and six
 benchmark families**, the instruments the field normally reaches for could not separate neighbouring
 quantizations of this model — a 50-instance agentic suite *inverted* the ladder, perplexity spanned
 less than its own standard error, and a multiple-choice benchmark rated the most heavily quantized
-arm nominally highest. A token-level divergence measurement separated the same arms at 8.7–18.1 σ in
-about two GPU-hours. **The instrument decides whether there is anything to see.**
+arm nominally highest. A token-level divergence measurement separated the three quantized arms from one another on code
+at **8.7–18.1 σ** — the two *adjacent* pairs at 8.67 σ and 11.82 σ, the ladder's extremes at
+18.13 σ — in about two GPU-hours. **The instrument decides whether there is anything to see.**
 
 The study is not only about quantization. It carries a four-day SWE-bench Verified campaign across
 three quants, two HumanEval+ ladders spanning seven configurations, a speculative-decoding
