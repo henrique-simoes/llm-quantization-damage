@@ -2571,3 +2571,61 @@ All numbers taken from the committed figure CSVs (`fig15-humaneval-ladders.csv`,
   benchmark numbers are now traceable rather than prose-sourced.
 Next: unchanged — verify the three items L-29 flagged unverified (cost contrast 6.2×, PN-38's
   distances, PN-29's median), then D1, the LaTeX skeleton. Endorsement remains the long pole.
+
+### L-31 | 2026-09-04T04:35:00Z | S14-drafting | claude-opus-5 | conductor-manager | The eleven repairs; and the acceptance regression turns out to be arithmetic <!-- bsc-ledger:qbench-t1-REPAIR -->
+Did: dispatched the adversarial reviewer's eleven required changes as a three-agent Workflow
+  (`claude-opus-5`, `medium` effort, per the owner's standing dispatch rules) — outline repair,
+  the acceptance-conditioned re-analysis, and the final abstract. **Verified the two consequential
+  claims myself before accepting either.**
+Result — **PN-68, the largest analytical correction of the drafting stage.** The regression of decode
+  throughput on draft acceptance that **both** blind reviewers independently reported as the
+  explanation for this study's "unexplained" speed variance is an **algebraic identity**, not an
+  empirical relationship: for llama.cpp's MTP loop, decode is exactly `(1 + n_draft x acceptance) /
+  t_pass`. Reconstructed here with `passes = draft_n / n_draft`, `N = passes + accepted` recovers
+  **{190.0, 190.5, 191.0} across all 47 Wave-1 cells** against `n_predict` 192. Regressing decode on
+  acceptance therefore explains nothing — **r² measures only how homogeneous `t_pass` is inside the
+  chosen subset**, which is why the two reviewers' figures differ and neither generalises (0.827 at
+  matched depth 262,144; 0.987 for one arm at 212,992; **0.106** pooled across draft depths, because
+  the identity's slope is `n_draft / t_pass`).
+  What survives is better. Parameter-free conditioning — dividing by tokens-per-pass, fitting
+  nothing — collapses within-configuration spread from **16.7-40.7 % to 1.3-13.4 %** (Wave 1) and
+  from a median 29.9 % to **2.6 %** (S9d, 21 cells), with a variance decomposition of **98.7 %
+  tokens-per-pass against 0.9 % `t_pass`**. The variance was never engine noise; it is sampling
+  variance of the generated text. PN-45 is strengthened, not replaced: the honest reading is *"the
+  between-arm difference is 4-5 % and the 40 % was sampling variance"*, not *"6.74 % buried under
+  40 % noise"*. Two further results fall out: **`-ts` moves decode ≤ 5.7 % in 11 of 12
+  matched-continuation groups**, so E11's historical "+93 %" was a ceiling effect and a different
+  claim; and `t_pass` is linear in filled depth at **0.451 ± 0.037 µs/token**. Draft counts are
+  **byte-identical across every `-ts` ratio within a repetition index, 14 of 14 groups**, so the
+  sweep was perfectly controlled all along.
+  ⚠️ PN-66's tautology objection applies here in exact form and is stated in the note rather than
+  answered defensively: the identity is not the finding; the size of the conditioned residual is.
+**PN-69 — a fourth instance of one failure mode, and it was mine.** PN-53's opening sentence says
+  "three independent inference stacks hit the same 1.19 GiB allocation failure"; its own body two
+  lines later records that **llama.cpp succeeded**. The wall blocks **two of the three engines
+  tried**. The corrected claim is stronger: three were tried, two failed identically, and the one
+  that succeeded differs in exactly the two ways the mechanism predicts. This reached `README.md`,
+  which carried the false head and an unreadable tail ("and — not — llama.cpp … which works"); both
+  are fixed. **The pattern now has four instances** — PN-19→36→45, PN-35 corrected by PN-64, PN-49's
+  protocol conflation, and this — of a headline sentence generalising past the evidence table
+  directly beneath it. The report should present that as a finding about summary layers, not as four
+  isolated slips.
+Outline repair (agent, not independently re-verified): OUTLINE-V2 items 2-8 and 11 applied, plus
+  both non-blocking additions and every in-file occurrence of the cost pair. **Body target set to
+  13,500 words**, down from a claimed 15,950 that actually summed to 16,600; every section header now
+  equals its own subsection sum, and a 17-row lever table nets the 3,100-word reduction. Thread
+  shares: task benchmarks **20 %** against divergence **17 %** — the rebalance the owner asked for,
+  now arithmetically auditable. Sigma range settled on the code domain everywhere (8.67 / 11.82
+  adjacent, 18.13 extremes), with prose surviving only in T23 and §7's threat 2 where 3.71 is named
+  as the separation that fails under clustering. `DRAFTING-PLAN.md` D4/D5 renumbered for v2's
+  section scheme.
+Abstract agent found **three further defects in the reviewer's own corrected abstract**, two
+  blocking: it quoted the HumanEval+ **base** interval [−2.68, +1.46] under a *plus* label (the plus
+  row is [−3.28, +2.06], 5 discordant) — **the identical defect found in OUTLINE §5.2 on 2026-09-03,
+  recurring** — and it inherited PN-53's "three engines". It also flagged that **the abstract now
+  live in `CITATION.cff` violates STYLE-GUIDE §1.3 and §3.0** (five uses of "we"; opens on a claim
+  about the field rather than a measurement), inherited from reviewer D's A2 which predates the
+  style guide. Deliverable `manuscript/ABSTRACT-FINAL.md`. **Not yet adopted** — pending my
+  verification of its numbers.
+Next: verify and adopt ABSTRACT-FINAL (including the CITATION.cff replacement block), apply the
+  §6.7 / T12 / F12 rewrites PN-68 requires, then switch OUTLINE-V2 in for OUTLINE and begin D1.

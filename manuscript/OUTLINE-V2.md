@@ -39,13 +39,18 @@ KL divergence, three perplexity protocols, a multiple-choice battery, two genera
 a long-context retrieval battery, a fifty-instance agentic suite, throughput and acceptance probes,
 and an energy log — on eight quantized checkpoints across three inference backends. **The instrument,
 not the quantization, decided whether there was anything to see.** A token-level divergence
-measurement separated every adjacent pair of a four-arm ladder at 3.7–11.8 σ with non-overlapping
-intervals in 2.3 GPU-hours, and located the damage precisely: it is concentrated in the tail of the
+measurement separated the three quantized arms of a four-arm ladder from one another on code at
+**8.7–18.1 σ** — the adjacent pairs at **8.67 σ** (UD-Q6_K vs UD-Q5_K_XL) and **11.82 σ**
+(UD-Q5_K_XL vs UD-Q4_K_XL), the ladder's extremes at **18.13 σ** — with non-overlapping intervals in
+**2.32 GPU-hours**, and located the damage precisely: it is concentrated in the tail of the
 per-token distribution, where the median code token moves about two orders of magnitude *less* than
 the median prose token while the 99th-percentile code token moves 5.0–8.1× *more* — with the
 study's own KV-dtype control showing that the tail's **shape** belongs to the corpus and only its
-**magnitude** belongs to quantization. Against that, 14.3 GPU-hours of task benchmarking bounded the
-same ladder and resolved none of it, and did so five different ways for five different reasons:
+**magnitude** belongs to quantization. Against that, **14.31 GPU-hours** of task benchmarking — T19's
+measured total, covering **three instrument classes** (HellaSwag, HumanEval+ and RULER) and not the
+perplexity work or the pre-E12 SWE-bench campaign, which sit outside it — bounded the same ladder and
+resolved none of it, and five instruments failed to resolve it five different ways for five different
+reasons:
 corpus perplexity ordered the ladder correctly across a span of 0.033 while carrying ±0.041 of
 standard error per point; a multiple-choice battery at n=400 put the most quantized arm nominally
 highest and had two arms answering all 400 items identically; a paired generative benchmark at
@@ -68,9 +73,9 @@ study made to its own headline claims at zero GPU cost, which are reported as me
 the strongest available evidence for the thesis: *what you can see depends on what you measure with,
 and most of the field is measuring with the coarse ones.*
 
-**One sentence, if only one survives.** Divergence ranks this ladder in two GPU-hours; five task
-instruments spanning fourteen bound it and none resolves it; and every deployment decision that
-mattered on this host — window, split, KV dtype, speculative setting, backend — was made on an axis
+**One sentence, if only one survives.** Divergence ranks this ladder in 2.32 GPU-hours; five task
+instruments bound it and none resolves it, three of them alone costing 14.31; and every
+deployment decision that mattered on this host — window, split, KV dtype, speculative setting, backend — was made on an axis
 the quantization choice does not control.
 
 ---
@@ -123,8 +128,8 @@ report.
 ### 2.2 Why the ordering inside each half is load-bearing
 
 - **§5 ascends in unit of observation and in cost.** §5.1 divergence (per token, 65,536 per cell,
-  2.3 GPU-h, separates everything) → §5.3 perplexity (per token, but averaged, and it certifies
-  nothing) → §5.4 multiple choice (per candidate set, n=400, 0.54 GPU-h, separates nothing) → §5.5
+  2.32 GPU-h, separates everything) → §5.3 perplexity (per token, but averaged, and it certifies
+  nothing) → §5.4 multiple choice (per candidate set, n=400, 0.54 GPU-h, separates nothing) → §5.5a/b
   generative (per problem, n=164 paired, 1.29 GPU-h, bounds at ±3 points) → §5.6 long context (per
   generation at depth, n=12–100, 12.34 GPU-h, measures the wrong construct) → §5.7 agentic (per
   trajectory, n≈50, ~four days, *inverts* the ladder). A reader who reads only the subsection
@@ -157,9 +162,10 @@ report.
    than one. This is deliberate: the equivalence result is an accuracy finding and the depth result
    is a throughput finding, and merging them is how v1 ended up with a 750-word section covering
    five paper notes.
-6. **The report gets longer** — ≈15,900 body words against the style guide's 11,350 (see §3.4).
-   That is the price of the owner's instruction not to compress; §3.4 names the compression levers
-   in priority order if a page budget forces one.
+6. **The report gets longer** — **13,500 body words against the style guide's 11,350**, a
+   **+18.9 %** departure, funded section by section in §3.1 rather than declared (see §3.4). That is
+   the price of the owner's instruction not to compress, held to a size the delta actually supports;
+   §3.4 names the levers already spent and the ones still in reserve.
 
 ---
 
@@ -167,22 +173,52 @@ report.
 
 ### 3.1 Target shares of the body
 
+**Every figure below is summed from the per-subsection targets in §4, not estimated.** The table
+that promises rebalancing has to be auditable, so the audit is printed with it: an earlier draft of
+this table under-counted the systems thread by 250 words and the framing thread by 100, omitted the
+two section opening blocks entirely, and printed a body total of 15,950 against a true sum of
+**16,600** — while §5's own header claimed 5,600 against subsections summing to 5,850 and §6's
+claimed 4,200 against 4,600. All five figures are recomputed below and every header now matches its
+subsections. Shares are rounded to whole per cent and sum to 100.
+
 | thread | sections | words | share of body |
 |---|---|---|---|
-| **Divergence and quantization fidelity** | §5.1, §5.2, §5.3, §6.3 | 2,800 | **18 %** |
-| **Task benchmarks** (multiple-choice, generative ×2 ladders, long context, agentic) | §5.4–§5.7 | 3,000 | **19 %** |
-| **Speculative decoding** | §6.4, §6.5 | 1,500 | **9 %** |
-| **Context, split, backends, throughput, power** | §6.1, §6.2, §6.6, §6.7 | 2,200 | **14 %** |
-| **Protocol, instrument economics, threats** | §4, §5.8, §7 | 3,100 | **19 %** |
-| **Framing** (intro, background, setup, conclusion) | §1, §2, §3, §8 | 3,350 | **21 %** |
-| | | **≈ 15,950** | |
+| **Task benchmarks** (multiple-choice, two generative ladders, long context, agentic) | §5.4, §5.5a, §5.5b, §5.6, §5.7 | **2,700** | **20 %** |
+| **Divergence and quantization fidelity** | §5.1, §5.2, §5.3, §6.3 | 2,250 | 17 % |
+| **Framing** (intro, background, setup, conclusion) | §1, §2, §3, §8 | 2,850 | 21 % |
+| **Protocol, instrument economics, threats** | §4, §5.8, §7 | 2,550 | 19 % |
+| **Context, split, ratio, backends, throughput, power** | §6.1, §6.2, §6.6, §6.7 | 1,900 | 14 % |
+| **Speculative decoding** | §6.4, §6.5 | 1,050 | 8 % |
+| **Section opening map and bridge** | head of §5, head of §6 | 200 | 1 % |
+| **body** | | **13,500** | **100 %** |
+
+**The audit, section by section, so the sum can be checked without re-reading §4.** Each row is the
+sum of its own subsection targets, each subsection appears exactly once, and every §4 header carries
+the same number as its row here.
+
+| section | subsection targets | total |
+|---|---|---|
+| §1 Introduction | 150 + 125 + 100 + 325 + 75 + 75 | **850** |
+| §2 Background | 270 + 270 + 270 + 90 opening | **900** |
+| §3 Setup | 300 + 250 + 150 + 50 | **750** |
+| §4 Method | 175 + 250 + 225 + 125 + 75 | **850** |
+| §5 Instruments | 100 map + 750 + 800 + 350 + 350 + 400 + 600 + 450 + 900 + 300 | **5,000** |
+| §6 Axes | 100 bridge + 700 + 150 + 350 + 600 + 450 + 750 + 300 | **3,400** |
+| §7 Threats | — | **1,400** |
+| §8 Conclusion | — | **350** |
+| **body** | | **13,500** |
+
+Appendices, likewise summed rather than estimated: A 700 + B 1,000 + C 700 + D 500 = **2,900**. The
+"≈ 3,800" that appeared here before matched no appendix target in §4.
 
 ### 3.2 Why this split, and not another
 
-- **Task benchmarks take the largest single results share (19 %) — larger than divergence.** This
-  is the correction the owner asked for, and it is defensible on three independent grounds. *Cost:*
-  they consumed 14.31 GPU-hours in the E12 wave alone (T19) plus roughly four days of pre-E12
-  SWE-bench evaluation, against divergence's 2.32. *Breadth:* five instruments, five distinct
+- **Task benchmarks take the largest single results share (20 %) — larger than divergence's 17 %.**
+  This is the correction the owner asked for, and it is defensible on three independent grounds.
+  *Cost:* three of their instrument classes consumed **14.31 GPU-hours** in the E12 wave alone (T19,
+  and the 14.31 covers HellaSwag, HumanEval+ and RULER only), plus roughly four days of pre-E12
+  SWE-bench evaluation that sits outside that total, against divergence's **2.32** — a **6.2×** ratio
+  on the three classes T19 measures. *Breadth:* five instruments, five distinct
   reasons for failing to resolve — a section that treats them as one null wastes four of the five.
   *Argument:* the title claims benchmarks *bound*; a paper that spends 8 % of its body on the
   bounding evidence has not earned the claim. F16, promoted to ESSENTIAL on 2026-09-04, is the
@@ -190,9 +226,9 @@ report.
 - **Divergence keeps its novelty premium in figures rather than in word count.** F1 and F2 stay
   ESSENTIAL, T3 stays the master table, and the tail result (PN-35 as scoped by PN-62 and corrected
   by PN-64) is the only place in the report where a novel mechanism is claimed. But the mechanism is
-  compact: it is one quantile table and one control. Eighteen per cent buys it a full argument
+  compact: it is one quantile table and one control. Seventeen per cent buys it a full argument
   without letting it colonise the paper, which is precisely what happened in v1.
-- **Speculative decoding at 9 %** is up from v1's effective ~6 % and reflects what it actually
+- **Speculative decoding at 8 %** is up from v1's effective ~6 % and reflects what it actually
   covers: an equivalence result that retired a nine-day-old premise (PN-23, PN-26, PN-59), a
   method comparison on the correct engine build (PN-29), a matched-depth draft-depth sweep across
   four arms (PN-32, scoped by PN-66), a withdrawn at-depth claim (PN-24 → PN-30) and a
@@ -202,7 +238,8 @@ report.
   cross-backend probe and the 5.1×-short vLLM ceiling — are four notes that appear in v1's body not
   at all.
 - **Protocol and threats at 19 %** is high for a measurement paper and is the report's second
-  contribution. Sixteen corrections, twelve instrumentation defects in three named families, a
+  contribution. Sixteen corrections, twelve register entries covering twenty-one defects in three
+  named families, a
   multiplicity analysis across ~19 tests, and an explicit statement of what each instrument could
   never have shown. This is the material reviewers A, C and D each independently called the most
   reusable part of the corpus.
@@ -214,16 +251,51 @@ grows to accommodate breadth; breadth goes in §5 and §6 or it goes in an appen
 
 ### 3.4 Length, honestly, and the compression levers
 
-Body ≈ 15,950 words (≈ 31 single-column pages), appendices ≈ 3,800 (≈ 9 pages), total ≈ 40 pages.
-This supersedes `STYLE-GUIDE.md` §2.8's 11,350/30-page budget, which was written against v1's
-seven-subsection §5. Forty pages is long; it is not unusual for a measurement report, and the
-four-layer navigability rules in `STYLE-GUIDE.md` §2.2 are what make it readable. **If a page budget
-forces compression, cut in this order and stop as soon as it fits:** (1) §6.7 power and thermals to
-150 words plus T22; (2) §5.3 perplexity to 400 words, keeping only the protocol swing; (3) §6.2 ratio
-and throughput folded into §6.1; (4) §5.8 to 250 words, leaning entirely on T19 and F19; (5) §6.6
-backends to 400 words. **Never cut** §5.7, §6.4, §5.2 or §7 — the first two are the corrections the
-owner is protecting, the third is the only novel mechanism, and the fourth is the report's
-credibility.
+**Target: 13,500 body words** (≈ 26 single-column pages), appendices 2,900 (≈ 7 pages), total
+≈ 34 pages. This departs from `STYLE-GUIDE.md` §2.8's 11,350 / 30-page budget by **+18.9 %**, and the
+departure is *earned rather than declared*: nineteen paper notes that carried no body weight in v1
+carry `LEAD` or `BODY` weight here, which is the delta the extra 2,150 words buy. An earlier draft of
+this outline asked for 15,950 — a +40 % departure from a budget written against the same corpus, and
+more than nineteen notes support.
+
+**The levers already spent, from the audited 16,600 to 13,500 — a net 3,100 words.** The starting
+point is the *true* sum of v2's own §4 targets, not the 15,950 the old table printed; cutting from a
+figure that was already wrong is how a budget stays wrong. Each lever is named so the owner can
+reverse a specific one rather than the whole reduction.
+
+| # | lever | from → to | saved |
+|---|---|---|---|
+| 1 | §6.7 throughput, power and thermals compressed onto T12 and T22 | 700 → 300 | 400 |
+| 2 | §6.5 draft depth: the four ⚠️ scopes stay, the narration goes | 800 → 450 | 350 |
+| 3 | §5.6 long context: the withdrawal arc held to three sentences | 750 → 450 | 300 |
+| 4 | §5.3 perplexity reduced to the span and the protocol swing | 600 → 350 | 250 |
+| 5 | §6.2 reduced to the PN-42 correction, the outlier and `-ctxcp` | 400 → 150 | 250 |
+| 6 | §4 method tightened across all five subsections | 1,300 → 850 | 450 |
+| 7 | §1 tightened; seven contributions kept, each shorter | 1,200 → 850 | 350 |
+| 8 | §3 setup tightened | 1,000 → 750 | 250 |
+| 9 | §6.3 KV dtype tightened; the external comparisons stay | 500 → 350 | 150 |
+| 10 | §5.1 divergence — REVIEW-V2 §1.3's funding for the §5.5 split | 900 → 750 | 150 |
+| 11 | §6.4 equivalence — REVIEW-V2 §1.3's funding for §6.6 | 700 → 600 | 100 |
+| 12 | §5.4 multiple choice | 450 → 350 | 100 |
+| 13 | §5.8 instrument economics, leaning harder on T19 and F19 | 400 → 300 | 100 |
+| 14 | §6.1 window and split | 750 → 700 | 50 |
+| 15 | the two section opening blocks | 150 + 150 → 100 + 100 | 100 |
+| 16 | **§5.5 split into 5.5a + 5.5b** (REVIEW-V2 §1.3, item 5) | 900 → 400 + 600 | **−100** |
+| 17 | **§6.6 backends raised** (REVIEW-V2 §1.3, item 5) | 600 → 750 | **−150** |
+| | **net** | **16,600 → 13,500** | **3,100** |
+
+Unchanged at their v2 targets: §2 (900, hard cap), §5.2 (800), §5.7 (900), §7 (1,400), §8 (350) —
+the four protected sections plus the capped one.
+
+Appendix B additionally moves from prose to a table with two-sentence rows (1,300 → 1,000) without
+dropping an entry, which is a page saving that costs no claim.
+
+**Levers still in reserve, if a page budget bites again** — cut in this order and stop as soon as it
+fits: (1) §6.2 folded into §6.1 entirely; (2) §5.8 to 200 words, leaning entirely on T19 and F19;
+(3) §6.7 to 150 words plus T22; (4) Appendix C's per-repetition rows moved to the artifact.
+**Never cut** §5.7, §6.4, §5.2 or §7 — the first two are the corrections the owner is protecting, the
+third is the only novel mechanism, and the fourth is the report's credibility. §5.5b is added to that
+protected list: it is the historical corpus, and it is the half that compresses first by default.
 
 ---
 
@@ -236,28 +308,28 @@ reference is marked **NO PN SUPPORT** and may not be written as though it were m
 
 ---
 
-### §1 Introduction — 1,200 words
+### §1 Introduction — 850 words
 
 **Claim.** A practitioner with two 16 GB consumer GPUs must choose one quantization of a 27B coding
 model; the instruments available to make that choice disagree, several give no answer at all, and
 which one is used determines the answer more than the model does.
 
 **Structure.**
-- **Opening (200 w).** The practitioner question, concretely: four candidate checkpoints, one host,
+- **Opening (150 w).** The practitioner question, concretely: four candidate checkpoints, one host,
   one decision. Not a critique of the field; a decision under measurement uncertainty. Follow
   `STYLE-GUIDE.md` §7's worked opening.
-- **The scope statement (150 w) — new in v2, and the direct answer to the owner's criticism.** State
+- **The scope statement (125 w) — new in v2, and the direct answer to the owner's criticism.** State
   the size of the study in its second paragraph, not in an appendix: twelve days, eight quantized
   checkpoints in two formats, three inference backends, nine instrument classes, ~19 hypothesis
   tests, sixteen self-corrections. Then the narrowing: a four-arm ladder carries the controlled
   divergence comparison, and the report says explicitly why those four and what the other four
   checkpoints are used for. A reader must not reach §5.7 and discover a four-day campaign they were
   not told about. **Evidence:** T1, F21-scope (new, §6 of this file), `env-manifest.json`, PN-57.
-- **Prior work in one paragraph (150 w).** Dutta et al. (NeurIPS 2024, R13) established that
+- **Prior work in one paragraph (100 w).** Dutta et al. (NeurIPS 2024, R13) established that
   accuracy hides compression damage; cite it *before* the contributions, not after. What this report
   adds: the shape of the damage, its domain dependence, a quantified task-level bound, and the same
   question asked of the configuration axes.
-- **Contributions — seven, in this order (450 w).**
+- **Contributions — seven, in this order (325 w).**
   1. **Tail structure.** Code damage is tail-concentrated; the median/p99 ordering inverts; the
      familiar "2× worse on code" is the mean of two opposite facts — **and the shape is a corpus
      property, demonstrated by the study's own KV-only control.** *(PN-35, PN-62, PN-64, PN-14,
@@ -275,10 +347,10 @@ which one is used determines the answer more than the model does.
      lossless had been used to *skip* measurements for nine days. *(PN-23, PN-26, PN-59)*
   7. **Protocol dependence is first-order.** The same weights on the same corpus read as 29 % worse
      or 0.8 % worse depending on conventions no published perplexity number discloses. *(PN-49)*
-- **Status statement (100 w).** Independent practitioner, professional master's candidate at USP,
+- **Status statement (75 w).** Independent practitioner, professional master's candidate at USP,
   **not** a peer-reviewed paper, no institutional team. `STYLE-GUIDE.md` §1.4 has the exact wording;
   do not soften it and do not repeat it more than the two required places.
-- **Scope and limits paragraph (150 w).** Ladder-relative reference, one model family, one engine
+- **Scope and limits paragraph (75 w).** Ladder-relative reference, one model family, one engine
   image, one host, two single-domain corpora — on page 2, not on page 26.
 
 **Failure mode.** Promising the divergence result and delivering it in §5.1, then letting §5.4–5.7
@@ -292,17 +364,22 @@ read as leftovers. The contributions list above is ordered so that 3 and 4 are l
 the consumer-hardware inference literature — and each leaves open exactly the question this report
 measures.
 
+**Budget — 810 + 90, not 3 x 300.** Three threads at 270 words each leaves **90 words** for the
+section's own claim sentence and the two transitions between threads, which 3 x 300 did not. The cap
+is 900 and it is hard; a section budgeted to its cap with nothing left for its opening overruns on
+the first draft.
+
 **Structure — three threads, every paragraph ending on what this report measures differently.**
-- **Instruments (300 w).** Perplexity's averaging bias and the case for KL divergence (R1, R2, R4,
+- **Instruments (270 w).** Perplexity's averaging bias and the case for KL divergence (R1, R2, R4,
   R10); Dutta et al. (R13) as the direct predecessor and the honest statement that contribution 3 is
   *independent confirmation on a different model family, compression scheme and hardware class*;
   who ranks quantizations in practice and on what (R3, R5); the near-baseline ranking-power objection
   (arXiv:2606.19558) answered here rather than in threats.
-- **Evaluation (300 w).** Task batteries applied to llama.cpp quantization, read as the nearest
+- **Evaluation (270 w).** Task batteries applied to llama.cpp quantization, read as the nearest
   neighbour and the caution (arXiv:2601.14277, R7); paired differences, power and equivalence bounds
   (R6); benchmark saturation and stagnation; RULER and the long-context protocol (R8); the two
   published quantization-at-depth studies that reach *opposite* conclusions (R9).
-- **Consumer-hardware inference (300 w).** Speculative decoding and the specific published
+- **Consumer-hardware inference (270 w).** Speculative decoding and the specific published
   losslessness claim this report answers (R12) — cited as motivation and foil, never as something
   refuted; KV-cache quantization literature (currently absent from the bibliography per reviewer D
   §5.2 — **must be added**); the same-GPU benchmark report (arXiv:2601.09527).
@@ -315,64 +392,65 @@ the shape an arXiv moderator declines.
 
 ---
 
-### §3 Setup, provenance and harness validation — 1,000 words + T1, T2
+### §3 Setup, provenance and harness validation — 750 words + T1, T2
 
-**§3.1 Host, engines, arms (400 w · T1).** 2× RTX 5060 Ti 16 GB, sm120, no NVLink, 180 W, Ryzen 5
+**§3.1 Host, engines, arms (300 w · T1).** 2× RTX 5060 Ti 16 GB, sm120, no NVLink, 180 W, Ryzen 5
 8500G, 14 GiB RAM. Engine pinned by image digest. The eight checkpoints and which four carry the
 controlled comparison. Two GPUs of 16 GB are not a 32 GB pool — state the physical constraint here
 because §6.1 depends on it. **PN-31 as a two-sentence footnote**, keeping only the generalisable
 clause: the standard divergence tooling's resident footprint scales with context length, which is
 why the published quantization tables it produces are all measured near 2K. *Evidence:* T1, PN-31.
 
-**§3.2 Harness validation, as a result (300 w · T2).** Measured server sampling defaults match
+**§3.2 Harness validation, as a result (250 w · T2).** Measured server sampling defaults match
 neither the documented engine defaults nor either official preset — an undocumented fourth
 configuration (PN-1); thinking is on by default and the widely-cited disable idiom raises a Jinja
 exception (PN-2, PN-3); `-fit` did not shrink the context here but still cannot be trusted to bound
 allocation (PN-4). This earns its place because it tells the reader every downstream number was
 produced under an asserted contract. *Evidence:* PN-1, PN-2, PN-3, PN-4.
 
-**§3.3 Provenance discipline, and one irreversible loss (200 w).** `env-manifest.json`, sha256 and
+**§3.3 Provenance discipline, and one irreversible loss (150 w).** `env-manifest.json`, sha256 and
 byte counts for every checkpoint including two that no longer exist; the deleted engine image that
 retroactively made every tensor-split and every 262,144-token result before 2026-08-29
 irreproducible, and the labelling rule that follows (*irreproducible-on-current-images*). This is
 where the historical corpus is admitted to the report with its scope stated, once, so that §5 and §6
 can use it without re-litigating. *Evidence:* PN-57, PN-65.
 
-**§3.4 AI-conduct and artifact availability (100 w).** Per `STYLE-GUIDE.md` §1.5 and §3.10.
+**§3.4 AI-conduct and artifact availability (50 w).** Per `STYLE-GUIDE.md` §1.5 and §3.10.
 **NO PN SUPPORT** — policy statement.
 
 **Failure mode.** Letting §3.3 become a lament. It is a labelling rule with one sentence of cause.
 
 ---
 
-### §4 Method — instruments, the SSA protocol, and what is refused — 1,300 words + T2, F21
+### §4 Method — instruments, the SSA protocol, and what is refused — 850 words + T2, F21
 
-**§4.1 The design principle (250 w).** Divergence instruments draw statistical power from **token
+**§4.1 The design principle (175 w).** Divergence instruments draw statistical power from **token
 count**; task benchmarks draw it from **problem count**. Everything in §5's ordering follows from
 that one asymmetry. *Evidence:* PN-13 (65,536-token budget), F21.
 
-**§4.2 The Small-Sample Accuracy protocol (350 w).** Reference-arm choice and its ladder-relative
+**§4.2 The Small-Sample Accuracy protocol (250 w).** Reference-arm choice and its ladder-relative
 consequence; the 65,536-token budget (18,432 for task prompts, and why the intervals are ~1.9×
 wider there); pre-registered interpretation bands declared as external reference points, never
 adopted rules. *Evidence:* PN-13, PN-21, PN-16.
 
-**§4.3 Instruments considered and rejected — 300 w. New in v2, and it belongs in Method.** Three
-instruments were built, run, and found incapable of answering the question, and each rejection is a
-transferable result rather than a failure: free-running greedy generation cannot measure
-quantization distance because trajectories fork within 2–126 characters and every pairwise distance
-saturates (PN-38); KL divergence cannot be measured at long context on a 14 GiB host because the
-tool holds a chunk's logits resident (PN-31); and RULER's `variable_tracking` was excluded on an
+**§4.3 Instruments considered and rejected — 225 w. New in v2, and it belongs in Method.** Three
+instruments were built, run, and did not answer the question, and each rejection is a
+transferable result rather than a failure: free-running greedy generation **does not resolve**
+quantization distance — trajectories fork within 2–126 characters and every pairwise distance
+saturates, so the metric returns the same value for every arm (PN-38); KL divergence at long context
+**did not run** on a 14 GiB host, the tool holding a chunk's logits resident and capping at
+`n_ctx` 8,192 (PN-31); and RULER's `variable_tracking` was excluded on an
 output-format artifact — an exclusion that must be *visible*, because it is the harder task and a
 reader will ask (see §7). *Evidence:* PN-38, PN-31, PN-63 (closure classifier), METRIC-CORPUS §6.2.
 
-**§4.4 What is reported, and what is refused (250 w).** Four rules, stated once and obeyed
+**§4.4 What is reported, and what is refused (125 w).** Four rules, stated once and obeyed
 everywhere: every table names protocol, n, estimator and interval *inside the table*; a comparison
 is reported as an equivalence bound, never as a bare p-value; where a test could not have reached
 significance at any outcome, the minimum attainable p is given instead (PN-40); an aggregate is
 meaningful only if every cell entering it is identical in every dimension except the one aggregated
 over — with the cell key as the check (PN-20, PN-45). *Evidence:* PN-40, PN-20, PN-45, PN-66.
 
-**§4.5 The instrument inventory (150 w · T2, F21-scope).** One table: instrument, unit of power, n
+**§4.5 The instrument inventory (75 w · T2, F21-scope).** One table: instrument, unit of power, n
 and its unit, arms covered, wall-clock, arms separated. This is the map the reader navigates §5 by.
 *Evidence:* T19, PN-41 as superseded by T19's recomputation, PN-65.
 
@@ -381,23 +459,29 @@ to spend GPU-hours on, which is worth more than a fourth confirmatory measuremen
 
 ---
 
-### §5 What the instruments can see — 5,600 words
+### §5 What the instruments can see — 5,000 words (an opening map and nine subsections)
 
-**Opening map (150 w).** Three sentences naming the six instrument classes and the ordering
+**Opening map (100 w).** Three sentences naming the six instrument classes and the ordering
 principle: the unit of observation coarsens from a token to a multi-step trajectory, cost per
 comparison rises by three orders of magnitude, and resolving power falls monotonically. Not a
 summary of results — a map. Then §5.1 begins.
 
 ---
 
-**§5.1 The divergence ladder and the domain hierarchy — 900 w · F1, F1b, F8 · T3**
+**§5.1 The divergence ladder and the domain hierarchy — 750 w · F1, F1b, F8 · T3**
 
-**Claim.** KL divergence over 65,536 tokens per domain separates every adjacent pair of the ladder
-with non-overlapping intervals, and the separation grows monotonically as the evaluation corpus
-approaches the real task.
+**Claim.** KL divergence over 65,536 tokens per domain separates the three quantized arms of the
+ladder from one another on code at 8.7–18.1 σ with non-overlapping intervals, and the separation
+grows monotonically as the evaluation corpus approaches the real task.
 
-Three-tier hierarchy (prose < generic code < task prompts), monotone in every domain, adjacent arms
-at 3.7–11.8 σ. The threshold-crossing statement — two of three arms pass the external <0.007 band on
+Three-tier hierarchy (prose < generic code < task prompts), monotone in every domain.
+**One σ range is quoted in this report and it is the code-domain one**: adjacent pairs at **8.67 σ**
+(UD-Q6_K vs UD-Q5_K_XL) and **11.82 σ** (UD-Q5_K_XL vs UD-Q4_K_XL), extremes at **18.13 σ** —
+so "8.7–18.1" names all three code separations and only the middle of it is adjacent. The prose
+figures (3.71 / 8.48 / 13.48) belong in T23 and in §7 item 2, reported there as *the prose adjacency
+at 3.71 σ is not separated once clustering at design effect 1.5 is allowed for*; they are never used
+as the report's headline range and are never blended with the code range into a single "3.7–11.8".
+The threshold-crossing statement — two of three arms pass the external <0.007 band on
 prose, one on generic code, none on the task distribution — with the external-band caveat in the same
 sentence. **PN-16 delivered as mechanism, not caution:** top-1 agreement is *higher* on code
 (98.4–99.4 %) while mean KLD is double, so a top-1-only table inverts the conclusion; the
@@ -430,7 +514,7 @@ its own control and did not use it until adversarial review; report that.
 **Then the prediction, which is what makes this a mechanism rather than a description:** if damage
 occupies ~1–5 % of positions and those positions are where the model chooses, a 164-problem paired
 coding benchmark should show a *handful* of discordant problems — not zero, not many. Observed: 3 of
-164 and 5 of 164 (§5.5). State it as a confirmed quantitative prediction, forward-referenced.
+164 and 5 of 164 (§5.5a). State it as a confirmed quantitative prediction, forward-referenced.
 
 **Evidence:** PN-35, PN-62, PN-64, PN-16.
 **Failure mode.** Presenting the quantile table as the headline without the control — the version an
@@ -438,7 +522,7 @@ adversarial reader breaks in ten minutes, and did.
 
 ---
 
-**§5.3 Perplexity: the right ranking, no certification, and a 36-fold protocol swing — 600 w · F10,
+**§5.3 Perplexity: the right ranking, no certification, and a 36-fold protocol swing — 350 w · F10,
 F26 · T18**
 
 **Claim.** Corpus perplexity reproduced the correct ordering of the ladder while being unable to
@@ -462,10 +546,11 @@ measurement conventions; the corrected figure still places the checkpoint below 
 
 ---
 
-**§5.4 Multiple choice: structurally insensitive, not merely underpowered — 450 w · F3 · T6, T7**
+**§5.4 Multiple choice: structurally insensitive, not merely underpowered — 350 w · F3 · T6, T7**
 
-**Claim.** A standard multiple-choice reasoning benchmark cannot see this damage for a structural
-reason, and more items would not fix it.
+**Claim.** A standard multiple-choice reasoning benchmark resolves this ladder no finer than
+7.4 points at n=400 while the effect on it is 1.0 point, and the limit is structural rather than one
+more items would move.
 
 HellaSwag n=400 on four arms: 82.75 / 82.25 / 82.75 / 83.25 %, a 1.0-point spread inside ~7.4-point
 intervals, **the most heavily quantized arm nominally highest**, and UD-Q6_K_XL and UD-Q5_K_XL
@@ -483,25 +568,43 @@ finer than 7.4 points, and the effect is 1.0."
 
 ---
 
-**§5.5 Generative coding: two ladders, seven configurations, and a measured bound — 900 w · F15 ·
-T8, T15**
+**§5.5a Generative coding, the paired anchor — 400 w · F15 (panel a) · T8**
 
-**Claim.** The generative instrument the field trusts most for coding models orders the ladder
-correctly, bounds the ladder's extremes at about ±3 points, and in thinking mode measures a
-budget-exhaustion process as much as it measures code.
+**Claim.** The generative instrument the field trusts most for coding models bounds the ladder's
+extremes at −0.61 points, 95 % interval [−2.68, +1.46] at n=164 paired, on a pair of arms that
+differ 3.69× in code-prompt KL divergence.
 
-Three results, in this order:
+**Split from v2's single 900-word §5.5, and the split is the point.** One subsection carried an E12
+paired test *and* seven historical configurations across two ladders and a context control; under a
+page squeeze the historical half compresses first, which reproduces exactly the imbalance this
+outline exists to correct. Two subsections make that impossible: 5.5a is the controlled anchor at
+400 words, 5.5b is the corpus at 600, and neither shrinks without the loss showing in the table of
+contents. §5.5b is on §3.4's protected list for the same reason.
 
-1. **The paired anchor (SSA S6 / S9b), n=164, official non-thinking preset, no-spec on both arms.**
-   UD-Q4_K_XL − UD-Q6_K_XL = **−0.61 points** on both metrics; 95 % CI **[−2.68, +1.46]** on
-   HumanEval (base) and **[−3.28, +2.06]** on HumanEval+ (base+extra); discordant **3 of 164** and
-   **5 of 164**. ⚠️ Label the rows correctly — in evalplus `base` is HumanEval and `base+extra` is
-   HumanEval+, and v1 quoted the base row under a HumanEval+ label. ⚠️ **Do not report "McNemar
-   p = 1.0"**: at 3 and 5 discordant pairs the minimum attainable p is 0.25 and 0.0625, so the test
-   had no power to say anything. Say so explicitly — it is this report's own instance of the error it
-   attributes to the field. **The publishable sentence:** a 3.69× increase in code-prompt KL
-   divergence moves HumanEval+ pass@1 by at most about 3 points.
-2. **The historical non-thinking ladder, four checkpoints, greedy, n=164 each.** UD-Q3_K_XL
+**The measurement (SSA S6 / S9b), n=164, official non-thinking preset, no-spec on both arms.**
+UD-Q4_K_XL − UD-Q6_K_XL = **−0.61 points** on both metrics; 95 % CI **[−2.68, +1.46]** on
+HumanEval (base) and **[−3.28, +2.06]** on HumanEval+ (base+extra); discordant **3 of 164** and
+**5 of 164**. ⚠️ Label the rows correctly — in evalplus `base` is HumanEval and `base+extra` is
+HumanEval+, and v1 quoted the base row under a HumanEval+ label. ⚠️ **Do not report "McNemar
+p = 1.0"**: at 3 and 5 discordant pairs the minimum attainable p is 0.25 and 0.0625, so the test
+had no power to say anything. Say so explicitly — it is this report's own instance of the error it
+attributes to the field. **The publishable sentence:** a 3.69× increase in code-prompt KL
+divergence moves HumanEval+ pass@1 by at most about 3 points. Both arms ran no-spec because PN-23
+would otherwise confound the comparison — say that in the sentence, it is the interlock with §6.4.
+
+**Evidence:** PN-28, PN-40.
+**Failure mode.** Reporting the bound as an equality. It is an equivalence bound at ±3 points, not a
+demonstration that the arms code equally well.
+
+---
+
+**§5.5b The two historical ladders — seven configurations — 600 w · F15 (panels b, c) · T15**
+
+**Claim.** Two HumanEval+ ladders spanning seven configurations order the arms exactly as perplexity
+does and separate only their bottom rung, and the thinking-mode ladder's fidelity signal is carried
+by failure to terminate rather than by code quality.
+
+1. **The historical non-thinking ladder, four checkpoints, greedy, n=164 each.** UD-Q3_K_XL
    84.1/81.7, UD-IQ4_XS 90.2/87.8, UD-Q5_K_XL 93.3/90.9, UD-Q6_K_XL 93.9/91.5 — **monotonic in
    bit-width and matching the perplexity ordering exactly**, and still unable to separate its upper
    rungs: three rungs span 3.7 points against a ±4.6-point Wilson half-width, so only the Q3→IQ4 step
@@ -509,20 +612,20 @@ Three results, in this order:
    in the same series scores identically at ctx 32,768 and 131,072 (93.3/90.2 both): window size does
    not move short-prompt accuracy. Two rows of this table are on the exclusion list and are named as
    excluded, never deleted.
-3. **The thinking ladder, seven configurations across MTP and DFlash2 arms.** Every arm scores
+2. **The thinking ladder, seven configurations across MTP and DFlash2 arms.** Every arm scores
    *lower* with reasoning enabled, and the fidelity signal is carried almost entirely by
    **failure to terminate**: empty-response rate falls monotonically with fidelity (12.8 → 12.2 →
    11.0 → 7.9 %) while three of four arms score *identically* at 86.0 on HumanEval+. A thinking-mode
    benchmark is partly measuring a budget process — which is the same mechanism §5.6 finds at depth,
    and the two must be cross-referenced.
 
-**Evidence:** PN-28, PN-40, PN-46, PN-47.
-**Failure mode.** Presenting (2) as a ranking because it is monotone. Monotonicity is not separation,
+**Evidence:** PN-46, PN-47.
+**Failure mode.** Presenting (1) as a ranking because it is monotone. Monotonicity is not separation,
 and the report's own thesis forbids the slide.
 
 ---
 
-**§5.6 Long context: what the battery actually measured, and the withdrawal — 750 w · F9, F9b · T9**
+**§5.6 Long context: what the battery actually measured, and the withdrawal — 450 w · F9, F9b · T9**
 
 **Claim.** On single-needle retrieval the instrument is genuinely at ceiling and sixteen-fold more
 context buys no discrimination; the one long-context result that appeared to separate the arms was
@@ -573,7 +676,11 @@ Two results, and they cut in opposite directions on purpose:
    ⚠️ Its 1.000 draft acceptance at 258,779 tokens is **not** admissible as evidence — PN-61 shows
    those figures come from 50-token generations over ~34 draft events. Among the arms that *do*
    converge, step count is **inversely** related to fidelity (23 / 29 / ~45 steps), so step count is
-   not a quality proxy in either direction. n=3–6, single scaffold, single seed: this supports a
+   not a quality proxy in either direction. ⚠️ **The ~45-step column is cross-experiment**: PN-52's
+   own caveat records that the UD-Q6_K_XL mean is carried over from a **different instance set** than
+   the 23 and 29, so the three figures are not a within-design comparison —
+   `FIGURE-PROGRAMME.md` already flags the same scope for F17b, and the clause must appear wherever
+   the triple is printed. n=3–6, single scaffold, single seed: this supports a
    qualitative disqualification, not a ranking, and must be written that way.
 
 **Evidence:** PN-50, PN-51, PN-52, PN-58 (provenance of the corrected totals), PN-61 (the acceptance
@@ -584,18 +691,25 @@ are needed and they are not the same claim.
 
 ---
 
-**§5.8 What each instrument cost, and what it bought — 400 w · F19 · T19**
+**§5.8 What each instrument cost, and what it bought — 300 w · F19 · T19**
 
-**Claim.** Two and a third GPU-hours of divergence measurement separated the ladder; fourteen and a
-third of task benchmarking bounded it and separated nothing on its intended construct.
+**Claim.** **2.32 GPU-hours** of divergence measurement separated the ladder; **14.31 GPU-hours** of
+task benchmarking across three instrument classes bounded it and separated nothing on its intended
+construct — a **6.2×** cost ratio, with the four-day SWE-bench campaign outside the comparison
+entirely.
 
 The measured table, from each artifact's own per-cell timings: divergence 2.32 GPU-h across 14 cells
 (all three arms separated); task benchmarks 14.31 across 20 cells (nothing separated on the intended
-construct, of which the 100-sample MK-NIAH cell alone is 9.4 h); equivalence batteries 2.67 across 6
+construct, of which the 100-sample MK-NIAH cell alone is 9.4 h). ⚠️ **State the scope of the 14.31 in
+the sentence that prints it:** T19 sums **HellaSwag, HumanEval+ and RULER only** — three instrument
+classes, not five families. The perplexity work and the pre-E12 SWE-bench campaign are **not** in it,
+so "five task-benchmark families costing 14.31 hours" is false on both halves. The campaign is the
+larger cost and it is uncounted, which makes 6.2× a **lower bound** on the contrast; say that, it is
+the honest direction. Also: equivalence batteries 2.67 across 6
 cells (a nine-day-old premise retired). ⚠️ **Two withdrawals belong in this section, in the same
 paragraph as the numbers:** the "20 minutes versus 20 hours" contrast has no basis in any artifact
 and is withdrawn (PN-41), and PN-41's own replacement figures (2.15 h vs ≈4.8 h, 2.2×) predate the
-MK-NIAH n=100 cell and are superseded by T19's 2.32/14.31. The power ratio, not the cost ratio,
+MK-NIAH n=100 cell and are superseded by T19's 2.32 / 14.31 / 6.2× (PN-67). The power ratio, not the cost ratio,
 carries the point. These are wall-clock, single measurements, model loads included — say so.
 
 **Evidence:** PN-41 as superseded by T19; T19's per-cell sums.
@@ -603,16 +717,16 @@ carries the point. These are wall-clock, single measurements, model loads includ
 
 ---
 
-### §6 What the configuration axes do — 4,200 words
+### §6 What the configuration axes do — 3,400 words (an opening bridge and seven subsections)
 
-**Opening bridge (150 w).** The instruments of §5 were built to compare compressions. Applied to the
+**Opening bridge (100 w).** The instruments of §5 were built to compare compressions. Applied to the
 choices *around* the compression — window, split, KV dtype, speculative setting, backend — they
 return effects an order of magnitude larger, and several of them are load/no-load rather than a mean
 with an interval.
 
 ---
 
-**§6.1 The window belongs to the split — 750 w · F4, F4-inset, F11 · T10, T11**
+**§6.1 The window belongs to the split — 700 w · F4, F4-inset, F11 · T10, T11**
 
 **Claim.** On a two-GPU host with no fast interconnect, the tensor split rather than the quantization
 set the reachable context window for two of the four arms measured.
@@ -637,7 +751,7 @@ optimistic, cross-referenced to Appendix B).
 
 ---
 
-**§6.2 Ratio, imbalance and throughput — 400 w · F4-inset · T10, T12**
+**§6.2 Ratio, imbalance and throughput — 150 w · F4-inset · T10, T12**
 
 **Claim.** Balance and throughput are not opposed, but the relationship is not monotone and the most
 balanced ratio was the slowest.
@@ -659,7 +773,7 @@ percentage as a measured effect.
 
 ---
 
-**§6.3 KV-cache quantization is not free — and here the §5 instrument transfers — 500 w · F27,
+**§6.3 KV-cache quantization is not free — and here the §5 instrument transfers — 350 w · F27,
 F27b · T3**
 
 **Claim.** The KV dtype on which every context ceiling in this study depends moves the token
@@ -687,7 +801,7 @@ interlock between the halves).
 
 ---
 
-**§6.4 Speculative decoding is part of the accuracy configuration — 700 w · F5, F13, F13b · T13**
+**§6.4 Speculative decoding is part of the accuracy configuration — 600 w · F5, F13, F13b · T13**
 
 **Claim.** Speculative decoding on this engine is deterministically, reproducibly *not*
 output-identical to unspeculated decoding — and the assumption that it was had been used to skip
@@ -715,10 +829,11 @@ refutation of speculative decoding or of DFlash (R12), which is cited as motivat
 
 ---
 
-**§6.5 Speculative method and draft depth — 800 w · F5, F14, F14b · T13, T14**
+**§6.5 Speculative method and draft depth — 450 w · F5, F14, F14b · T13, T14**
 
 **Claim.** The ranking of speculative methods reverses with context, deeper drafting is not reliably
-faster, and this host's variance cannot rank draft depths at three repetitions.
+faster, and this host's decode variance — reaching 166 % rep-to-rep — does not separate draft depths
+at three repetitions.
 
 - **Method comparison at ctx 32,768** on 164 problems: no-spec 18.46 tok/s; MTP n=2 37.44 (2.03×,
   acceptance 0.954); MTP n=4 47.03 (2.55×, 0.892); **DFlash2 n=4 51.78 (2.81×, 0.917)** — the fastest
@@ -735,7 +850,7 @@ faster, and this host's variance cannot rank draft depths at three repetitions.
   sign-test p of 0.00586 — which survives Holm at rank 1 or 2 and not at rank 3, so its survival is
   **rank-dependent, not robust**). Decode does *not* improve monotonically: on UD-Q6_K the n=8 arm is
   slower than n=2 at acceptance 0.251. ⚠️ **Report no per-arm best draft depth** — decode rep-to-rep
-  spread reached 166 % and the design cannot rank at n=3. ⚠️ PN-9's per-quant acceptance figures
+  spread reached 166 % and the design does not separate the depths at n=3. ⚠️ PN-9's per-quant acceptance figures
   (0.897 / 0.564 / 0.516) are **confounded** across depth and `-ts` ratio; the sweep built to resolve
   that failed on power, so the confound stands and must be stated. ⚠️ PN-24's at-depth half is
   **withdrawn** (it timed 17 generated tokens — PN-30); its ctx-32,768 half over 164 real generations
@@ -747,7 +862,7 @@ and both were withdrawn.
 
 ---
 
-**§6.6 Backends: three stacks, one wall, and a 5.1× context gap — 600 w · F18 · T17**
+**§6.6 Backends: three stacks, one wall, and a 5.1× context gap — 750 w · F18 · T17**
 
 **Claim.** The largest single configuration effect measured in the study is a backend property, not a
 model property — and a 1.19 GiB draft-worker allocation stopped three independent stacks at the same
@@ -784,7 +899,7 @@ point.
 
 ---
 
-**§6.7 Throughput at depth, power and thermals — 700 w · F12, F12b, F22 · T12, T22**
+**§6.7 Throughput at depth, power and thermals — 300 w · F12, F12b, F22 · T12, T22**
 
 **Claim.** Decode throughput does not discriminate the ladder, the variance that hides the difference
 is explainable rather than mysterious, and the depth-0 tables the field quotes are 3–5× optimistic.
@@ -838,7 +953,10 @@ removing it would cost. Reviewer D §6 is the base text and its ordering is adop
 2. **Multiplicity.** No correction was applied across ~19 tests. All nine divergence separations pass
    Holm and Benjamini–Hochberg; the weakest (3.71 σ) does **not** survive Bonferroni once clustering
    at design effect 1.5 is allowed for, and PN-32's acceptance result survives Holm only
-   rank-dependently. The "3.7–11.8 σ" range has a fragile lower endpoint and the report says so.
+   rank-dependently. This is where the prose figures are reported, and where the body's code-only
+   range is reconciled with them: the weakest of the nine, the prose adjacency at **3.71 σ**, is the
+   one separation that does not survive clustering — which is the reason the body quotes the
+   code-domain **8.7–18.1 σ** and never a blended "3.7–11.8".
    *(PN-66, T23, F28)*
 3. **Prompt-token divergence is not generation quality.** The paired generative anchor bounds it at
    ±3 points but does not establish equality. *(PN-28, PN-40)*
@@ -889,8 +1007,8 @@ here. §5.7's 6-of-6 step-limit result is the only hint the corpus contains and 
 sentences of result, one of consequence for practice, one of open problem. No new numbers, no
 recapitulation of the abstract.
 
-Result: divergence ranked the ladder in 2.3 GPU-hours; five task instruments spanning 14.3 bounded it
-and none resolved it on its intended construct; and the configuration axes around the quantization
+Result: divergence ranked the ladder in 2.32 GPU-hours; five task instruments bounded it and none
+resolved it on its intended construct, three of them costing 14.31 GPU-hours between them; and the configuration axes around the quantization
 moved the deployment outcome further than the quantization did. Consequence: a practitioner choosing
 a quantization on a task battery at these sample sizes is reading noise, and should sweep the split,
 declare the KV dtype and verify speculative equivalence before arguing about bit-width. Open problem:
@@ -911,13 +1029,19 @@ recommendation. The pinned command line, the fallback ladder, the conditions it 
 Amendment 2 — the reverted draft-depth flag — in **one** paragraph as a worked example of a withdrawn
 claim. *(PN-6, PN-7, PN-18, PN-23, PN-30)*
 
-**Appendix B — The reproducibility register (1,300 w · T20, F20, F25).** Twelve defects in three
-named families, unified by one thesis in the first sentence: *silent success is the dominant failure
+**Appendix B — The reproducibility register (1,000 w · T20, F20, F25).** **Twelve register entries
+covering twenty-one defects**, in three named families — write the count that way once, here, because
+T20 holds twelve entries of which entry 12 is PN-58's ten historical reporting defects, and "twelve
+defects" beside PN-58's "ten-defect audit" reads as an arithmetic error to anyone checking. The
+register is delivered as a **table with two-sentence rows** rather than as prose, which is what pays
+for the reduction from 1,300 words to 1,000 without dropping an entry. Unified by one thesis in the
+first sentence: *silent success is the dominant failure
 mode of automated benchmarking.* Each written as a trap another group would fall into — the general
 first, the instance second. ⚠️ **v2 departs from reviewer B here.** B recommended cutting from seven
 entries to four and dropping PN-10 and PN-27. This outline keeps all twelve, because the owner's
 binding instruction is that nothing measured is thrown away and because the register is, on three
-reviewers' assessment, the most reusable part of the corpus. The cost is 400 words and it is paid
+reviewers' assessment, the most reusable part of the corpus. The cost is 100 words at table density
+and it is paid
 knowingly; if the page budget bites, cut PN-10 and PN-27 first, exactly as B suggested.
 *(PN-5, PN-10, PN-17, PN-20, PN-25, PN-27, PN-30, PN-31, PN-38, PN-43, PN-57, PN-58, PN-59, PN-65)*
 
@@ -955,7 +1079,7 @@ home is listed first.
 | PN-10 | three orchestration defects, each plausible-wrong | App B | APPX |
 | PN-11 | host power envelope, 4.2× idle-to-loaded | §6.7, T22 | BODY |
 | PN-12 | 14 °C thermal asymmetry from the split | §6.7, T22 | BODY |
-| PN-13 | the divergence ladder, 3.7–11.8 σ | §5.1, §1, §4.2 | LEAD |
+| PN-13 | the divergence ladder (the note's own phrase is 3.7–11.8 σ; **the report quotes the code-domain 8.7–18.1 σ**, §5.1) | §5.1, §1, §4.2 | LEAD |
 | PN-14 | code ≈ 2× prose, widening with aggressiveness | §5.1, §5.2 | LEAD |
 | PN-15 | q4_0 KV costs 51 % of a quantization level | §6.3 | LEAD |
 | PN-16 | top-1 agreement and mean KLD disagree | §5.1, §5.2 | BODY |
@@ -970,7 +1094,7 @@ home is listed first.
 | PN-25 | a drafter mis-bound to the wrong engine build | App B; §6.5 caveat | APPX |
 | PN-26 | the determinism control: both arms self-reproduce | §6.4 | LEAD |
 | PN-27 | a safety predicate matching its own supervisor | App B, T20 | APPX |
-| PN-28 | generative anchor: −0.61 pts, 3 and 5 discordant | §5.5 | LEAD |
+| PN-28 | generative anchor: −0.61 pts, 3 and 5 discordant | §5.5a | LEAD |
 | PN-29 | DFlash2 on its correct build: fastest, cannot reach depth | §6.5 | LEAD |
 | PN-30 | a throughput measurement that timed 17 tokens | App B; §6.5, §6.7, App A | APPX |
 | PN-31 | KL divergence infeasible at long context on 14 GiB | §4.3; §3.1 footnote | BODY |
@@ -982,14 +1106,14 @@ home is listed first.
 | PN-37 | saturation is false for two of three instruments | §5.4, §5.6 | BODY |
 | PN-38 | free-running generation cannot measure distance | §4.3, App B | BODY |
 | PN-39 | the split claim holds for 2 of 4 arms | §6.1, §7 item 7 | LEAD |
-| PN-40 | the McNemar tests could not have reached 0.05 | §5.5, §4.4, T6 | LEAD |
+| PN-40 | the McNemar tests could not have reached 0.05 | §5.5a, §5.4, §4.4, T6 | LEAD |
 | PN-41 | the cost contrast — **superseded by T19** | §5.8 | CAVEAT |
 | PN-42 | imbalance vs decode is not monotone | §6.2 | LEAD |
 | PN-43 | a label collision corrupted one reparsed field | §6.3, App B | CAVEAT |
 | PN-44 | MK-NIAH separates at n=100 — **superseded by PN-60** | §5.6 | CAVEAT |
 | PN-45 | 6.74 % between arms against 40.7 % within | §6.7, T12 | LEAD |
-| PN-46 | non-thinking HumanEval+ ladder + context control | §5.5 | LEAD |
-| PN-47 | thinking mode: the signal is empty responses | §5.5 | LEAD |
+| PN-46 | non-thinking HumanEval+ ladder + context control | §5.5b | LEAD |
+| PN-47 | thinking mode: the signal is empty responses | §5.5b | LEAD |
 | PN-48 | perplexity spans 0.033 against ±0.041 | §5.3 | LEAD |
 | PN-49 | the 36-fold protocol swing | §5.3, §1 | LEAD |
 | PN-50 | SWE-bench Verified inverts the ladder | §5.7, §1 | LEAD |
@@ -1000,7 +1124,7 @@ home is listed first.
 | PN-55 | cross-backend: same peak by opposite routes | §6.6 | LEAD |
 | PN-56 | vLLM NVFP4 ceiling 5.1× short of native | §6.6 | LEAD |
 | PN-57 | one deleted image invalidated the historical matrix | §3.3, §7 item 11 | BODY |
-| PN-58 | the ten-defect reporting audit | App B; §5.7 provenance | APPX |
+| PN-58 | the ten-defect reporting audit (entry 12 of App B's twelve) | App B; §5.7 provenance | APPX |
 | PN-59 | an assumption that suppressed measurement for nine days | §6.4 | BODY |
 | PN-60 | the long-context result measured budget closure | §5.6, §1 | LEAD |
 | PN-61 | acceptance of exactly 1.000 is a degenerate artifact | §6.5; §5.7 caveat | CAVEAT |
@@ -1027,11 +1151,11 @@ demotions. `FIGURE-PROGRAMME.md` should be amended rather than rewritten.
 
 | figure | v1 tier | v2 tier | reason |
 |---|---|---|---|
-| **F15** HumanEval+ ladders | CORE | **ESSENTIAL** | §5.5 carries two ladders across seven configurations and 328+ problems of paired data; the section's headline claim has no other figure. It is the second-most-cited instrument in the report. |
+| **F15** HumanEval+ ladders | CORE | **ESSENTIAL** | §5.5a/§5.5b carry two ladders across seven configurations and 328+ problems of paired data; neither subsection's headline claim has another figure. F15 gains a panel split to match: (a) the paired anchor, (b) the non-thinking ladder, (c) the thinking ladder. It is the second-most-cited instrument in the report. |
 | **F10** the protocol swing | CORE | **ESSENTIAL** | Reviewer C ranks it the best-provenanced single result in the corpus and led an abstract with it; it is contribution 7 and it is the only figure that makes a claim about *measurement conventions* rather than about models. |
-| **F12** speed and its explainable noise | CORE | CORE (unchanged, but §6.7 promoted) | now anchors a 700-word section rather than a 400-word one |
+| **F12** speed and its explainable noise | CORE | CORE (unchanged) | §6.7 is budgeted at 300 words and leans on T12 and T22, so the figure carries the span, the noise floor and the depth curve rather than the prose |
 | **F27** KV quantization is not free | SUPPORTING | **CORE** | §6.3 is now a subsection with its own claim and the interlock to §5.2's control |
-| **F26** perplexity cannot certify its ranking | SUPPORTING | **CORE** | §5.3 is now a 600-word subsection, not a clause |
+| **F26** perplexity does not certify its own ranking | SUPPORTING | **CORE** | §5.3 is now a 350-word subsection with its own claim, not a clause; at that budget the figure carries the 0.033-against-±0.041 comparison |
 | **F22** throughput vs filled depth | CORE | CORE | already promoted 2026-09-04; confirmed |
 | **F21** the measurement design | SUPPORTING | **CORE**, and re-scoped — see 6.2 | it becomes the scope inventory §1 needs |
 | **F7** tail shape by corpus | CORE | **SUPPORTING**, folded into F2 as panel (c) | F2 already carries the control; two figures making one claim is the density rule inverted |
@@ -1085,14 +1209,20 @@ to know which half of the paper they landed in from the caption alone.
 
 - `OUTLINE.md` in full. It is retained unedited (hard rule 6: append, never rewrite) as the record of
   the pre-rebalance plan and of the review round that produced it.
-- `STYLE-GUIDE.md` §2.8's length budget (11,350 body words, ~30 pages) → ≈15,950 / ~40 pages, with
-  the compression levers named in §3.4 above. **Nothing else in the style guide is touched**; voice,
-  density technique, sentence conventions, caption rules and the checklist all stand.
-- `STYLE-GUIDE.md` §3.5's seven-subsection §5 → §5 (eight subsections, instruments) + §6 (seven
-  subsections, axes). The per-subsection craft notes there remain valid; they attach to the
+- `STYLE-GUIDE.md` §2.8's length budget (11,350 body words, ~30 pages) → **13,500 body words /
+  ~26 pages of body, ~34 pages with appendices**, per the audited allocation in §3.1 and the named
+  levers in §3.4. This is a **+18.9 % departure**, not the +40 % v2 first proposed, and it is
+  justified item by item rather than declared: nineteen paper notes that carried no body weight in
+  v1 carry `LEAD` or `BODY` weight here (§5), and eight sections are cut from their v2 targets to pay
+  for them. **Nothing else in the style guide is touched**; voice, density technique, sentence
+  conventions, caption rules and the checklist all stand.
+- `STYLE-GUIDE.md` §3.5's seven-subsection §5 → §5 (ten blocks: an opening map and nine subsections,
+  by instrument) + §6 (eight blocks: an opening bridge and seven subsections, by axis). The per-subsection craft notes there remain valid; they attach to the
   corresponding v2 subsection, listed in §4 above.
 - Reviewer B's §6 outline, on two points only, both stated with reasons: the body is longer than his
-  9,000–10,500 words, and Appendix B keeps twelve entries rather than four. Everything else of B's —
+  9,000–10,500 words (13,500 against a 10,500 ceiling, +28.6 %), and Appendix B keeps twelve register
+  entries rather than four — though it now delivers them as a table, which is half of what B was
+  asking for. Everything else of B's —
   the equivalence-bound rule, the Dutta positioning, the arXiv logistics, the Heiser citation, the
   §2 structure — is adopted.
 
@@ -1103,9 +1233,14 @@ to know which half of the paper they landed in from the caption alone.
   are twice as many opportunities.
 - **§2 stays under 900 words.** Hard cap, moderation risk, unchanged.
 - **The conclusion is §8.** Unchanged; appendices are lettered, not numbered.
-- Drafting order D0–D9 in `DRAFTING-PLAN.md` needs one edit: **D4 becomes "D4a §5 Results —
-  instruments" and "D4b §6 Results — axes"**, drafted in that order, because §6.3 and §6.5 depend on
-  instruments established in §5.1 and §5.5.
+- Drafting order D0–D9 in `DRAFTING-PLAN.md` needs **two** edits, not one. **D4 becomes "D4a §5
+  Results — instruments" and "D4b §6 Results — axes"**, drafted in that order, because §6.3 and §6.5
+  depend on instruments established in §5.1 and §5.5a. **And D5 must be renumbered with it**: as
+  written it names "§6 Cost, §8 Practitioner appendix, §9 Reproducibility appendix", section numbers
+  v2 has reassigned — §6 is now the configuration axes, cost is §5.8, and the appendices are lettered
+  A–D. D5 therefore becomes "§5.8 instrument economics · Appendix A practitioner configuration ·
+  Appendix B reproducibility register". Both edits are applied in `DRAFTING-PLAN.md` as of
+  2026-09-04; see this file's repair log.
 
 ### 7.3 Open verification items — resolve before or during drafting, none needs GPU
 
@@ -1115,10 +1250,13 @@ to know which half of the paper they landed in from the caption alone.
    everywhere** — this outline says "eight quantized checkpoints" provisionally. Candidates for the
    ninth: the deleted pre-E12 UD-Q6_K build (~21.6 GB, distinct from the current 21.98 GB file), or
    the DFlash2 drafter counted as a checkpoint.
-2. **The cost contrast, for the third time.** T19 says 2.32 / 14.31 GPU-hours; PN-41 says 2.15 /
-   ≈4.8; F21's spec text says 2.32 / 14.31; the README says "about two GPU-hours". §5.8 and §1 must
-   quote **one** pair of numbers and name T19 as the source. This number has been wrong twice; it
-   must not be wrong a third time in the paper itself.
+2. **The cost contrast — settled, and now enforced.** T19's **2.32 / 14.31 GPU-hours, a 6.2× ratio**
+   is the only pair this report quotes, and PN-67 records the supersession of PN-41's 2.15 / ≈4.8.
+   The 14.31 covers **three instrument classes only** — HellaSwag, HumanEval+ and RULER — so the
+   perplexity work and the four-day pre-E12 SWE-bench campaign sit **outside** it, and that scope
+   clause travels with the figure wherever it is printed (§1, §5.8, §8, Appendix D). Remaining task:
+   `README.md`'s "about two GPU-hours" and any residual PN-41 phrasing in `ABSTRACT-V2.md`'s trap
+   list. This number has been wrong twice; it must not be wrong a third time in the paper itself.
 3. **PN-29's at-depth DFlash2 cell** is not yet verified against the PN-30 degenerate-generation
    defect, and §6.5 cites it. Verify from the artifact or scope the claim before D4b.
 4. **The acceptance-conditioned speed re-analysis** (r² 0.83–0.99, spread 41 % → 11 %) exists in two
@@ -1128,12 +1266,152 @@ to know which half of the paper they landed in from the caption alone.
    now leans on it. Add QLLM-Eval and at least one KV-quantization method paper.
 6. **`fig21c-coverage-matrix.csv` does not exist.** It is the one new data file this structure
    requires; generate it with `extract.py` from committed artifacts, never by hand.
+7. **F4's claim line still overstates the split result.** `FIGURE-PROGRAMME.md:99` says the split set
+   the window "for three of four arms"; PN-39 says **two of four** — UD-Q4_K_XL loads at the engine
+   default and UD-Q6_K_XL was never attempted there at that length. The outline is correct at §6.1
+   and §5's coverage table, and the abstracts are correct, but F4's caption is a binding artifact and
+   the caption is what gets read. **Correct `FIGURE-PROGRAMME.md:99` to "two of four" before D4b**,
+   and check F4-inset and T10's note for the same phrasing while there.
+8. **The sigma range is now single-sourced to the code domain** (8.67 / 11.82 / 18.13 σ, §5.1). Sweep
+   `README.md`, `CITATION.cff`, `TABLES.md` T23 and the figure captions for any surviving blended
+   "3.7–11.8" used as a headline; T23 and §7 item 2 keep the prose figures, and those are the only
+   two places they belong.
 
 ### 7.4 The test this outline must pass
 
 A reader who reads only the eight essential figures and the subsection openers of §5 and §6 should be
 able to say, unprompted: *this study ran nine instrument classes over eight checkpoints on three
-backends for twelve days; the cheap token-level one separated the ladder and the five expensive
-outcome-level ones did not; and most of the deployment leverage was on axes other than the
-quantization.* If a draft section cannot be summarised into that sentence, it is in the wrong half of
+backends for twelve days; the cheap token-level one separated the ladder in 2.32 GPU-hours and the
+five expensive outcome-level ones did not; and most of the deployment leverage was on axes other
+than the quantization.* If a draft section cannot be summarised into that sentence, it is in the wrong half of
 the paper.
+
+---
+
+## 8. Repair log — 2026-09-04
+
+*Applied against `REVIEW-V2.md` §6.4, items 2–8 and 11 plus the two non-blocking additions, and
+against its §6.4 item 1 for every occurrence of the cost pair inside this file. Nothing protected by
+`REVIEW-V2.md` §6.5 was touched: the two-part hybrid stands, §5 still orders by unit of observation,
+§6 still orders by actionability, Appendix B still keeps all twelve register entries, §7 is still
+drafted before §5 and §6 are polished, the eight ESSENTIAL figures are unchanged, and the coverage
+table still routes all sixty-six notes.*
+
+### What changed, and why
+
+**Item 2 — one sigma range, and it is the code-domain one.** §1's argument paragraph and §5.1's
+claim and first paragraph now quote **8.7–18.1 σ** for the three code-domain separations, with the
+adjacent pairs named in the sentence (**8.67 σ** UD-Q6_K vs UD-Q5_K_XL, **11.82 σ** UD-Q5_K_XL vs
+UD-Q4_K_XL) and the **18.13 σ** extreme identified as skipping a rung. The banned phrasing "every
+adjacent pair … 8.7–18.1" is not used anywhere. The prose figures (3.71 / 8.48 / 13.48) survive in
+exactly two places — T23 and §7 threat 2 — where the 3.71 adjacency is reported as the one
+separation that does not survive clustering at design effect 1.5. §7 threat 2 now explains the
+relationship between the two ranges rather than asserting a third. PN-13's row in the coverage table
+keeps the note's own phrase, annotated, because rewriting it would misquote the note. New §7.3 item 8
+sends the same sweep through `README.md`, `CITATION.cff`, T23 and the figure captions.
+
+**Item 3 — four claim sentences rewritten out of "cannot" (STYLE-GUIDE §1.7).**
+
+| where | was | is |
+|---|---|---|
+| §5.4 claim | "cannot see this damage for a structural reason" | "resolves this ladder no finer than 7.4 points at n=400 while the effect on it is 1.0 point, and the limit is structural" |
+| §6.5 claim | "this host's variance cannot rank draft depths" | "this host's decode variance — reaching 166 % rep-to-rep — does not separate draft depths at three repetitions" |
+| §4.3 | "free-running greedy generation cannot measure quantization distance" | "**does not resolve** quantization distance — … the metric returns the same value for every arm" |
+| §4.3 | "KL divergence cannot be measured at long context on a 14 GiB host" | "KL divergence at long context **did not run** on a 14 GiB host, the tool … capping at `n_ctx` 8,192" |
+
+§6.5's body sentence "the design cannot rank at n=3" became "does not separate the depths at n=3",
+and §4.3's framing "found incapable of answering the question" became "did not answer the question".
+The table shorthand at the coverage and figure-delta rows is left as the reviewer directed, with one
+exception: F26's row is retitled because a figure title is a claim line, not shorthand.
+
+**Item 4 — the weighting table recomputed, and the audit printed with it.** Every figure was
+re-derived by summing §4's own targets rather than trusting the table. The as-written v2 document
+was wrong in five places at once: the systems thread summed to 2,450 not 2,200, framing to 3,450 not
+3,350, the two section opening blocks (300 w) were uncounted, the body totalled **16,600** not
+15,950, and §5's header claimed 5,600 against subsections summing to 5,850 while §6's claimed 4,200
+against 4,600. The appendix line was wrong too — "≈ 3,800" against §4's own A+B+C+D of 3,200. §3.1
+now carries two tables: thread shares, and a section-by-section audit in which every §4 header
+carries the same number as its row. Both sum exactly.
+
+**Item 6 — a 13,500-word body target, with the levers named.** §2.3 item 6, §3.4 and §7.1 now say
+**13,500 body words / ≈26 pages of body, ≈34 pages with appendices** — a **+18.9 %** departure from
+`STYLE-GUIDE.md` §2.8's 11,350, not the +46 % v2 asked for by declaring the guide superseded. §3.4
+prints all seventeen levers spent to get from the audited **16,600** to 13,500, each reversible on
+its own, and keeps four in reserve. Appendix B moves from prose to a table with two-sentence rows
+(1,300 → 1,000) without dropping an entry. §7.1 states the departure as earned by the nineteen notes
+that carry body weight here and carried none in v1, rather than as a supersession.
+
+**Item 5 — §5.5 split, §6.6 raised, both funded as the reviewer specified.** §5.5a *Generative
+coding, the paired anchor* (400 w, F15 panel a, T8) carries the SSA S6 / S9b measurement and the
+no-spec interlock with §6.4. §5.5b *The two historical ladders — seven configurations* (600 w, F15
+panels b and c, T15) carries the non-thinking ladder with its context control and the seven-config
+thinking ladder, and is added to §3.4's protected list because it is the half that compresses first
+by default. §6.6 backends goes 600 → 750 for its four notes. Funded from §5.1 (900 → 750) and §6.4
+(700 → 600), exactly as `REVIEW-V2.md` §1.3 prescribed; F15 gains a matching panel split. PN-28,
+PN-40, PN-46 and PN-47 are re-routed in the coverage table, as are §2.2's ordering list and §5.2's
+forward reference.
+
+**Item 7 — §2 budgeted 810 + 90.** Three threads at 270 words, plus 90 for the section's own claim
+sentence and its two transitions. The 900-word cap is unchanged and still hard.
+
+**Item 8 — F4's claim line.** Added as §7.3 item 7: `FIGURE-PROGRAMME.md:99` says the split set the
+window "for three of four arms" and PN-39 says **two of four**; the correction is scheduled before
+D4b, with F4-inset and T10's note checked for the same phrasing.
+
+**Item 11 — `DRAFTING-PLAN.md` D4 *and* D5.** D4 splits into **D4a** (§5, instruments) and **D4b**
+(§6, axes); D6 and D7 now depend on D4b. D5 is renumbered off the v1 section numbers it still
+carried — "§6 Cost, §8 Practitioner appendix, §9 Reproducibility appendix" becomes "§5.8 instrument
+economics · Appendix A practitioner configuration · Appendix B reproducibility register", because §6
+is now the configuration axes and the appendices are lettered A–D. A dated note above the table
+explains the renumbering, and the companion-document map now names `OUTLINE-V2.md` as the live
+structure with `OUTLINE.md` retained as the superseded record. This is the only file other than this
+one that was edited.
+
+**Item 1, this file's share — the cost pair.** Every occurrence inside this file is now T19's
+**2.32 / 14.31 GPU-hours, 6.2×**, with the scope clause travelling with it: the 14.31 covers
+**three instrument classes** — HellaSwag, HumanEval+ and RULER — and the perplexity work and the
+four-day pre-E12 SWE-bench campaign sit **outside** it, which makes 6.2× a lower bound. Repaired at
+§1's argument paragraph, §1's one-sentence summary ("five task instruments … three of them alone
+costing 14.31"), §2.2's cost annotation, §3.2, §5.8's claim and body, §7.3 item 2, §7.4's acceptance
+test and §8's conclusion. PN-67 is
+cited as the supersession record. `ABSTRACT-V2.md`'s trap list is the abstract agent's item, not
+this one.
+
+**Non-blocking, both applied.** §5.7 now carries PN-52's cross-instance-set caveat on the ~45-step
+column, flagged the way `FIGURE-PROGRAMME.md` already flags it for F17b. Appendix B's count is
+written once as **"twelve register entries covering twenty-one defects"**, with the reason stated —
+entry 12 *is* PN-58's ten historical defects, so "twelve defects" beside "the ten-defect audit"
+reads as an arithmetic error. PN-58's coverage row is annotated to match, and §3.2's "twelve
+instrumentation defects" is corrected to the same form.
+
+### The corrected totals
+
+| | as written in v2 | repaired |
+|---|---|---|
+| body | 15,950 claimed / **16,600** actual | **13,500** claimed and actual |
+| §5 | 5,600 claimed / 5,850 actual | **5,000** claimed and actual |
+| §6 | 4,200 claimed / 4,600 actual | **3,400** claimed and actual |
+| appendices | ≈3,800 claimed / 3,200 actual | **2,900** claimed and actual |
+| task benchmarks share | 3,000 / 19 % | **2,700 / 20 %** |
+| divergence share | 2,800 / 18 % | **2,250 / 17 %** |
+| systems share | 2,200 claimed / 2,450 actual | **1,900 / 14 %** |
+| framing share | 3,350 claimed / 3,450 actual | **2,850 / 21 %** |
+| speculative decoding share | 1,500 / 9 % | **1,050 / 8 %** |
+| protocol and threats share | 3,100 / 19 % | **2,550 / 19 %** |
+| section opening blocks | uncounted | **200 / 1 %** |
+
+Task benchmarks still take the largest single results share and still exceed divergence — 20 %
+against 17 % — so the owner's correction survives the repair rather than depending on the
+arithmetic error. Every thread total is the sum of its subsections, every section header equals the
+sum of its own subsections, the thread column sums to 13,500, and the share column sums to 100.
+
+### Not changed, deliberately
+
+- **Item 9** (write PN-67 for the acceptance-conditioned re-analysis before §6.7 cites it) and
+  **item 10** (settle the checkpoint count at eight) are not this pass's items and remain open in
+  §7.3. Note that PN-67 has since been taken for the sigma-range and cost-supersession record, so
+  item 9's note needs the next free number, **PN-68**.
+- Reviewer §2.5 item 4 (§6.5 quotes DFlash2 at 2.81× where T13 and PN-29 say 2.80×) was not in this
+  pass's assignment and is left for the drafting pass; it is a one-character fix in §6.5.
+- The compression levers were chosen so that §5.7, §6.4, §5.2 and §7 keep their v2 targets exactly,
+  and §5.5b joins them on the protected list.

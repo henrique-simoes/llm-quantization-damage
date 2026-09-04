@@ -206,10 +206,14 @@ n=8 arm is *slower* than n=2 (15.3 vs 18.5 tok/s) at acceptance 0.251. Draft dep
 quantization, and the ratio's fall is close to arithmetic rather than informative. (PN-9, PN-32
 scoped by **PN-66**, F14, T14)
 
-**A 1.19 GiB wall stops separate drafters on 16 GB cards.** Three independent stacks hit the same
-allocation failure initialising a draft worker: SGLang's EAGLE (never started at any context),
-vLLM's DFlash2 with a BF16 drafter, and — not — llama.cpp with a 4-bit GGUF drafter, which works.
-MTP sidesteps it entirely because its predictor lives inside the checkpoint. (PN-53, PN-54)
+**A 1.19 GiB wall stops separate drafters on 16 GB cards — on two engines of the three tried.**
+SGLang's EAGLE never started at any context, and vLLM's DFlash2 with a 3.6 GB BF16 drafter failed at
+every GPU-utilisation setting from 0.78 to 0.97, both with an *identically sized* 1.19 GiB
+allocation. **llama.cpp succeeds** at 38.51 tok/s with a 1.1 GB 4-bit GGUF drafter — differing in
+exactly the two ways the mechanism predicts: a quantized drafter, and layer-split pipelining that
+leaves per-card headroom tensor-parallel replication does not. MTP sidesteps the wall entirely,
+because its predictor lives inside the checkpoint rather than in a second model.
+(PN-53 corrected by **PN-69**, PN-54)
 
 **Cross-backend, one probe.** vLLM NVFP4 reaches a higher *speedup* (3.31× at MTP n=4) from a much
 slower baseline, and lands within 7 % of llama.cpp's best absolute figure. A speculative speedup
