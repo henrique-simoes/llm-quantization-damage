@@ -207,7 +207,11 @@ Host power envelope, idle-to-loaded swing, thermal cost of an asymmetric split.
 Measured from the artifacts, not estimated: **2.15 h of divergence** against **≈4.8 h of task
 benchmarking** across three instrument classes. A 2.2× cost ratio — the earlier "20 min vs 20 h"
 was generalised from one arm on one domain and is withdrawn. **The power ratio is what carries the
-point**: 2.1 hours separated the arms at 3.7–11.8 σ; 4.8 hours bounded them and separated nothing.
+point**: **2.32 GPU-hours of divergence measurement separated the ladder; 14.31 hours of task
+benchmarking across **three** instrument classes bounded it and separated nothing on its
+intended construct — a ratio of 6.2× (T19, superseding PN-41's 2.1/4.8; see PN-67).**
+⚠️ The 14.31 h covers HellaSwag, HumanEval+ and RULER only — the four-day SWE-bench campaign
+is historical and sits outside it, so never attach this figure to "five benchmark families".
 
 ## 7. Threats to validity — write this BEFORE polishing results
 1. **Ladder-relative divergence.** No FP16 reference fits the host; Q6_K_XL's own degradation is
