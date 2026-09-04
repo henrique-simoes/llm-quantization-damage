@@ -8,7 +8,7 @@ instruments the field usually reaches for?**
 A measurement study of **Qwen3.8-27B** across four Unsloth GGUF quantizations on **two consumer
 16 GB GPUs**, run on a single consumer workstation. Its deliverable is a technical report for arXiv.
 
-The short answer: across **twelve days, eight quantizations, three inference backends and six
+The short answer: across **twelve days, eight quantizations, three inference backends and five
 benchmark families**, the instruments the field normally reaches for could not separate neighbouring
 quantizations of this model — a 50-instance agentic suite *inverted* the ladder, perplexity spanned
 less than its own standard error, and a multiple-choice benchmark rated the most heavily quantized

@@ -2629,3 +2629,40 @@ Abstract agent found **three further defects in the reviewer's own corrected abs
   verification of its numbers.
 Next: verify and adopt ABSTRACT-FINAL (including the CITATION.cff replacement block), apply the
   §6.7 / T12 / F12 rewrites PN-68 requires, then switch OUTLINE-V2 in for OUTLINE and begin D1.
+
+### L-32 | 2026-09-04T05:20:00Z | S14-drafting | claude-opus-5 | conductor-manager | Abstract verified, corrected and adopted <!-- bsc-ledger:qbench-t1-ABSFINAL -->
+Did: verified every number in `manuscript/ABSTRACT-FINAL.md`'s recommended abstract against its
+  artifact, corrected two defects, and adopted it into `CITATION.cff`.
+Verified independently and correct: the sigma range (8.67 / 11.82 adjacent, 18.13 extremes, code
+  domain — PN-67); the cost pair 2.3 h against 14.3 h over **three** instrument classes (T19); the
+  task-prompt amplification **3.13 / 3.87 / 4.40x** recomputed from `ssa-kld-tables.json`, quoted as
+  3.1-4.4x; the HumanEval+ **plus** interval [−3.28, +2.06] with 5 discordant — the row the outline
+  was quoting wrongly two days ago, here correct; the minimum attainable p at 5 discordant, which is
+  **0.0625**, so "a test no outcome could have made significant" is exact rather than rhetorical;
+  the SWE-bench triple 77.6 / 76.0 / 75.5 inside ±12; "eight quantizations"; and "two of three
+  engines" carrying PN-69's correction. Mechanically: **1,910 characters, ASCII-clean, single
+  paragraph, no codepoint outside 32-126.**
+Two corrections applied before adoption:
+  1. ⚠️ **A conflict with PN-68, written an hour earlier and unknown to the abstract agent** (it ran
+     in parallel with the analysis). The abstract read "6.7 per cent between arms **against** 40.7
+     per cent within one configuration" — factually true, but the contrast frames the between-arm
+     signal as buried in noise, which is exactly the reading PN-68 retires. Rewritten to
+     *"6.7 per cent between arms **and** 40.7 per cent within one configuration, the latter sampling
+     variance of the generated text"*. Funded by two cuts elsewhere ("three inference backends" →
+     "three backends"; a shorter closing sentence) because the original left only 10 characters of
+     headroom. **Final: 1,915 characters, 5 to spare, ASCII-clean, CFF parses.**
+  2. "six benchmark families" in `README.md:11` — my own edit of 2026-09-04 — contradicted the
+     README's own section header and the abstract's traceability table, both of which say **five**
+     (perplexity, HellaSwag, HumanEval+, SWE-bench, RULER). Set to five.
+Also adopted: the **two-word title trim** the reviewer recommended — "speculative decoding" →
+  "speculation", 20 words to 18 — in `CITATION.cff` and `manuscript/OUTLINE.md`. The abstract agent's
+  argument for keeping the incumbent otherwise is accepted and is worth recording, because it answers
+  the owner's criticism directly: **no title can hold eight quantizations, three backends and five
+  benchmark families without becoming an inventory, and "What Benchmarks Bound" already names the
+  benchmark campaign as the thing that did the bounding.** The over-focus was an abstract problem,
+  and the abstract now carries the breadth.
+⚠️ Still outstanding from the abstract agent's findings: the previous `CITATION.cff` abstract
+  violated STYLE-GUIDE §1.3 (five uses of "we") and §3.0 rule 3 (opened on a claim about the field,
+  not a measurement). **Both are now fixed by replacement** — the adopted text contains no "we" and
+  opens on a measurement. Verified by parse.
+Next: apply the §6.7 / T12 / F12 rewrites PN-68 requires, switch OUTLINE-V2 in for OUTLINE, then D1.
