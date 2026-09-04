@@ -8,7 +8,8 @@ decides *how the paper gets written, illustrated, formatted and submitted*, and 
 Companion documents, each owning one thing:
 | document | owns |
 |---|---|
-| [`OUTLINE.md`](OUTLINE.md) | section structure §1–§9 and the PN→section evidence map |
+| [`OUTLINE-V2.md`](OUTLINE-V2.md) | **the live structure** — §1–§8 plus lettered appendices A–D, the 13,500-word budget, and the PN→section evidence map for all 66 notes |
+| [`OUTLINE.md`](OUTLINE.md) | the superseded v1 structure (§1–§9), retained unedited as the record of the pre-rebalance plan |
 | [`STYLE-GUIDE.md`](STYLE-GUIDE.md) | voice, positioning, density technique, sentence conventions |
 | [`figures/FIGURE-PROGRAMME.md`](figures/) | every figure and table, its claim, spec and data |
 | [`references/`](references/) | the metric corpus, provenance, timeline, `references.bib` |
@@ -112,16 +113,24 @@ are final."*
 Writing §5 before §7 is how a results section acquires claims the threats section then has to
 retract. This order is deliberate.
 
+**Updated 2026-09-04 for `OUTLINE-V2.md`.** v2 splits the results body in two — §5 by instrument
+class, §6 by configuration axis — so D4 becomes **D4a** (§5) and **D4b** (§6), drafted in that
+order. D5 is renumbered with it: as originally written it named "§6 Cost, §8 Practitioner appendix,
+§9 Reproducibility appendix", section numbers v2 has reassigned. **§6 is now the configuration
+axes**, instrument economics is **§5.8**, the conclusion is **§8**, and the appendices are
+**lettered A–D**, not numbered. D6 and D7 now depend on D4b rather than on a single D4.
+
 | # | stage | produces | depends on |
 |---|---|---|---|
 | **D0** | Style guide + figure programme | `STYLE-GUIDE.md`, `figures/**` | — *(in flight)* |
 | **D1** | LaTeX skeleton + build | `tex/main.tex` compiling to an empty-sectioned PDF | D0 |
 | **D2** | §3 Setup, §4 Method | the measurement contract: host, engines, arms, protocols, SSA | — |
 | **D3** | §7 Threats to validity | the honest bound on every claim §5 may make | D2 |
-| **D4** | §5 Results, subsection by subsection | the body, each claim traced to a PN | D2, D3, figures |
-| **D5** | §6 Cost, §8 Practitioner appendix, §9 Reproducibility appendix | the practitioner payload | D4 |
-| **D6** | §2 Background and related work | positioning, credit, novelty claim | D4 |
-| **D7** | §1 Introduction | written last, because it promises what §5 delivers | D4, D6 |
+| **D4a** | §5 Results — what the instruments can see, subsection by subsection | the evaluation body, each claim traced to a PN | D2, D3, figures |
+| **D4b** | §6 Results — what the configuration axes do | the deployment body; drafted after D4a because §6.3 and §6.5 apply instruments established in §5.1 and §5.5a | D4a |
+| **D5** | §5.8 instrument economics · Appendix A practitioner configuration · Appendix B reproducibility register | the practitioner payload | D4b |
+| **D6** | §2 Background and related work | positioning, credit, novelty claim | D4b |
+| **D7** | §1 Introduction | written last, because it promises what §5 and §6 deliver | D4a, D4b, D6 |
 | **D8** | Abstract reconciliation | verify the fixed abstract against the drafted body | D7 |
 | **D9** | Compliance + artifact pass | Zenodo DOI, SWHID, ancillary files, checklist | D8 |
 

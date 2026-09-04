@@ -440,10 +440,15 @@ because breadth means reaching for the older and less-defended numbers.
    Holm and Benjamini-Hochberg, but the weakest does not survive Bonferroni once clustering is
    allowed for, and no multiple-comparisons correction exists across the study's ~19 tests. The
    code-domain range 8.7-18.1 has no such exposure; all four drafts use it.
-9. **Not "60x cheaper" or "20 minutes against 20 hours."** The measured figures are 2.1 hours and
-   4.8 hours, a 2.2x ratio (PN-41). The power ratio carries the argument; the cost ratio is modest
-   and stating it honestly is more persuasive than a number a reader can falsify from the repository
-   in five minutes.
+9. **Not "60x cheaper", not "20 minutes against 20 hours", and not PN-41's own 2.1 h / 4.8 h /
+   2.2x either.** ⚠️ **Corrected 2026-09-04.** PN-41's pair was computed before the 9.4-hour
+   100-sample MK-NIAH cell existed and is superseded by T19 (`TABLES.md:696-720`, and PN-67):
+   the current figures are **2.32 GPU-hours of divergence measurement against 14.31 hours of task
+   benchmarking, a ratio of 6.2x**, and that 14.31 covers **three instrument classes only**
+   (HellaSwag, HumanEval+, RULER). Perplexity and the four-day SWE-bench Verified campaign are
+   historical and outside it, so "five task-benchmark families ... costing 4.8 hours" is wrong
+   twice over. Quote T19 or quote nothing; stating the ratio honestly is more persuasive than a
+   number a reader can falsify from the repository in five minutes.
 10. **Not DFlash2's speed or byte-exactness beside MTP's.** The drafter is bound to its own engine
     build, so that arm ran on a different image than its baseline (PN-25, PN-29). It is the fastest
     configuration measured and it cannot be cleanly compared.
