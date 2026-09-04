@@ -1,27 +1,28 @@
 cff-version: 1.2.0
 message: "If you use this work, please cite it as below."
-title: "Divergence Ranks What Benchmarks Bound: quantization, context and speculative decoding for a 27B coding model on two 16 GB GPUs"
+title: "Divergence Ranks What Benchmarks Bound: quantization, context and speculation for a 27B coding model on two 16 GB GPUs"
 abstract: >-
-  Quantization quality for locally served models is published on prose corpora and
-  certified on task benchmarks. We measure a 27B coding model across four llama.cpp
-  GGUF quantizations on two consumer 16 GB GPUs, and find that the instrument decides
-  whether there is anything to see. KL divergence against the least-quantized
-  available arm, over 65,536 tokens per domain, separates every adjacent pair on code
-  at 8.7-18.1 sigma and is roughly twice as large on code as on prose, rising again to
-  3.1-4.4x prose on the benchmark's own prompts. Three task benchmarks -- multiple
-  choice, unit-tested generation, and long-context retrieval -- bound the whole
-  ladder's effect at about three points of pass@1 and cannot resolve below it; for two
-  of them, no outcome could have reached significance at the discordance rates
-  observed. The same checkpoint's reported degradation moves 36-fold under two
-  defensible perplexity protocols, from 29 per cent worse to 0.8 per cent worse,
-  attributable to corpus file, window coverage and scoring rule alone. The divergence
-  distribution explains what the benchmarks miss: on this code corpus the median token
-  is perturbed about 200x less than on prose while the top percentile is perturbed
-  5.0-8.1x more -- a shape we show is set by the corpus rather than by the
-  compression, since changing only the KV-cache dtype reproduces it. We also report
-  that GPU tensor placement rather than quantization sets the reachable context window
-  on this host, and that speculative decoding is deterministically non-equivalent to
-  unspeculated decoding. Artifacts and the full measurement record are released.
+  KL divergence over 65,536 tokens per domain separates the three quantized arms of a GGUF
+  ladder from one another on code at 8.7-18.1 sigma in 2.3 GPU-hours; three task-benchmark
+  instrument classes costing 14.3 hours separate the same arms nowhere. This report measures a
+  27B coding model on two consumer 16 GB GPUs across eight quantizations, three backends and
+  five benchmark families. Each benchmark fails differently, which is the point: WikiText-2
+  perplexity spans 0.033 across four arms against +/-0.041 of standard error per point;
+  HellaSwag at n=400 rates the most heavily quantized arm nominally highest, two arms answering
+  all 400 items identically; paired HumanEval+ at n=164 bounds the ladder's extremes at 0.61
+  points, 95 per cent interval [-3.28, +2.06], a test no outcome could have made significant at
+  the observed discordance; and a 50-instance SWE-bench Verified campaign inverts the ordering
+  at 77.6, 76.0 and 75.5 per cent inside +/-12 points. Divergence is roughly twice as large on
+  code as on prose and 3.1-4.4x prose on the benchmark's own prompts, so against a published
+  <0.007 quality threshold two of three arms pass on prose, one on generic code, and none on the
+  task distribution. What moves the numbers is configuration, not quantization: for two of four
+  arms GPU tensor placement sets the reachable context window; decode throughput spans 6.7 per
+  cent between arms and 40.7 per cent within one configuration, the latter sampling variance of
+  the generated text; speculative decoding is deterministically non-equivalent to unspeculated
+  decoding, reproducing it on 131 of 164 problems while reproducing itself byte-exactly; and one
+  1.19 GiB draft-worker allocation blocks a separate drafter on two of three engines, one of
+  which never served a request. These measure one model under named engine images on one two-GPU
+  host. Artifacts, withdrawn claims and the defect register are released.
 type: dataset
 license: CC-BY-4.0
 repository-code: "https://github.com/henrique-simoes/llm-quantization-damage"

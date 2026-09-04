@@ -4,7 +4,7 @@
 number, interval and caveat.** A section with no PN reference is not yet supported and must not be
 written as though it were.
 
-Title: **Divergence Ranks What Benchmarks Bound: quantization, context and speculative decoding for a 27B coding model on two 16 GB GPUs**
+Title: **Divergence Ranks What Benchmarks Bound: quantization, context and speculation for a 27B coding model on two 16 GB GPUs**
 
 > Chosen 2026-09-03 from the second review round (reviewer D's T2), replacing
 > the former working title *"Quantization Damage Lives in the Tail…"*. Reviewer D ranked T2 second behind a deliberately
