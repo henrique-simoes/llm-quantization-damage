@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+title: "Divergence Ranks What Benchmarks Bound: quantization, context and speculation for a 27B coding model"
+type: dataset
+license: CC-BY-4.0
+repository-code: "https://github.com/henrique-simoes/llm-quantization-damage"
+keywords:
+  - quantization
+  - large language models
+  - llama.cpp
+  - GGUF
+  - KL divergence
+  - long context
+  - speculative decoding
+  - benchmarking
+authors:
+  - alias: henrique-simoes

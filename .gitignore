@@ -1,0 +1,13 @@
+.DS_Store
+*.pyc
+__pycache__/
+.venv/
+
+# Operational inputs and execution artifacts are intentionally not published.
+data/raw/
+data/archive/
+*.log
+*.jsonl
+*.tar
+*.tar.gz
+*.zip

@@ -1,8 +1,8 @@
 step,corpus_file,windows_scored,scoring_rule,tokens_scored,avg_nll,perplexity,apparent_degradation_vs_Q6_K_XL_pct,evidence,reproducibility,source
-as first published,"[internal-path-removed] (297,053 tokens)",160,"all positions from 0, no prior context",77621,2.149994,8.5848,29.1,measured,historical,nvfp4-vllm-ppl.json (self-labels protocol 2 — that label is wrong and unrelated)
-corpus + coverage aligned to Protocol 1,"[internal-path-removed] (308,707 tokens)",602,"all positions >= 1, no half-window rule",,,8.0775,21.4,measured,historical,cross-check reported alongside nvfp4-vllm-ppl-protocol1.json
-+ half-window scoring rule (full Protocol 1),"[internal-path-removed] (308,707 tokens)",602,"positions 256.. of each 512-token window, first half as context",154714,1.903193,6.7073,0.8,measured,historical,nvfp4-vllm-ppl-protocol1.json
-GGUF ladder reference: UD-Q6_K_XL,[internal-path-removed],602,positions 256.. of each 512-token window,,,6.6511,0,measured,historical,ledger-data.json perplexity (Protocol 1)
-GGUF ladder reference: UD-Q5_K_XL,[internal-path-removed],602,positions 256.. of each 512-token window,,,6.6556,0,measured,historical,ledger-data.json perplexity (Protocol 1)
-GGUF ladder reference: UD-Q4_K_XL,[internal-path-removed],602,positions 256.. of each 512-token window,,,6.6617,0,measured,historical,ledger-data.json perplexity (Protocol 1)
-GGUF ladder reference: UD-IQ4_XS,[internal-path-removed],602,positions 256.. of each 512-token window,,,6.6839,0,measured,historical,ledger-data.json perplexity (Protocol 1)
+as first published,"evaluation corpus (297,053 tokens)",160,"all positions from 0, no prior context",77621,2.149994,8.5848,29.1,measured,historical,nvfp4-vllm-ppl.json (self-labels protocol 2 — that label is wrong and unrelated)
+corpus + coverage aligned to Protocol 1,"evaluation corpus (308,707 tokens)",602,"all positions >= 1, no half-window rule",,,8.0775,21.4,measured,historical,cross-check reported alongside nvfp4-vllm-ppl-protocol1.json
++ half-window scoring rule (full Protocol 1),"evaluation corpus (308,707 tokens)",602,"positions 256.. of each 512-token window, first half as context",154714,1.903193,6.7073,0.8,measured,historical,nvfp4-vllm-ppl-protocol1.json
+GGUF ladder reference: UD-Q6_K_XL,evaluation corpus,602,positions 256.. of each 512-token window,,,6.6511,0,measured,historical,ledger-data.json perplexity (Protocol 1)
+GGUF ladder reference: UD-Q5_K_XL,evaluation corpus,602,positions 256.. of each 512-token window,,,6.6556,0,measured,historical,ledger-data.json perplexity (Protocol 1)
+GGUF ladder reference: UD-Q4_K_XL,evaluation corpus,602,positions 256.. of each 512-token window,,,6.6617,0,measured,historical,ledger-data.json perplexity (Protocol 1)
+GGUF ladder reference: UD-IQ4_XS,evaluation corpus,602,positions 256.. of each 512-token window,,,6.6839,0,measured,historical,ledger-data.json perplexity (Protocol 1)

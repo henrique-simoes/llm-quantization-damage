@@ -1,0 +1,579 @@
+
+
+
+@misc{llamacpp_perplexity_readme,
+  title        = {{llama.cpp} perplexity tool: perplexity and {KL}-divergence measurement},
+  author       = {{ggml-org llama.cpp contributors}},
+  howpublished = {\url{https://github.com/ggml-org/llama.cpp/blob/master/tools/perplexity/README.md}},
+  year         = {2026},
+  note         = {Documents \texttt{--kl-divergence-base} and \texttt{--kl-divergence}. Accessed 2026-09-02},
+  url          = {https://github.com/ggml-org/llama.cpp/blob/master/tools/perplexity/README.md},
+  urldate      = {2026-09-02}
+}
+
+@software{llamacpp,
+  title        = {{llama.cpp}: {LLM} inference in {C}/{C}++},
+  author       = {Gerganov, Georgi and {llama.cpp contributors}},
+  year         = {2026},
+  license      = {MIT},
+  version      = {0.3.0-dev (build 1)},
+  note         = {Engine commit \texttt{d222767}; container image \texttt{llamacpp-mtp:latest},
+                  digest \texttt{sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62}},
+  url          = {https://github.com/ggml-org/llama.cpp},
+  urldate      = {2026-09-02}
+}
+
+@misc{kalomaze2023ppl,
+  title        = {Perplexity / {PPL}, as a quantization loss benchmark, is inaccurate --- {KL} divergence seem to be a better data point},
+  author       = {{kalomaze}},
+  year         = {2023},
+  month        = nov,
+  howpublished = {GitHub Discussion \#4110, \texttt{ggml-org/llama.cpp}},
+  url          = {https://github.com/ggml-org/llama.cpp/discussions/4110},
+  urldate      = {2026-09-02}
+}
+
+@misc{unsloth_dynamic3,
+  title        = {Unsloth Dynamic 3.0 {GGUF}s},
+  author       = {{Unsloth AI}},
+  year         = {2026},
+  howpublished = {Unsloth documentation},
+  url          = {https://unsloth.ai/docs/basics/dynamic-3.0-ggufs},
+  urldate      = {2026-09-02},
+  note         = {Ranks Dynamic {GGUF}s on mean {KL} divergence; warns that calibrating and
+                  evaluating on the same Wikipedia-like data overfits the metric.
+                  A companion ``Dynamic 2.0'' page cited in earlier drafts no longer resolves}
+}
+
+@misc{fireworks2024quantization,
+  title        = {How {Fireworks} evaluates quantization precisely and interpretably},
+  author       = {{Fireworks AI}},
+  year         = {2024},
+  month        = aug,
+  howpublished = {Fireworks AI blog},
+  url          = {https://fireworks.ai/blog/fireworks-quantization},
+  urldate      = {2026-09-02},
+  note         = {Publishes a {KLD} $<0.007$ threshold for high-quality deployments}
+}
+
+@misc{localbench2026gguf,
+  title        = {{GGUF} Quantization Quality Benchmark: Methodology},
+  author       = {{oobabooga}},
+  year         = {2026},
+  month        = apr,
+  howpublished = {LocalBench (Substack)},
+  url          = {https://localbench.substack.com/p/gguf-benchmark-methodology},
+  urldate      = {2026-09-02},
+  note         = {${\sim}250{,}000$ tokens across 6 task categories; {KLD} on prompt tokens plus
+                  top-1 agreement, over top-40 log-probabilities. Argues the commonly quoted
+                  0.01--0.03 band for \texttt{Q4\_K\_M} is an artifact of short-context
+                  Wikipedia protocols}
+}
+
+@misc{miller2024errorbars,
+  title         = {Adding Error Bars to Evals: A Statistical Approach to Language Model Evaluations},
+  author        = {Miller, Evan},
+  year          = {2024},
+  eprint        = {2411.00640},
+  archivePrefix = {arXiv},
+  primaryClass  = {stat.AP},
+  doi           = {10.48550/arXiv.2411.00640},
+  url           = {https://arxiv.org/abs/2411.00640}
+}
+
+@misc{kurt2026whichquant,
+  title         = {Which Quantization Should {I} Use? {A} Unified Evaluation of {llama.cpp} Quantization on {Llama-3.1-8B-Instruct}},
+  author        = {Kurt, Uygar},
+  year          = {2026},
+  eprint        = {2601.14277},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.LG},
+  doi           = {10.48550/arXiv.2601.14277},
+  url           = {https://arxiv.org/abs/2601.14277}
+}
+
+@inproceedings{hsieh2024ruler,
+  title         = {{RULER}: What's the Real Context Size of Your Long-Context Language Models?},
+  author        = {Hsieh, Cheng-Ping and Sun, Simeng and Kriman, Samuel and Acharya, Shantanu
+                   and Rekesh, Dima and Jia, Fei and Zhang, Yang and Ginsburg, Boris},
+  booktitle     = {First Conference on Language Modeling (COLM)},
+  year          = {2024},
+  eprint        = {2404.06654},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  doi           = {10.48550/arXiv.2404.06654},
+  url           = {https://arxiv.org/abs/2404.06654}
+}
+
+@software{ruler_repo,
+  title   = {{RULER}: reference implementation and synthetic task generators},
+  author  = {{NVIDIA}},
+  year    = {2024},
+  license = {Apache-2.0},
+  note    = {Task generators, official templates and the \texttt{string\_match\_all} metric
+             reproduced verbatim and unit-checked in this study},
+  url     = {https://github.com/NVIDIA/RULER},
+  urldate = {2026-09-02}
+}
+
+@misc{redhat_longcontext_quant,
+  title        = {How well do quantized models handle long-context tasks?},
+  author       = {Kurti{\'c}, Eldar and Kurtz, Mark and Marques, Alexandre and Alistarh, Dan},
+  year         = {2025},
+  howpublished = {Red Hat Developer (originally published by Neural Magic)},
+  url          = {https://developers.redhat.com/articles/2024/02/03/how-well-do-quantized-models-handle-long-context-tasks},
+  urldate      = {2026-09-02},
+  note         = {{RULER} on {Llama-3.1} 8B/70B at 4K--128K across {FP} W8A8, {INT} W8A8 and
+                  {INT} W4A16. The page's stated date of 2024-02-03 is a site-migration artifact
+                  and precedes the model and benchmark it evaluates}
+}
+
+@inproceedings{mekala2025quantlongcontext,
+  title         = {Does quantization affect models' performance on long-context tasks?},
+  author        = {Mekala, Anmol and Atmakuru, Anirudh and Song, Yixiao and
+                   Karpinska, Marzena and Iyyer, Mohit},
+  booktitle     = {Proceedings of the 2025 Conference on Empirical Methods in Natural Language Processing (EMNLP)},
+  year          = {2025},
+  eprint        = {2505.20276},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  doi           = {10.48550/arXiv.2505.20276},
+  url           = {https://arxiv.org/abs/2505.20276}
+}
+
+@inproceedings{fang2025longppl,
+  title         = {What is Wrong with Perplexity for Long-context Language Modeling?},
+  author        = {Fang, Lizhe and Wang, Yifei and Liu, Zhaoyang and Zhang, Chenheng and
+                   Jegelka, Stefanie and Gao, Jinyang and Ding, Bolin and Wang, Yisen},
+  booktitle     = {The Thirteenth International Conference on Learning Representations (ICLR)},
+  year          = {2025},
+  eprint        = {2410.23771},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  doi           = {10.48550/arXiv.2410.23771},
+  url           = {https://proceedings.iclr.cc/paper_files/paper/2025/hash/ebd6641c32ed633c2a3addc689d39896-Abstract-Conference.html},
+  note          = {Proposes {LongPPL}; reports Pearson $-0.96$ with long-context benchmark
+                   performance where plain perplexity correlates poorly}
+}
+
+@software{longppl_repo,
+  title   = {{LongPPL}: code for ``What is Wrong with Perplexity for Long-context Language Modeling?''},
+  author  = {{PKU-ML}},
+  year    = {2025},
+  url     = {https://github.com/PKU-ML/LongPPL},
+  urldate = {2026-09-02}
+}
+
+
+@inproceedings{dutta2024accuracy,
+  title         = {Accuracy is Not All You Need},
+  author        = {Dutta, Abhinav and Krishnan, Sanjeev and Kwatra, Nipun and Ramjee, Ramachandran},
+  booktitle     = {Advances in Neural Information Processing Systems 37 (NeurIPS)},
+  year          = {2024},
+  eprint        = {2407.09141},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.LG},
+  doi           = {10.48550/arXiv.2407.09141},
+  url           = {https://arxiv.org/abs/2407.09141}
+}
+
+
+
+@misc{qwen38,
+  title  = {{Qwen3.8-Max}: A New Bar for Coding and Cowork},
+  url    = {https://qwen.ai/blog?id=qwen3.8},
+  author = {{Qwen Team}},
+  month  = {August},
+  year   = {2026}
+}
+
+@misc{qwen38_27b_card,
+  title        = {{Qwen3.8-27B}},
+  author       = {{Qwen Team}},
+  year         = {2026},
+  howpublished = {Hugging Face model card},
+  url          = {https://huggingface.co/Qwen/Qwen3.8-27B},
+  urldate      = {2026-09-02},
+  note         = {Apache-2.0; created 2026-08-05. Native context 262{,}144.
+                  Official sampling --- thinking: temp 1.0 / top\_p 0.95 / top\_k 20 /
+                  min\_p 0.0 / presence 0.0; non-thinking: temp 0.7 / top\_p 0.80 /
+                  top\_k 20 / min\_p 0.0 / presence 1.5.
+                  \texttt{reasoning\_effort} options: \texttt{xhigh} $|$ \texttt{medium} $|$ \texttt{low}}
+}
+
+@misc{qwen3_techreport,
+  title         = {{Qwen3} Technical Report},
+  author        = {{Qwen Team}},
+  year          = {2025},
+  eprint        = {2505.09388},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  doi           = {10.48550/arXiv.2505.09388},
+  url           = {https://arxiv.org/abs/2505.09388},
+  note          = {Architectural background for the {Qwen3} family. Does not cover {Qwen3.8}}
+}
+
+@misc{unsloth_qwen38_gguf,
+  title        = {{unsloth/Qwen3.8-27B-GGUF}},
+  author       = {{Unsloth AI}},
+  year         = {2026},
+  howpublished = {Hugging Face model repository},
+  url          = {https://huggingface.co/unsloth/Qwen3.8-27B-GGUF},
+  urldate      = {2026-09-02},
+  note         = {Source of every {GGUF} arm in this study. Exact file sizes and {SHA}-256
+                  digests are recorded in \texttt{manuscript/references/PROVENANCE.md}}
+}
+
+@misc{nvidia_nvfp4,
+  title        = {Introducing {NVFP4} for Efficient and Accurate Low-Precision Inference},
+  author       = {Layton, Simon},
+  year         = {2025},
+  howpublished = {NVIDIA Technical Blog},
+  url          = {https://developer.nvidia.com/blog/introducing-nvfp4-for-efficient-and-accurate-low-precision-inference/},
+  urldate      = {2026-09-02},
+  note         = {Publication date not independently confirmed; treat as mid-2025}
+}
+
+
+
+@misc{chen2021humaneval,
+  title         = {Evaluating Large Language Models Trained on Code},
+  author        = {Chen, Mark and Tworek, Jerry and Jun, Heewoo and Yuan, Qiming and
+                   Pinto, Henrique Ponde de Oliveira and Kaplan, Jared and Edwards, Harri and
+                   Burda, Yuri and Joseph, Nicholas and Brockman, Greg and others},
+  year          = {2021},
+  eprint        = {2107.03374},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.LG},
+  doi           = {10.48550/arXiv.2107.03374},
+  url           = {https://arxiv.org/abs/2107.03374}
+}
+
+@inproceedings{evalplus,
+  title     = {Is Your Code Generated by Chat{GPT} Really Correct? Rigorous Evaluation of Large Language Models for Code Generation},
+  author    = {Liu, Jiawei and Xia, Chunqiu Steven and Wang, Yuyao and Zhang, Lingming},
+  booktitle = {Thirty-seventh Conference on Neural Information Processing Systems},
+  year      = {2023},
+  url       = {https://openreview.net/forum?id=1qvx610Cu7}
+}
+
+@software{evalplus_repo,
+  title   = {{EvalPlus}: rigorous evaluation of {LLM}-synthesised code},
+  author  = {Liu, Jiawei and Xia, Chunqiu Steven and Wang, Yuyao and Zhang, Lingming},
+  year    = {2026},
+  note    = {Evaluation implementation used for the HumanEval and HumanEval+ measurements},
+  url     = {https://github.com/evalplus/evalplus},
+  urldate = {2026-09-02}
+}
+
+@inproceedings{zellers2019hellaswag,
+  title         = {{HellaSwag}: Can a Machine Really Finish Your Sentence?},
+  author        = {Zellers, Rowan and Holtzman, Ari and Bisk, Yonatan and
+                   Farhadi, Ali and Choi, Yejin},
+  booktitle     = {Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics (ACL)},
+  year          = {2019},
+  eprint        = {1905.07830},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  doi           = {10.48550/arXiv.1905.07830},
+  url           = {https://arxiv.org/abs/1905.07830}
+}
+
+@misc{hellaswag_datafile,
+  title        = {{HellaSwag} validation set, {llama.cpp} plain-text format (\texttt{hellaswag\_val\_full.txt})},
+  author       = {{klosax}},
+  howpublished = {GitHub raw content},
+  year         = {2026},
+  url          = {https://raw.githubusercontent.com/klosax/hellaswag_text_data/main/hellaswag_val_full.txt},
+  urldate      = {2026-08-30},
+  note         = {7{,}770{,}677 bytes, 60{,}252 lines,
+                  \texttt{sha256:d572539320eb2050e858ca34b495bbe2103e3b3f1391a9c3bcdf215b0bb93bd1};
+                  the file \texttt{llama.cpp}'s own \texttt{get-hellaswag.sh} fetches}
+}
+
+@misc{winogrande_datafile,
+  title        = {{Winogrande} debiased evaluation set for {llama.cpp} (\texttt{winogrande-debiased-eval.csv})},
+  author       = {{ikawrakow}},
+  howpublished = {Hugging Face dataset},
+  year         = {2026},
+  url          = {https://huggingface.co/datasets/ikawrakow/winogrande-eval-for-llama.cpp},
+  urldate      = {2026-08-30},
+  note         = {155{,}325 bytes, 1{,}268 lines,
+                  \texttt{sha256:6726173ef65ffdc4abb0d28b755375d288ffb3eb41633bd833288c411c8ebf7c}.
+                  Fetched but not run}
+}
+
+@inproceedings{merity2017pointer,
+  title         = {Pointer Sentinel Mixture Models},
+  author        = {Merity, Stephen and Xiong, Caiming and Bradbury, James and Socher, Richard},
+  booktitle     = {5th International Conference on Learning Representations (ICLR)},
+  year          = {2017},
+  eprint        = {1609.07843},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  doi           = {10.48550/arXiv.1609.07843},
+  url           = {https://arxiv.org/abs/1609.07843},
+  note          = {Introduces {WikiText-2}, the convention corpus for {llama.cpp} perplexity
+                   and {KL}-divergence measurement}
+}
+
+@inproceedings{jimenez2024swebench,
+  title         = {{SWE}-bench: Can Language Models Resolve Real-World {GitHub} Issues?},
+  author        = {Jimenez, Carlos E. and Yang, John and Wettig, Alexander and Yao, Shunyu and
+                   Pei, Kexin and Press, Ofir and Narasimhan, Karthik},
+  booktitle     = {The Twelfth International Conference on Learning Representations (ICLR)},
+  year          = {2024},
+  eprint        = {2310.06770},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  doi           = {10.48550/arXiv.2310.06770},
+  url           = {https://arxiv.org/abs/2310.06770}
+}
+
+@misc{openai2024swebenchverified,
+  title        = {Introducing {SWE}-bench Verified},
+  author       = {{OpenAI}},
+  year         = {2024},
+  month        = aug,
+  howpublished = {OpenAI blog},
+  url          = {https://openai.com/index/introducing-swe-bench-verified/},
+  urldate      = {2026-09-02},
+  note         = {A 500-instance human-validated subset of the {SWE}-bench test set.
+                  Distinct from {SWE}-bench Pro; scores on the two are not comparable}
+}
+
+@inproceedings{jain2025livecodebench,
+  title         = {{LiveCodeBench}: Holistic and Contamination Free Evaluation of Large Language Models for Code},
+  author        = {Jain, Naman and Han, King and Gu, Alex and Li, Wen-Ding and Yan, Fanjia and
+                   Zhang, Tianjun and Wang, Sida and Solar-Lezama, Armando and Sen, Koushik and
+                   Stoica, Ion},
+  booktitle     = {The Thirteenth International Conference on Learning Representations (ICLR)},
+  year          = {2025},
+  eprint        = {2403.07974},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.SE},
+  doi           = {10.48550/arXiv.2403.07974},
+  url           = {https://arxiv.org/abs/2403.07974}
+}
+
+@misc{merrill2026terminalbench,
+  title         = {Terminal-Bench: Benchmarking Agents on Hard, Realistic Tasks in Command Line Interfaces},
+  author        = {Merrill, Mike A. and Shaw, Alexander G. and Carlini, Nicholas and Li, Boxuan and
+                   Raj, Harsh and Bercovich, Ivan and Shi, Lin and Shin, Jeong Yeon and
+                   Walshe, Thomas and Buchanan, E. Kelly and others},
+  year          = {2026},
+  eprint        = {2601.11868},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.SE},
+  doi           = {10.48550/arXiv.2601.11868},
+  url           = {https://arxiv.org/abs/2601.11868},
+  note          = {Describes Terminal-Bench 2.0 (89 tasks); leaderboard at \url{https://www.tbench.ai/}}
+}
+
+
+
+@inproceedings{leviathan2023speculative,
+  title         = {Fast Inference from Transformers via Speculative Decoding},
+  author        = {Leviathan, Yaniv and Kalman, Matan and Matias, Yossi},
+  booktitle     = {Proceedings of the 40th International Conference on Machine Learning (ICML)},
+  series        = {Proceedings of Machine Learning Research},
+  volume        = {202},
+  pages         = {19274--19286},
+  year          = {2023},
+  publisher     = {PMLR},
+  eprint        = {2211.17192},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.LG},
+  url           = {https://proceedings.mlr.press/v202/leviathan23a.html}
+}
+
+@misc{chen2023speculativesampling,
+  title         = {Accelerating Large Language Model Decoding with Speculative Sampling},
+  author        = {Chen, Charlie and Borgeaud, Sebastian and Irving, Geoffrey and
+                   Lespiau, Jean-Baptiste and Sifre, Laurent and Jumper, John},
+  year          = {2023},
+  eprint        = {2302.01318},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  doi           = {10.48550/arXiv.2302.01318},
+  url           = {https://arxiv.org/abs/2302.01318}
+}
+
+@misc{gloeckle2024multitoken,
+  title         = {Better \& Faster Large Language Models via Multi-token Prediction},
+  author        = {Gloeckle, Fabian and Idrissi, Badr Youbi and Rozi{\`e}re, Baptiste and
+                   Lopez-Paz, David and Synnaeve, Gabriel},
+  year          = {2024},
+  eprint        = {2404.19737},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  doi           = {10.48550/arXiv.2404.19737},
+  url           = {https://arxiv.org/abs/2404.19737}
+}
+
+@misc{deepseekv3,
+  title         = {{DeepSeek-V3} Technical Report},
+  author        = {{DeepSeek-AI}},
+  year          = {2024},
+  eprint        = {2412.19437},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  doi           = {10.48550/arXiv.2412.19437},
+  url           = {https://arxiv.org/abs/2412.19437}
+}
+
+@inproceedings{cai2024medusa,
+  title         = {{Medusa}: Simple {LLM} Inference Acceleration Framework with Multiple Decoding Heads},
+  author        = {Cai, Tianle and Li, Yuhong and Geng, Zhengyang and Peng, Hongwu and
+                   Lee, Jason D. and Chen, Deming and Dao, Tri},
+  booktitle     = {Proceedings of the 41st International Conference on Machine Learning (ICML)},
+  series        = {Proceedings of Machine Learning Research},
+  volume        = {235},
+  year          = {2024},
+  publisher     = {PMLR},
+  eprint        = {2401.10774},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.LG},
+  url           = {https://proceedings.mlr.press/v235/cai24b.html}
+}
+
+@inproceedings{chen2026dflash,
+  title         = {{DFlash}: Block Diffusion for Flash Speculative Decoding},
+  author        = {Chen, Jian and Liang, Yesheng and Liu, Zhijian},
+  booktitle     = {Proceedings of the 43rd International Conference on Machine Learning (ICML)},
+  year          = {2026},
+  publisher     = {PMLR},
+  eprint        = {2602.06036},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  doi           = {10.48550/arXiv.2602.06036},
+  url           = {https://arxiv.org/abs/2602.06036},
+  note          = {Authors' implementation: \url{https://github.com/z-lab/dflash}}
+}
+
+@software{dflash_mlx,
+  title   = {\texttt{dflash-mlx}: exact speculative decoding on {Apple} {Silicon}},
+  author  = {Gupta, Arya},
+  year    = {2026},
+  license = {MIT},
+  note    = {A third-party {MLX} port of {DFlash}; the upstream implementation targets {CUDA}.
+             Source of the ``bit-for-bit identical to plain target decoding'' claim, which
+             this study's {PN-23}/{PN-26} counter-measure on a different stack},
+  url     = {https://github.com/Aryagm/dflash-mlx},
+  urldate = {2026-09-02}
+}
+
+@software{llamacpp_dflash2,
+  title   = {{llama.cpp} {DFlash2} fork (z-lab)},
+  author  = {{z-lab}},
+  year    = {2026},
+  version = {0.1.2-dev (build 50)},
+  note    = {Engine commit \texttt{f7aadef}; image \texttt{llama-dflash2:latest},
+             digest \texttt{sha256:22bb8b7fed8b3cfc8edb28ab5c4e1db0575670b35619da19693830a8d2952354};
+             requires \texttt{--entrypoint /app/llama-server}.
+             Drafter \texttt{Qwen3.8-27B-DFlash2-Q4\_K\_M.gguf}, 1{,}143{,}006{,}752 bytes,
+             \texttt{sha256:18a380efc9b7ed8d88677fc895f5c11ae170653434ee378f7348f715c14d0594}}
+}
+
+
+
+@inproceedings{kwon2023pagedattention,
+  title         = {Efficient Memory Management for Large Language Model Serving with {PagedAttention}},
+  author        = {Kwon, Woosuk and Li, Zhuohan and Zhuang, Siyuan and Sheng, Ying and
+                   Zheng, Lianmin and Yu, Cody Hao and Gonzalez, Joseph E. and Zhang, Hao and
+                   Stoica, Ion},
+  booktitle     = {Proceedings of the 29th Symposium on Operating Systems Principles (SOSP)},
+  pages         = {611--626},
+  year          = {2023},
+  publisher     = {ACM},
+  doi           = {10.1145/3600006.3613165},
+  eprint        = {2309.06180},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.LG},
+  url           = {https://doi.org/10.1145/3600006.3613165}
+}
+
+@software{vllm,
+  title   = {{vLLM}: a high-throughput and memory-efficient inference and serving engine for {LLM}s},
+  author  = {{vLLM Project}},
+  year    = {2026},
+  note    = {Versions used in the pre-E12 corpus: stable \texttt{0.27.1}
+             (\texttt{vllm/vllm-openai@sha256:0a51ea5b4ae2dc5d81890e5173f54203d2a3ae0cfffe51b8fd2afd4391bfd967})
+             and nightly \texttt{0.26.1rc1.dev1219+g46638857f}
+             (\texttt{vllm/vllm-openai@sha256:22d3b1217fda569653f32f1e00a2a4e64119c1601c67ff94cc72d7ca5ef352c8}).
+             Both images were deleted 2026-08-29 under {DEC-4}; the digests make a byte-exact
+             re-pull possible},
+  url     = {https://github.com/vllm-project/vllm},
+  urldate = {2026-09-02}
+}
+
+@inproceedings{yang2024sweagent,
+  title     = {{SWE}-agent: Agent-Computer Interfaces Enable Automated Software Engineering},
+  author    = {Yang, John and Jimenez, Carlos E. and Wettig, Alexander and Lieret, Kilian and
+               Yao, Shunyu and Narasimhan, Karthik R. and Press, Ofir},
+  booktitle = {The Thirty-eighth Annual Conference on Neural Information Processing Systems},
+  year      = {2024},
+  url       = {https://arxiv.org/abs/2405.15793}
+}
+
+@software{miniswe,
+  title   = {\texttt{mini-swe-agent}},
+  author  = {{SWE-agent contributors}},
+  year    = {2026},
+  version = {2.4.6},
+  license = {MIT},
+  note    = {A smaller implementation related to {SWE}-agent; the cited paper describes a
+             different system},
+  url     = {https://github.com/SWE-agent/mini-swe-agent},
+  urldate = {2026-09-02}
+}
+
+
+
+@misc{zhu2026paperbanana,
+  title         = {{PaperBanana}: Automating Academic Illustration for {AI} Scientists},
+  author        = {Zhu, Dawei and Meng, Rui and Song, Yale and Wei, Xiyu and
+                   Li, Sujian and Pfister, Tomas and Yoon, Jinsung},
+  year          = {2026},
+  eprint        = {2601.23265},
+  archivePrefix = {arXiv},
+  primaryClass  = {cs.CL},
+  doi           = {10.48550/arXiv.2601.23265},
+  url           = {https://arxiv.org/abs/2601.23265}
+}
+
+
+@article{wilson1927interval,
+  title     = {Probable Inference, the Law of Succession, and Statistical Inference},
+  author    = {Wilson, Edwin B.},
+  journal   = {Journal of the American Statistical Association},
+  volume    = {22},
+  number    = {158},
+  pages     = {209--212},
+  year      = {1927},
+  publisher = {Taylor \& Francis},
+  doi       = {10.1080/01621459.1927.10502953}
+}
+
+@article{efron1979bootstrap,
+  title     = {Bootstrap Methods: Another Look at the Jackknife},
+  author    = {Efron, B.},
+  journal   = {The Annals of Statistics},
+  volume    = {7},
+  number    = {1},
+  pages     = {1--26},
+  year      = {1979},
+  publisher = {Institute of Mathematical Statistics},
+  doi       = {10.1214/aos/1176344552}
+}
+
+@article{mcnemar1947test,
+  title     = {Note on the sampling error of the difference between correlated proportions or percentages},
+  author    = {McNemar, Quinn},
+  journal   = {Psychometrika},
+  volume    = {12},
+  number    = {2},
+  pages     = {153--157},
+  year      = {1947},
+  doi       = {10.1007/BF02295996}
+}
