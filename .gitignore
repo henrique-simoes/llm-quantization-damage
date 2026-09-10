@@ -50,3 +50,10 @@ __pycache__/
 
 # Anything above 5 MB should be justified in a commit message before being
 # force-added. Check with:  git ls-files | xargs du -k | sort -rn | head
+
+# ── Agent operating instructions ────────────────────────────────────────────
+# Held back from the public repository for now (owner decision, 2026-09-09).
+# These describe how the campaign was driven, not what it measured. They are
+# intended for a later release once reviewed; nothing in them is a credential.
+CLAUDE.md
+AGENTS.md
