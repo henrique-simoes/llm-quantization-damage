@@ -23,8 +23,8 @@ draft-depth sweeps at matched context, context-ceiling and tensor-split work, an
 comparison against vLLM NVFP4 and an SGLang attempt that never started.
 
 - **Deliverable** — [`manuscript/`](manuscript/) · outline and evidence map in
-  [`manuscript/OUTLINE.md`](manuscript/OUTLINE.md). **Status: measurement complete, not yet drafted.**
-- **Findings, individually cited** — [`docs/paper/PAPER-NOTES.md`](docs/paper/PAPER-NOTES.md) (PN-1…PN-63)
+  [`manuscript/OUTLINE-V2.md`](manuscript/OUTLINE-V2.md). **Status: measurement complete, not yet drafted.**
+- **Findings, individually cited** — [`docs/paper/PAPER-NOTES.md`](docs/paper/PAPER-NOTES.md) (PN-1…PN-69)
 - **The deployment answer** — [`docs/paper/TRACK-A-DECISION.md`](docs/paper/TRACK-A-DECISION.md)
 - **How the work was run** — [`docs/build-stream/2026-08-30-quant-bench-trackA.md`](docs/build-stream/2026-08-30-quant-bench-trackA.md)
 
@@ -36,7 +36,7 @@ comparison against vLLM NVFP4 and an SGLang attempt that never started.
 |---|---|
 | Model | Qwen3.8-27B, Unsloth Dynamic GGUFs |
 | Arms | UD-Q4_K_XL (17.56 GB) · UD-Q5_K_XL (20.88 GB) · UD-Q6_K (21.98 GB) · UD-Q6_K_XL (25.30 GB, reference) |
-| Host | `multivac` — 2× RTX 5060 Ti 16 GB (Blackwell sm120, **no NVLink**, 180 W cap), Ryzen 5 8500G, 14 GiB RAM |
+| Host | `multivac` — 2× RTX 5060 Ti 16 GB (Blackwell sm120, **no NVLink**, 180 W cap), Ryzen 5 8500G, 14 GiB RAM, MSI B850M GAMING PRO WIFI6E (AMI `1.A10`), Ubuntu 26.04 LTS, NVIDIA `595.84` |
 | Engine | llama.cpp `llamacpp-mtp:latest`, 0.3.0-dev build 1 (`d222767`), image `sha256:feb0231976b6…` |
 | Instrument | `llama-perplexity --kl-divergence`, 65,536 tokens per domain per arm |
 
@@ -283,24 +283,59 @@ no result:
 
 ```
 manuscript/          the arXiv report — the deliverable
+  figures/           figure programme, tables, per-figure CSVs + extract.py
+  references/        provenance, metric corpus, timeline, references.bib
+  review/            four blind reviews, retained unedited
 docs/
-  paper/             findings: PAPER-NOTES (PN-1..63), method references, the Track A decision
+  paper/             findings: PAPER-NOTES (PN-1..69), method references, the Track A decision
   build-stream/      how the work was run: the plan, its decision log (DEC-*) and ledger (L-*)
 data/
   raw/e12/           current evidence — artifacts, logs, quarantine, harness source
+  raw/historical/    pre-E12 per-instance evidence (EvalPlus, perplexity, SWE-bench)
   archive/           pre-E12 historical evidence, superseded but never deleted
   multivac-src/      read-only mirrors of documents the machine owns
 tools/               sync-multivac.sh (active) · retired/ (the halted conductor subsystem)
 ```
 
 Machine-side: `/srv/bench/e12/` (current wave), `/srv/bench/` (all prior results, never deleted),
-`/srv/models` + `/srv/bench/models` (GGUFs), `~/CLAUDE.md` (the machine's own documentation).
+`/srv/models` + `/srv/bench/models` (GGUFs).
+
+## Data availability
+
+Everything the report's claims rest on is in this repository. What is not here is either
+regenerable from what is, or too large to distribute — and in both cases it is pinned by checksum,
+so a third party can verify they hold the same bytes.
+
+| layer | where | what it is |
+|---|---|---|
+| **Item-level results** | `data/raw/e12/`, `data/raw/historical/` | Per-cell JSON: metrics, return code, wall-clock seconds, context depth, KV dtype, tensor split. RULER carries per-prediction files. |
+| **Evaluation harness** | `data/raw/e12/harness-src/` | The exact scripts that produced the cells — not a cleaned-up rewrite. |
+| **Figure data** | `manuscript/figures/data/` | One CSV per figure, plus `INDEX.csv` and `extract.py`, which regenerates every CSV from the raw layer. |
+| **Environment provenance** | `data/raw/e12/env-manifest.json` | Engine images by RepoDigest; GGUFs by sha256 and byte count. |
+| **Energy series** | `data/raw/e12/power-log.csv.gz` | 778,727 rows at 1 Hz, 2026-08-27 to 2026-09-05. Datasheet alongside it. |
+| Model weights | *not distributed* | Published Unsloth GGUFs, 17–25 GB each; pinned by sha256 in the env manifest. |
+| Divergence bases | *not distributed* | `.kld` logit files, ~11 GB each; regenerable with the harness. |
+| Server logs | *not distributed* | Path and byte count recorded per cell in the tsweep and SSA JSONs. |
+
+**Reproducing a cell.** Every cell records the full `docker run` invocation that produced it —
+image digest, model path, context length, KV dtype, seed, tensor split. Pull the pinned image,
+fetch the GGUF whose sha256 matches the manifest, re-issue the command.
+
+**Irreproducible-on-current-images.** Results before 2026-08-29 are labelled as such and are never
+mixed into a table with current ones: the engine image behind every tensor-split and every
+262,144-token result was deleted, along with two GGUFs (PN-57).
+
+**Paths in raw logs.** Raw logs contain absolute paths of the form `/home/multivac/…`. `multivac`
+is the measurement host, documented in *The setup* above; the Linux account carries the same name.
+Raw artifacts are published exactly as they were written and are not edited after the fact.
 
 ## Working in this repository
 
-Read [`CLAUDE.md`](CLAUDE.md) — it holds the ownership map, the hard rules, the configuration facts
-that are easy to get wrong, and the live TODO. The rules exist because each one has already cost
-this project a wrong number or a near-miss on data loss.
+The ownership map, the hard rules and the configuration facts that are easy to get wrong live in
+`CLAUDE.md` and `AGENTS.md`. Those two files are **held back from the public repository for now**;
+nothing in them is a credential, and nothing published here depends on them. Everything the
+measurement rests on — the evidence base, the decision log, the harness and the raw artifacts —
+is in the tree.
 
 Git syncs to a bare repository on the host and to this public remote. The measurement record,
 including withdrawn claims and the instrumentation-defect register, is published in full.
