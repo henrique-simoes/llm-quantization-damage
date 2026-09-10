@@ -264,9 +264,14 @@ The report reports trade-off curves per objective; it does not inherit this prio
 Stated here rather than buried, because an underpowered result reported as a ranking is worse than
 no result:
 
-- **Long-context task accuracy is unmeasured for every arm.** No 100K–250K task outputs exist
-  anywhere in the corpus, and the one long-context battery that appeared to separate the arms was
-  measuring output-budget exhaustion (PN-60). This is the largest hole.
+- **Long-context task accuracy is unresolved for every arm.** Task outputs at 131K *do* exist —
+  248 items across six RULER cells in `data/raw/e12/ruler/` — but the one battery that appeared to
+  separate the arms was measuring output-budget exhaustion rather than retrieval: not one item in
+  the entire battery was closed-and-wrong, and across the 55 of 100 items where neither arm's
+  output budget bound, both arms score 55/55 with zero discordance. Retrieval at 131K is therefore
+  **unanswered, not answered negatively** — settling it needs a re-run at a generous `n_predict`
+  with thinking disabled, which the harness cannot do on the `/completion` endpoint it used. This
+  is the largest hole. (PN-60, PN-63)
 - **No multiple-comparisons correction is applied across the study's ~19 hypothesis tests.** Under
   Holm and Benjamini–Hochberg all 11 positive results survive, but the weakest separation (3.71 σ)
   does not survive Bonferroni once clustering is allowed for — so "3.7–11.8 σ" quotes a range whose
