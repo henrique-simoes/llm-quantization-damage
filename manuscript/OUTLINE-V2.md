@@ -964,9 +964,13 @@ removing it would cost. Reviewer D §6 is the base text and its ordering is adop
    which is where these arms sit. Concede, then give the joint reading with §5.1's separations.
 5. **KV fidelity measured at n_ctx 2048, not at depth**, on the reference arm and the code domain
    only — with QLLM-Eval making it a live risk. *(PN-15, PN-31)*
-6. **Long-context task accuracy is unmeasured for every arm.** No 100K–250K task outputs exist in the
-   corpus, and the one battery that appeared to separate the arms measured budget exhaustion. This is
-   the largest hole. *(PN-60, PN-63)*
+6. **Long-context task accuracy is unresolved for every arm.** Task outputs at 131K *do* exist —
+   248 items across six RULER cells — but the one battery that appeared to separate the arms
+   measured budget exhaustion, not retrieval: `closed-and-wrong` is exactly zero across the whole
+   battery, and across the 55 items where neither arm's budget bound both arms score 55/55 with
+   zero discordance. Retrieval at 131K is **unanswered, not answered negatively**; a re-run at a
+   generous `n_predict` with thinking disabled would settle it. This is the largest hole.
+   *(PN-60, PN-63)*
 7. **Single-attempt failures under a rule requiring two.** Every default-split failure in §6.1 was
    attempted once; re-testing would cost ~20 minutes of GPU and was not done. *(PN-39)*
 8. **PN-9's quant/depth/ratio confound is unresolved**, and the sweep built to resolve it failed on
