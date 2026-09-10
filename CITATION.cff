@@ -36,4 +36,7 @@ keywords:
   - speculative decoding
   - benchmarking
 authors:
-  - alias: henrique-simoes
+  - family-names: "Simões"
+    given-names: "Luiz Henrique"
+    email: "simoeshz@gmail.com"
+    affiliation: "Independent researcher; professional master's candidate in Data Science and Analytics, Universidade de São Paulo (USP)"
