@@ -1,0 +1,317 @@
+# promtool unit tests for rules/llm.rules.yml.
+#   docker run --rm -v "$PWD":/w -w /w --entrypoint promtool prom/prometheus:latest \
+#     test rules tests/llm.rules.test.yml
+# Series are sampled every 15 s; a counter growing by x per sample has rate x/15 per second.
+# promtool 3.x compares floats exactly, so value assertions use round(expr * 1000) and the
+# expected values are scaled by 1000 (round() drops the metric name).
+rule_files:
+  - ../rules/llm.rules.yml
+
+evaluation_interval: 15s
+
+tests:
+
+  # --- 1. Joint SLO attainment and goodput -------------------------------------------------------
+  - interval: 15s
+    input_series:
+      # interactive: 15 evaluated / 15 s (1 req/s), 9 good / 15 s, split over two endpoints.
+      - series: 'llm_slo_evaluated_total{job="llm-proxy",instance="p",server="s",model="m",slo="interactive",endpoint="chat",stream="true",thinking="on"}'
+        values: '0+10x40'
+      - series: 'llm_slo_good_total{job="llm-proxy",instance="p",server="s",model="m",slo="interactive",endpoint="chat",stream="true",thinking="on"}'
+        values: '0+6x40'
+      - series: 'llm_slo_evaluated_total{job="llm-proxy",instance="p",server="s",model="m",slo="interactive",endpoint="completions",stream="false",thinking="off"}'
+        values: '0+5x40'
+      - series: 'llm_slo_good_total{job="llm-proxy",instance="p",server="s",model="m",slo="interactive",endpoint="completions",stream="false",thinking="off"}'
+        values: '0+3x40'
+      # depth_normalised: requests evaluated, no good series ever created -> attainment 0, not empty.
+      - series: 'llm_slo_evaluated_total{job="llm-proxy",instance="p",server="s",model="m",slo="depth_normalised",endpoint="chat",stream="true",thinking="on"}'
+        values: '0+5x40'
+    promql_expr_test:
+      - expr: round((llm:slo_attainment:rate5m) * 1000)
+        eval_time: 10m
+        exp_samples:
+          - labels: '{server="s",model="m",slo="interactive"}'
+            value: 600
+          - labels: '{server="s",model="m",slo="depth_normalised"}'
+            value: 0
+      - expr: round((llm:goodput_rps:rate5m) * 1000)
+        eval_time: 10m
+        exp_samples:
+          - labels: '{server="s",model="m",slo="interactive"}'
+            value: 600
+
+  # --- 2. Request rate, error / abort / length / empty ratios -------------------------------------
+  - interval: 15s
+    input_series:
+      - series: 'llm_requests_total{job="llm-proxy",instance="p",server="s",model="m",endpoint="chat",stream="true",thinking="on",finish_reason="stop",status_class="2xx"}'
+        values: '0+9x40'
+      - series: 'llm_requests_total{job="llm-proxy",instance="p",server="s",model="m",endpoint="chat",stream="true",thinking="on",finish_reason="error",status_class="5xx"}'
+        values: '0+1x40'
+      - series: 'llm_requests_total{job="llm-proxy",instance="p",server="s",model="m",endpoint="chat",stream="true",thinking="on",finish_reason="length",status_class="2xx"}'
+        values: '0+5x40'
+      - series: 'llm_empty_answer_total{job="llm-proxy",instance="p",server="s",model="m",endpoint="chat",stream="true",thinking="on"}'
+        values: '0+3x40'
+    promql_expr_test:
+      - expr: round((llm:request_rate:rate5m) * 1000)
+        eval_time: 10m
+        exp_samples:
+          - labels: '{server="s",model="m"}'
+            value: 1000
+      - expr: round((llm:error_ratio:rate5m) * 1000)
+        eval_time: 10m
+        exp_samples:
+          - labels: '{server="s",model="m"}'
+            value: 67
+      # no abort series exists: the ratio must read 0 while traffic flows
+      - expr: round((llm:abort_ratio:rate5m) * 1000)
+        eval_time: 10m
+        exp_samples:
+          - labels: '{server="s",model="m"}'
+            value: 0
+      - expr: round((llm:length_finish_ratio:rate5m) * 1000)
+        eval_time: 10m
+        exp_samples:
+          - labels: '{server="s",model="m"}'
+            value: 333
+      - expr: round((llm:empty_answer_ratio:rate5m) * 1000)
+        eval_time: 10m
+        exp_samples:
+          - labels: '{server="s",model="m"}'
+            value: 200
+
+  # --- 3a. Energy at ZERO traffic: J/token and J/request absent; idle watts present --------------
+  - interval: 15s
+    input_series:
+      - series: 'nvml_gpu_energy_joules_total{job="gpu-nvml",instance="n",gpu="0",uuid="GPU-a",name="RTX"}'
+        values: '0+1500x300'
+      - series: 'nvml_gpu_energy_joules_total{job="gpu-nvml",instance="n",gpu="1",uuid="GPU-b",name="RTX"}'
+        values: '0+1500x300'
+      - series: 'llm_tokens_total{job="llm-proxy",instance="p",server="s",model="m",endpoint="chat",stream="true",thinking="on",type="output"}'
+        values: '500x300'
+      - series: 'llm_requests_total{job="llm-proxy",instance="p",server="s",model="m",endpoint="chat",stream="true",thinking="on",finish_reason="stop",status_class="2xx"}'
+        values: '7x300'
+      - series: 'llamacpp:requests_processing{job="llamacpp",instance="l",server="s"}'
+        values: '0x300'
+      # a histogram with no new observations: quantiles must be absent, not NaN
+      - series: 'llm_time_to_first_token_seconds_bucket{job="llm-proxy",instance="p",server="s",model="m",endpoint="chat",stream="true",thinking="on",method="observed",le="1.0"}'
+        values: '3x300'
+      - series: 'llm_time_to_first_token_seconds_bucket{job="llm-proxy",instance="p",server="s",model="m",endpoint="chat",stream="true",thinking="on",method="observed",le="+Inf"}'
+        values: '4x300'
+    promql_expr_test:
+      - expr: llm:joules_per_output_token:rate5m
+        eval_time: 10m
+        exp_samples: []
+      - expr: llm:joules_per_request:rate5m
+        eval_time: 10m
+        exp_samples: []
+      - expr: llm:ttft_seconds:p95
+        eval_time: 10m
+        exp_samples: []
+      - expr: round((llm:gpu_energy_watts:rate5m{scope="total"}) * 1000)
+        eval_time: 10m
+        exp_samples:
+          - labels: '{scope="total"}'
+            value: 200000
+      # 75 m of data so the 1 h average is not diluted by the first, partial 1 m rate windows
+      - expr: round((llm:gpu_idle_watts:avg1h) * 1000)
+        eval_time: 75m
+        exp_samples:
+          - labels: '{}'
+            value: 200000
+
+  # --- 3b. Energy WITH traffic: 200 W, 20 output tok/s, 0.2 req/s ---------------------------------
+  - interval: 15s
+    input_series:
+      - series: 'nvml_gpu_energy_joules_total{job="gpu-nvml",instance="n",gpu="0",uuid="GPU-a",name="RTX"}'
+        values: '0+1500x40'
+      - series: 'nvml_gpu_energy_joules_total{job="gpu-nvml",instance="n",gpu="1",uuid="GPU-b",name="RTX"}'
+        values: '0+1500x40'
+      - series: 'llm_tokens_total{job="llm-proxy",instance="p",server="s",model="m",endpoint="chat",stream="true",thinking="on",type="output"}'
+        values: '0+300x40'
+      - series: 'llm_requests_total{job="llm-proxy",instance="p",server="s",model="m",endpoint="chat",stream="true",thinking="on",finish_reason="stop",status_class="2xx"}'
+        values: '0+3x40'
+      - series: 'llamacpp:requests_processing{job="llamacpp",instance="l",server="s"}'
+        values: '1x40'
+      - series: 'node_rapl_package_joules_total{job="node",instance="h",index="0",path="/sys/class/powercap/intel-rapl:0"}'
+        values: '0+450x40'
+    promql_expr_test:
+      - expr: round((llm:joules_per_output_token:rate5m) * 1000)
+        eval_time: 10m
+        exp_samples:
+          - labels: '{}'
+            value: 10000
+      - expr: round((llm:joules_per_request:rate5m) * 1000)
+        eval_time: 10m
+        exp_samples:
+          - labels: '{}'
+            value: 1000000
+      - expr: round((llm:gpu_energy_watts:rate5m{scope="gpu"}) * 1000)
+        eval_time: 10m
+        exp_samples:
+          - labels: '{scope="gpu",gpu="0",uuid="GPU-a",name="RTX"}'
+            value: 100000
+          - labels: '{scope="gpu",gpu="1",uuid="GPU-b",name="RTX"}'
+            value: 100000
+      # 120 kJ over the 10 m of data = 33.33 Wh for 120 requests
+      - expr: round((llm:wh_per_1k_requests:rate1h) * 1000)
+        eval_time: 10m
+        exp_samples:
+          - labels: '{}'
+            value: 277778
+      # a request is processing throughout: no idle samples
+      - expr: llm:gpu_idle_watts:avg1h
+        eval_time: 10m
+        exp_samples: []
+      - expr: round((llm:cpu_package_watts:rate5m) * 1000)
+        eval_time: 10m
+        exp_samples:
+          - labels: '{}'
+            value: 30000
+
+  # --- 4. Speculative decoding: acceptance, tau, per-position alpha --------------------------------
+  - interval: 15s
+    input_series:
+      - series: 'llamacpp:spec_decode_num_drafts_total{job="llamacpp",instance="l",server="s"}'
+        values: '0+10x40'
+      - series: 'llamacpp:spec_decode_num_draft_tokens_total{job="llamacpp",instance="l",server="s"}'
+        values: '0+20x40'
+      - series: 'llamacpp:spec_decode_num_accepted_tokens_total{job="llamacpp",instance="l",server="s"}'
+        values: '0+15x40'
+      - series: 'llamacpp:spec_decode_num_accepted_tokens_per_pos_total{job="llamacpp",instance="l",server="s",position="0"}'
+        values: '0+9x40'
+      - series: 'llamacpp:spec_decode_num_accepted_tokens_per_pos_total{job="llamacpp",instance="l",server="s",position="1"}'
+        values: '0+6x40'
+    promql_expr_test:
+      - expr: round((llm:spec_acceptance_rate:rate5m) * 1000)
+        eval_time: 10m
+        exp_samples:
+          - labels: '{server="s"}'
+            value: 750
+      - expr: round((llm:spec_mean_accept_length:rate5m) * 1000)
+        eval_time: 10m
+        exp_samples:
+          - labels: '{server="s"}'
+            value: 2500
+      - expr: round((llm:spec_conditional_acceptance) * 1000)
+        eval_time: 10m
+        exp_samples:
+          - labels: '{server="s",position="0"}'
+            value: 900
+          - labels: '{server="s",position="1"}'
+            value: 667
+
+  # --- 5. KV fill, prefix-cache hit ratio, unbiased decode rate, prefill rate ----------------------
+  - interval: 15s
+    input_series:
+      - series: 'llamacpp_slot_kv_tokens{job="llamacpp-sidecar",instance="c",server="s",model="m",slot="0"}'
+        values: '131072x40'
+      - series: 'llamacpp_slot_n_ctx{job="llamacpp-sidecar",instance="c",server="s",model="m",slot="0"}'
+        values: '262144x40'
+      - series: 'llamacpp:prompt_tokens_cached_total{job="llamacpp",instance="l",server="s"}'
+        values: '0+300x40'
+      - series: 'llamacpp:prompt_tokens_total{job="llamacpp",instance="l",server="s"}'
+        values: '0+100x40'
+      - series: 'llamacpp:prompt_seconds_total{job="llamacpp",instance="l",server="s"}'
+        values: '0+0.2x40'
+      - series: 'llamacpp_decode_steps_total{job="llamacpp-sidecar",instance="c",server="s",model="m"}'
+        values: '0+180x40'
+      - series: 'llamacpp_decode_seconds_total{job="llamacpp-sidecar",instance="c",server="s",model="m"}'
+        values: '0+6x40'
+    promql_expr_test:
+      - expr: round((llm:kv_fill_ratio) * 1000)
+        eval_time: 10m
+        exp_samples:
+          - labels: '{job="llamacpp-sidecar",instance="c",server="s",model="m",slot="0"}'
+            value: 500
+      - expr: round((llm:prefix_cache_hit_ratio:rate5m) * 1000)
+        eval_time: 10m
+        exp_samples:
+          - labels: '{server="s"}'
+            value: 750
+      - expr: round((llm:decode_tokens_per_second:rate5m) * 1000)
+        eval_time: 10m
+        exp_samples:
+          - labels: '{server="s",model="m"}'
+            value: 30000
+      - expr: round((llm:prefill_tokens_per_second:rate5m) * 1000)
+        eval_time: 10m
+        exp_samples:
+          - labels: '{server="s"}'
+            value: 500000
+
+  # --- 6. Alert LlmProxyDown: pending before 2 m, firing after ------------------------------------
+  - interval: 15s
+    input_series:
+      - series: 'up{job="llm-proxy",instance="127.0.0.1:9901"}'
+        values: '0x20'
+    alert_rule_test:
+      - eval_time: 1m
+        alertname: LlmProxyDown
+        exp_alerts: []
+      - eval_time: 3m
+        alertname: LlmProxyDown
+        exp_alerts:
+          - exp_labels: { severity: critical, job: llm-proxy, instance: "127.0.0.1:9901" }
+            exp_annotations:
+              summary: "llm-proxy is down"
+              description: "Prometheus cannot scrape the llm-proxy metrics endpoint (127.0.0.1:9901) for 2 m. Clients on the client-facing address reach no model; rollback-proxy.sh restores the direct bind."
+
+  # --- 6b. LlmProxyDown does not fire while the proxy is up ---------------------------------------
+  - interval: 15s
+    input_series:
+      - series: 'up{job="llm-proxy",instance="127.0.0.1:9901"}'
+        values: '1x20'
+    alert_rule_test:
+      - eval_time: 4m
+        alertname: LlmProxyDown
+        exp_alerts: []
+
+  # --- 7. Alert KvFillNearWindow: slot 0 at 97 % fires, slot 1 at 50 % does not --------------------
+  - interval: 15s
+    input_series:
+      - series: 'llamacpp_slot_kv_tokens{job="llamacpp-sidecar",instance="c",server="s",model="m",slot="0"}'
+        values: '970x20'
+      - series: 'llamacpp_slot_n_ctx{job="llamacpp-sidecar",instance="c",server="s",model="m",slot="0"}'
+        values: '1000x20'
+      - series: 'llamacpp_slot_kv_tokens{job="llamacpp-sidecar",instance="c",server="s",model="m",slot="1"}'
+        values: '500x20'
+      - series: 'llamacpp_slot_n_ctx{job="llamacpp-sidecar",instance="c",server="s",model="m",slot="1"}'
+        values: '1000x20'
+    alert_rule_test:
+      - eval_time: 1m
+        alertname: KvFillNearWindow
+        exp_alerts: []
+      - eval_time: 4m
+        alertname: KvFillNearWindow
+        exp_alerts:
+          - exp_labels: { severity: warning, job: llamacpp-sidecar, instance: c, server: s, model: m, slot: "0" }
+            exp_annotations:
+              summary: "Slot 0 on s is 97% full"
+              description: "The active request holds more than 95 % of the slot context for 2 m. Further generation will hit the context limit (llamacpp_context_limit_hits_total)."
+
+  # --- 8. Alert HostIoPressureHigh: 30 % stall fires after 15 m -----------------------------------
+  - interval: 15s
+    input_series:
+      - series: 'node_pressure_io_stalled_seconds_total{job="node",instance="localhost:9100"}'
+        values: '0+4.5x120'
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: HostIoPressureHigh
+        exp_alerts: []
+      - eval_time: 25m
+        alertname: HostIoPressureHigh
+        exp_alerts:
+          - exp_labels: { severity: warning, job: node, instance: "localhost:9100" }
+            exp_annotations:
+              summary: "Host IO full-stall pressure 30%"
+              description: "All non-idle tasks were stalled on IO for more than 20 % of wall time for 15 m (PSI io full). With a 22 GB mmap'd model on 14 GiB RAM this usually means page-cache eviction and re-reads."
+
+  # --- 8b. HostIoPressureHigh does not fire at 10 % stall -----------------------------------------
+  - interval: 15s
+    input_series:
+      - series: 'node_pressure_io_stalled_seconds_total{job="node",instance="localhost:9100"}'
+        values: '0+1.5x120'
+    alert_rule_test:
+      - eval_time: 25m
+        alertname: HostIoPressureHigh
+        exp_alerts: []

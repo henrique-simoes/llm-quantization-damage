@@ -1,0 +1,470 @@
+# LLM serving telemetry — recording and alerting rules v2 (plan 2026-09-14, §3.4).
+#
+# Sources (metric contract §3):
+#   job llm-proxy         llm_*       arrival-based per-request metrics  (labels server, model, ...)
+#   job llamacpp-sidecar  llamacpp_*  /health /slots /props + docker logs (labels server, model)
+#   job llamacpp          llamacpp:*  llama-server native /metrics      (label server, attached at scrape)
+#   job gpu-nvml          nvml_*      NVML energy counter / GPM          (labels gpu, uuid, name)
+#   job gpu, node, cadvisor           existing exporters (names verified against the live TSDB)
+#
+# Conventions, each chosen to fix a v1 defect (plan §1.1):
+#   * No `le` selectors anywhere: Prometheus 3 normalises le="8" to "8.0" (F3). SLOs come from the
+#     proxy's joint per-request counters, never from bucket arithmetic.
+#   * Quantiles drop NaN with `>= 0`, so an idle window yields an empty vector, not NaN.
+#   * Ratios divide by `(denominator > 0)`: no traffic -> empty, never clamp_min artefacts (F4).
+#     Numerators use `or (denominator * 0)` so "no error series yet" reads 0, not empty.
+#   * Energy uses the NVML cumulative energy counter, never an integrated power gauge (F4), and
+#     joins label-less aggregates with explicit on().
+#   * All ratios and quantiles share a 5 m window; quantiles also exist at 30 m (label window="30m")
+#     because traffic on a single-slot host is sparse.
+groups:
+
+  # ---------------------------------------------------------------------------------------------
+  - name: llm-latency
+    interval: 15s
+    rules:
+      - record: llm:ttft_seconds:p50
+        labels: { window: 5m }
+        expr: histogram_quantile(0.50, sum by (le, server, model) (rate(llm_time_to_first_token_seconds_bucket[5m]))) >= 0
+      - record: llm:ttft_seconds:p95
+        labels: { window: 5m }
+        expr: histogram_quantile(0.95, sum by (le, server, model) (rate(llm_time_to_first_token_seconds_bucket[5m]))) >= 0
+      - record: llm:ttft_seconds:p99
+        labels: { window: 5m }
+        expr: histogram_quantile(0.99, sum by (le, server, model) (rate(llm_time_to_first_token_seconds_bucket[5m]))) >= 0
+      - record: llm:ttfat_seconds:p95
+        labels: { window: 5m }
+        expr: histogram_quantile(0.95, sum by (le, server, model) (rate(llm_time_to_first_answer_token_seconds_bucket[5m]))) >= 0
+      - record: llm:queue_wait_seconds:p95
+        labels: { window: 5m }
+        expr: histogram_quantile(0.95, sum by (le, server, model) (rate(llm_queue_wait_seconds_bucket[5m]))) >= 0
+      - record: llm:tpot_seconds:p50
+        labels: { window: 5m }
+        expr: histogram_quantile(0.50, sum by (le, server, model) (rate(llm_time_per_output_token_seconds_bucket[5m]))) >= 0
+      - record: llm:tpot_seconds:p95
+        labels: { window: 5m }
+        expr: histogram_quantile(0.95, sum by (le, server, model) (rate(llm_time_per_output_token_seconds_bucket[5m]))) >= 0
+      - record: llm:itl_seconds:p95
+        labels: { window: 5m }
+        expr: histogram_quantile(0.95, sum by (le, server, model) (rate(llm_inter_chunk_latency_seconds_bucket[5m]))) >= 0
+      - record: llm:itl_seconds:p99
+        labels: { window: 5m }
+        expr: histogram_quantile(0.99, sum by (le, server, model) (rate(llm_inter_chunk_latency_seconds_bucket[5m]))) >= 0
+      - record: llm:e2e_seconds:p95
+        labels: { window: 5m }
+        expr: histogram_quantile(0.95, sum by (le, server, model) (rate(llm_request_duration_seconds_bucket[5m]))) >= 0
+
+      # 30 m variants (sparse traffic). Same record names, distinguished by window="30m".
+      - record: llm:ttft_seconds:p50
+        labels: { window: 30m }
+        expr: histogram_quantile(0.50, sum by (le, server, model) (rate(llm_time_to_first_token_seconds_bucket[30m]))) >= 0
+      - record: llm:ttft_seconds:p95
+        labels: { window: 30m }
+        expr: histogram_quantile(0.95, sum by (le, server, model) (rate(llm_time_to_first_token_seconds_bucket[30m]))) >= 0
+      - record: llm:ttft_seconds:p99
+        labels: { window: 30m }
+        expr: histogram_quantile(0.99, sum by (le, server, model) (rate(llm_time_to_first_token_seconds_bucket[30m]))) >= 0
+      - record: llm:ttfat_seconds:p95
+        labels: { window: 30m }
+        expr: histogram_quantile(0.95, sum by (le, server, model) (rate(llm_time_to_first_answer_token_seconds_bucket[30m]))) >= 0
+      - record: llm:queue_wait_seconds:p95
+        labels: { window: 30m }
+        expr: histogram_quantile(0.95, sum by (le, server, model) (rate(llm_queue_wait_seconds_bucket[30m]))) >= 0
+      - record: llm:tpot_seconds:p50
+        labels: { window: 30m }
+        expr: histogram_quantile(0.50, sum by (le, server, model) (rate(llm_time_per_output_token_seconds_bucket[30m]))) >= 0
+      - record: llm:tpot_seconds:p95
+        labels: { window: 30m }
+        expr: histogram_quantile(0.95, sum by (le, server, model) (rate(llm_time_per_output_token_seconds_bucket[30m]))) >= 0
+      - record: llm:itl_seconds:p95
+        labels: { window: 30m }
+        expr: histogram_quantile(0.95, sum by (le, server, model) (rate(llm_inter_chunk_latency_seconds_bucket[30m]))) >= 0
+      - record: llm:itl_seconds:p99
+        labels: { window: 30m }
+        expr: histogram_quantile(0.99, sum by (le, server, model) (rate(llm_inter_chunk_latency_seconds_bucket[30m]))) >= 0
+      - record: llm:e2e_seconds:p95
+        labels: { window: 30m }
+        expr: histogram_quantile(0.95, sum by (le, server, model) (rate(llm_request_duration_seconds_bucket[30m]))) >= 0
+
+  # ---------------------------------------------------------------------------------------------
+  - name: llm-traffic-errors-slo
+    interval: 15s
+    rules:
+      - record: llm:request_rate:rate5m
+        expr: sum by (server, model) (rate(llm_requests_total[5m]))
+
+      - record: llm:error_ratio:rate5m
+        expr: >
+          (
+            sum by (server, model) (rate(llm_requests_total{finish_reason="error"}[5m]))
+            or sum by (server, model) (rate(llm_requests_total[5m])) * 0
+          )
+          / (sum by (server, model) (rate(llm_requests_total[5m])) > 0)
+
+      - record: llm:abort_ratio:rate5m
+        expr: >
+          (
+            sum by (server, model) (rate(llm_requests_total{finish_reason="abort"}[5m]))
+            or sum by (server, model) (rate(llm_requests_total[5m])) * 0
+          )
+          / (sum by (server, model) (rate(llm_requests_total[5m])) > 0)
+
+      # max_tokens exhaustion (the PN-60 failure mode), as classified by the proxy.
+      - record: llm:length_finish_ratio:rate5m
+        expr: >
+          (
+            sum by (server, model) (rate(llm_requests_total{finish_reason="length"}[5m]))
+            or sum by (server, model) (rate(llm_requests_total[5m])) * 0
+          )
+          / (sum by (server, model) (rate(llm_requests_total[5m])) > 0)
+
+      - record: llm:empty_answer_ratio:rate5m
+        expr: >
+          (
+            sum by (server, model) (rate(llm_empty_answer_total[5m]))
+            or sum by (server, model) (rate(llm_requests_total[5m])) * 0
+          )
+          / (sum by (server, model) (rate(llm_requests_total[5m])) > 0)
+
+      # Joint SLO attainment (DistServe): share of evaluated requests meeting EVERY bound of the
+      # class at once. The predicate is evaluated per request in the proxy (etc/slo.yml).
+      - record: llm:slo_attainment:rate5m
+        expr: >
+          (
+            sum by (server, model, slo) (rate(llm_slo_good_total[5m]))
+            or sum by (server, model, slo) (rate(llm_slo_evaluated_total[5m])) * 0
+          )
+          / (sum by (server, model, slo) (rate(llm_slo_evaluated_total[5m])) > 0)
+
+      # Goodput: requests per second that met the joint SLO (a rate, not a ratio).
+      - record: llm:goodput_rps:rate5m
+        expr: sum by (server, model, slo) (rate(llm_slo_good_total[5m]))
+
+  # ---------------------------------------------------------------------------------------------
+  - name: llm-throughput-cache-spec
+    interval: 15s
+    rules:
+      - record: llm:output_tokens_per_second:rate5m
+        expr: sum by (server, model) (rate(llm_tokens_total{type="output"}[5m]))
+
+      # Unbiased decode rate: decode steps (n-1 per request) over decode time. Tokens/time is
+      # biased by n/(n-1) because the first token is produced by prefill (F6).
+      - record: llm:decode_tokens_per_second:rate5m
+        expr: >
+          sum by (server, model) (rate(llamacpp_decode_steps_total[5m]))
+          / (sum by (server, model) (rate(llamacpp_decode_seconds_total[5m])) > 0)
+
+      # Uncached prompt tokens processed per second of prefill (native counters).
+      - record: llm:prefill_tokens_per_second:rate5m
+        expr: >
+          sum by (server) (rate(llamacpp:prompt_tokens_total[5m]))
+          / (sum by (server) (rate(llamacpp:prompt_seconds_total[5m])) > 0)
+
+      # Token-weighted prefix-cache hit ratio: cached / (cached + evaluated prompt tokens).
+      - record: llm:prefix_cache_hit_ratio:rate5m
+        expr: >
+          sum by (server) (rate(llamacpp:prompt_tokens_cached_total[5m]))
+          / (
+              (
+                sum by (server) (rate(llamacpp:prompt_tokens_cached_total[5m]))
+                + sum by (server) (rate(llamacpp:prompt_tokens_total[5m]))
+              ) > 0
+            )
+
+      # Reasoning tokens are a subset of output tokens (predicted_n includes them).
+      - record: llm:reasoning_token_share:rate5m
+        expr: >
+          (
+            sum by (server, model) (rate(llm_tokens_total{type="reasoning"}[5m]))
+            or sum by (server, model) (rate(llm_tokens_total{type="output"}[5m])) * 0
+          )
+          / (sum by (server, model) (rate(llm_tokens_total{type="output"}[5m])) > 0)
+
+      # Token-level acceptance: accepted draft tokens / drafted tokens.
+      - record: llm:spec_acceptance_rate:rate5m
+        expr: >
+          sum by (server) (rate(llamacpp:spec_decode_num_accepted_tokens_total[5m]))
+          / (sum by (server) (rate(llamacpp:spec_decode_num_draft_tokens_total[5m])) > 0)
+
+      # Mean acceptance length tau = tokens emitted per verification step = 1 + accepted/drafts.
+      - record: llm:spec_mean_accept_length:rate5m
+        expr: >
+          1 + sum by (server) (rate(llamacpp:spec_decode_num_accepted_tokens_total[5m]))
+          / (sum by (server) (rate(llamacpp:spec_decode_num_drafts_total[5m])) > 0)
+
+      # Per-position conditional acceptance alpha_k = P(pos k accepted | pos k-1 accepted):
+      #   alpha_0 = rate(pos 0) / rate(drafts);  alpha_k = rate(pos k) / rate(pos k-1).
+      # PromQL cannot do arithmetic on label values, so positions are enumerated (0..7 covers
+      # --spec-draft-n-max up to 8). One-to-one `ignoring` would drop `position` from the result, so
+      # group_left keeps the left-hand labels; the static label also keeps the rules lint-distinct.
+      - record: llm:spec_conditional_acceptance
+        labels: { position: "0" }
+        expr: >
+          sum by (server, position) (rate(llamacpp:spec_decode_num_accepted_tokens_per_pos_total{position="0"}[5m]))
+          / ignoring(position) group_left()
+          (sum by (server) (rate(llamacpp:spec_decode_num_drafts_total[5m])) > 0)
+      - record: llm:spec_conditional_acceptance
+        labels: { position: "1" }
+        expr: >
+          sum by (server, position) (rate(llamacpp:spec_decode_num_accepted_tokens_per_pos_total{position="1"}[5m]))
+          / ignoring(position) group_left()
+          (sum by (server, position) (rate(llamacpp:spec_decode_num_accepted_tokens_per_pos_total{position="0"}[5m])) > 0)
+      - record: llm:spec_conditional_acceptance
+        labels: { position: "2" }
+        expr: >
+          sum by (server, position) (rate(llamacpp:spec_decode_num_accepted_tokens_per_pos_total{position="2"}[5m]))
+          / ignoring(position) group_left()
+          (sum by (server, position) (rate(llamacpp:spec_decode_num_accepted_tokens_per_pos_total{position="1"}[5m])) > 0)
+      - record: llm:spec_conditional_acceptance
+        labels: { position: "3" }
+        expr: >
+          sum by (server, position) (rate(llamacpp:spec_decode_num_accepted_tokens_per_pos_total{position="3"}[5m]))
+          / ignoring(position) group_left()
+          (sum by (server, position) (rate(llamacpp:spec_decode_num_accepted_tokens_per_pos_total{position="2"}[5m])) > 0)
+      - record: llm:spec_conditional_acceptance
+        labels: { position: "4" }
+        expr: >
+          sum by (server, position) (rate(llamacpp:spec_decode_num_accepted_tokens_per_pos_total{position="4"}[5m]))
+          / ignoring(position) group_left()
+          (sum by (server, position) (rate(llamacpp:spec_decode_num_accepted_tokens_per_pos_total{position="3"}[5m])) > 0)
+      - record: llm:spec_conditional_acceptance
+        labels: { position: "5" }
+        expr: >
+          sum by (server, position) (rate(llamacpp:spec_decode_num_accepted_tokens_per_pos_total{position="5"}[5m]))
+          / ignoring(position) group_left()
+          (sum by (server, position) (rate(llamacpp:spec_decode_num_accepted_tokens_per_pos_total{position="4"}[5m])) > 0)
+      - record: llm:spec_conditional_acceptance
+        labels: { position: "6" }
+        expr: >
+          sum by (server, position) (rate(llamacpp:spec_decode_num_accepted_tokens_per_pos_total{position="6"}[5m]))
+          / ignoring(position) group_left()
+          (sum by (server, position) (rate(llamacpp:spec_decode_num_accepted_tokens_per_pos_total{position="5"}[5m])) > 0)
+      - record: llm:spec_conditional_acceptance
+        labels: { position: "7" }
+        expr: >
+          sum by (server, position) (rate(llamacpp:spec_decode_num_accepted_tokens_per_pos_total{position="7"}[5m]))
+          / ignoring(position) group_left()
+          (sum by (server, position) (rate(llamacpp:spec_decode_num_accepted_tokens_per_pos_total{position="6"}[5m])) > 0)
+
+      # Current KV fill per slot: tokens held / slot context (replaces the n_tokens_max
+      # high-water mark over a hard-coded window, F5).
+      # Aggregated per slot so a transient duplicate scrape of the sidecar (e.g. under a renamed
+      # job during a config reload) cannot yield two series or break the division.
+      - record: llm:kv_fill_ratio
+        expr: >
+          max by (server, model, slot) (llamacpp_slot_kv_tokens)
+          / (max by (server, model, slot) (llamacpp_slot_n_ctx) > 0)
+
+  # ---------------------------------------------------------------------------------------------
+  - name: llm-energy
+    interval: 15s
+    rules:
+      - record: llm:gpu_energy_watts:rate5m
+        labels: { scope: gpu }
+        expr: sum by (gpu, uuid, name) (rate(nvml_gpu_energy_joules_total[5m]))
+      - record: llm:gpu_energy_watts:rate5m
+        labels: { scope: total }
+        expr: sum(rate(nvml_gpu_energy_joules_total[5m]))
+
+      # All GPU energy in the window (idle included) per output token. Traffic-gated: below
+      # 0.05 output tok/s the quotient is meaningless, so the series is absent rather than huge.
+      - record: llm:joules_per_output_token:rate5m
+        expr: >
+          sum(rate(nvml_gpu_energy_joules_total[5m]))
+          / on() sum(rate(llm_tokens_total{type="output"}[5m]))
+          and on() (sum(rate(llm_tokens_total{type="output"}[5m])) > 0.05)
+
+      - record: llm:joules_per_request:rate5m
+        expr: >
+          sum(rate(nvml_gpu_energy_joules_total[5m]))
+          / on() sum(rate(llm_requests_total[5m]))
+          and on() (sum(rate(llm_requests_total[5m])) > 0)
+          and on() (sum(rate(llm_tokens_total{type="output"}[5m])) > 0.05)
+
+      # Wh per 1,000 completed requests over the last hour; needs at least one request.
+      - record: llm:wh_per_1k_requests:rate1h
+        expr: >
+          (sum(increase(nvml_gpu_energy_joules_total[1h])) / 3600)
+          / on() sum(increase(llm_requests_total[1h])) * 1000
+          and on() (sum(increase(llm_requests_total[1h])) >= 1)
+
+      # Helper: GPU power from the energy counter, present only while no request has been
+      # processing for the whole 2 m lookback (covers the 1 m rate window plus scrape jitter).
+      - record: llm:gpu_energy_watts:idle_rate1m
+        expr: >
+          sum(rate(nvml_gpu_energy_joules_total[1m]))
+          and on() (sum(max_over_time(llamacpp:requests_processing[2m])) == 0)
+
+      - record: llm:gpu_idle_watts:avg1h
+        expr: avg_over_time(llm:gpu_energy_watts:idle_rate1m[1h])
+
+      # CPU package power from the RAPL counter. A counter wrap reads as a reset, which rate()
+      # absorbs at the cost of one under-counted interval.
+      - record: llm:cpu_package_watts:rate5m
+        expr: sum(rate(node_rapl_package_joules_total[5m]))
+
+  # ---------------------------------------------------------------------------------------------
+  - name: llm-alerts-availability
+    rules:
+      - alert: LlmProxyDown
+        expr: up{job="llm-proxy"} == 0 or absent(up{job="llm-proxy"})
+        for: 2m
+        labels: { severity: critical }
+        annotations:
+          summary: "llm-proxy is down"
+          description: "Prometheus cannot scrape the llm-proxy metrics endpoint ({{ $labels.instance }}) for 2 m. Clients on the client-facing address reach no model; rollback-proxy.sh restores the direct bind."
+
+      - alert: LlamaServerUnhealthy
+        expr: >
+          (max by (server) (llamacpp_server_health{state="ok"}) == 0)
+          or (max by (server) (up{job="llamacpp"}) == 0)
+        for: 3m
+        labels: { severity: critical }
+        annotations:
+          summary: "llama-server {{ $labels.server }} is not healthy"
+          description: "The sidecar's /health probe has not reported state=ok, or the native /metrics endpoint is unreachable, for 3 m. Check llamacpp_server_health{state} (loading vs error vs down) and the container logs."
+
+      - alert: LlamacppSidecarDown
+        expr: up{job="llamacpp-sidecar"} == 0 or absent(up{job="llamacpp-sidecar"})
+        for: 2m
+        labels: { severity: warning }
+        annotations:
+          summary: "llamacpp-sidecar exporter is down"
+          description: "No scrape of the sidecar for 2 m: health, slot, KV-fill and log-derived metrics are stale. The model server itself may be fine (this does not page as server-down)."
+
+      - alert: GpuNvmlExporterDown
+        expr: up{job="gpu-nvml"} == 0 or absent(up{job="gpu-nvml"})
+        for: 2m
+        labels: { severity: warning }
+        annotations:
+          summary: "gpu-nvml exporter is down"
+          description: "No scrape of the NVML exporter for 2 m: energy counters, GPM activity, XID and per-process VRAM are missing, and every energy rule goes empty."
+
+      - alert: TelemetryExporterDown
+        expr: up{job=~"node|gpu|cadvisor|netdata|prometheus"} == 0
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "Exporter {{ $labels.job }} is down"
+          description: "Prometheus cannot scrape job {{ $labels.job }} at {{ $labels.instance }} for 5 m; the dashboards that depend on it show gaps."
+
+  # ---------------------------------------------------------------------------------------------
+  - name: llm-alerts-serving
+    rules:
+      - alert: LlmErrorRateHigh
+        expr: >
+          llm:error_ratio:rate5m > 0.05
+          and on (server, model) (sum by (server, model) (increase(llm_requests_total[5m])) >= 3)
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "Error ratio {{ $value | humanizePercentage }} on {{ $labels.server }}/{{ $labels.model }}"
+          description: "More than 5 % of completed inference requests finished with finish_reason=error over 5 m (at least 3 requests in the window). Break down with llm_request_errors_total{error_type}."
+
+      - alert: LlmRequestsQueued
+        expr: sum by (server) (llamacpp:requests_deferred) > 0
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "Requests queued on {{ $labels.server }} for 10 m"
+          description: "llama-server has reported deferred requests continuously for 10 m. With -np 1 each queued request waits for the running one; see llm:queue_wait_seconds:p95."
+
+      - alert: LlmLengthFinishHigh
+        expr: >
+          llm:length_finish_ratio:rate5m > 0.2
+          and on (server, model) (sum by (server, model) (increase(llm_requests_total[5m])) >= 3)
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "{{ $value | humanizePercentage }} of requests hit max_tokens on {{ $labels.server }}"
+          description: "More than 20 % of requests finished with finish_reason=length for 10 m. With thinking on, budgets are often consumed by reasoning before any answer (PN-60)."
+
+      - alert: LlmEmptyAnswersHigh
+        expr: >
+          llm:empty_answer_ratio:rate5m > 0.1
+          and on (server, model) (sum by (server, model) (increase(llm_requests_total[5m])) >= 3)
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "{{ $value | humanizePercentage }} empty answers on {{ $labels.server }}"
+          description: "More than 10 % of requests finished with empty content (reasoning-only or nothing) for 10 m."
+
+      - alert: LlmSloAttainmentLow
+        expr: >
+          llm:slo_attainment:rate5m < 0.9
+          and on (server, model, slo) (sum by (server, model, slo) (increase(llm_slo_evaluated_total[5m])) >= 5)
+        for: 15m
+        labels: { severity: warning }
+        annotations:
+          summary: "SLO {{ $labels.slo }} attainment {{ $value | humanizePercentage }} on {{ $labels.server }}"
+          description: "Fewer than 90 % of evaluated requests met every bound of SLO class {{ $labels.slo }} (etc/slo.yml) for 15 m, with at least 5 evaluated requests per 5 m window."
+
+      - alert: MtpAcceptanceCollapsed
+        expr: >
+          llm:spec_acceptance_rate:rate5m < 0.5
+          and on (server) (sum by (server) (rate(llamacpp:spec_decode_num_draft_tokens_total[5m])) > 1)
+        for: 15m
+        labels: { severity: warning }
+        annotations:
+          summary: "Draft acceptance {{ $value | humanizePercentage }} on {{ $labels.server }}"
+          description: "Token-level speculative acceptance stayed below 0.5 for 15 m while drafting more than 1 token/s. MTP n=2 historically holds 0.75-1.00 at depth; below 0.5 speculation likely costs more than it saves."
+
+      - alert: KvFillNearWindow
+        expr: llm:kv_fill_ratio > 0.95
+        for: 2m
+        labels: { severity: warning }
+        annotations:
+          summary: "Slot {{ $labels.slot }} on {{ $labels.server }} is {{ $value | humanizePercentage }} full"
+          description: "The active request holds more than 95 % of the slot context for 2 m. Further generation will hit the context limit (llamacpp_context_limit_hits_total)."
+
+  # ---------------------------------------------------------------------------------------------
+  - name: llm-alerts-hardware
+    rules:
+      - alert: GpuThermalSlowdown
+        expr: >
+          rate(nvidia_smi_clocks_event_reasons_counters_hw_thermal_slowdown_seconds[5m])
+          + rate(nvidia_smi_clocks_event_reasons_counters_sw_thermal_slowdown_seconds[5m]) > 0
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "GPU {{ $labels.uuid }} is thermally throttling"
+          description: "The HW or SW thermal slowdown counters advanced over the last 5 m, for 5 m. Unlike the power cap this is not expected on this host; decode speed measurements taken now are confounded."
+
+      - alert: GpuPowerCapped
+        expr: rate(nvidia_smi_clocks_event_reasons_counters_sw_power_cap_seconds[5m]) > 0.5
+        for: 15m
+        labels: { severity: info }
+        annotations:
+          summary: "GPU {{ $labels.uuid }} is held at its power limit"
+          description: "The SW power-cap clock-event counter advanced for more than half of wall time over 15 m. Expected under sustained load at the 180 W limit; informational only."
+
+      - alert: GpuXid
+        expr: increase(nvml_gpu_xid_events_total[10m]) > 0
+        labels: { severity: critical }
+        annotations:
+          summary: "XID {{ $labels.xid }} on GPU {{ $labels.gpu }}"
+          description: "NVML reported a critical XID event in the last 10 m. Check the kernel log and llamacpp_log_events_total{event=\"cuda_error\"}."
+
+      - alert: VramNearWall
+        expr: nvidia_smi_memory_used_bytes > 15650 * 1024 * 1024
+        for: 2m
+        labels: { severity: warning }
+        annotations:
+          summary: "GPU {{ $labels.uuid }} VRAM {{ $value | humanize1024 }}B above the 15,650 MiB wall"
+          description: "Framebuffer use exceeds the practical ceiling (15,650 MiB of 16,311) for 2 m. Under -sm layer the heavier card OOMs first; a deeper prefill may fail to allocate."
+
+      - alert: HostIoPressureHigh
+        expr: rate(node_pressure_io_stalled_seconds_total[5m]) > 0.2
+        for: 15m
+        labels: { severity: warning }
+        annotations:
+          summary: "Host IO full-stall pressure {{ $value | humanizePercentage }}"
+          description: "All non-idle tasks were stalled on IO for more than 20 % of wall time for 15 m (PSI io full). With a 22 GB mmap'd model on 14 GiB RAM this usually means page-cache eviction and re-reads."
+
+      - alert: HostSwapping
+        expr: rate(node_vmstat_pswpin[5m]) + rate(node_vmstat_pswpout[5m]) > 50
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "Host swapping {{ $value | humanize }} pages/s"
+          description: "Swap-in plus swap-out exceeded 50 pages/s for 10 m. Memory pressure on the 14 GiB host is degrading serving and exporters."

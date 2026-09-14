@@ -1,0 +1,59 @@
+global:
+  scrape_interval: 5s          # granular enough for per-benchmark energy windows
+  evaluation_interval: 15s
+  external_labels:
+    host: multivac
+
+rule_files:
+  - /etc/prometheus/rules/*.yml
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ['localhost:9091']
+
+  - job_name: node                # CPU/RAM/disk/net + RAPL cumulative energy
+    static_configs:
+      - targets: ['localhost:9100']
+
+  - job_name: gpu                 # per-GPU power/util/mem/temp (GeForce-safe)
+    static_configs:
+      - targets: ['localhost:9835']
+
+  - job_name: cadvisor            # per-container attribution (vLLM vs llama.cpp)
+    static_configs:
+      - targets: ['localhost:8081']
+
+  - job_name: netdata             # netdata also exposes a prometheus endpoint
+    metrics_path: /api/v1/allmetrics
+    params:
+      format: ['prometheus']
+      source: ['average']
+    static_configs:
+      - targets: ['localhost:19999']
+
+  # --- LLM serving telemetry v2 (build stream 2026-09-14, plan §2-§3) ----------
+  # llama-server native /metrics. After cut-over (D5) the server binds loopback and the proxy
+  # owns the client address. Native series carry no server/model labels, so `server` is attached
+  # here and must equal the targets.yml name. Add one static_configs entry per extra server.
+  # Scraping /metrics resets llama.cpp's windowed gauges; Prometheus must be the only reader.
+  - job_name: llamacpp
+    static_configs:
+      - targets: ['127.0.0.1:18080']
+        labels:
+          server: qwen38-serve
+
+  # Transparent proxy: arrival-based TTFT/TTFAT, ITL, E2E, errors, finish reasons, joint SLO.
+  - job_name: llm-proxy
+    static_configs:
+      - targets: ['127.0.0.1:9901']
+
+  # Replaces the log exporter (job llamacpp-req, same port): /health, /slots, /props, docker logs.
+  - job_name: llamacpp-sidecar
+    static_configs:
+      - targets: ['127.0.0.1:9900']
+
+  # NVML energy counter, GPM activity, PCIe, XID, per-process VRAM.
+  - job_name: gpu-nvml
+    static_configs:
+      - targets: ['127.0.0.1:9836']

@@ -1,0 +1,13 @@
+[Unit]
+Description=multivac 1 Hz GPU + CPU power logger (CSV, /srv/bench/power-log.csv)
+After=nvidia-persistenced.service
+
+[Service]
+Type=simple
+ExecStart=/bin/bash /srv/bench/power-logger.sh
+Restart=always
+RestartSec=5
+Nice=10
+
+[Install]
+WantedBy=multi-user.target

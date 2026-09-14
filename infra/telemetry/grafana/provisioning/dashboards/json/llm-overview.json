@@ -1,0 +1,2547 @@
+{
+  "uid": "llm-overview",
+  "title": "LLM Serving — Overview",
+  "description": "Golden signals (latency, traffic, errors, saturation) and RED view of every llama.cpp server behind llm-proxy. Latency is timed from request arrival at the proxy (OTel GenAI / vLLM definitions), not from llama.cpp slot start.",
+  "tags": [
+    "multivac-llm",
+    "llm",
+    "overview"
+  ],
+  "timezone": "utc",
+  "editable": true,
+  "graphTooltip": 1,
+  "refresh": "30s",
+  "schemaVersion": 41,
+  "version": 1,
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "fiscalYearStartMonth": 0,
+  "liveNow": false,
+  "links": [
+    {
+      "title": "multivac LLM serving",
+      "type": "dashboards",
+      "tags": [
+        "multivac-llm"
+      ],
+      "asDropdown": true,
+      "includeVars": true,
+      "keepTime": true
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "server",
+        "label": "server",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prom-multivac"
+        },
+        "definition": "label_values(llamacpp_server_info, server)",
+        "query": {
+          "query": "label_values(llamacpp_server_info, server)",
+          "refId": "server-var"
+        },
+        "refresh": 2,
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "hide": 0,
+        "regex": "",
+        "options": []
+      },
+      {
+        "name": "model",
+        "label": "model",
+        "type": "query",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prom-multivac"
+        },
+        "definition": "label_values(llamacpp_server_info{server=~\"$server\"}, model)",
+        "query": {
+          "query": "label_values(llamacpp_server_info{server=~\"$server\"}, model)",
+          "refId": "model-var"
+        },
+        "refresh": 2,
+        "sort": 1,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        },
+        "hide": 0,
+        "regex": "",
+        "options": []
+      }
+    ]
+  },
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "name": "llama-server restarts",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prom-multivac"
+        },
+        "enable": true,
+        "iconColor": "red",
+        "expr": "changes(llamacpp_server_start_time_seconds{server=~\"$server\"}[2m]) > 0",
+        "step": "60s",
+        "titleFormat": "llama-server restart",
+        "textFormat": "{{server}} started (llamacpp_server_start_time_seconds changed)",
+        "useValueForTime": false
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "row",
+      "title": "Server state",
+      "id": 1,
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "panels": []
+    },
+    {
+      "type": "stat",
+      "title": "Health",
+      "description": "llamacpp_server_health{state=\"ok\"}: one-hot health state from the sidecar's 1 Hz /health probe (ok | loading | error | down). OK = /health returned 200.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "max by (server) (llamacpp_server_health{server=~\"$server\",state=\"ok\"})",
+          "legendFormat": "{{server}}",
+          "refId": "A",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "OK",
+                  "color": "green"
+                },
+                "0": {
+                  "text": "NOT OK",
+                  "color": "red"
+                }
+              }
+            }
+          ],
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false
+      },
+      "id": 2,
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 0,
+        "y": 1
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom-multivac"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Proxy → upstream",
+      "description": "llm_proxy_upstream_up: the proxy's last /health probe of each upstream (no inference). 0 means clients get errors even if Prometheus can scrape the server.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "max by (upstream) (llm_proxy_upstream_up)",
+          "legendFormat": "{{upstream}}",
+          "refId": "A",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "OK",
+                  "color": "green"
+                },
+                "0": {
+                  "text": "NOT OK",
+                  "color": "red"
+                }
+              }
+            }
+          ],
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false
+      },
+      "id": 3,
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 3,
+        "y": 1
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom-multivac"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Uptime",
+      "description": "time() − llamacpp_server_start_time_seconds (container State.StartedAt).",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "time() - max by (server) (llamacpp_server_start_time_seconds{server=~\"$server\"})",
+          "legendFormat": "{{server}}",
+          "refId": "A",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false
+      },
+      "id": 4,
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 6,
+        "y": 1
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom-multivac"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Load duration",
+      "description": "llamacpp_server_load_duration_seconds: container start → first /health 200 (model load). Grows with model size and page-cache state on the 14 GiB host.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "max by (server) (llamacpp_server_load_duration_seconds{server=~\"$server\"})",
+          "legendFormat": "{{server}}",
+          "refId": "A",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false
+      },
+      "id": 5,
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 9,
+        "y": 1
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom-multivac"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Restarts (range)",
+      "description": "increase(llamacpp_server_restarts_total[$__range]): container start transitions observed by the sidecar in the selected time range.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "sum by (server) (increase(llamacpp_server_restarts_total{server=~\"$server\"}[$__range]))",
+          "legendFormat": "{{server}}",
+          "refId": "A",
+          "range": false,
+          "instant": true,
+          "format": "time_series",
+          "editorMode": "code"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              }
+            ]
+          },
+          "mappings": [],
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false
+      },
+      "id": 6,
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 12,
+        "y": 1
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom-multivac"
+      }
+    },
+    {
+      "type": "table",
+      "title": "Model and build",
+      "description": "llamacpp_server_info labels from /props: build string, model file, context size and slot count.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "llamacpp_server_info{server=~\"$server\",model=~\"$model\"}",
+          "legendFormat": "__auto",
+          "refId": "A",
+          "range": false,
+          "instant": true,
+          "format": "table",
+          "editorMode": "code"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false,
+          "reducer": [
+            "sum"
+          ]
+        }
+      },
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value": true,
+              "__name__": true,
+              "job": true,
+              "instance": true,
+              "host": true
+            }
+          }
+        }
+      ],
+      "id": 7,
+      "gridPos": {
+        "h": 4,
+        "w": 9,
+        "x": 15,
+        "y": 1
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom-multivac"
+      }
+    },
+    {
+      "type": "table",
+      "title": "Launch configuration",
+      "description": "llamacpp_server_launch_info: flags parsed from `docker inspect` Args (ctx, KV dtypes, -ts, split mode, speculative type and depth, -ctxcp, batch sizes, -np, flash attention, image). Launch provenance for every measurement on this dashboard.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "llamacpp_server_launch_info{server=~\"$server\"}",
+          "legendFormat": "__auto",
+          "refId": "A",
+          "range": false,
+          "instant": true,
+          "format": "table",
+          "editorMode": "code"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false,
+          "reducer": [
+            "sum"
+          ]
+        }
+      },
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value": true,
+              "__name__": true,
+              "job": true,
+              "instance": true,
+              "host": true
+            }
+          }
+        }
+      ],
+      "id": 8,
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom-multivac"
+      }
+    },
+    {
+      "type": "row",
+      "title": "Saturation",
+      "id": 9,
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 9
+      },
+      "panels": []
+    },
+    {
+      "type": "stat",
+      "title": "In flight (proxy)",
+      "description": "llm_requests_in_flight: requests currently open at the proxy, queued or running. With -np 1 anything above 1 is waiting.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "sum(llm_requests_in_flight)",
+          "legendFormat": "in flight",
+          "refId": "A",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 2
+              },
+              {
+                "color": "red",
+                "value": 4
+              }
+            ]
+          },
+          "mappings": [],
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false
+      },
+      "id": 10,
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 0,
+        "y": 10
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom-multivac"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Processing",
+      "description": "llamacpp:requests_processing: requests llama-server is running now (native).",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "sum by (server) (llamacpp:requests_processing{server=~\"$server\"})",
+          "legendFormat": "{{server}}",
+          "refId": "A",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "none",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false
+      },
+      "id": 11,
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 4,
+        "y": 10
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom-multivac"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Queued (deferred)",
+      "description": "llamacpp:requests_deferred: requests llama-server has deferred because no slot is free (native gauge).",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "sum by (server) (llamacpp:requests_deferred{server=~\"$server\"})",
+          "legendFormat": "{{server}}",
+          "refId": "A",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 3
+              }
+            ]
+          },
+          "mappings": [],
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false
+      },
+      "id": 12,
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 8,
+        "y": 10
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom-multivac"
+      }
+    },
+    {
+      "type": "gauge",
+      "title": "KV fill (current)",
+      "description": "llm:kv_fill_ratio = llamacpp_slot_kv_tokens / llamacpp_slot_n_ctx per slot: tokens the active request holds over the slot window. Current value, not a high-water mark (cf. vLLM kv_cache_usage_perc).",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "max by (server, slot) (llm:kv_fill_ratio{server=~\"$server\"})",
+          "legendFormat": "{{server}} slot {{slot}}",
+          "refId": "A",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.8
+              },
+              {
+                "color": "red",
+                "value": 0.95
+              }
+            ]
+          },
+          "color": {
+            "mode": "thresholds"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "id": 13,
+      "gridPos": {
+        "h": 5,
+        "w": 4,
+        "x": 12,
+        "y": 10
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom-multivac"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "KV fill and slot activity",
+      "description": "llm:kv_fill_ratio per slot (left) and llamacpp_slot_processing (1 while the slot runs a request).",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "llm:kv_fill_ratio{server=~\"$server\"}",
+          "legendFormat": "kv fill {{server}} slot {{slot}}",
+          "refId": "A",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "llamacpp_slot_processing{server=~\"$server\"}",
+          "legendFormat": "processing {{server}} slot {{slot}}",
+          "refId": "B",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "auto",
+            "spanNulls": false,
+            "axisBorderShow": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 14,
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 16,
+        "y": 10
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom-multivac"
+      }
+    },
+    {
+      "type": "row",
+      "title": "Traffic and errors",
+      "id": 15,
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 15
+      },
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "Request rate by finish reason",
+      "description": "sum by (finish_reason) rate(llm_requests_total): completed inference requests per second. finish_reason from the proxy: stop, length (max_tokens exhausted), tool_calls, abort (client disconnect), error, unknown.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "sum by (finish_reason) (rate(llm_requests_total{server=~\"$server\",model=~\"$model\"}[$__rate_interval]))",
+          "legendFormat": "{{finish_reason}}",
+          "refId": "A",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "min": null,
+          "max": null,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "bars",
+            "lineWidth": 1,
+            "fillOpacity": 80,
+            "showPoints": "auto",
+            "spanNulls": false,
+            "axisBorderShow": false,
+            "stacking": {
+              "mode": "normal",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "sum",
+            "mean",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 16,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom-multivac"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Error / abort / length / empty ratios",
+      "description": "Recorded 5 m ratios over completed requests: llm:error_ratio (finish_reason=error), llm:abort_ratio (client disconnect), llm:length_finish_ratio (max_tokens exhaustion, PN-60), llm:empty_answer_ratio (no content). Absent when there was no traffic.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "llm:error_ratio:rate5m{server=~\"$server\",model=~\"$model\"}",
+          "legendFormat": "error {{server}}/{{model}}",
+          "refId": "A",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "llm:abort_ratio:rate5m{server=~\"$server\",model=~\"$model\"}",
+          "legendFormat": "abort {{server}}/{{model}}",
+          "refId": "B",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "llm:length_finish_ratio:rate5m{server=~\"$server\",model=~\"$model\"}",
+          "legendFormat": "length {{server}}/{{model}}",
+          "refId": "C",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "llm:empty_answer_ratio:rate5m{server=~\"$server\",model=~\"$model\"}",
+          "legendFormat": "empty {{server}}/{{model}}",
+          "refId": "D",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": null,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "auto",
+            "spanNulls": false,
+            "axisBorderShow": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.02
+              },
+              {
+                "color": "red",
+                "value": 0.05
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 17,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom-multivac"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Errors by type",
+      "description": "rate(llm_request_errors_total) by error_type: upstream_connect, upstream_timeout, http_4xx, http_5xx, client_disconnect, parse. Golden signal #3.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "sum by (error_type) (rate(llm_request_errors_total{server=~\"$server\",model=~\"$model\"}[$__rate_interval]))",
+          "legendFormat": "{{error_type}}",
+          "refId": "A",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "min": null,
+          "max": null,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "bars",
+            "lineWidth": 1,
+            "fillOpacity": 80,
+            "showPoints": "auto",
+            "spanNulls": false,
+            "axisBorderShow": false,
+            "stacking": {
+              "mode": "normal",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "sum",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 18,
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 24
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom-multivac"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "HTTP status classes",
+      "description": "rate(llm_requests_total) by status_class as returned to clients.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "sum by (status_class) (rate(llm_requests_total{server=~\"$server\",model=~\"$model\"}[$__rate_interval]))",
+          "legendFormat": "{{status_class}}",
+          "refId": "A",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "min": null,
+          "max": null,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "auto",
+            "spanNulls": false,
+            "axisBorderShow": false,
+            "stacking": {
+              "mode": "normal",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "sum",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 19,
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 24
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom-multivac"
+      }
+    },
+    {
+      "type": "row",
+      "title": "Latency (arrival-based)",
+      "id": 20,
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 31
+      },
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "TTFT p50 / p95 / p99",
+      "description": "Time to first token: request arrival at the proxy → first token-bearing chunk (observed for streams; E2E − predicted_ms for non-stream). Includes queueing, templating and prefill. OTel gen_ai.server.time_to_first_token / vLLM time_to_first_token_seconds.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "histogram_quantile(0.5, sum by (le, server, model) (rate(llm_time_to_first_token_seconds_bucket{server=~\"$server\",model=~\"$model\"}[$__rate_interval])))",
+          "legendFormat": "p50 {{server}}/{{model}}",
+          "refId": "A",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "histogram_quantile(0.95, sum by (le, server, model) (rate(llm_time_to_first_token_seconds_bucket{server=~\"$server\",model=~\"$model\"}[$__rate_interval])))",
+          "legendFormat": "p95 {{server}}/{{model}}",
+          "refId": "B",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "histogram_quantile(0.99, sum by (le, server, model) (rate(llm_time_to_first_token_seconds_bucket{server=~\"$server\",model=~\"$model\"}[$__rate_interval])))",
+          "legendFormat": "p99 {{server}}/{{model}}",
+          "refId": "C",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0,
+          "max": null,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "auto",
+            "spanNulls": false,
+            "axisBorderShow": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 21,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 32
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom-multivac"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Time to first answer token p50 / p95 / p99",
+      "description": "TTFAT: arrival → first delta.content that is not reasoning_content (streams only). For reasoning models this is the user-visible wait; the gap to TTFT is thinking time.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "histogram_quantile(0.5, sum by (le, server, model) (rate(llm_time_to_first_answer_token_seconds_bucket{server=~\"$server\",model=~\"$model\"}[$__rate_interval])))",
+          "legendFormat": "p50 {{server}}/{{model}}",
+          "refId": "A",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "histogram_quantile(0.95, sum by (le, server, model) (rate(llm_time_to_first_answer_token_seconds_bucket{server=~\"$server\",model=~\"$model\"}[$__rate_interval])))",
+          "legendFormat": "p95 {{server}}/{{model}}",
+          "refId": "B",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "histogram_quantile(0.99, sum by (le, server, model) (rate(llm_time_to_first_answer_token_seconds_bucket{server=~\"$server\",model=~\"$model\"}[$__rate_interval])))",
+          "legendFormat": "p99 {{server}}/{{model}}",
+          "refId": "C",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0,
+          "max": null,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "auto",
+            "spanNulls": false,
+            "axisBorderShow": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 22,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 32
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom-multivac"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "E2E p50 / p95 / p99",
+      "description": "llm_request_duration_seconds: arrival → last byte to the client. vLLM e2e_request_latency_seconds; OTel gen_ai.server.request.duration.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "histogram_quantile(0.5, sum by (le, server, model) (rate(llm_request_duration_seconds_bucket{server=~\"$server\",model=~\"$model\"}[$__rate_interval])))",
+          "legendFormat": "p50 {{server}}/{{model}}",
+          "refId": "A",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "histogram_quantile(0.95, sum by (le, server, model) (rate(llm_request_duration_seconds_bucket{server=~\"$server\",model=~\"$model\"}[$__rate_interval])))",
+          "legendFormat": "p95 {{server}}/{{model}}",
+          "refId": "B",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "histogram_quantile(0.99, sum by (le, server, model) (rate(llm_request_duration_seconds_bucket{server=~\"$server\",model=~\"$model\"}[$__rate_interval])))",
+          "legendFormat": "p99 {{server}}/{{model}}",
+          "refId": "C",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0,
+          "max": null,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "auto",
+            "spanNulls": false,
+            "axisBorderShow": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 23,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 40
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom-multivac"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Queue wait p50 / p95 / p99",
+      "description": "llm_queue_wait_seconds = max(0, TTFT − timings.prompt_ms): time not spent in prefill before the first token — slot wait plus HTTP, templating and tokenisation. vLLM request_queue_time_seconds analogue.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "histogram_quantile(0.5, sum by (le, server, model) (rate(llm_queue_wait_seconds_bucket{server=~\"$server\",model=~\"$model\"}[$__rate_interval])))",
+          "legendFormat": "p50 {{server}}/{{model}}",
+          "refId": "A",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "histogram_quantile(0.95, sum by (le, server, model) (rate(llm_queue_wait_seconds_bucket{server=~\"$server\",model=~\"$model\"}[$__rate_interval])))",
+          "legendFormat": "p95 {{server}}/{{model}}",
+          "refId": "B",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "histogram_quantile(0.99, sum by (le, server, model) (rate(llm_queue_wait_seconds_bucket{server=~\"$server\",model=~\"$model\"}[$__rate_interval])))",
+          "legendFormat": "p99 {{server}}/{{model}}",
+          "refId": "C",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0,
+          "max": null,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "auto",
+            "spanNulls": false,
+            "axisBorderShow": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 24,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 40
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom-multivac"
+      }
+    },
+    {
+      "type": "row",
+      "title": "Throughput",
+      "id": 25,
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 48
+      },
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "Output and decode tokens/s",
+      "description": "llm:output_tokens_per_second:rate5m = rate of output tokens delivered (proxy, incl. reasoning). llm:decode_tokens_per_second:rate5m = decode steps (n − 1 per request) / decode seconds from the server log: the unbiased per-stream decode speed (tokens/time over-states it by n/(n−1)).",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "llm:output_tokens_per_second:rate5m{server=~\"$server\",model=~\"$model\"}",
+          "legendFormat": "output tok/s {{server}}/{{model}}",
+          "refId": "A",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "llm:decode_tokens_per_second:rate5m{server=~\"$server\",model=~\"$model\"}",
+          "legendFormat": "decode tok/s {{server}}/{{model}}",
+          "refId": "B",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "max": null,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "auto",
+            "spanNulls": false,
+            "axisBorderShow": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 26,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 49
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom-multivac"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "TPOT p50 / p95 / p99",
+      "description": "Time per output token = timings.predicted_ms / (predicted_n − 1) per request with ≥ 2 tokens. vLLM time_per_output_token_seconds; MLPerf TPOT.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "histogram_quantile(0.5, sum by (le, server, model) (rate(llm_time_per_output_token_seconds_bucket{server=~\"$server\",model=~\"$model\"}[$__rate_interval])))",
+          "legendFormat": "p50 {{server}}/{{model}}",
+          "refId": "A",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "histogram_quantile(0.95, sum by (le, server, model) (rate(llm_time_per_output_token_seconds_bucket{server=~\"$server\",model=~\"$model\"}[$__rate_interval])))",
+          "legendFormat": "p95 {{server}}/{{model}}",
+          "refId": "B",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "histogram_quantile(0.99, sum by (le, server, model) (rate(llm_time_per_output_token_seconds_bucket{server=~\"$server\",model=~\"$model\"}[$__rate_interval])))",
+          "legendFormat": "p99 {{server}}/{{model}}",
+          "refId": "C",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "min": 0,
+          "max": null,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "auto",
+            "spanNulls": false,
+            "axisBorderShow": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 27,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 49
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom-multivac"
+      }
+    },
+    {
+      "type": "row",
+      "title": "SLO and goodput",
+      "id": 28,
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 57
+      },
+      "panels": []
+    },
+    {
+      "type": "timeseries",
+      "title": "Joint SLO attainment",
+      "description": "llm:slo_attainment:rate5m{slo}: share of requests meeting EVERY bound of the SLO class at once, evaluated per request by the proxy (DistServe joint attainment). interactive = TTFT ≤ 8 s ∧ TPOT ≤ 75 ms; depth_normalised = queue ≤ 2 s ∧ prefill ≤ 2 s + 2.5 ms × prefill tokens ∧ TPOT ≤ 100 ms (host targets, not MLPerf).",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "llm:slo_attainment:rate5m{server=~\"$server\",model=~\"$model\"}",
+          "legendFormat": "{{slo}} {{server}}/{{model}}",
+          "refId": "A",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "auto",
+            "spanNulls": false,
+            "axisBorderShow": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 0.9
+              },
+              {
+                "color": "green",
+                "value": 0.95
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 29,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 58
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom-multivac"
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Goodput",
+      "description": "llm:goodput_rps:rate5m{slo}: requests per second that met the joint SLO (DistServe goodput) next to the total request rate.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "llm:goodput_rps:rate5m{server=~\"$server\",model=~\"$model\"}",
+          "legendFormat": "goodput {{slo}} {{server}}/{{model}}",
+          "refId": "A",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "llm:request_rate:rate5m{server=~\"$server\",model=~\"$model\"}",
+          "legendFormat": "all requests {{server}}/{{model}}",
+          "refId": "B",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "min": 0,
+          "max": null,
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 10,
+            "showPoints": "auto",
+            "spanNulls": false,
+            "axisBorderShow": false,
+            "stacking": {
+              "mode": "none",
+              "group": "A"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": [
+            "lastNotNull",
+            "mean",
+            "max"
+          ]
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "id": 30,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 58
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom-multivac"
+      }
+    },
+    {
+      "type": "row",
+      "title": "Energy and alerts",
+      "id": 31,
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 66
+      },
+      "panels": []
+    },
+    {
+      "type": "stat",
+      "title": "J / output token",
+      "description": "llm:joules_per_output_token:rate5m: all GPU energy from the NVML cumulative counter over 5 m / output tokens in the same window (idle power included). Traffic-gated: absent below 0.05 output tok/s.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "llm:joules_per_output_token:rate5m",
+          "legendFormat": "J/token",
+          "refId": "A",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "joule",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 2
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "none",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false
+      },
+      "id": 32,
+      "gridPos": {
+        "h": 7,
+        "w": 4,
+        "x": 0,
+        "y": 67
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom-multivac"
+      }
+    },
+    {
+      "type": "stat",
+      "title": "GPU power (energy counter)",
+      "description": "llm:gpu_energy_watts:rate5m{scope=\"total\"}: rate of nvml_gpu_energy_joules_total summed over GPUs.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "llm:gpu_energy_watts:rate5m{scope=\"total\"}",
+          "legendFormat": "W",
+          "refId": "A",
+          "range": true,
+          "instant": false,
+          "format": "time_series",
+          "editorMode": "code"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "watt",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "mappings": [],
+          "color": {
+            "mode": "thresholds"
+          },
+          "decimals": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "colorMode": "none",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "textMode": "auto",
+        "wideLayout": true,
+        "showPercentChange": false
+      },
+      "id": 33,
+      "gridPos": {
+        "h": 7,
+        "w": 4,
+        "x": 4,
+        "y": 67
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom-multivac"
+      }
+    },
+    {
+      "type": "alertlist",
+      "title": "Alerts",
+      "description": "Prometheus-managed alerts from rules/llm.rules.yml (no Alertmanager on this host; alerts surface only here). The table next to it reads ALERTS directly.",
+      "options": {
+        "viewMode": "list",
+        "groupMode": "default",
+        "groupBy": [],
+        "maxItems": 30,
+        "sortOrder": 1,
+        "dashboardAlerts": false,
+        "alertName": "",
+        "alertInstanceLabelFilter": "",
+        "datasource": "Prometheus (multivac)",
+        "stateFilter": {
+          "firing": true,
+          "pending": true,
+          "noData": false,
+          "normal": false,
+          "error": true,
+          "recovering": true
+        },
+        "folder": null
+      },
+      "datasource": null,
+      "id": 34,
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 8,
+        "y": 67
+      }
+    },
+    {
+      "type": "table",
+      "title": "Active alerts (ALERTS series)",
+      "description": "ALERTS{alertstate=~\"firing|pending\"}: Prometheus' own alert-state series, one row per active alert instance. Independent of the alert-list panel's rule-source support.",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prom-multivac"
+          },
+          "expr": "ALERTS{alertstate=~\"firing|pending\"}",
+          "legendFormat": "__auto",
+          "refId": "A",
+          "range": false,
+          "instant": true,
+          "format": "table",
+          "editorMode": "code"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            }
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false,
+          "reducer": [
+            "sum"
+          ]
+        }
+      },
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "Value": true,
+              "__name__": true,
+              "host": true
+            }
+          }
+        }
+      ],
+      "id": 35,
+      "gridPos": {
+        "h": 7,
+        "w": 8,
+        "x": 16,
+        "y": 67
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prom-multivac"
+      }
+    }
+  ]
+}

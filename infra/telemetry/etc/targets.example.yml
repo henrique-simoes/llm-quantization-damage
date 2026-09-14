@@ -1,0 +1,11 @@
+# Shared telemetry configuration. Production copy: /srv/bench/telemetry/etc/targets.yml
+# (host-specific values live only there; this example carries placeholders).
+servers:
+  - name: qwen38-serve
+    upstream: http://127.0.0.1:18080     # llama-server base URL
+    container: qwen38-serve              # docker container name (inspect + logs)
+    models: [qwen3.8-27b-ud-q6k]         # served aliases; router mode lists several
+    router: false                        # true for --models-dir router mode (?model= queries)
+proxy:   { listen: "<CLIENT_ADDRESS>:8080", metrics_listen: "127.0.0.1:9901", requests_dir: /srv/bench/telemetry/requests, default_server: qwen38-serve, slo_file: /srv/bench/telemetry/etc/slo.yml }
+sidecar: { listen: "127.0.0.1:9900", poll_interval_s: 1 }
+nvml:    { listen: "127.0.0.1:9836", sample_interval_s: 1 }

@@ -86,3 +86,24 @@ df["gpu_total_w"].describe()
 # est_system_w is not: reject the wrap spikes before using it
 clean = df[df["est_system_w"] < 1000]
 ```
+
+## Continuation after the published series (appended 2026-09-14)
+
+The released `power-log.csv.gz` ends at `2026-09-05T16:45:32Z` and is unchanged by this note. The
+sampler had been started by hand and did not return after the power cut; the host CSV has **no rows
+between 2026-09-05T16:45:32Z and 2026-09-14T22:39:50Z**.
+
+On 2026-09-14 the sampler was reinstalled as a systemd unit (`power-logger.service`, restarts on boot)
+as **v2** (`infra/telemetry/power-logger/power-logger.sh`; v1 kept on the host as
+`power-logger.sh.bak-20260914-v1`). v2 keeps the column schema and fixes the mechanism behind the
+`est_system_w` spikes described above. The rollover itself was already handled; the spikes came
+from a **failed RAPL read returning 0**, which turned the next successful read into a
+whole-counter delta. A failed read now repeats the previous reading, and CPU deltas above 250 W are
+replaced by the last plausible value. Rows after the gap come from v2 and should not be pooled with
+the v1 series without saying so. The cumulative columns resume from the sampler state file, so they
+continue across the gap without integrating it.
+
+Live, counter-based GPU energy (`nvml_gpu_energy_joules_total`, NVML total-energy counter) is now
+collected alongside it by the serving telemetry stack
+(`docs/build-stream/2026-09-14-llm-serving-telemetry.md`). For energy analysis that counter is the
+better instrument; this CSV remains the continuous 1 Hz record.

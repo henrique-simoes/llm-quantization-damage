@@ -1,0 +1,15 @@
+apiVersion: 1
+
+datasources:
+  - name: Prometheus (multivac)
+    uid: prom-multivac
+    type: prometheus
+    access: proxy
+    # Grafana runs on the compose bridge network; Prometheus listens on the host (:9091).
+    # Requires extra_hosts host.docker.internal:host-gateway on the grafana service.
+    url: http://localhost:9091
+    isDefault: true
+    editable: false
+    jsonData:
+      timeInterval: 15s
+      httpMethod: POST
