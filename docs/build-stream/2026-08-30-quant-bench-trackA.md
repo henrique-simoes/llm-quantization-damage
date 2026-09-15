@@ -1187,6 +1187,62 @@ table row; Holm across quant × depth; "not separated at n" when intervals overl
 0.6 and a GPT-5.6 Luna judge; S15 runs Unsloth GGUF quants locally at Qwen's official thinking sampling with a
 judge still to be chosen. Scores are comparable in instrument, not in serving stack — every S15 table says so.
 
+#### S15 — amendments after independent review (2026-09-15, DEC-17)
+
+One Opus 5 reviewer (high effort, read-only, owner-requested) confirmed the design with adjustments; the load-bearing
+source claims were re-verified by hand before adoption. **These amendments supersede the table above where they differ.**
+
+1. **Draft length is fixed at launch.** At commit `4c9233c`, every per-request `speculative.*` field is inside `#if 0`
+   in `tools/server/server-schema.cpp` ("we disable speculative parameter adjustments for now"). T3(b) therefore uses
+   **one launch per draft length** (no-spec; MTP 2/3/4; DFlash2 3/5/7), each launch climbing one pad 32K → 128K → max so
+   a single prefill serves all fills. The effective n is asserted from the serverlog and from `draft_n / passes ≤ n` (PN-79).
+2. **No KV confound in the drafter accuracy contrast.** Within a quant, the paired subsets run **both drafters at the same
+   target KV dtype** — the gentlest dtype *both* hold at that window — and the same `-ts` where possible. If DFlash2's
+   window-bounded draft cache (2,048-token sliding window; `--swa-full` off by default) lets it hold a gentler KV than
+   MTP, that is reported as a context/KV result, never inside the accuracy contrast.
+3. **Pre-registered drafter decision rule** (owner priority order: accuracy → prefill/decode → context → KV):
+   - *Accuracy is an equivalence/breakage gate.* Verification is sample-and-match (the target samples every emitted
+     token, `common_sampler_sample_and_accept_n`), so the true accuracy difference between drafters is ~0 up to numerics.
+     A drafter fails the gate if, on the paired subsets, McNemar p < 0.05 against it, or its closure rate, extraction rate
+     or median reasoning length differs by more than 10 points / 25 %. Detectable effect at n=30 (AA-LCR) and n=50 (GPQA)
+     is about ±15–20 points and is stated with the result.
+   - *Speed:* primary = decode tok/s median on T3(a)'s ~100K thinking workload, with 95 % bootstrap intervals clustered by
+     prompt; a winner needs non-overlapping intervals; prefill decides only if decode ties and prefill differs by > 20 %.
+     T3(b)'s conditioned residual (decode ÷ tokens-per-pass, PN-68) must not contradict it.
+   - *Context:* larger window at the same KV dtype. *KV:* gentler dtype at 262,144.
+   - *Tie at every level → MTP* (incumbent, already soak-verified in service).
+4. **Tier order changed:** T1 → T2 → T3 → **T5 soak and q8_0 stability on every exact T4 configuration** → T4 paired
+   subsets (both drafters, both quants; the decision data) → T4 full passes. The q8_0 check is ≥ 10 sequential ≥ 100K-token
+   prompts sharing a prefix (AA-LCR access pattern), because issue #23210 crashed after 3–4 prompts.
+5. **Paired subsets are reused.** The full pass on the chosen drafter reuses that drafter's paired-subset answers, so
+   AA-LCR needs 70 more questions and GPQA 148 more per quant.
+6. **GPQA locked to Artificial Analysis's protocol before generation:** their template verbatim — "Answer the following
+   multiple choice question. The last line of your response should be in the following format: 'Answer: A/B/C/D' (e.g.
+   'Answer: A').", question, then "A) … D) …" — no "think step by step"; their multi-stage extraction on `content` only
+   (primary `(?i)[\*\_]{0,2}Answer[\*\_]{0,2}\s*:[\s\*\_]{0,2}\s*([A-Z])(?![a-zA-Z0-9])`, then boxed, "answer is",
+   "answer is (", "X)", "X is the correct answer", trailing letter, "X.", "X" + non-word; **last match**); simple-evals'
+   regex as a secondary column; per-question option permutation stored. Page archived with sha256 (R32).
+7. **Sampling sent explicitly on every request:** temperature 1.0, top_p 0.95, top_k 20, min_p 0, presence_penalty 0,
+   repeat_penalty 1.0, dry_multiplier 0, xtc_probability 0; `--reasoning-effort xhigh` on the server **and**
+   `reasoning_effort: xhigh` per request; seed = first 32 bits of sha256(item id), identical across drafters and quants.
+   Looping or length-truncated items are their own class and are never re-run.
+8. **T1 gates added:** (a) the rendered prompt contains the xhigh instruction (`/apply-template`); (b) DFlash2 sanity —
+   mean accepted length at n=7 on a short (≤ 4K) reasoning prompt must be ≥ 3.5 (published 4.8–5.4), otherwise stop (a
+   `target_layers` [6…62] vs [5…61] indexing or rope defect would masquerade as a worse drafter); (c) on the second
+   AA-LCR question of a set, `cache_n ≥ prefix − 600`, else CACHE-MISS; (d) measure xhigh reasoning length on AA-LCR and
+   GPQA items at the T4 configuration.
+9. **T2 details:** `-ngld 99` explicit for DFlash2; `-devd` swept over both GPUs; `--swa-full` off and recorded; f16 rungs
+   that arithmetic (PN-74) rules out are skipped; target and draft `llama_kv_cache` size lines recorded per cell; an MTP
+   `-ctkd/-ctvd q8_0` variant only for rungs failing by < ~700 MiB, adopted only after τ is measured.
+10. **T3(b) is greedy** on identical prompts across arms (paired continuations), k = 8 + 1 warm-up; T3(a) stays at official
+    thinking sampling for the Artificial Analysis-style number. J/token labelled GPU-only (NVML).
+11. **Budget.** Realistic ranges from measured rates: T2 8–12 h, T3 6–9 h, T4 35–110 h depending on reasoning length.
+    **No scope cut without the owner.** After T1 the projection is reported; if it exceeds 1.5× the 78 h estimate, the chain
+    **pauses after the T4 paired subsets** (the decision data) and the owner decides on the full passes.
+12. **Labels.** AA-LCR rows read "~88–122K-token prompt + generated reasoning" (not "accuracy at 262K depth"). GPQA rows
+    state near-ceiling detectable effect. Artificial Analysis's temperature for Qwen3.8 is **not disclosed** — their rule is
+    0.6 unless the lab recommends otherwise (PN-78). AA-LCR document text and raw GPQA outputs are never republished.
+
 ## Decision log
 
 <!-- consensus-winner-decision:qbench-t1-8f05db1f10552b03a1beda52c51944302348a299695c65f02ac5aaaf34a64849 -->
@@ -1459,6 +1515,17 @@ judge-ready, one agent judges all of it after every tier finishes, judge model l
 Why: the owner's rule is that accuracy must be measured for each configuration actually served ("otherwise how can we
 really know?"), and reasoning at xhigh is the realistic setting. Dropping a quant pays for measuring the other two
 fully instead of all three thinly. Estimated ~78 GPU-hours; the pilot measures real reasoning length first.
+
+DEC-17 | 2026-09-15 | S15-design | owner-requested review, agent adoption | S15 amended after independent review
+Context: before any GPU time the owner asked for one Opus 5 (high) reviewer to confirm the S15 design ("the objective
+is not to change everything, rather, to confirm"). Verdict: confirm with adjustments; six must-fix items. The agent
+re-verified the load-bearing ones against source at commit 4c9233c and Artificial Analysis's methodology page.
+Decision: adopt amendments 1–12 in §S15 "amendments after independent review": relaunch per draft length; same target KV
+for both drafters in the accuracy contrast; pre-registered decision rule with accuracy as an equivalence gate; soak and
+q8_0 stability before T4; paired subsets first and reused; GPQA locked to Artificial Analysis's template and extraction;
+explicit sampling and shared seeds; added T1 gates; pause-and-ask instead of silent scope cuts.
+Why: each item would otherwise have cost GPU hours (a per-request draft sweep that silently does nothing), confounded the
+drafter verdict with KV dtype, or produced an unscorable or non-comparable GPQA column. None changes the owner's scope.
 
 ## Ledger
 
@@ -2764,3 +2831,15 @@ serverlogs; KV size lines in the live `-lv 4` serverlog; AA records extracted fr
 the machine log's VRAM MODEL rates are superseded by PN-74 (edit on multivac); `qwen38-serve` must be stopped for S15.
 ⚠️ **AA-LCR scores are unjudged until JUDGING-PENDING.md is closed.**
 Next: harnesses with the generation and closure guards (PN-30, PN-60, PN-72), then T1 pilot.
+
+### L-35 | 2026-09-15T20:10:00Z | S15-T0 | claude-opus-5 | operator session | S15 design reviewed and amended (no GPU) <!-- bsc-ledger:qbench-t1-S15REV -->
+Did: owner-requested independent review (one Opus 5 reviewer, high effort, read-only) of plan §S15; adopted as **DEC-17**
+with twelve amendments. Verified by hand before adoption: `#if 0` around per-request `speculative.*` fields in
+`tools/server/server-schema.cpp` lines 197–227 at 4c9233c; `checkpoint_offsets[] = {4 + n_ubatch, 4}` in
+`server-context.cpp` line 3565; `--swa-full` default false in b10975 `--help`; Artificial Analysis GPQA template and
+multi-stage "last match" extraction from the archived methodology page. Records: PN-78 (PN-75 wording corrected),
+PN-79 (draft length fixed at launch); METHOD-REFERENCES R31–R34; bib entries; JUDGING-PENDING updated. Harness library
+`/srv/bench/e12/s15/lib15.py` written and smoke-tested without GPU; fixed 280,000-token real-code pad tokenized
+(`data/pad/pad-tokens-280k.json`).
+⚠️ Host swap was 5 MiB free with qwen38-serve running; the chain cycles swap after stopping the server and records it.
+Next: T1–T5 harness scripts, then the block starts with T1.

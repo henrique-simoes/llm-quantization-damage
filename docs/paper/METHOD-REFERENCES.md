@@ -406,3 +406,41 @@ timings, not SSE chunk arrival.
 | KV/context map with q8_0 re-tested | R29, PN-15, PN-74 |
 | Paired designs, small-n intervals, metric definitions | R30, R6, PN-32 |
 | External comparison row | R24, PN-75 |
+
+## R31 — llama.cpp source at the pinned commit 4c9233c (b10975): speculation, checkpoints, sampling
+<https://github.com/ggml-org/llama.cpp/tree/4c9233c034fc450dcf34c7c0988aebe6da5cdf1a> (read 2026-09-15; the first two re-verified by hand)
+- `tools/server/server-schema.cpp` lines 197–227: per-request `speculative.*` fields inside `#if 0` (PN-79).
+- `tools/server/server-context.cpp` line 3565: `checkpoint_offsets[] = {4 + n_ubatch, 4}` — prompt checkpoints near the
+  prompt end, created only during prompt processing (with PR #20288). *S15 takes:* prefix reuse across AA-LCR questions of a
+  document set works at `-ctxcp 4`, asserted via `cache_n`.
+- `common/sampling.cpp` `common_sampler_sample_and_accept_n`: the target samples every emitted position — why drafter
+  accuracy is an equivalence gate (DEC-17 item 3). `common/speculative.cpp`: DFlash clamp to block_size−1; draft devices.
+- `src/models/dflash.cpp`, `src/llama-model.cpp`: DFlash's sliding-window cache; `--swa-full` default false (b10975 `--help`).
+(Items not re-verified by hand are from the S15 reviewer's reading of the same commit.)
+
+## R32 — Artificial Analysis GPQA prompt and multiple-choice extraction (methodology page, archived 2026-09-15)
+`/srv/bench/external/artificial-analysis/2026-09-15/methodology-intelligence-benchmarking.html` (sha256 in `SHA256SUMS`).
+Template: "Answer the following multiple choice question. The last line of your response should be in the following format:
+'Answer: A/B/C/D' (e.g. 'Answer: A')." + question + "A) … D) …". Extraction: single-letter responses taken directly; primary
+`(?i)[\*\_]{0,2}Answer[\*\_]{0,2}\s*:[\s\*\_]{0,2}\s*([A-Z])(?![a-zA-Z0-9])`; fallbacks in order `\boxed\{[^}]*([A-Z])[^}]*\}`,
+`answer is ([a-zA-Z])`, `answer is \(([a-zA-Z])`, `([A-Z])\)\s*[^A-Z]*`, `([A-Z])\s+is\s+the\s+correct\s+answer`, `([A-Z])\s*$`,
+`([A-Z])\s*\.`, `([A-Z])\s*[^\w]`; "We always take the last match found". GPQA listed under legacy evaluations. *S15 takes:*
+the locked GPQA protocol (DEC-17 item 6).
+
+## R33 — OpenAI simple-evals, multiple-choice template and answer pattern
+<https://github.com/openai/simple-evals> (`common.py`: `QUERY_TEMPLATE_MULTICHOICE`, `ANSWER_PATTERN_MULTICHOICE`
+`(?i)Answer[ \t]*:[ \t]*\$?([A-D])\$?`). *S15 takes:* a secondary GPQA extraction column only. Taken from the reviewer's reading;
+not re-verified by hand.
+
+## R34 — llama.cpp PR #20288, context checkpoints near the prompt end (merged 2026-03-10)
+<https://github.com/ggml-org/llama.cpp/pull/20288>. With R31, the mechanism behind cheap prefix reuse on the hybrid model.
+Merge date from the reviewer; the code effect re-verified in R31.
+
+| S15 amendment (DEC-17) | Source |
+|---|---|
+| One launch per draft length | R31, PN-79 |
+| Same target KV for both drafters in the accuracy contrast | R31 (draft SWA cache), PN-74, PN-77 |
+| Accuracy as equivalence gate | R31 (sample-and-match), R22, R23, R28 |
+| Soak and q8_0 stability before T4 | R29 (#23210), PN-70 |
+| GPQA template and extraction | R32 (primary), R33 (secondary) |
+| Prefix reuse assertion | R31, R34 |
