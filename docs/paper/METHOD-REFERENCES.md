@@ -286,3 +286,123 @@ and are properly cited here rather than vendored.
 `https://citation-file-format.github.io/1.2.0/schema.json` (retrieved 2026-09-02). Schema used to
 validate this repository's `CITATION.cff`. Validation was performed and passed; the schema copy
 itself is not vendored — see the note under R14.
+
+---
+
+# S15 method references (added 2026-09-15, DEC-16)
+
+Gathered by three research agents and checked by three adversarial verifiers against primary sources on
+2026-09-15. Verdicts in brackets: **verified** (fact seen in the primary source), **corrected** (the fact as
+stated here is the corrected one). Each entry says what S15 takes from it.
+
+## R16 — llama.cpp PR #27342, DFlash2 support (merged 2026-08-27)
+<https://github.com/ggml-org/llama.cpp/pull/27342> [corrected]
+Merged 2026-08-27T17:05Z. Title "spec : add DFlash2 support (local convolution + candidate selector)". The
+reconversion note ("GGUF generated before Aug 27th 2026 must be reconverted") is about **vision**, not text
+drafting. Its own benchmark is Qwen3.8-27B Q4_K_M on Apple M5 Pro (~1.77–1.85× decode). *S15 takes:* one upstream
+build runs MTP and DFlash2, removing PN-29's engine confound.
+
+## R17 — llama.cpp PR #22105, DFlash support (merged 2026-06-28) and PR #22673, MTP (merged 2026-05-16)
+<https://github.com/ggml-org/llama.cpp/pull/22105> · <https://github.com/ggml-org/llama.cpp/pull/22673> [corrected / verified]
+`--spec-type draft-dflash`; up to 8× on dense targets; hybrid-model fallback handled by speculative checkpointing
+(the "extra target forward per rejection" clause was struck from the PR body). MTP loads from the target GGUF but
+has **its own context and KV cache**; Qwen3.6 aggregate acceptance 0.8258 at n-max 2, 0.7218 at n-max 3.
+*S15 takes:* draft-length ranges, and that MTP's draft KV is a separate VRAM line.
+
+## R18 — llama.cpp `docs/speculative.md` (master, 2026-09-15)
+<https://github.com/ggml-org/llama.cpp/blob/master/docs/speculative.md> [corrected]
+Lists draft-mtp, draft-dflash, draft-dspark, draft-eagle3; default `--spec-draft-n-max 3`; draft KV dtype
+`-ctkd/-ctvd`; draft placement `--spec-draft-device/-devd`. The clamp to the trained block size is stated **only**
+for DFlash and DSpark. *S15 takes:* DFlash2 n ∈ {3,5,7}; `--device-draft` in the placement sweep.
+
+## R19 — DFlash 2 drafter for Qwen3.8-27B (Inco AI; z-lab mirror), cards, config and GGUFs
+<https://huggingface.co/incoai/Qwen3.8-27B-DFlash2> · <https://huggingface.co/z-lab/Qwen3.8-27B-DFlash2> ·
+<https://huggingface.co/z-lab/Qwen3.8-27B-DFlash2-GGUF> · blog <https://inco.ai/blog/dflash2/> (2026-08-18) [verified; blog corrected]
+1,924,404,480 BF16 parameters, 5 layers, all sliding-window 2,048, `block_size` 8, target layers [5,19,33,47,61].
+Mean acceptance length at block 8: DFlash 2 4.80 vs MTP 4.28 vs DSpark 3.62 (blog Table 4). The H200/SGLang setting
+and the 2.67–3.43× speedups are in the **model card**, not the blog. GGUF acceptance BF16 5.28 / Q8_0 5.13 /
+Q4_K_M 5.39 rests on **8 GSM8K prompts** — noise, not a quantization effect. Rope-sections fix: z-lab 2026-08-24,
+incoai 2026-08-29. No training length and no long-context evaluation published. *S15 takes:* the drafter, its
+revision pin, and that at-depth acceptance is unpublished.
+
+## R20 — Chen, Liang & Liu, DFlash, ICML 2026 (arXiv 2602.06036 v2) — long-context behaviour
+<https://arxiv.org/abs/2602.06036> [verified] — extends R12.
+Drafters trained on ~800K samples at max length 3,072 (4,096 for the Coder drafter). Table 4 (DFlash v1, Qwen3.5-27B):
+gov_report acceptance 4.53 (1K) → 2.09 (32K), held near 4 by a 1.6K-sample LongAlign fine-tune. *S15 takes:*
+DFlash2 acceptance at depth must be measured, not assumed; do not transfer v1 numbers to v2.
+
+## R21 — Community long-context DFlash2 measurements
+<https://github.com/lukaLLM/DFlash2_Qwen3.8_3.6_27B_LlamaCPP> · <https://github.com/noonghunna/club-3090/discussions/1076> [verified]
+lukaLLM (RTX PRO 6000, llama.cpp): n_max 5 faster than 7 at 8,192 tokens (3–7 valid generations per cell); zero valid
+decode numbers at 65,536 and 131,072; +2,720 MiB at 262K f16. club-3090 (2× RTX 3090, vLLM, W4A16 drafter, fp8 KV):
+~72 tok/s at ~90K, 66 at ~200K. *S15 takes:* community evidence only — never the sole support for a decision.
+
+## R22 — llama.cpp issue #25618, speculative greedy divergence on quantized targets (open)
+<https://github.com/ggml-org/llama.cpp/issues/25618> [corrected]
+Divergence reported for DSpark and MTP on quantized targets; bf16 parity shown for DSpark only; later comments extend
+it to Q8_0 at n-max 1 and to non-bit-exact batched kernels. *S15 takes:* drafter accuracy is compared at task level (PN-76).
+
+## R23 — Thinking Machines Lab, "Defeating Nondeterminism in LLM Inference" (2025-09) and vLLM speculative-decoding docs
+<https://thinkingmachines.ai/blog/defeating-nondeterminism-in-llm-inference/> · <https://docs.vllm.ai/en/latest/features/speculative_decoding/>
+Run-to-run deterministic but batch-variant kernels; speculation lossless only up to hardware numerics. *S15 takes:* PN-76.
+
+## R24 — Artificial Analysis: Qwen3.8-27B records and methodology (fetched 2026-09-15)
+<https://artificialanalysis.ai/models/qwen3-8-27b> (+ `-medium`, `-low`, `-non-reasoning`) ·
+<https://artificialanalysis.ai/methodology/intelligence-benchmarking> · <https://artificialanalysis.ai/methodology/performance-benchmarking>
+Archived with sha256 at `/srv/bench/external/artificial-analysis/2026-09-15/` (PN-75). First-party Alibaba API;
+temperature 0.6 for reasoning models (unless the lab recommends otherwise); max output tokens; pass@1; speed
+workloads ~1K/10K/100K input with ≥1K/1.5K/2K answer tokens, P50 over 72 h (14 days for 100K). *S15 takes:* the
+external comparison row and the speed workloads, labelled as a different serving stack.
+
+## R25 — AA-LCR v1.1 dataset (Artificial Analysis), Apache-2.0
+<https://huggingface.co/datasets/ArtificialAnalysis/AA-LCR> revision `9a77ef56` (2026-09-04)
+100 questions, 30 document sets, ~100K cl100k tokens per set; human-verified; v1.1 adds a judge **system prompt** and
+16 corrected answer keys, so v1.0 scores are not comparable. Official prompt template and judge prompts are in the
+card; Artificial Analysis grades with GPT-5.6 Luna (medium). *S15 takes:* the long-context accuracy instrument (T4a).
+
+## R26 — GPQA (Rein et al., 2023), Diamond subset
+<https://github.com/idavidrein/gpqa> · arXiv 2311.12022 · CC-BY-4.0
+198 Diamond questions, distributed as a password-protected zip with a canary string; the authors ask that examples not
+be revealed online. *S15 takes:* the short-context reasoning accuracy instrument (T4b), regex-scored.
+
+## R27 — Long-context evaluation standards
+RULER (Hsieh et al., NVIDIA, arXiv 2404.06654 = R8) · HELMET (Yen et al., ICLR 2025, arXiv 2410.02694) [verified: NIAH
+correlates weakly with downstream tasks; RAG predicts best] · NoLiMa (Modarressi et al., ICML 2025, arXiv 2502.05167)
+[corrected: 11 of 13 models fall below 50 % of their short-context baseline at 32K] · MRCR v2 (google-deepmind/eval_hub)
+[verified bins; Anthropic's system cards use OpenAI's MRCR v2 release, not eval_hub's] · LongCodeBench (arXiv 2505.07897)
+[verified: LongCodeQA 443 items, bins 32K–1M]. *S15 takes:* the case for a reasoning-over-documents instrument
+(AA-LCR) over literal-match needles, and the reporting of budget and closure per item (PN-60).
+
+## R28 — Speculative-decoding evaluation
+Leviathan et al. (arXiv 2211.17192) · Chen et al. (arXiv 2302.01318) · EAGLE-3 (arXiv 2503.01840) · SPEED-Bench (NVIDIA,
+arXiv 2604.09557) · Spec-Bench (Xia et al., arXiv 2401.07851) · MagicDec (arXiv 2408.11049). *S15 takes:* τ (mean accepted
+length per pass) and t_pass as primary speed quantities, long real generations (never tens of tokens), each drafter at its
+own best draft length, and depth-dependent reversal as an analysis requirement.
+
+## R29 — KV-cache quantization quality
+localbench (oobabooga), "Gemma 4 and Qwen 3.6 with q8_0 and q4_0 KV cache: KL divergence results" (2026-04-24) [corrected:
+Qwen3.6-27B q8_0 0.024; Qwen q4_0 0.087–0.117; long documents up to 0.581; BF16 reference; top-40 KLD] · KIVI (arXiv 2402.02750)
+· KVQuant (arXiv 2401.18079) · llama.cpp issue #23210 [verified: q8_0 + MTP crash on 2× 5060 Ti, cause not attributed to q8_0].
+*S15 takes:* the KV/context map with q8_0 re-tested on the current image, and PN-77's scoping of PN-15.
+
+## R30 — Evaluation statistics and serving-metric definitions
+Miller, "Adding Error Bars to Evals" (Anthropic, arXiv 2411.00640 = R6) · Bowyer, Aitchison & Ivanova, "Don't Use the CLT in
+LLM Evals With Fewer Than a Few Hundred Datapoints" (ICML 2025, arXiv 2503.01747) [verified] · MLPerf Inference rules
+(MLCommons) · NVIDIA GenAI-Perf README · `vllm bench serve` · llama-bench README (`-d` depth) · llama.cpp server README
+(`timings`). *S15 takes:* paired designs and small-n intervals; TTFT/TPOT/output-speed definitions; decode from server
+timings, not SSE chunk arrival.
+
+## How the sources combine into S15
+
+| S15 element | Source |
+|---|---|
+| One upstream image for both drafters | R16, R17, PN-73 |
+| DFlash2 n ∈ {3,5,7}, MTP n ∈ {2,3,4} | R17, R18, R19, R21 |
+| Drafter placement sweep (`--device-draft`) | R18, PN-73 |
+| Accuracy compared at task level, not byte identity | R22, R23, PN-23, PN-76 |
+| AA-LCR at 262,144 with the official template | R24, R25, R27 |
+| GPQA Diamond regex-scored | R24, R26 |
+| τ, t_pass, long generations, per-drafter optimum | R28, PN-30, PN-68, PN-72 |
+| KV/context map with q8_0 re-tested | R29, PN-15, PN-74 |
+| Paired designs, small-n intervals, metric definitions | R30, R6, PN-32 |
+| External comparison row | R24, PN-75 |

@@ -582,3 +582,22 @@ failure that would otherwise have been unrecoverable.
 11. **Anchor process-matching predicates to a path**, and escape regex metacharacters in literal
     filenames. An unanchored `pgrep -af "watchdog.sh|worker.sh"` matched the monitor built to
     supervise the campaign and killed eleven hours of work in eight minutes (PN-27).
+
+---
+
+## 12. S15 inputs (DFlash2 vs MTP), pinned 2026-09-15 — DEC-16
+
+Recorded at T0, before any S15 GPU work. Every S15 artifact must name these by digest.
+
+| input | identity | location |
+|---|---|---|
+| Engine (all S15 arms: no-spec, MTP, DFlash2) | `ghcr.io/ggml-org/llama.cpp:server-cuda`, `org.opencontainers.image.version` **b10975**, revision `4c9233c034fc450dcf34c7c0988aebe6da5cdf1a`, image `sha256:5268283a8d6510d167364f19aee93e98180d8eb0cac4b7edb20af7e3edf40c17`, `llama-server --version` 0.4.1-dev (build 10975) | local Docker image store |
+| DFlash2 drafter (current) | `Qwen3.8-27B-DFlash2-Q4_K_M.gguf`, 1,143,006,816 B, sha256 `1a25c56858e1ebe93f2718ac1d49d1151f9323325c1bbfd6209370f4db131ebd` (identical on z-lab and incoai repos), `dflash.rope.dimension_sections = [64,0,0,0]` | `/srv/bench/models/dflash2-20260915/` |
+| DFlash2 drafter (paper-era, PN-29) — **kept** | 1,143,006,752 B, sha256 `18a380efc9b7ed8d88677fc895f5c11ae170653434ee378f7348f715c14d0594`, HF commit `6cb5872e`, no rope-sections key | `/srv/models/dflash2/` |
+| Targets | UD-Q4_K_XL and UD-Q6_K GGUFs as recorded in `env-manifest.json` (unchanged) | `/srv/models/`, `/srv/bench/models/` |
+| AA-LCR v1.1 | HF dataset `ArtificialAnalysis/AA-LCR` revision `9a77ef56b717057ade24ceab4d273712a0b4f19e` (lastModified 2026-09-04); CSV + extracted-text zip, sha256 in `SHA256SUMS`; Qwen token lengths and audited filename mapping in `qwen-token-lengths.json` | `/srv/bench/e12/s15/data/aa-lcr/` |
+| GPQA Diamond | `idavidrein/gpqa` `dataset.zip` (2,348,038 B) and `dataset/gpqa_diamond.csv` (198 rows), sha256 in `SHA256SUMS`; directory mode 0700. **Not in git.** | `/srv/bench/e12/s15/data/gpqa/` |
+| Artificial Analysis external baseline | four model pages (xhigh, medium, low, non-reasoning) as fetched HTML + extracted `aa-qwen38-records.json`, sha256 in `SHA256SUMS`, `FETCH-META.json` | `/srv/bench/external/artificial-analysis/2026-09-15/` |
+
+Host serving state at T0: `qwen38-serve.service` (multivac-serving) on `llamacpp-mtp:latest`, UD-Q6_K, MTP n=4,
+`-ctxcp 4 -cram 0`. S15 stops it with the documented procedure and restores it afterwards.
