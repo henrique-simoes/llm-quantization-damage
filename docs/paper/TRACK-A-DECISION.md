@@ -24,6 +24,10 @@ Full 262,144-token window · code KLD **0.005829 ± 0.000233** · decode **11.90
 > 2026-09-01.** The at-depth measurement it rested on timed 17 generated tokens, not 192 (PN-30).
 > n=2 is restored because it is the only draft depth with a valid measurement at this window.
 > n=4 remains 25.6 % faster at ctx 32,768 on sound data, and S9e will settle the full window.
+>
+> **Amendment 3 (2026-09-15) changes the served line to `-ctxcp 4 -cram 0 --spec-draft-n-max 4`** —
+> `-ctxcp 4` because checkpoints exhaust host RAM at depth (PN-70), n=4 by owner decision on the
+> accuracy evidence. S9e found n=2 and n=4 indistinguishable at 262,144.
 
 **Why:** it has the best accuracy of any arm that reaches the full window, and it is the only
 non-reference arm whose code divergence stays under Fireworks' published <0.007 high-quality
@@ -272,3 +276,45 @@ Whether n=4 (or n=8) beats n=2 **at 262,144** is now unmeasured. S9e re-runs tho
 the corrected probe — `/completion` plus a continuation cue, official sampling, and a gate that
 fails any cell generating less than 90 % of what it asked for. If n=4 or n=8 wins on sound data the
 line changes again, and this time the number will carry a median of three.
+## Amendment 3 — 2026-09-15, the served line: `-ctxcp 4` and MTP n=4
+
+**Two flags change in the line that actually serves clients** (canonical copy:
+`~/repos/multivac-serving/serve/llama-server.args`, under `qwen38-serve.service`). The quantization,
+window, split and KV dtype are unchanged.
+
+```
+-m Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 58,42 -c 262144 -fit off -fa on \
+   -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 4 -cram 0 \
+   --spec-type draft-mtp --spec-draft-n-max 4
+```
+Container: `--memory 8g --memory-swap 8g`.
+
+### 1. `-ctxcp 32 → 4`, forced by host memory (PN-70)
+
+Context checkpoints live in host RAM and carry the MTP draft KV for the whole sequence: 1,139.9 MiB each
+at 252,269 tokens. At 32 a real agent session exhausted the 14 GiB host at ~179K tokens with VRAM flat.
+At 4, a 252K-token multi-turn soak held at 5,294 MiB with rollbacks still costing 4 tokens. PN-18's
++6.8 % decode / +7.6 % prefill for 32 over 4 (n=1) is given up; it was never affordable at depth.
+
+### 2. `--spec-draft-n-max 2 → 4`, owner decision on the accuracy evidence
+
+- **Accuracy:** no difference is measured. n=2 and n=4 each reproduce no-spec byte-exactly on 131/164
+  HumanEval+ problems and agree with each other on 133/164; paired pass/fail differs by at most one
+  problem (148 vs 149 plus). **Scope: greedy, ctx 32,768, n=164, UD-Q6_K + q4_0** (S8, PN-23, PN-26).
+  Nothing is measured under official sampling or at depth, for either depth.
+- **Speed, study data:** +25.6 % at 32K (47.03 vs 37.44 tok/s, S8); indistinguishable at 262,144
+  (12.88 vs 12.47, S9e, 3 reps with 30–53 % spread).
+- **Speed, operational soak (not a study measurement):** the n=2 and n=4 soaks sent identical prompts at
+  matched depths (thinking mode, official sampling, 256-token turns, one run each). n=4's median decode was
+  higher in every depth band — 29.3 vs 26.9 (<60K), 24.7 vs 20.9 (60–120K), 20.8 vs 18.0 (120–180K),
+  16.6 vs 14.8 (180–230K), 15.7 vs 13.6 tok/s (>230K) — with prefill 2–3 % lower. Sampled continuations
+  differ between the runs, so this is consistent direction, not a ranking under the study's standards.
+- **Fit:** VRAM peak 15,508 / 15,196 MiB after a 252K prefill (+184 / +112 MiB over n=2), 142 MiB under
+  the practical wall on GPU0. `-ts 58,42` was not re-swept (PN-7 asks for it); it loaded twice at 262,144
+  (S9e, soak) and held depth. Artifacts: `/srv/bench/soak/soak-full-n4-20260915T1341Z.json`,
+  `soak-full-20260915T0408Z.json` (n=2).
+
+### What does not change
+
+The quantization decision, the fallbacks, and the decision rule. S9e's tie stands as the study's
+measurement at the full window; this amendment records the served configuration, not a new ranking.
