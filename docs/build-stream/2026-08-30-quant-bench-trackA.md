@@ -2843,3 +2843,12 @@ PN-79 (draft length fixed at launch); METHOD-REFERENCES R31–R34; bib entries; 
 (`data/pad/pad-tokens-280k.json`).
 ⚠️ Host swap was 5 MiB free with qwen38-serve running; the chain cycles swap after stopping the server and records it.
 Next: T1–T5 harness scripts, then the block starts with T1.
+
+### L-36 | 2026-09-15T20:45:00Z | S15-run | claude-opus-5 | operator session (no subagents) | S15 block started <!-- bsc-ledger:qbench-t1-S15RUN -->
+Did: wrote and compiled the S15 harness at `/srv/bench/e12/s15/` — `lib15.py` (launch/teardown with logs first, window
+assert, generation contract, VRAM/energy/host-memory telemetry), `s15_items.py` (AA-LCR loader by category/set/filename,
+stratified paired subsets 30/50, GPQA with stored permutations, Artificial Analysis last-match extractor with self-tests),
+`t1_pilot.py` (gates G1–G4), `t2_kvmap.py`, `t3_speed.py`, `t5_stability.py`, `t4_accuracy.py`, `build_judge_input.py`,
+`chain.sh` (flock, serving stopped and always restored, swap cycle, phase markers, DEC-17 pause rule). `soak.py` gained
+`--container` (multivac-serving `8f7b49e`). Launched `chain.sh` detached; machine log carries a do-not-touch notice.
+Next: T1 gates; progress reported hourly to the owner; all findings to PAPER-NOTES as each tier closes.
