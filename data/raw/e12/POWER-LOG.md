@@ -104,6 +104,6 @@ the v1 series without saying so. The cumulative columns resume from the sampler 
 continue across the gap without integrating it.
 
 Live, counter-based GPU energy (`nvml_gpu_energy_joules_total`, NVML total-energy counter) is now
-collected alongside it by the serving telemetry stack
-(`docs/build-stream/2026-09-14-llm-serving-telemetry.md`). For energy analysis that counter is the
+collected alongside it by the serving telemetry stack, which lives in the separate
+`multivac-telemetry` repository (see `docs/telemetry/README.md`). For energy analysis that counter is the
 better instrument; this CSV remains the continuous 1 Hz record.
