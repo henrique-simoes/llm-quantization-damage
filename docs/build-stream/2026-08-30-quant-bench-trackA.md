@@ -2852,3 +2852,13 @@ stratified paired subsets 30/50, GPQA with stored permutations, Artificial Analy
 `chain.sh` (flock, serving stopped and always restored, swap cycle, phase markers, DEC-17 pause rule). `soak.py` gained
 `--container` (multivac-serving `8f7b49e`). Launched `chain.sh` detached; machine log carries a do-not-touch notice.
 Next: T1 gates; progress reported hourly to the owner; all findings to PAPER-NOTES as each tier closes.
+
+### L-37 | 2026-09-15T20:30:00Z | S15-T1 | claude-opus-5 | operator session | T1 pilot passed all gates <!-- bsc-ledger:qbench-t1-S15T1 -->
+Did: T1 ran 19:33–20:10Z. Gates G1 (6 loads + 1,024-token generations), G2 (xhigh rendered), G3 (DFlash2 mean accepted
+length 5.65 / 5.14 ≥ 3.5), G4 (AA-LCR prefix reuse, 506 tokens reprocessed) all passed — **PN-80**.
+Verified: a suspicious 4/4 "C" on the pilot GPQA items is chance, not a bug — those items' correct letters are C under
+four different permutations; letter balance over 198 items is A 54 / B 52 / C 51 / D 41.
+Budget: xhigh reasoning measured at ~3–6K tokens per AA-LCR answer and ~0.5–4.5K per GPQA answer, well below the 10K
+planning figure, so the T4 projection falls from ~72 h toward ~30 h (formal projection at the DEC-17 checkpoint).
+Next: T2 context/KV map (running since 20:10Z).
+
