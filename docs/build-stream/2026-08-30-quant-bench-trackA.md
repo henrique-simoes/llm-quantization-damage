@@ -2666,3 +2666,16 @@ Also adopted: the **two-word title trim** the reviewer recommended — "speculat
   not a measurement). **Both are now fixed by replacement** — the adopted text contains no "we" and
   opens on a measurement. Verified by parse.
 Next: apply the §6.7 / T12 / F12 rewrites PN-68 requires, switch OUTLINE-V2 in for OUTLINE, then D1.
+
+### L-33 | 2026-09-15T05:10:00Z | serving-ops | claude-opus-5 | operator session | Serving incident, host-RAM checkpoints, serving moved under systemd <!-- bsc-ledger:qbench-t1-SERVE0915 -->
+Did: a serving incident (operations record: `~/repos/multivac-serving`, which now owns the server) produced
+  two paper-relevant findings — checkpoints in host RAM (**PN-70**) and the asymmetric PCIe topology
+  (**PN-71**) — and a verification pass withdrew PN-29's DFlash2 at-depth cell as a 17-token probe
+  (**PN-72**). Track A amended for the served line (**Amendment 3**: `-ctxcp 4`, MTP n=4, owner decision).
+⚠️ Stale prose flagged by the verification pass (not corrected here, append-only):
+  1. `TRACK-A-DECISION.md` still says S9e "will settle" the full window; L-17 records it did — n=2 and n=4
+     indistinguishable at 262,144.
+  2. PN-59's caveat still asserts the float-nondeterminism mechanism that PN-26 refuted.
+  3. PN-32 and L-17 print "12 of 13" acceptance pairs falling; the artifact gives 14/15 including invalid
+     cells and 10/11 with both valid (PN-66's figure is the defensible one).
+Next: the report — PN-72 strikes the DFlash2 at-depth figure from §5.4.
