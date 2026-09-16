@@ -180,3 +180,9 @@ Artificial Analysis-style workloads (~1K/10K/100K input, thinking on) that decid
 Chain healthy; no phase failures. Host: free RAM drifting down with depth (7.0 → 4.4 GiB; harness aborts below 1.2 GiB),
 swap full of idle pages with negligible swap-in, GPUs ~15.3/15.0 GiB in use. Projected block total **35–40 h**
 (vs the 78 h estimate) because measured xhigh reasoning is 2–3× shorter than budgeted.
+
+## 2026-09-16T21:00Z — T4 halt and relaunch (L-41)
+
+GPQA Q6_K+MTP subset halted at 21/50 on the cumulative swap-growth guard (+524 MiB over 3 h 20 min, MemAvailable 8.3 GiB).
+Guard made per-item with absolute SwapFree/MemAvailable floors; `bc` dependency and median-based budget projection fixed.
+Relaunched 20:51Z, resumed at item 22. GPQA pace: median 3.2 min, mean ~8 min, max 51 min (75K-token reasoning).

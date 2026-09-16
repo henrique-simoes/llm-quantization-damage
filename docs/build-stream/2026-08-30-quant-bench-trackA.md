@@ -2911,3 +2911,16 @@ Next: owner decision recorded in the running log — cycle swap and re-run T5 un
 1,200 MiB used by the T4 harness · reduce the soak target for the S15 gate · or proceed to T4 on the stability evidence
 already gathered. A gate must not be changed silently after it fires.
 
+
+### L-41 | 2026-09-16T21:00:00Z | S15-T4 | claude-opus-5 | operator session | T4 halted on cumulative swap guard; guard amended, chain relaunched
+
+- **Halt:** 2026-09-16T19:17:24Z, `t4-gpqa-subset-Q6_K-mtp` at 21/50 (all ok, saved) — `memory guard: host swap grew 524 MiB`
+  (limit 512) right after a 75,683-token / 3,040 s GPQA item. MemAvailable was ~8.3 GiB; no distress. The growth was
+  measured cumulatively from phase start (3 h 20 min), so drift tripped it. Serving restored by the chain at 19:19:45Z.
+- **Fix (`/srv/bench/e12/s15/lib15.py`, backup `lib15.py.bak-20260916T2100Z`):** `MemoryGuard` rebases each item;
+  limits: swap growth > 1,024 MiB within one item, SwapFree < 256 MiB, MemAvailable < 1,200 MiB (unchanged floor).
+- **Also fixed (`chain.sh`, backup `chain.sh.bak-20260916T2100Z`):** GPU-free check used `bc` (not installed → check
+  never evaluated); now `awk`. Budget projection (DEC-17 item 11) used the **median** item wall time, which projected
+  ~23 h for the full passes against ~47 h at the mean (GPQA reasoning is heavy-tailed: 20 s–51 min); now the mean, so the
+  117 h pause fires as intended.
+- **Relaunch:** 20:51:53Z; swap cycled to 1 MiB, GPUs 4 MiB, resumed at `29 to do of 50`. No items repeated.
