@@ -2862,3 +2862,52 @@ Budget: xhigh reasoning measured at ~3–6K tokens per AA-LCR answer and ~0.5–
 planning figure, so the T4 projection falls from ~72 h toward ~30 h (formal projection at the DEC-17 checkpoint).
 Next: T2 context/KV map (running since 20:10Z).
 
+### L-38 | 2026-09-16T01:05:00Z | S15-T2 | claude-opus-5 | operator session | T2 context/KV map complete <!-- bsc-ledger:qbench-t1-S15T2 -->
+Did: T2 ran 20:10–00:58Z (4 h 48 min, inside the 8–12 h estimate), 71 attempts, 12 cells, every ceiling bracketed with a
+failed rung above attempted twice — **PN-81**. Headlines: UD-Q4_K_XL holds **262,144 with q8_0 KV on both drafters**;
+UD-Q6_K cannot (196,608); DFlash2 costs one rung against MTP **only** with f16 KV; every DFlash2 cell needed
+`-devd CUDA1`, confirming PN-73's reading that the paper-era DFlash2 "ceilings" were drafter placement.
+Also recorded: **PN-82**, a third failure mode — full prefill then `CUDA error: out of memory` in `cublas_handle` on
+device 1 inside `common_speculative_impl_draft_dflash::draft()` (UD-Q4_K_XL, f16, 196,608, `-ts 54,46`, twice). The
+harness classified it as a deep-stage failure and bracketed the ceiling at 163,840; a load-only gate would have passed it.
+The MTP draft-KV `q8_0` variant was tried once at the failing Q6_K q8_0 rung (229,376) and also failed; not adopted.
+⚠️ Operator tooling: the agent's shell tool began failing every command at ~00:20Z (`echo`/`date`/`true` all exit 1).
+The chain is detached and unaffected; documentation continues via file writes, but git commits wait for the shell.
+Next: T3 speed (running since 00:58Z), then T5 stability, then the T4 paired subsets.
+
+### L-39 | 2026-09-16T10:10:00Z | S15-T3 | claude-opus-5 | operator session | T3 speed complete; DFlash2 selected on both quants <!-- bsc-ledger:qbench-t1-S15T3 -->
+Did: T3 ran 00:58–10:06Z (9 h 8 min). Matched-depth probe: 14 arms (2 quants × {no-spec, MTP 2/3/4, DFlash2 3/5/7}) ×
+3 fills × 8 paired continuations, greedy, identical prompts, generation length asserted on every sample; then the
+Artificial Analysis-style thinking workloads (~1K/10K/100K input, xhigh, k=3) that DEC-17 item 3 makes the decision basis.
+Result **PN-83**: DFlash2 at n=7 is faster at every depth on both quants (+49 % Q6_K, +71 % Q4_K_XL at 246,415), its
+accepted length rises with depth, and its prefill is 34–52 % faster at depth; at a shared n=3 the drafters tie, so the
+advantage is draft-depth-dependent, not quant-dependent. Selection file `results/t3-speed.json`: best n = MTP 4 /
+DFlash2 7 on both quants, winner DFlash2 on both.
+⚠️ Selection quality differs by quant: UD-Q6_K's decode intervals separate widely (19.82–22.70 vs 16.13–16.56);
+UD-Q4_K_XL's clear each other by only 1.7 tok/s over k=3 prompts (23.80–51.35 vs 15.87–22.09). The rule as written is
+satisfied, but the paper reports the Q4_K_XL selection with that caveat and leans on the 8-continuation matched-depth
+probe instead. An earlier entry in the running log that called those intervals "overlapping" was self-contradictory and
+has been corrected in place.
+⚠️ Agent shell still failing (since ~00:20Z): PN-81, PN-82, PN-83, L-38, L-39 and `docs/build-stream/S15-RUNNING-LOG.md`
+are written but **uncommitted**.
+Next: T5 stability (running since 10:06Z) — 10 prefix-sharing ≥100K prompts plus the multi-turn soak on each of the four
+AA-LCR configurations — then the T4 paired subsets.
+
+### L-40 | 2026-09-16T10:40:00Z | S15-T5 | claude-opus-5 | operator session | Block halted at T5 on the host-memory guard; accuracy not run <!-- bsc-ledger:qbench-t1-S15HALT -->
+Did: T5 ran 10:06–10:35Z on the first of four configurations (UD-Q6_K · MTP n=4 · q4_0 · 262,144 · `-ts 58,42`).
+**Stability passed**: 10 sequential 107,113/120,006-token prompts, each reusing the cached prefix (444–533 tokens
+reprocessed), no crash — the issue #23210 pattern did not reproduce. **The soak then stopped itself** at 252,295 tokens
+(96 % of target) on `MemAvailable 1493 MiB < 1500`, i.e. 7 MiB under its own threshold, with server anon memory
+5,352 MiB, VRAM steady 15,498/15,164 and zero swap growth. `t5_stability.py` returned 1, `chain.sh` logged `FAIL t5`,
+ran its exit trap and **restored serving** — the designed behaviour.
+Cause is host-side, not the configuration: the 2026-09-15 soak passed at 5,294 MiB anon with ~4.6 GiB free, whereas T5
+began with ~4 GiB of swap full of pages that never returned after the 19:30Z cycle, leaving less headroom for the same
+footprint.
+⚠️ **Not established:** q8_0 stability (never reached), the other three configurations (never run), DFlash2 in service.
+⚠️ **T4 accuracy never started** — AA-LCR and GPQA have no S15 data; PN-80…PN-83 (T1–T3) stand unaffected.
+⚠️ Agent shell has failed continuously since ~00:20Z: the chain cannot be restarted, swap cannot be cycled, and
+PN-81, PN-82, PN-83, L-38, L-39, L-40 and `docs/build-stream/S15-RUNNING-LOG.md` remain **uncommitted**.
+Next: owner decision recorded in the running log — cycle swap and re-run T5 unchanged · lower the soak guard to the
+1,200 MiB used by the T4 harness · reduce the soak target for the S15 gate · or proceed to T4 on the stability evidence
+already gathered. A gate must not be changed silently after it fires.
+
