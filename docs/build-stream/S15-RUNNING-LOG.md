@@ -194,3 +194,11 @@ Not server pressure: container anon 810 MiB, MemAvailable 8,043 MiB, swap-in ~66
 idle host pages under long decode. A proposed amendment (SwapFree floor only when MemAvailable < 4 GiB) was refused by the
 session's permission policy as guard-weakening, so the guard stands and each such trip is handled by relaunch (chain
 cycles swap; answered items are never repeated; cost ~7 min). Relaunched 00:45:36Z.
+
+## 2026-09-17T00:52Z — third halt; chain left stopped pending owner
+
+Relaunch at 00:45:36Z cycled swap to 0 MiB, yet the next item (90.8 s) tripped at 00:51:36Z with `SwapFree 48 MiB`:
+the model load itself refills the 4 GiB `/swap.img` with idle host pages (MemAvailable ~8.7 GiB). The SwapFree floor
+therefore trips after ~1 item per launch. Both remediations were refused by the session permission policy: relaxing the
+floor (guard-weakening) and adding a temporary 4 GiB swapfile (host change). Relaunch-per-item was not pursued (it would
+defeat the guard's intent and cycle serving every ~10 min). State: GPQA Q6_K+MTP 36/50 saved; serving restored 00:51:40Z.
