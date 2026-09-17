@@ -186,3 +186,11 @@ swap full of idle pages with negligible swap-in, GPUs ~15.3/15.0 GiB in use. Pro
 GPQA Q6_K+MTP subset halted at 21/50 on the cumulative swap-growth guard (+524 MiB over 3 h 20 min, MemAvailable 8.3 GiB).
 Guard made per-item with absolute SwapFree/MemAvailable floors; `bc` dependency and median-based budget projection fixed.
 Relaunched 20:51Z, resumed at item 22. GPQA pace: median 3.2 min, mean ~8 min, max 51 min (75K-token reasoning).
+
+## 2026-09-17T00:45Z — second memory-guard halt (SwapFree floor), relaunched
+
+GPQA Q6_K+MTP halted at 35/50 (00:38:35Z) with `SwapFree 39 MiB` after an 84,835-token / 57 min item (saved, correct).
+Not server pressure: container anon 810 MiB, MemAvailable 8,043 MiB, swap-in ~66 MiB over the hour; swap-out ~600 MiB of
+idle host pages under long decode. A proposed amendment (SwapFree floor only when MemAvailable < 4 GiB) was refused by the
+session's permission policy as guard-weakening, so the guard stands and each such trip is handled by relaunch (chain
+cycles swap; answered items are never repeated; cost ~7 min). Relaunched 00:45:36Z.
