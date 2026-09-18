@@ -202,3 +202,17 @@ the model load itself refills the 4 GiB `/swap.img` with idle host pages (MemAva
 therefore trips after ~1 item per launch. Both remediations were refused by the session permission policy: relaxing the
 floor (guard-weakening) and adding a temporary 4 GiB swapfile (host change). Relaunch-per-item was not pursued (it would
 defeat the guard's intent and cycle serving every ~10 min). State: GPQA Q6_K+MTP 36/50 saved; serving restored 00:51:40Z.
+
+## 2026-09-18T14:35Z — agent shell failure diagnosed; shutdown and resume
+
+**Cause of the dead Bash tool (2026-09-17T05:16Z → reboot):** `/tmp` is a 7.1 GiB tmpfs mounted with `usrquota`. A
+workstation-side sync pushes `/tmp/cf-sync-{compass-forge,Skills}-*.jsonl` (~95 MB per ~15 min cycle, ~380 MB/h) over
+sftp as user `multivac` and never removes them. The quota filled at 2026-09-17T04:22:35Z (`sftp-server: … Disk quota
+exceeded` in the journal). Every Claude Code Bash call ends with `pwd -P >| /tmp/claude-<id>-cwd`; that write failed, so
+every command — including `echo ok` — returned a bare exit 1 with empty output, in subagents too. File tools and Monitor
+do not write there, which is why they kept working. The failure time (17 h after the 2026-09-16 12:12Z boot) matches the
+fill rate. Not a Claude Code bug; the reboot cleared the tmpfs.
+**Fix:** `/etc/tmpfiles.d/multivac-cf-sync.conf` (`e /tmp/cf-sync-*.jsonl - - - 2h`) and a drop-in making
+`systemd-tmpfiles-clean.timer` hourly (`/etc/systemd/system/systemd-tmpfiles-clean.timer.d/hourly.conf`).
+**Resume:** owner interrupted and powered off ~12:10Z; chain relaunched 14:33Z, `t4-gpqa-full-Q6_K-dflash2` resumed at
+`84 to do of 198` (114 answers on disk). Budget approval carried over; no re-pause.
