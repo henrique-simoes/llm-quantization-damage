@@ -318,3 +318,30 @@ At 4, a 252K-token multi-turn soak held at 5,294 MiB with rollbacks still costin
 
 The quantization decision, the fallbacks, and the decision rule. S9e's tie stands as the study's
 measurement at the full window; this amendment records the served configuration, not a new ranking.
+
+## Amendment 4 — 2026-09-19, served line moves to the S15 winner (owner decision)
+
+**The served line becomes UD-Q4_K_XL + DFlash2 n=7, q8_0 KV, on image 5268283a (ghcr.io/ggml-org/llama.cpp:server-cuda), alias `qwen3.8-27b-ud-q4k-xl`.** Q6_K + MTP n=4 on feb023 stays as the tested fallback (one checkout + restart away).
+
+```
+-m Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -ts 58,42 -c 262144 -fit off -fa on \
+   -ctk q8_0 -ctv q8_0 -b 2048 -ub 512 -np 1 -ctxcp 4 -cram 0 \
+   --spec-type draft-dflash -md dflash2-Q4_K_M -ngld 99 --spec-draft-n-max 7 -devd CUDA1
+```
+Container unchanged: `--memory 8g --memory-swap 8g` (winner peaks 1,714 MiB anon at 252K, far under the limit).
+
+### Why (all measured in S15, PN-86..98)
+
+- **Accuracy:** no separation on either instrument — AA-LCR resolved 83-87% vs 73-83% subsets, GPQA 88-90% full / 90-96% subsets, all inside Wilson overlap (PN-86/87/94/95). The drafter decision was never an accuracy decision; S15 confirms it at 262K with xhigh thinking.
+- **Speed:** DFlash2 +50-83% decode on long generations (T3 ~100K 29.8 vs 17.4, T4 39-49 vs 24-28 tok/s) at lower energy per request (PN-88). T3 selects DFlash2 on both quants.
+- **Memory:** T5 host 1.77 vs 5.38 GiB — drafter, not quant, sets host RAM (PN-84). On a 14 GiB host this is deployment-deciding, and it admits q8_0 KV with smaller weights.
+- **Gate:** serving-sampling soak `q4-dflash2-5268283a` FULL OK (252,525 tokens, peak anon 1,714 MiB, swap growth 0, regens 4x6), pilot OK; prompt `WINNER-OK` via proxy (finish stop, 78 tok/s short-prompt, acceptance 0.673); crash (`docker kill`) auto-restarted and reloaded healthy at n_ctx 262144.
+
+### What did not survive first contact
+
+- The winner does **not** load on the old serving image: feb023 rejects the DFlash2 file (`expected 81, got 58`, PN-25 recurrence) and OOM-fallbacks the compute alloc on `-ts 58,42`. Two-engine setup results: feb023 serves Q6+MTP only, 5268283a serves the winner (PN-98). `--help` listing `draft-dflash` is not capability (cf PN-57).
+- S15's `/srv/bench/models/dflash2-20250915/` copy is gone (empty dir); canonical drafter is `/srv/models/dflash2/`.
+
+### What does not change
+
+- `-c 262144`, `-sm layer`, `-ts 58,42`, `-ctxcp 4`, single slot, no-swap OOM policy, proxy wiring, unit name. Telemetry is model-agnostic; `targets.yml` lists both aliases (winner first).
