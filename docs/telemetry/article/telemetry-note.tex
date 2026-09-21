@@ -18,8 +18,8 @@
 
 \title{Serving Telemetry for Local LLM Inference:\\
 What Production Systems Measure, and How to Recover It from llama.cpp}
-\author{The multivac-paper project}
-\date{September 2026 \\ \small Technical note. Not peer reviewed.}
+\author{Luiz Henrique Sim\~oes\\ \small Independent researcher \\ \small\texttt{luizhenriquesimoes@usp.br} \textperiodcentered{} \texttt{simoeshz@gmail.com}}
+\date{September 2026 (deployment description revised 21 September) \\ \small Technical note. Not peer reviewed.}
 
 \begin{document}
 \maketitle
@@ -51,13 +51,20 @@ llama.cpp server log starts the same clock only when a slot begins prompt
 processing~\citep{llamacpp_server}. With a single decoding slot, the difference is the entire wait
 behind the previous request.
 
-The multivac-paper project is a measurement study of quantization, context length and speculative
-decoding for a 27B coding model on consumer hardware. Its host now serves that model continuously:
-a llama.cpp server running Qwen3.8-27B in a 6-bit GGUF quantization (UD-Q6\_K) with a
-262,144-token window, a 4-bit (q4\_0) KV cache, multi-token-prediction (MTP) speculative decoding
-with two draft tokens, and reasoning enabled by default. The host has two 16\,GB consumer GPUs with
-no GPU interconnect, so the model is split layer-wise across both cards. Host memory is smaller than
-the model file.
+This note accompanies a measurement study of quantization, context length and speculative decoding
+for Qwen3.8-27B on consumer hardware~\citep{simoes2026benchmarks}. The study's host serves that model
+continuously from a llama.cpp server with a 262,144-token window, one slot, and reasoning enabled by
+default. The host has two 16\,GB consumer GPUs with no GPU interconnect, so the model is split
+layer-wise across both cards. Host memory is smaller than the model file.
+
+Two served configurations appear in this note. The telemetry was built and verified on 14 September
+2026 against the first: a 6-bit GGUF build (UD-Q6\_K), a 4-bit (q4\_0) KV cache, and the model's
+built-in multi-token-prediction (MTP) drafter with two draft tokens. Since 19 September the host
+serves the configuration the study selected: a 4-bit build (UD-Q4\_K\_XL), an 8-bit (q8\_0) KV cache,
+and a separate block-diffusion drafter (DFlash2) with seven draft tokens, on a newer upstream
+llama.cpp build. Nothing in the design depends on which of the two is running; Section~\ref{sec:update}
+records what was re-checked after the change. All verification figures in Section~\ref{sec:verification}
+are from the first configuration and are labelled as such.
 
 This note records three things:
 \begin{enumerate}
@@ -227,7 +234,7 @@ durations, drafted and accepted tokens). \texttt{/slots} reports live per-slot p
 decode progress.
 \end{enumerate}
 
-\section{Adaptation for the multivac deployment}
+\section{Adaptation for this deployment}
 
 \subsection{Constraints}
 
@@ -328,7 +335,7 @@ GPU utilisation & NVML GPM streaming-multiprocessor utilisation and occupancy \\
 \end{tabularx}
 \end{table}
 
-\section{Lessons from a first deployment}
+\section{Lessons from a first deployment}\label{sec:verification}
 
 Before this work, a log-tailing exporter and a set of recording rules had been deployed. Checking them
 against the definitions above found the following.
@@ -381,7 +388,7 @@ cancelled within 0.25\,s.
 were empty for stated reasons:
 \begin{itemize}
 \item 18 were alerts not firing;
-\item 6 were conditional-acceptance positions that a two-token drafter cannot reach;
+\item 6 were conditional-acceptance positions that a two-token drafter cannot reach (the drafter in service when this was verified; see Section~\ref{sec:update});
 \item 1 was an idle-power helper, deliberately empty while traffic is recent.
 \end{itemize}
 All 156 dashboard queries parsed, and 150 returned data.
@@ -408,6 +415,33 @@ that.
 streaming requests. It includes templating, tokenisation and slot selection before the server's
 prefill clock starts. That time is real user-visible latency, but it is not queueing in the
 scheduling sense.
+
+\section{After the served configuration changed}\label{sec:update}
+
+On 19 September 2026 the served configuration changed in four respects at once: weight build, KV-cache
+precision, drafter (from an in-checkpoint MTP head to a separate DFlash2 model) and engine build. No
+telemetry component was modified for it. A read-only check of the metrics store on 21 September found:
+\begin{itemize}
+\item \textbf{Launch provenance followed the change on its own.} The sidecar's launch-information
+series reports the new cache type (q8\_0), speculative type (\texttt{draft-dflash}), maximum draft
+length (7), context size, split and engine image, and the server-information series reports the new
+engine build and model file. This is the purpose of exporting the launch line as labels: a dashboard
+can never silently describe a configuration that is no longer running.
+\item \textbf{Per-position acceptance now extends past position two.} With a seven-token drafter the
+per-position counters have reported positions zero to three over the past week, so the
+conditional-acceptance rules that were structurally empty under the two-token drafter can now return
+data. Positions four to six had not yet reported; whether that is traffic or a counter limit was not
+investigated.
+\item \textbf{One label went stale.} The human-readable \texttt{model} label still carried the
+previous configuration's alias while the model path beside it showed the new file. The alias comes
+from a static target list, not from the server. It is the same lesson as Section~\ref{sec:verification}
+in miniature: a label typed by hand is a claim to verify, and provenance should be read from the
+running process wherever that is possible.
+\end{itemize}
+The rule-coverage and hardware figures of Section~\ref{sec:verification} were not re-measured under
+the new configuration. Acceptance ratios are not comparable across the two drafters, because they
+divide by different draft lengths; mean accepted length is the comparable quantity, as the
+accompanying report discusses.
 
 \section{Limitations}
 

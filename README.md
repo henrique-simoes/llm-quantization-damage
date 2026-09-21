@@ -259,6 +259,16 @@ and the conditions it is contingent on: [`docs/paper/TRACK-A-DECISION.md`](docs/
 This is a **machine-specific operational answer and is kept separate from the report on purpose**.
 The report reports trade-off curves per objective; it does not inherit this priority ordering.
 
+## AI-assisted review
+
+The report in [`manuscript/tex/`](manuscript/tex/) was drafted with **Claude Fable 5.1** (Anthropic).
+Before release it went through two AI review passes: a numerical audit against the committed
+artifacts by a separate **Claude Fable 5.1** session, and an adversarial review of its arguments,
+statistics and novelty claims by **OpenAI Astra 6**. Their findings led to zero-GPU re-analysis
+recorded in paper notes PN-100 to PN-103. **This is not peer review**: no human expert has reviewed
+the report, and the author is responsible for all of its content. The same disclosure is in the
+report, Section 6.5.
+
 ## What the study does not show
 
 Stated here rather than buried, because an underpowered result reported as a ranking is worse than
