@@ -28,4 +28,4 @@ I understand if you would rather not; endorsement only states that the work is a
 category, not that you agree with it. Thank you for your time either way.
 
 Luiz Henrique Simões
-simoeshz@gmail.com
+luizhenriquesimoes@usp.br · simoeshz@gmail.com
