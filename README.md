@@ -1,6 +1,17 @@
-# Divergence Ranks What Benchmarks Bound
+# What Benchmarks Miss
 
-*Quantization, context and speculative decoding for a 27B coding model on two 16 GB GPUs.*
+*What quantization and speculative decoding really cost Qwen3.8-27B in accuracy, context length and
+generation speed — measured on two 16 GB consumer GPUs.*
+
+> **Honest disclosure of AI assistance.** This is a solo, **non-peer-reviewed** technical report. The
+> measurement campaign was run by an agent-driven harness under the author's direction, and the
+> manuscript was drafted with **Claude Fable 5.1** (Anthropic), numerically audited by a separate
+> Claude Fable 5.1 session, and adversarially reviewed by **OpenAI Astra 6**. No human expert has
+> reviewed it. The author, Luiz Henrique Simões, is responsible for all content. Commits co-authored
+> by an AI assistant are marked as such. Details: [AI-assisted review](#ai-assisted-review) and the
+> report's Section 6.5.
+
+**Read the report:** [`manuscript/tex/main.pdf`](manuscript/tex/main.pdf) (39 pages).
 
 **How much does quantization actually cost a coding model, and would you notice with the
 instruments the field usually reaches for?**
@@ -12,9 +23,10 @@ The short answer: across **twelve days, eight quantizations, three inference bac
 benchmark families**, the instruments the field normally reaches for could not separate neighbouring
 quantizations of this model — a 50-instance agentic suite *inverted* the ladder, perplexity spanned
 less than its own standard error, and a multiple-choice benchmark rated the most heavily quantized
-arm nominally highest. A token-level divergence measurement separated the three quantized arms from one another on code
-at **8.7–18.1 σ** — the two *adjacent* pairs at 8.67 σ and 11.82 σ, the ladder's extremes at
-18.13 σ — in about two GPU-hours. **The instrument decides whether there is anything to see.**
+arm nominally highest. A token-level divergence measurement ordered the three quantized arms in **30 to 32 of 32 paired
+windows** on both code and prose, with every paired interval excluding zero, in about two GPU-hours
+(PN-100; the token-level "8.7–18.1 σ" figure this README used to quote overstated the separation and is
+superseded). Divergence is a distance from a 6-bit reference, not a measure of lost quality. **The instrument decides whether there is anything to see.**
 
 The study is not only about quantization. It carries a four-day SWE-bench Verified campaign across
 three quants, two HumanEval+ ladders spanning seven configurations, a speculative-decoding
@@ -23,8 +35,8 @@ draft-depth sweeps at matched context, context-ceiling and tensor-split work, an
 comparison against vLLM NVFP4 and an SGLang attempt that never started.
 
 - **Deliverable** — [`manuscript/`](manuscript/) · outline and evidence map in
-  [`manuscript/OUTLINE-V2.md`](manuscript/OUTLINE-V2.md). **Status: measurement complete, not yet drafted.**
-- **Findings, individually cited** — [`docs/paper/PAPER-NOTES.md`](docs/paper/PAPER-NOTES.md) (PN-1…PN-69)
+  [`manuscript/OUTLINE-V2.md`](manuscript/OUTLINE-V2.md). **Status: drafted** — source in [`manuscript/tex/`](manuscript/tex/); the outline predates the second battery and is superseded by the draft.
+- **Findings, individually cited** — [`docs/paper/PAPER-NOTES.md`](docs/paper/PAPER-NOTES.md) (PN-1…PN-103)
 - **The deployment answer** — [`docs/paper/TRACK-A-DECISION.md`](docs/paper/TRACK-A-DECISION.md)
 - **How the work was run** — [`docs/build-stream/2026-08-30-quant-bench-trackA.md`](docs/build-stream/2026-08-30-quant-bench-trackA.md)
 
@@ -73,7 +85,7 @@ Mean KL divergence against the UD-Q6_K_XL reference, 65,536 tokens per cell:
 | UD-Q5_K_XL | 0.004465 ± 0.000281 | 0.010285 ± 0.000458 | 0.017285 | 3.87× |
 | UD-Q4_K_XL | 0.008207 ± 0.000340 | 0.021529 ± 0.000834 | 0.036129 | 4.40× |
 
-Monotone in every domain, adjacent arms separated at 3.7–11.8 σ. Against the <0.007 band published
+Monotone in every domain; paired by window, the closer build wins 30–32 of 32 windows (PN-100, which supersedes the token-level 3.7–11.8 σ figures). Against the <0.007 band published
 for high-quality deployment, **two of three arms pass on prose, one on generic code, and none on
 the actual task distribution** — and the prose-to-task amplification grows with
 aggressiveness (3.13× → 4.40×). ⚠️ That *widening* clause is an **upper bound**, not a
