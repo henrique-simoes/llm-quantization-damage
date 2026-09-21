@@ -3,333 +3,133 @@
 *What quantization and speculative decoding really cost Qwen3.8-27B in accuracy, context length and
 generation speed — measured on two 16 GB consumer GPUs.*
 
-> **Honest disclosure of AI assistance.** This is a solo, **non-peer-reviewed** technical report. The
-> measurement campaign was run by an agent-driven harness under the author's direction, and the
-> manuscript was drafted with **Claude Fable 5.1** (Anthropic), numerically audited by a separate
-> Claude Fable 5.1 session, and adversarially reviewed by **OpenAI Astra 6**. No human expert has
-> reviewed it. The author, Luiz Henrique Simões, is responsible for all content. Commits co-authored
-> by an AI assistant are marked as such. Details: [AI-assisted review](#ai-assisted-review) and the
-> report's Section 6.5.
-
-**Read the report:** [`manuscript/tex/main.pdf`](manuscript/tex/main.pdf) (39 pages).
-
-**How much does quantization actually cost a coding model, and would you notice with the
-instruments the field usually reaches for?**
-
-A measurement study of **Qwen3.8-27B** across four Unsloth GGUF quantizations on **two consumer
-16 GB GPUs**, run on a single consumer workstation. Its deliverable is a technical report for arXiv.
-
-The short answer: across **twelve days, eight quantizations, three inference backends and five
-benchmark families**, the instruments the field normally reaches for could not separate neighbouring
-quantizations of this model — a 50-instance agentic suite *inverted* the ladder, perplexity spanned
-less than its own standard error, and a multiple-choice benchmark rated the most heavily quantized
-arm nominally highest. A token-level divergence measurement ordered the three quantized arms in **30 to 32 of 32 paired
-windows** on both code and prose, with every paired interval excluding zero, in about two GPU-hours
-(PN-100; the token-level "8.7–18.1 σ" figure this README used to quote overstated the separation and is
-superseded). Divergence is a distance from a 6-bit reference, not a measure of lost quality. **The instrument decides whether there is anything to see.**
-
-The study is not only about quantization. It carries a four-day SWE-bench Verified campaign across
-three quants, two HumanEval+ ladders spanning seven configurations, a speculative-decoding
-comparison of **MTP against DFlash2** including a result that speculation is *not* output-identical,
-draft-depth sweeps at matched context, context-ceiling and tensor-split work, and a cross-backend
-comparison against vLLM NVFP4 and an SGLang attempt that never started.
-
-- **Deliverable** — [`manuscript/`](manuscript/) · outline and evidence map in
-  [`manuscript/OUTLINE-V2.md`](manuscript/OUTLINE-V2.md). **Status: drafted** — source in [`manuscript/tex/`](manuscript/tex/); the outline predates the second battery and is superseded by the draft.
-- **Findings, individually cited** — [`docs/paper/PAPER-NOTES.md`](docs/paper/PAPER-NOTES.md) (PN-1…PN-103)
-- **The deployment answer** — [`docs/paper/TRACK-A-DECISION.md`](docs/paper/TRACK-A-DECISION.md)
-- **How the work was run** — [`docs/build-stream/2026-08-30-quant-bench-trackA.md`](docs/build-stream/2026-08-30-quant-bench-trackA.md)
-
----
-
-## The setup
+## Read the papers
 
 | | |
 |---|---|
-| Model | Qwen3.8-27B, Unsloth Dynamic GGUFs |
-| Arms | UD-Q4_K_XL (17.56 GB) · UD-Q5_K_XL (20.88 GB) · UD-Q6_K (21.98 GB) · UD-Q6_K_XL (25.30 GB, reference) |
-| Host | `multivac` — 2× RTX 5060 Ti 16 GB (Blackwell sm120, **no NVLink**, 180 W cap), Ryzen 5 8500G, 14 GiB RAM, MSI B850M GAMING PRO WIFI6E (AMI `1.A10`), Ubuntu 26.04 LTS, NVIDIA `595.84` |
-| Engine | llama.cpp `llamacpp-mtp:latest`, 0.3.0-dev build 1 (`d222767`), image `sha256:feb0231976b6…` |
-| Instrument | `llama-perplexity --kl-divergence`, 65,536 tokens per domain per arm |
+| 📄 **The report** (39 pages) | **[`manuscript/tex/main.pdf`](manuscript/tex/main.pdf)** · LaTeX source in [`manuscript/tex/`](manuscript/tex/) |
+| 📄 **Companion note: serving telemetry for local LLM inference** (12 pages) | **[`docs/telemetry/article/telemetry-note.pdf`](docs/telemetry/article/telemetry-note.pdf)** · source alongside it |
 
-Two GPUs of 16 GB are not a 32 GB pool. Under `--split-mode layer` each layer's weights *and its
-slice of the KV cache* live on one card, so the binding limit is per-card — and that fact turns out
-to drive more of the results than the quantization does.
+The report is the study. The note is a short companion on how to measure a local llama.cpp server the
+way production serving systems are measured (latency decomposition, goodput, speculative-decoding
+counters, GPU energy), written from the telemetry built for this host.
 
-### What was actually measured
+> **Honest disclosure of AI assistance.** Both documents are solo, **non-peer-reviewed** technical
+> writing. The measurement campaign was run by an agent-driven harness under the author's direction.
+> The report was drafted with **Claude Fable 5.1** (Anthropic), numerically audited against the
+> committed artifacts by a separate Claude Fable 5.1 session, and adversarially reviewed by **OpenAI
+> Astra 6**; those passes led to the zero-GPU re-analysis in paper notes PN-100 to PN-103. No human
+> expert has reviewed either document. The author, Luiz Henrique Simões, is responsible for all
+> content. Commits co-authored by an AI assistant are marked as such. The same statement is in the
+> report, Section 6.5.
 
-The four arms above are the **divergence ladder** — the set carried through the final controlled
-comparison. They are not the extent of the study. Across the full twelve days:
+## What this is
 
-| axis | coverage |
-|---|---|
-| **Quantizations** | UD-Q3_K_XL · UD-IQ4_XS · UD-Q4_K_M · UD-Q4_K_XL · UD-Q5_K_XL · UD-Q6_K · UD-Q6_K_XL · NVFP4 (W4A4) — plus six more in the Q4–Q6 band left untested and named as such |
-| **Backends** | llama.cpp (two engine images) · vLLM (stable 0.27.1 and nightly) · SGLang 0.5.18 (**never started** — OOM at draft-worker init) |
-| **Task benchmarks** | SWE-bench Verified (50-instance, ~4 days) · HumanEval+ non-thinking · HumanEval+ thinking · HellaSwag n=400 · RULER long-context · agentic step counts |
-| **Logprob instruments** | KL divergence over 65,536 tokens/domain · WikiText-2 perplexity under **three** non-interchangeable protocols |
-| **Speculative decoding** | MTP at draft depths 1/2/4/8 · DFlash2 n=4 · EAGLE (via SGLang, infeasible) · acceptance vs depth vs context |
-| **Systems** | context ceilings per arm · tensor-split sweeps · KV dtype f16/q4_0/q8_0 · VRAM model · energy and thermals |
+A month of measurements of one open-weight model, **Qwen3.8-27B** in Unsloth Dynamic GGUF builds,
+on one desktop machine: **two RTX 5060 Ti 16 GB cards with no NVLink and 14 GiB of system RAM**. It
+asks what a person running this model locally actually gives up, and gains, when choosing a
+quantization, a KV-cache precision, a context length, a GPU split and a speculative decoder.
 
-⚠️ Everything before **2026-08-29** is labelled *irreproducible-on-current-images*: the engine image
-that produced every tensor-split and every 262,144-token result was deleted, and two GGUFs with it
-(PN-57). Those results are retained, labelled, and never mixed into a table with current ones.
+Every number is specific to this model, this machine and these llama.cpp builds. What should
+transfer is the method and the failure modes.
 
-## What the study found
+## What it found
 
-**1 — Quantization damage is domain-dependent, and the published view is the flattering one.**
-Mean KL divergence against the UD-Q6_K_XL reference, 65,536 tokens per cell:
+**Accuracy.** Task benchmarks did not resolve an accuracy ordering between a 4-bit and a 6-bit
+build. HellaSwag (n=400), HumanEval+ (n=164), SWE-bench Verified (n=50), GPQA Diamond (n=198) and
+the AA-LCR long-document set (n=100) all return overlapping intervals, and the nominal order flips
+between instruments. Paired, HumanEval+ bounds the 4-bit to 6-bit difference at −0.6 points with a
+95 % score interval of [−4.2, +2.7]. Mean KL divergence from a 6-bit reference, by contrast, orders
+every adjacent pair of builds in 30 to 32 of 32 paired windows, in about two GPU-hours. It is about
+twice as large on code as on prose and strongly right-skewed: most tokens barely move and a thin
+tail moves a lot. **Divergence is a distance from a quantized reference, not a measure of lost
+quality**; the task benchmarks are the only evidence here about whether it matters, and at their
+sample sizes they bound the difference without ranking it.
 
-| arm | WikiText-2 (prose) | django (code) | HumanEval+ prompts (task) | task ÷ prose |
-|---|---|---|---|---|
-| UD-Q6_K | 0.003321 ± 0.000126 | 0.005829 ± 0.000233 | 0.010403 | 3.13× |
-| UD-Q5_K_XL | 0.004465 ± 0.000281 | 0.010285 ± 0.000458 | 0.017285 | 3.87× |
-| UD-Q4_K_XL | 0.008207 ± 0.000340 | 0.021529 ± 0.000834 | 0.036129 | 4.40× |
+**Context.** The model's native 262,144-token window fits on 2×16 GB, but for three of four builds
+only after rebalancing llama.cpp's layer split by hand (`-ts`); the best ratio does not transfer
+between neighbouring builds. The KV cache costs exactly 64 / 34 / 18 KiB per token at f16 / q8_0 /
+q4_0 on this hybrid-attention model. The 4-bit build holds the full window with an 8-bit cache; the
+6-bit build only with a 4-bit cache. Three distinct failure modes were seen (out of memory at load,
+a hang during initialisation, and death at the first speculative draft after a complete prefill),
+and the only serving outage was caused by **host RAM**, not VRAM: context checkpoints grow to about
+1.1 GiB each at 252K tokens.
 
-Monotone in every domain; paired by window, the closer build wins 30–32 of 32 windows (PN-100, which supersedes the token-level 3.7–11.8 σ figures). Against the <0.007 band published
-for high-quality deployment, **two of three arms pass on prose, one on generic code, and none on
-the actual task distribution** — and the prose-to-task amplification grows with
-aggressiveness (3.13× → 4.40×). ⚠️ That *widening* clause is an **upper bound**, not a
-reference-invariant result: it shrinks ~16 % under a plausible reference correction and vanishes in
-the limit. The *level* — code roughly twice prose — is invariant. (PN-13, PN-14, PN-21)
+**Speed.** At the full window a smaller build is not measurably faster. Speculative decoding is
+worth 3.4–4.2× at 32K filled tokens and 7.4–7.7× at 246K. On one upstream llama.cpp build, the
+DFlash2 block-diffusion drafter at its design depth (7) decodes 45–65 % faster than the model's
+built-in multi-token-prediction head at every depth measured, and uses 3.6 GiB less host RAM; at a
+shared shallow depth the two are indistinguishable.
 
-**2 — A task battery is structurally insensitive to this, not merely underpowered.**
-HellaSwag at n=400 on all four arms: 82.75 / 82.25 / 82.75 / 83.25 % — a 1.0-point spread inside
-~7.4-point intervals, with the **most quantized arm scoring nominally highest**. A paired McNemar
-analysis on the identical task set finds UD-Q6_K_XL and UD-Q5_K_XL answering **all 400 items
-identically**. More tasks would narrow the intervals and fix nothing: multiple-choice scoring
-depends only on an argmax over a few candidates, so it is robust to exactly the distribution shift
-that changes generated code. **Decided the conventional way, this study would have concluded "no
-meaningful difference" and picked the cheapest arm.** (PN-22)
+**Speculative decoding is not output-identical here.** At temperature 0 with a fixed seed it changes
+33 of 164 HumanEval+ completions, and both configurations reproduce themselves byte-for-byte a day
+later. Task accuracy does not move. The mechanism is not established; batch-shape numerics is the
+leading explanation. Treat the speculative setting as part of the configuration under test.
 
-**3 — For most arms, the usable context ceiling is set by the GPU split rather than the
-quantization.** UD-Q5_K_XL **fails to load** at 262,144 tokens at the engine's default split and
-loads at five different `-ts` ratios (PN-6); UD-Q6_K likewise fails at the default and loads at
-`58,42`. ⚠️ **Scope (PN-39): UD-Q4_K_XL loads at 262,144 on the default split**, so the effect is
-not universal — it holds for two of the four arms, UD-Q6_K_XL was never attempted at the default
-at that length, and each default-split failure is a *single* attempt. UD-Q6_K_XL reaches 212,992 at `56,44` against a previously published
-131,072 (PN-7). The default placement had been stranding up to 3,333 MiB on one card while the
-other OOMed within 671 MiB of its wall — on this host the binding limit is per-card, and the
-earlier rebalance measurement that opened this line of enquiry recovered **+33 % context and +93 %
-decode at once** from that one flag (E11c, machine log). The optimum is quant-specific and **not
-monotone-safe** — `54,46` fails where `58,42` loads. A ceiling published without its split is a
-property of the split, not of the model.
+**Protocol decides the number.** One checkpoint scored "29 % worse" or "0.8 % worse" in perplexity
+than the same comparison ladder depending only on corpus file, window count and scoring rule. A
+"significant" long-context retrieval loss turned out to measure a 128-token output budget, not
+retrieval. A drafter looked dominated until it ran on the right engine build, at the right depth,
+for more than 17 tokens.
 
-**4 — Speed does not discriminate the ladder.** At the full window the three arms that reach it
-over *true* repetition groups (same arm, same context, same split) the arms span
-**11.71–12.70 tok/s, about 6.74 %**, against a within-configuration spread reaching **40.7 %**
-(PN-45 — PN-36's "46.7 %" silently switched estimator, and its group mixed `-ctxcp 4` and `32`). The usual case for quantizing down ("meaningfully faster for slightly less
-accurate") does not hold here: the cheaper arm is **only** less accurate. It earns its place on
-VRAM footprint alone. (PN-19)
+**The study corrected itself sixteen times**, fourteen at no GPU cost because per-item records were
+kept. The retractions, and the three families of harness defect behind them, are Section 14 of the
+report and are offered as method.
 
-**5 — Speculative decoding is not output-identical, contrary to the standing assumption.**
-At temperature 0 with a fixed seed, MTP reproduces the unspeculated baseline byte-exactly on
-**131 of 164** HumanEval+ problems — about one generated function in five differs. The control has since been run and settled it
-the other way: **both configurations reproduce *themselves* byte-identically** across runs a day
-apart, so the divergence is deterministic and systematic, not numerical noise. Speculation here is
-a reproducibly *different* decode path, not an approximation that drifts (PN-26). Either way, **a speculative
-configuration is part of the accuracy configuration, not a free speed knob.** (PN-23)
+## The configuration that came out of it
 
-**6 — The KV-cache quantization everything rests on is not free.** `q4_0` KV — the dtype without
-which none of these context ceilings exist — costs 0.002955 ± 0.000127 KLD against f16, i.e. **51 %
-of the divergence of dropping a whole quantization level**. Defensible; not free; and it must be
-quoted with every accuracy claim. Perplexity on the identical pair moves +0.15 %, a clean
-demonstration of the averaging bias that makes PPL a poor quantization metric. (PN-15)
-
-**7 — The same weights, measured two defensible ways, differ 36-fold in reported damage.**
-One checkpoint scored against the same benchmark corpus reads **+29 % worse** than its comparison
-ladder under one perplexity protocol and **+0.8 % worse** under another — a 36× swing in the
-estimated effect, attributable to corpus file, window coverage and scoring rule alone. The intuitive
-explanation, tokenizer mismatch, was tested and **disproven**: the two tokenizations agree exactly.
-Three protocols exist in this study and must never share a table. (PN-49)
-
-**8 — Across twelve days, the instruments the field reaches for did not separate this ladder.**
-Corpus perplexity spans **0.033** across four arms against a per-point standard error of **0.041**.
-HumanEval+ at n=164 is monotonic but its three upper rungs sit inside a ±4.6-point interval.
-SWE-bench Verified at n≈50 **inverts** the ladder outright — 77.6 / 76.0 / 75.5 % — on a ±12-point
-bootstrap interval, so the inversion carries no information. And the one arm that leads every cheap
-instrument in the study (fastest configuration measured, acceptable HumanEval+) reached the agent
-step limit on **6 of 6** instances where the reference converged on 6 of 6. Single-shot benchmarks
-did not predict agentic competence. (PN-46, PN-48, PN-50, PN-51)
-
-## The benchmark campaign
-
-Five benchmark families, run across more quantizations than the divergence ladder carries. **None of
-them separated adjacent arms.** That is the finding, and it cost far more GPU time than the result
-that did.
-
-**SWE-bench Verified — the most expensive instrument, and it inverts the ladder.** Roughly four days
-of agentic evaluation across three quantizations, scored from per-instance `report.json` rather than
-the concatenated log:
-
-| arm | resolved | scored | rate | 95 % CI |
-|---|---|---|---|---|
-| UD-IQ4_XS | 38 | 49 | **77.6 %** | [64.1, 87.0] |
-| UD-Q5_K_XL | 38 | 50 | **76.0 %** | [62.6, 85.7] |
-| UD-Q6_K | 37 | 49 | **75.5 %** | [61.9, 85.4] |
-
-The cheapest arm ranks first, reversing the perplexity and HumanEval+ ordering — and the ordering is
-noise: the three span 2.1 points where one instance is worth ~2, inside a ±12-point interval. Three
-*superseded generations* of these numbers exist, because scoring on an ARM64 host silently
-under-counted instances whose evaluation images have no `linux/arm64` manifest. (PN-50, T16)
-
-**HumanEval+, two ladders, seven configurations, n=164 each.** Non-thinking greedy is monotonic in
-bit-width and matches the perplexity ordering — Q3_K_XL 81.7 → IQ4_XS 87.8 → Q5_K_XL 90.9 →
-Q6_K_XL 91.5 on the plus metric — but only the Q3→IQ4 step (6.1 pts) exceeds the ±4.6-point interval;
-the Q5→Q6 step is a single problem. A **context-length control** in the same series scores identically
-at ctx 32,768 and 131,072 (93.3/90.2 both), so window size does not move short-prompt accuracy.
-
-With **reasoning enabled**, every arm scores *lower*, and the fidelity signal is carried almost
-entirely by **failure to terminate** rather than by wrong code — empty-response rate falls
-monotonically with fidelity (IQ4_XS 12.8 % → Q4_K_XL 12.2 % → Q5_K_XL 11.0 % → Q6_K_XL 7.9 %) while
-three of four arms score *identically* at 86.0. A thinking-mode benchmark is partly measuring a
-budget-exhaustion process. (PN-46, PN-47, F15, T15)
-
-**HellaSwag n=400** spans 1.0 point across four arms with the most quantized nominally highest, and
-two arms answer **all 400 items identically**. **RULER** at 131,072 is saturated for both arms on
-single-needle retrieval, and its multi-key result turned out to measure output-budget closure rather
-than retrieval (PN-60). **Agentic step counts** are non-monotonic across the full ladder: the
-cheapest converging arm reaches a solution in roughly half the steps of the most accurate one.
-
-## Speculative decoding — a configuration axis, not a free speed knob
-
-**MTP against DFlash2 at ctx 32,768**, same 164 problems, greedy, fixed seed:
-
-| config | decode tok/s | speedup | acceptance | byte-exact vs baseline |
-|---|---|---|---|---|
-| no-spec | 18.46 | 1.00× | — | 164/164 *(self-repeat, one day later)* |
-| MTP n=2 | 37.44 | 2.03× | 0.954 | **131/164 (79.9 %)** |
-| MTP n=4 | 47.03 | 2.55× | 0.892 | **131/164 (79.9 %)** |
-| DFlash2 n=4 | **51.78** | **2.81×** | 0.917 | 132/164 (80.5 %) ⚠️ |
-
-⚠️ The DFlash2 row is **engine-confounded** — the drafter is bound to its own engine build, so that
-arm ran on a different image than its baseline. It is the fastest configuration measured on the
-ladder and it cannot be cleanly compared to the MTP rows.
-
-**Speculation is not output-identical on this stack.** At temperature 0 with a fixed seed, MTP
-reproduces the unspeculated baseline byte-exactly on only **131 of 164** problems — about one
-generated function in five differs — while both configurations reproduce *themselves* byte-identically
-across runs a day apart. The divergence is deterministic and systematic, not numerical drift. This
-refuted a premise the study had carried for nine days, and which had been used to *skip*
-measurements as unnecessary. (PN-23, PN-26, PN-59, F5, T13)
-
-**Deeper drafting is not reliably faster.** At a matched 131,072 tokens across four arms, acceptance
-falls with draft depth as it must — but decode does not improve monotonically, and on UD-Q6_K the
-n=8 arm is *slower* than n=2 (15.3 vs 18.5 tok/s) at acceptance 0.251. Draft depth must be tuned per
-quantization, and the ratio's fall is close to arithmetic rather than informative. (PN-9, PN-32
-scoped by **PN-66**, F14, T14)
-
-**A 1.19 GiB wall stops separate drafters on 16 GB cards — on two engines of the three tried.**
-SGLang's EAGLE never started at any context, and vLLM's DFlash2 with a 3.6 GB BF16 drafter failed at
-every GPU-utilisation setting from 0.78 to 0.97, both with an *identically sized* 1.19 GiB
-allocation. **llama.cpp succeeds** at 38.51 tok/s with a 1.1 GB 4-bit GGUF drafter — differing in
-exactly the two ways the mechanism predicts: a quantized drafter, and layer-split pipelining that
-leaves per-card headroom tensor-parallel replication does not. MTP sidesteps the wall entirely,
-because its predictor lives inside the checkpoint rather than in a second model.
-(PN-53 corrected by **PN-69**, PN-54)
-
-**Cross-backend, one probe.** vLLM NVFP4 reaches a higher *speedup* (3.31× at MTP n=4) from a much
-slower baseline, and lands within 7 % of llama.cpp's best absolute figure. A speculative speedup
-ratio is meaningless without its baseline. MTP acceptance cross-validates across engines at matched
-depth (0.728 vs 0.709), which is the best evidence that acceptance is a property of the draft head
-rather than of either implementation. (PN-55, F18, T17)
-
-## Where this report corrects itself
-
-Three headline claims were withdrawn or scoped by this project's own re-analysis, at no GPU cost,
-after the measurements were complete. They are listed here rather than in an appendix because the
-corpus's central argument is about what instruments can and cannot show:
-
-- **The long-context result was measuring the wrong thing.** A multi-key retrieval battery at
-  131,072 tokens appeared to show the 4-bit arm losing 10 points (p = 0.002). Re-analysed: the
-  harness ran with a 128-token output budget and reasoning enabled, so **every failure in both arms
-  is a truncation** — `closed-and-wrong` is exactly **zero** across all fourteen cells. On the 55 of
-  100 items where neither arm's budget bound, **both score 55/55 with zero discordance**. The real,
-  still-separated effect is budget closure (77 vs 60, p = 0.0015): reasoning verbosity, not
-  retrieval. Retrieval at that depth is now *unanswered*, not answered. (PN-60, PN-63)
-- **The tail structure is a corpus property, not a quantization property.** Normalised by its own
-  mean, the KV-dtype-only control — no weight quantization at all — shows p99/mean of **22.9** on
-  code against **24.3–26.1** for the quantized arms, with prose flat at **8.4–8.6** throughout.
-  Quantization moves the *magnitude*; the corpus sets the *shape*. (PN-62)
-- **A draft-acceptance figure of 1.000 at 259K tokens was an artifact** of 50-token generations over
-  34 draft events. Rows that actually generated 1,024 tokens record 0.92 and 0.55. (PN-61)
-
-## The deployment answer
-
-For this host, prioritising accuracy → context → tok/s:
+For this host, prioritising accuracy, then usable context, then speed (report Section 13):
 
 ```bash
--m Qwen3.8-27B-UD-Q6_K.gguf -ngl 99 -sm layer -ts 58,42 -c 262144 -fit off -fa on \
-   -ctk q4_0 -ctv q4_0 -b 2048 -ub 512 -np 1 -ctxcp 32 \
-   --spec-type draft-mtp --spec-draft-n-max 2
+llama-server -m Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -ts 58,42 \
+  -c 262144 -fit off -fa on -ctk q8_0 -ctv q8_0 -b 2048 -ub 512 \
+  -np 1 -ctxcp 4 -cram 0 \
+  --spec-type draft-dflash -md Qwen3.8-27B-DFlash2-Q4_K_M.gguf \
+  -ngld 99 --spec-draft-n-max 7 -devd CUDA1
 ```
 
-Full 262,144-token window at Q6 fidelity, **11.90 tok/s** at 95 % window depth (median of 3).
-An earlier revision pinned `n-max 4` at "16.8 tok/s"; that measurement timed **17 generated tokens
-rather than 192** and is withdrawn — see `TRACK-A-DECISION.md` Amendment 2. Fallbacks, the evidence
-and the conditions it is contingent on: [`docs/paper/TRACK-A-DECISION.md`](docs/paper/TRACK-A-DECISION.md).
+Full 262K window, about 28 tok/s at 246K filled tokens in the matched-depth probe, 1.7 GiB of host RAM under a 252K-token
+multi-turn soak. The tested fallback is UD-Q6_K with a q4_0 cache and MTP at depth 4. This selects a
+complete serving configuration for one machine, not "the better quantization". Its history, including
+the configurations it replaced, is in [`docs/paper/TRACK-A-DECISION.md`](docs/paper/TRACK-A-DECISION.md).
 
-This is a **machine-specific operational answer and is kept separate from the report on purpose**.
-The report reports trade-off curves per objective; it does not inherit this priority ordering.
+## What it does not show
 
-## AI-assisted review
+- **No full-precision reference.** BF16 weights do not fit the host, so every divergence is a
+  distance from a 6-bit build, on prompt tokens, at 2K tokens of context, on two corpora.
+- **Long-context task accuracy is thinly measured.** RULER's multi-key retrieval question at 131K is
+  open; AA-LCR covers about 100K tokens at n=100; no code-editing task was evaluated at depth.
+- **The 4-bit KV cache is validated only at short context**, and outside evidence suggests much
+  larger effects at depth. In the second battery, build and cache precision change together.
+- **Nulls are not equality.** A one- or two-point accuracy difference could exist and would be
+  invisible to every task instrument run here.
+- **Everything before 2026-08-29 is marked historical**: the engine image that produced it was
+  deleted, so those rows cannot be reproduced on current builds and are never mixed with later ones.
+- One model, one machine, one engine family, mostly one seed, single-stream speed only, no wall-power
+  sensor. The model card's own benchmarks (LiveCodeBench, SWE-bench Pro, Terminal-Bench) were not run.
 
-The report in [`manuscript/tex/`](manuscript/tex/) was drafted with **Claude Fable 5.1** (Anthropic).
-Before release it went through two AI review passes: a numerical audit against the committed
-artifacts by a separate **Claude Fable 5.1** session, and an adversarial review of its arguments,
-statistics and novelty claims by **OpenAI Astra 6**. Their findings led to zero-GPU re-analysis
-recorded in paper notes PN-100 to PN-103. **This is not peer review**: no human expert has reviewed
-the report, and the author is responsible for all of its content. The same disclosure is in the
-report, Section 6.5.
-
-## What the study does not show
-
-Stated here rather than buried, because an underpowered result reported as a ranking is worse than
-no result:
-
-- **Long-context task accuracy is unresolved for every arm.** Task outputs at 131K *do* exist —
-  248 items across six RULER cells in `data/raw/e12/ruler/` — but the one battery that appeared to
-  separate the arms was measuring output-budget exhaustion rather than retrieval: not one item in
-  the entire battery was closed-and-wrong, and across the 55 of 100 items where neither arm's
-  output budget bound, both arms score 55/55 with zero discordance. Retrieval at 131K is therefore
-  **unanswered, not answered negatively** — settling it needs a re-run at a generous `n_predict`
-  with thinking disabled, which the harness cannot do on the `/completion` endpoint it used. This
-  is the largest hole. (PN-60, PN-63)
-- **No multiple-comparisons correction is applied across the study's ~19 hypothesis tests.** Under
-  Holm and Benjamini–Hochberg all 11 positive results survive, but the weakest separation (3.71 σ)
-  does not survive Bonferroni once clustering is allowed for — so "3.7–11.8 σ" quotes a range whose
-  lower endpoint is fragile.
-- **Divergence is ladder-relative** — measured against UD-Q6_K_XL because no FP16 reference fits
-  the host. These are distances along the ladder, not from the unquantized model.
-- **Divergence is measured on prompt tokens** — it ranks distribution shift, not generated-code
-  quality. The paired generative anchor was never run.
-- **Two single-domain corpora**, one model family, one host, one engine image.
-- **Absolute scores are not comparable to published numbers**: logprob instruments run greedy,
-  while the model's official presets are temp 0.7 (instruct) and 1.0 (thinking).
-
-## Repository layout
+## Where things are
 
 ```
-manuscript/          the arXiv report — the deliverable
-  figures/           figure programme, tables, per-figure CSVs + extract.py
-  references/        provenance, metric corpus, timeline, references.bib
-  review/            four blind reviews, retained unedited
-docs/
-  paper/             findings: PAPER-NOTES (PN-1..69), method references, the Track A decision
-  build-stream/      how the work was run: the plan, its decision log (DEC-*) and ledger (L-*)
-data/
-  raw/e12/           current evidence — artifacts, logs, quarantine, harness source
-  raw/historical/    pre-E12 per-instance evidence (EvalPlus, perplexity, SWE-bench)
-  archive/           pre-E12 historical evidence, superseded but never deleted
-  multivac-src/      read-only mirrors of documents the machine owns
-tools/               sync-multivac.sh (active) · retired/ (the halted conductor subsystem)
+manuscript/tex/            the report: LaTeX source and main.pdf
+manuscript/arxiv-submission/   the flat arXiv upload package
+docs/telemetry/article/    the companion telemetry note: source and PDF
+docs/paper/                findings, one note each: PAPER-NOTES.md (PN-1..PN-103), method references,
+                           the configuration decision and its amendments
+docs/build-stream/         how the work was run: plan, decision log (DEC-*), ledger (L-*)
+data/raw/e12/              evidence: per-cell artifacts, harness source, quarantined data,
+                           s15/ (second battery), ssa/ (divergence)
+data/raw/historical/       per-instance evidence from before 2026-08-29
+data/archive/, data/multivac-src/   superseded summaries and read-only mirrors of the host's own logs
+tools/analysis/            re-analysis scripts
 ```
 
-Machine-side: `/srv/bench/e12/` (current wave), `/srv/bench/` (all prior results, never deleted),
-`/srv/models` + `/srv/bench/models` (GGUFs).
+The trail from any number in the report runs: report section → paper note → artifact. Notes that turned
+out wrong are still there, marked as superseded by the note that corrected them.
 
 ## Data availability
 
-Everything the report's claims rest on is in this repository. What is not here is either
+Everything the report's claims rest on is in this repository, with one class of exception named below (raw server logs). What is not here is either
 regenerable from what is, or too large to distribute — and in both cases it is pinned by checksum,
 so a third party can verify they hold the same bytes.
 
@@ -339,6 +139,8 @@ so a third party can verify they hold the same bytes.
 | **Evaluation harness** | `data/raw/e12/harness-src/` | The exact scripts that produced the cells — not a cleaned-up rewrite. |
 | **Figure data** | `manuscript/figures/data/` | One CSV per figure, plus `INDEX.csv` and `extract.py`, which regenerates every CSV from the raw layer. |
 | **Environment provenance** | `data/raw/e12/env-manifest.json` | Engine images by RepoDigest; GGUFs by sha256 and byte count. |
+| **Second battery** | `data/raw/e12/s15/` | Context × KV map, matched-depth speed probe, soak records, three judge outputs, and `answers-meta/`: 756 AA-LCR and GPQA answer records with all benchmark and model text removed (ids, configuration, timings, energy, correctness). |
+| **Re-analysis** | `tools/analysis/`, `data/raw/e12/ssa/ssa-kld-paired-windows.json` | The paired window-level divergence analysis (PN-100) and its script. |
 | **Energy series** | `data/raw/e12/power-log.csv.gz` | 778,727 rows at 1 Hz, 2026-08-27 to 2026-09-05. Datasheet alongside it. |
 | Model weights | *not distributed* | Published Unsloth GGUFs, 17–25 GB each; pinned by sha256 in the env manifest. |
 | Divergence bases | *not distributed* | `.kld` logit files, ~11 GB each; regenerable with the harness. |
@@ -352,17 +154,11 @@ fetch the GGUF whose sha256 matches the manifest, re-issue the command.
 mixed into a table with current ones: the engine image behind every tensor-split and every
 262,144-token result was deleted, along with two GGUFs (PN-57).
 
-**Paths in raw logs.** Raw logs contain absolute paths of the form `/home/multivac/…`. `multivac`
-is the measurement host, documented in *The setup* above; the Linux account carries the same name.
-Raw artifacts are published exactly as they were written and are not edited after the fact.
+**Paths in raw logs.** Raw artifacts contain absolute paths of the form `/home/multivac/…` and
+`/srv/bench/…`. `multivac` is the name of the measurement host and of its Linux account. Raw artifacts
+are published as they were written and are not edited after the fact.
 
-## Working in this repository
+## Citing and licence
 
-The ownership map, the hard rules and the configuration facts that are easy to get wrong live in
-`CLAUDE.md` and `AGENTS.md`. Those two files are **held back from the public repository for now**;
-nothing in them is a credential, and nothing published here depends on them. Everything the
-measurement rests on — the evidence base, the decision log, the harness and the raw artifacts —
-is in the tree.
-
-Git syncs to a bare repository on the host and to this public remote. The measurement record,
-including withdrawn claims and the instrumentation-defect register, is published in full.
+See [`CITATION.cff`](CITATION.cff). Text and data are CC BY 4.0; code is under the licence in
+[`LICENSE-CODE`](LICENSE-CODE). Correspondence: luizhenriquesimoes@usp.br · simoeshz@gmail.com.
