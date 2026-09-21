@@ -1,0 +1,172 @@
+\section{Context: fitting 262{,}144 tokens into two 16\,GB budgets}\label{sec:context}
+
+\subsection{What the KV cache costs on this architecture}
+Qwen3.8-27B is a hybrid model: of its 64 layers only every fourth uses full attention, and only those
+16 layers keep a KV cache. With 4 KV heads of dimension 256, a token costs $2\times16\times4\times256
+= 32{,}768$ cached elements. In llama.cpp's block formats that is exactly \textbf{64\,KiB per token at
+\flag{f16}, 34\,KiB at \flag{q8\_0} and 18\,KiB at \flag{q4\_0}}, summed over both cards. At the native
+262{,}144 tokens the cache is 16.0, 8.5 or 4.5\,GiB. The server log confirms it
+(\texttt{llama\_kv\_cache: size = 4608.00 MiB (262144 cells, 16 layers)} at \flag{q4\_0}). The
+remaining 48 layers carry a fixed recurrent state of 449\,MiB regardless of length. MTP adds a
+one-layer draft cache that is always \flag{f16}: 1{,}024\,MiB at the full window. A dense 27B model
+with 64 attention layers would need four times as much, so the hybrid design is what makes 262K tokens
+thinkable on this hardware.
+
+An earlier ``VRAM model'' in my own notes, fitted to measurements from the deleted tensor-split build,
+had per-GPU rates that were not per-token KV at all, and predicted ceilings that did not reproduce. The
+arithmetic above replaced it. It is only part of the footprint: compute buffers, the drafter and
+per-card placement decide the real ceiling, which has to be measured.
+
+\subsection{The default split strands memory; a manual split recovers it}\label{sec:ts}
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[paper,xbar stacked,height=5.0cm,width=0.66\linewidth,bar width=9pt,
+  ytick={1,2,4,5},ymin=0.3,ymax=5.7,
+  yticklabels={{default split (ceiling 196{,}608) \ GPU1},{GPU0},{\flag{-ts 58,42} (ceiling 262{,}144) \ GPU1},{GPU0}},
+  yticklabel style={font=\scriptsize},
+  xmin=0,xmax=17500,xlabel={peak VRAM after deep prefill (MiB)},
+  scaled x ticks=false,xticklabel style={/pgf/number format/1000 sep={,}},
+  legend style={at={(0.5,1.04)},anchor=south,legend columns=2}]
+\addplot[fill=cbblue!75,draw=cbblue!60!black] coordinates {(15640,1) (12978,2) (15082,4) (15322,5)};
+\addplot[fill=black!10,draw=black!40,postaction={pattern=north east lines,pattern color=black!35}] coordinates {(671,1) (3333,2) (1229,4) (989,5)};
+\legend{used,free (unreachable from the other card)}
+\draw[cbred,dashed,line width=0.8pt] (axis cs:16311,0.3) -- (axis cs:16311,5.7);
+\end{axis}
+\end{tikzpicture}
+\caption{\Qsix{} with MTP and \flag{q4\_0} KV, build E-A, greedy. At the engine's default layer split
+the largest window that worked was 196{,}608 tokens: GPU1 was 671\,MiB from its limit while 3.3\,GiB
+sat idle on GPU0. Moving layers to GPU0 with \flag{-ts 58,42} reaches the native 262{,}144 with both
+cards within 1.3\,GiB of full. The dashed line is the 16{,}311\,MiB card limit.}\label{fig:vram}
+\end{figure}
+
+Under layer split the last card also holds the output head and, with MTP, the draft context, so the
+default placement overloads GPU1. \Cref{fig:vram} shows the effect for \Qsix. One flag moved the ceiling
+from 196{,}608 to 262{,}144 tokens.
+
+\begin{table}[t]
+\centering\small
+\caption{Context ceilings, first battery: MTP $n{=}2$, \flag{q4\_0} KV, layer split, \flag{-fit off},
+official non-thinking sampling, 192-token generation after a $\geq$94.7\,\% prefill. Failures at
+262{,}144 are single attempts except where noted; all are compute-buffer out-of-memory errors read from
+the saved server log.}\label{tab:ceilings}
+\shrinktofit{\begin{tabular}{@{}lrlllr@{}}
+\toprule
+build & ceiling & splits that load & splits that failed & engine default & GPU0 / GPU1 MiB \\
+\midrule
+\QsixXL & 212{,}992\textsuperscript{a} & 56,44 & (at 196K) default, 52,48, 54,46, 58,42 & not tried at ceiling & 15{,}656 / 15{,}414 \\
+\Qsix   & 262{,}144 & 58,42; 56,44 & default, 54,46, 60,40, 62,38 & \textbf{fails} & 15{,}322 / 15{,}082 \\
+\Qfive  & 262{,}144 & 54,46 to 62,38 (five) & default & \textbf{fails} & 14{,}660 / 15{,}402 \\
+\Qfour  & 262{,}144 & default; 56,44 & --- & \textbf{loads} & 12{,}116 / 15{,}094 \\
+\bottomrule
+\multicolumn{6}{@{}l}{\footnotesize\textsuperscript{a}\,Bracketed: 229{,}376 failed twice. The other three reach the model's maximum, so no rung exists above them.}
+\end{tabular}}
+\end{table}
+
+\Cref{tab:ceilings} gives all four builds. Three findings.
+
+\textbf{For three of four builds the split, not the quantization, set the reachable window.} \Qfive{}
+and \Qsix{} fail at the default split and reach the native maximum once rebalanced; \QsixXL{} goes from
+131{,}072 (its earlier default-split ceiling) to 212{,}992. The smallest build is the counter-example:
+it loads at the default. I first wrote this finding as ``the ceiling is a property of the split'' for
+the whole ladder; review found the counter-example in my own data. A published context ceiling without
+its split is incomplete either way.
+
+\textbf{The best split does not transfer.} \Qsix{} wants \flag{58,42}. On \QsixXL{} that same ratio
+overshoots (GPU0-heavy by 2.2\,GiB) and only \flag{56,44} loads; on \Qsix, \flag{54,46} fails while
+ratios on both sides of the working pair also fail. The relationship is not monotone. Re-sweep after
+any change of build, KV precision or speculative setting.
+
+\textbf{Balanced is not fastest.} On \Qfive{} at the full window the most balanced split (28\,MiB
+apart) decoded at 8.50\tps; four other splits with 166 to 1{,}750\,MiB of imbalance clustered at
+10.4--10.8\tps. The outlier is a single reading and unexplained. The rule that survives: keep the
+fastest split that loads, not the most balanced one. Otherwise the split has little effect on speed:
+with the generated text held fixed, it moved decode by at most 5.7\,\% in 11 of 12 groups.
+
+\subsection{The full map: context $\times$ KV precision $\times$ drafter}\label{sec:kvmap}
+
+\begin{table}[t]
+\centering\small
+\caption{Largest window that loads, reports the requested size, prefills $\geq$94\,\% and generates
+512 tokens. Second battery, upstream build E-C, layer split at each cell's best ratio, 71 launch
+attempts; every ceiling below the native window is bracketed by a rung above it that failed twice. DFlash2 cells place the drafter
+on GPU1 (\flag{-devd CUDA1}). Bold: the full native window.}\label{tab:kvmap}
+\shrinktofit{\begin{tabular}{@{}llrrr@{}}
+\toprule
+build & drafter & \flag{q4\_0} KV (18 KiB/tok) & \flag{q8\_0} KV (34 KiB/tok) & \flag{f16} KV (64 KiB/tok) \\
+\midrule
+\Qsix & MTP & \textbf{262{,}144} & 196{,}608 & 131{,}072 \\
+\Qsix & DFlash2 & \textbf{262{,}144} & 196{,}608 & 98{,}304 \\
+\Qfour & MTP & \textbf{262{,}144} & \textbf{262{,}144} & 196{,}608 \\
+\Qfour & DFlash2 & \textbf{262{,}144} & \textbf{262{,}144} & 163{,}840 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\Cref{tab:kvmap} is the configuration space the rest of the second battery draws from. Two
+consequences. The 4.1\,GiB saved by \Qfour{} over \Qsix{} buys a whole step of KV precision at the
+same window: \Qfour{} holds the native 262K with an 8-bit cache, \Qsix{} cannot. Given
+\cref{sec:kvq}, that is a real trade: weight fidelity against cache fidelity. And the two drafters
+reach the same window except with an unquantized cache, where DFlash2's separate 1.1\,GB model costs
+one rung. Two passing cells peaked above 15{,}700\,MiB on a card, past what I had treated as a
+practical limit; the soak in \cref{sec:hostram} is what tests whether such cells are stable.
+
+\subsection{Three ways a long-context server fails}
+A ceiling search has to distinguish at least three failure modes, all seen on this host:
+\begin{enumerate}
+\item \textbf{Out of memory at load.} The clean case: the server log names the buffer and the device.
+\item \textbf{Hang during initialisation.} \Qfour{} at 229K and 262K on the default split, in the
+ceiling runs that preceded the first battery: no error in ten minutes, a 572-byte log. Not an OOM, and not to be labelled
+one.
+\item \textbf{Death at the first speculative draft.} \Qfour{} with DFlash2 and \flag{f16} KV at
+196{,}608 tokens: the server loaded, prefilled all 184{,}807 tokens at 612\tps{}, then aborted inside
+the drafter on a cuBLAS workspace allocation with 15.8\,GiB in use on each card. Twice. The client saw
+only a dropped connection. A search that checks loading alone, or reads a disconnect as a client
+fault, records this rung as usable.
+\end{enumerate}
+This is why the ceiling rule in \cref{sec:method} requires a generation after the prefill.
+
+\subsection{Host RAM, not VRAM, caused the only outage}\label{sec:hostram}
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[paper,ybar=10pt,height=5.0cm,width=0.72\linewidth,bar width=22pt,
+  symbolic x coords={q6,q4},xtick=data,xticklabels={\Qsix{} (\flag{q4\_0} KV),\Qfour{} (\flag{q8\_0} KV)},
+  enlarge x limits=0.5,ymin=0,ymax=6600,ylabel={peak host RAM, anonymous (MiB)},
+  scaled y ticks=false,yticklabel style={/pgf/number format/1000 sep={,}},
+  nodes near coords,nodes near coords style={font=\footnotesize,/pgf/number format/1000 sep={,}},
+  legend style={at={(0.5,1.03)},anchor=south,legend columns=2}]
+\addplot[fill=cbblue!75,draw=cbblue!60!black] coordinates {(q6,5380) (q4,5396)};
+\addplot[fill=cborange,draw=cborange!60!black,postaction={pattern=north east lines,pattern color=black!40}] coordinates {(q6,1752) (q4,1765)};
+\legend{MTP $n{=}4$,DFlash2 $n{=}7$}
+\end{axis}
+\end{tikzpicture}
+\caption{Peak host memory of the server process over a 44-turn conversation grown to about 252K
+tokens (one soak per configuration, \flag{-ctxcp 4}, one slot). The drafter, not the build, sets the
+cost: about 3.6\,GiB between drafters, about 16\,MiB between builds. All four passed.}\label{fig:hostram}
+\end{figure}
+
+After the first battery the machine went into daily use serving \Qsix{} with MTP at 262K. During a
+long agent session the server's \emph{host} memory grew from 2.9 to 10.0\,GiB while VRAM stayed flat.
+Swap filled and prefill fell from 839 to 0.15\tps. The cause: llama.cpp keeps context checkpoints
+(snapshots that allow a conversation to roll back without reprocessing, needed because recurrent
+layers cannot be rewound \citep{llamacpp_pr20288_checkpoints}) in host RAM, and with MTP each one
+includes the draft cache for the whole sequence. Measured from a verbose trace: \textbf{150\,MiB plus
+about 3.9\,KiB per token, 1.14\,GiB each at 252K tokens.} I had raised the checkpoint count from 4 to
+32 because an A/B test showed slightly faster decoding at identical VRAM. That was true and beside the
+point: no VRAM measurement, and no ceiling test made of one prefill and one generation, can see this.
+
+The fix was \flag{-ctxcp 4}, a container memory limit, and a multi-turn soak test as a gate for any
+serving change: 44 turns growing to 252K tokens, watching host memory, swap and prefix-cache reuse.
+Under that soak (\cref{fig:hostram}) MTP peaks at about 5.4\,GiB of host memory and DFlash2 at about
+1.75\,GiB on both builds. On a 14\,GiB host serving a 262K window, the drafter is a host-memory
+decision before it is a speed decision. Each additional concurrent slot would carry its own
+checkpoints; that was not measured.
+
+\begin{takeaway}
+The native 262K window fits on 2$\times$16\,GB, with a 4-bit cache for \Qsix{} and an 8-bit cache for
+\Qfour. It takes a hand-tuned layer split that must be re-swept per configuration, a ceiling test that
+generates after a deep prefill, and a soak test that watches host RAM.
+\end{takeaway}

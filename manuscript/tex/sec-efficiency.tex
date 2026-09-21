@@ -1,0 +1,95 @@
+\section{Speed, energy and what the instruments cost}\label{sec:efficiency}
+
+\subsection{A smaller build is not a faster build at the full window}
+\begin{table}[h]
+\centering\small
+\caption{Decode at the full 262{,}144 window (prefill to 94.8\,\%), first battery, MTP $n{=}2$,
+\flag{q4\_0} KV, official non-thinking sampling, 192-token generations. Groups match on build, context,
+split and checkpoint setting. Spread is (max$-$min)/median; the adjusted column divides each reading by
+its tokens-per-pass (\cref{sec:variance}).}\label{tab:fullwindow}
+\shrinktofit{\begin{tabular}{@{}llrlrrr@{}}
+\toprule
+build & split & $n$ & readings (tok/s) & median & spread & spread, adjusted \\
+\midrule
+\Qfive & 54,46 & 3 & 10.82, 12.70, 12.94 & 12.70 & 16.7\,\% & 2.9\,\% \\
+\Qsix & 58,42 & 3 & 10.75, 11.90, 14.16 & 11.90 & 28.6\,\% & 9.7\,\% \\
+\Qsix & 56,44 & 3 & 10.22, 11.71, 14.99 & 11.71 & 40.7\,\% & 11.2\,\% \\
+\Qfour & 56,44 & 1 & 12.10 & --- & n/a & --- \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+At the full window the three builds that reach it decode within 7\,\% of each other
+(\cref{tab:fullwindow}), while repetitions of one configuration spread by up to 41\,\%. The common
+expectation that a smaller quantization buys speed does not hold here: at depth the attention read over
+the cache dominates each pass, and it is the same size for every build. The second battery agrees
+under cleaner conditions: with MTP at about 100K tokens \Qsix{} and \Qfour{} decode at 16.3 and
+17.4\tps; per-pass time at 262K orders the builds by size (184, 191, 194\,ms) with overlapping
+ranges. The smaller build earns its place through memory (a gentler cache at the same window,
+\cref{sec:kvmap}), not through throughput. That table went through three versions in my notes (32.9\,\%,
+46.7\,\%, 40.7\,\% for the same spread) before one was computed with a stated estimator over matched
+cells; see \cref{sec:corrections}.
+
+\subsection{Power and energy}
+Over a representative 12-hour window of the first battery (26\,\% GPU-busy; 43{,}182 one-second
+samples), the two GPUs drew 1.08\,kWh and the CPU package 0.17\,kWh. A modelled system total, adding a
+fixed platform allowance, is 1.79\,kWh: 149\,W mean, 80\,W median, 409\,W peak, 334\,W mean under GPU
+load. GPU0 peaked at 90\,°C and GPU1 at 76\,°C. The manual splits put more layers on GPU0, which is the
+likely cause, but airflow between the slots was not controlled, so this is an association. A split
+chosen for context also selects a thermal operating point.
+
+Per-token energy exists only for decode into an empty cache\hist{} (\cref{tab:backends}, and in the
+same series 3.7\,J/token for the smallest build with DFlash2 up to 11.8 for \QsixXL{} without
+speculation): speculation cuts energy per token by $2$--$2.5\times$ at every build, because the cards
+draw similar power for fewer seconds. At depth, the second battery recorded GPU energy per
+\emph{request}: a median 37--41\,kJ per AA-LCR answer with DFlash2 against 45--51\,kJ with MTP, and
+28--35\,kJ against 66--78\,kJ on GPQA's long reasoning chains. These include prefix-cache effects and
+whatever else the host was doing, and 1\,Hz sampling cannot resolve decode bursts, so they are
+per-request figures only. A controlled joules-per-token curve against depth was planned and cancelled.
+
+\subsection{What each instrument bought}\label{sec:cost}
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[paper,xbar,height=6.4cm,width=0.70\linewidth,bar width=8pt,
+  xmin=0,xmax=98,xlabel={GPU-hours},
+  symbolic y coords={aalcr,ruler,he,hs,kldtask,kld},ytick=data,
+  yticklabels={{AA-LCR + GPQA, 4 configs (second battery)},{RULER, 12 cells to 131K},{HumanEval+ paired, 2 builds},{HellaSwag $n{=}400$, 4 builds},{KL divergence, task prompts, 4 cells},{KL divergence, prose + code, 10 cells}},
+  yticklabel style={font=\scriptsize},
+  nodes near coords,nodes near coords style={font=\scriptsize,anchor=west},
+  point meta=explicit symbolic,enlarge y limits=0.12]
+\addplot[fill=cbgrey!55,draw=black!60] coordinates {
+ (68.9,aalcr)[69 h: no separation]
+ (12.34,ruler)[12.3 h: saturated / budget effect]
+ (1.29,he)[1.3 h: bound of $\pm$3 pts]
+ (0.54,hs)[0.5 h: 1-pt spread, 4-bit on top]
+ (0.37,kldtask)[0.4 h: all builds separated]
+ (1.95,kld)[2.0 h: all builds separated, 3.7--18 $\sigma$]};
+\end{axis}
+\end{tikzpicture}
+\caption{What a few hours of the same machine bought from each instrument. Wall-clock including model
+loads, single runs (the second-battery bar sums per-answer generation time: 12 h for AA-LCR, 57 h for
+GPQA Diamond). Divergence ranked the ladder in 2.3 GPU-hours; about 83 hours of task benchmarks
+across five instrument classes bounded it and ranked nothing. SWE-bench (four days, exploratory period)
+predates timing instrumentation and is not shown.}\label{fig:cost}
+\end{figure}
+
+\Cref{fig:cost} is the economics of the thesis. The comparison is loose (fixed token budgets against
+fixed problem counts, single runs), and it answers different questions: divergence says \emph{how far
+the distribution moved}, a benchmark says \emph{whether outcomes changed}. For choosing between
+neighbouring quantizations of one model, the first is cheap and decisive, and the second is expensive
+and, at public benchmark sizes, silent. An earlier draft of mine claimed ``20 minutes against 20
+hours''; the 20 minutes described one cell and the 20 hours had no source. The figure shows the
+measured totals.
+
+\subsection{Multiple comparisons}\label{sec:multiplicity}
+The first battery ran 19 formal tests: nine divergence separations, six HellaSwag pairs, two
+HumanEval+ pairs, the RULER closure test and the draft-depth sign test. Under Holm and
+Benjamini--Hochberg corrections across the whole family, all nine divergence separations pass, as does
+the RULER closure difference. The draft-depth sign test ($p=0.0059$) fails Holm at its rank and passes
+Benjamini--Hochberg; I treat it as directional. No task-benchmark comparison passes, and six of the
+eight could not have reached $p<0.05$ under any outcome. The weakest divergence separation (prose,
+\Qsix{} against \Qfive, 3.7\,$\sigma$) would fall below the Bonferroni threshold at a design effect of
+only 1.5, which correlated tokens could plausibly supply; the code-domain separations hold to design
+effects of 8 to 36.

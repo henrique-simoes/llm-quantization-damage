@@ -33,3 +33,11 @@ in this project.
 5. **Divergence is measured on prompt tokens.** It is not a measurement of generated-code quality.
 6. **State the limitations that are unflattering.** The largest — long-context task accuracy — was
    never measured for any arm. It is a stated limitation, not an omission.
+
+## Status update — 2026-09-21
+
+**The report is drafted.** Source: `tex/` (`main.tex` + `sec-*.tex`, flat, pdfLaTeX; `make` builds
+`tex/main.pdf`, 37 pages). Figures are native pgfplots/TikZ vector graphics, so the build needs no API
+keys. The structure follows the owner's section list (hardware, software versions, servers, quantization,
+context, MTP vs DFlash2, accuracy vs depth, agentic, efficiency, configuration, corrections, limitations)
+and supersedes `OUTLINE-V2.md`, which predates the second battery (PN-70…PN-99).

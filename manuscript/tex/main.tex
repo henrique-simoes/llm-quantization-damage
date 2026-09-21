@@ -1,0 +1,115 @@
+% Technical report -- arXiv source. Compile: pdflatex main && bibtex main && pdflatex main (x2)
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{mathpazo}
+\usepackage[scaled=0.92]{helvet}
+\renewcommand{\ttdefault}{lmtt}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs,tabularx,multirow,threeparttable,colortbl,array}
+\usepackage{enumitem}
+\usepackage[font=small,labelfont=bf,skip=6pt]{caption}
+\usepackage{subcaption}
+\usepackage{flafter} % a float never appears before the text that introduces it
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage[most]{tcolorbox}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage[colorlinks=true,linkcolor=cbblue,citecolor=cbblue,urlcolor=cbblue]{hyperref}
+\usepackage[nameinlink,noabbrev]{cleveref}
+\hypersetup{pdftitle={Benchmarks Can't See It: What quantization and speculative decoding really cost Qwen3.8-27B},
+  pdfauthor={Luiz Henrique Simoes}}
+
+\pgfplotsset{compat=1.17}
+\usetikzlibrary{positioning,arrows.meta,fit,calc,patterns,shapes.geometric}
+\usepgfplotslibrary{groupplots}
+
+% ---- Okabe-Ito colour-blind-safe palette; every series also differs by marker or pattern
+\definecolor{cbblue}{HTML}{0072B2}
+\definecolor{cborange}{HTML}{E69F00}
+\definecolor{cbgreen}{HTML}{009E73}
+\definecolor{cbred}{HTML}{D55E00}
+\definecolor{cbpurple}{HTML}{CC79A7}
+\definecolor{cbsky}{HTML}{56B4E9}
+\definecolor{cbgrey}{HTML}{6E6E6E}
+\definecolor{boxbg}{HTML}{F4F7FA}
+
+\pgfplotsset{
+  paper/.style={
+    width=\linewidth, height=6.0cm,
+    tick label style={font=\footnotesize},
+    label style={font=\small},
+    legend style={font=\footnotesize,draw=none,fill=none,legend cell align=left},
+    axis line style={black!70}, tick style={black!70},
+    grid=major, grid style={black!10},
+    every axis plot/.append style={line width=0.9pt},
+  },
+}
+
+% ---- house macros
+\newcommand{\arm}[1]{\textsf{#1}}
+\newcommand{\QsixXL}{\arm{Q6\_K\_XL}}
+\newcommand{\Qsix}{\arm{Q6\_K}}
+\newcommand{\Qfive}{\arm{Q5\_K\_XL}}
+\newcommand{\Qfour}{\arm{Q4\_K\_XL}}
+\newcommand{\IQfour}{\arm{IQ4\_XS}}
+\newcommand{\Qthree}{\arm{Q3\_K\_XL}}
+\newcommand{\flag}[1]{\texttt{#1}}
+\newcommand{\tps}{\,tok/s}
+\newcommand{\hist}{\textsuperscript{\textsc{h}}}
+\newcommand{\protocol}[1]{\par\smallskip\noindent{\footnotesize\textbf{Protocol.} #1\par}}
+
+\newcommand{\shrinktofit}[1]{\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{#1}}
+\newtcolorbox{takeaway}{enhanced,breakable,colback=boxbg,colframe=cbblue!60!black,
+  boxrule=0.5pt,arc=1.5pt,left=6pt,right=6pt,top=4pt,bottom=4pt,
+  fontupper=\small,before skip=8pt,after skip=8pt}
+
+\setlist{itemsep=2pt,topsep=4pt}
+\setlength{\parskip}{0.35em}
+\frenchspacing
+
+\title{\vspace{-1.2em}\textbf{Benchmarks Can't See It}\\[0.35em]
+\Large What quantization and speculative decoding really cost Qwen3.8-27B\\
+in accuracy, context length and generation speed\\[0.25em]
+\large Measured on two 16\,GB consumer GPUs}
+
+\author{\textbf{Luiz Henrique Sim\~oes}\\
+Independent researcher\\
+{\small MSc candidate (professional master's), Data Science and Analytics, Universidade de S\~ao Paulo}\\
+{\small\texttt{simoeshz@gmail.com}}}
+\date{September 2026}
+
+\begin{document}
+\maketitle
+\thispagestyle{plain}
+\begingroup\renewcommand\thefootnote{}\footnotetext{Technical report. Not peer reviewed.
+Data, harness source and per-finding notes:
+\url{https://github.com/henrique-simoes/llm-quantization-damage}. Released under CC~BY~4.0.}\endgroup
+
+\input{sec-abstract}
+\input{sec-intro}
+\input{sec-background}
+\input{sec-setup}
+\input{sec-servers}
+\input{sec-method}
+\input{sec-quant}
+\input{sec-context}
+\input{sec-spec}
+\input{sec-depth}
+\input{sec-agentic}
+\input{sec-efficiency}
+\input{sec-config}
+\input{sec-corrections}
+\input{sec-limitations}
+\input{sec-conclusion}
+
+\bibliographystyle{unsrtnat}
+\bibliography{references}
+
+\appendix
+\input{sec-appendix}
+\end{document}

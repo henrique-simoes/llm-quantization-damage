@@ -1,0 +1,145 @@
+\section{Hardware}\label{sec:hardware}
+
+\begin{table}[t]
+\centering\small
+\caption{The test machine. Everything in this report was measured on this one host.}\label{tab:host}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+GPUs & 2 $\times$ NVIDIA GeForce RTX 5060 Ti 16\,GB (Blackwell, compute capability 12.0), 180\,W power
+limit each, 16{,}311\,MiB usable per card, \textbf{no NVLink, no peer-to-peer path} \\
+GPU attachment & GPU0 on a CPU PCIe root port; GPU1 behind the chipset bridge, sharing its uplink with
+the SATA controller (both disks and the swap file), the network interfaces and USB. Both links train
+at x4 on x8-capable cards \\
+CPU / RAM & AMD Ryzen 5 8500G, 6 cores / 12 threads; \textbf{14\,GiB} usable system RAM; 4\,GiB swap
+(12\,GiB during the second battery, \cref{sec:corrections}) \\
+Storage & Two SATA disks: system (218\,GB) and a separate 110\,GB model store \\
+Driver & NVIDIA 595.84, CUDA 13.2; Ubuntu Linux; all engines run in Docker containers \\
+Power sensing & GPU power from the driver at 1\,Hz; CPU package from RAPL; \emph{no} wall-socket, BMC
+or IPMI sensor. ``System'' power anywhere in this report is modelled, not measured \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[font=\footnotesize,
+  box/.style={draw=black!70,rounded corners=2pt,minimum height=0.85cm,minimum width=2.5cm,align=center,fill=white},
+  gpu/.style={box,fill=cbsky!25,minimum width=3.3cm,minimum height=1.25cm},
+  >=Stealth]
+\node[box,fill=cborange!25,minimum width=3.0cm,minimum height=1.1cm] (cpu) {CPU (6C/12T)\\14\,GiB RAM};
+\node[gpu,right=2.6cm of cpu,yshift=1.1cm] (g0) {\textbf{GPU0} 16\,GB\\layers $0..k$ + their KV};
+\node[box,below=1.35cm of cpu] (pch) {chipset bridge};
+\node[gpu,right=2.6cm of pch] (g1) {\textbf{GPU1} 16\,GB\\layers $k{+}1..63$ + KV\\output head, draft context};
+\node[box,left=1.0cm of pch,minimum width=2.1cm] (io) {SATA (disks, swap)\\NIC, USB};
+\draw[<->,line width=1pt] (cpu.east) -- node[above,sloped]{PCIe x4 (root port)} (g0.west);
+\draw[<->,line width=1pt] (cpu.south) -- node[right]{shared uplink} (pch.north);
+\draw[<->,line width=1pt] (pch.east) -- node[above]{PCIe x4} (g1.west);
+\draw[<->] (pch.west) -- (io.east);
+\draw[<->,dashed,cbred,line width=0.9pt] (g0.south) -- node[right,text=cbred,align=left,font=\scriptsize,pos=0.45]{no P2P: activations\\cross via host} (g1.north);
+\end{tikzpicture}
+\caption{The two cards are not a memory pool and are not attached symmetrically. With layer split,
+each layer's weights \emph{and its slice of the KV cache} live on one card, so a configuration fails
+when the fuller card runs out, however much is free on the other. GPU1 also carries the output head
+and the speculative draft context, and sits behind the shared chipset uplink.}\label{fig:topology}
+\end{figure}
+
+\Cref{tab:host} lists the machine; \cref{fig:topology} shows the part of it that matters most. Three
+properties shape everything that follows.
+
+\textbf{The cards are two 16\,GB budgets, not one 32\,GB budget.} There is no NVLink and the driver
+reports no peer-to-peer path. Of the split modes llama.cpp offers, only layer split
+(\flag{-sm layer}) runs on the engine builds that survive (\cref{sec:servers}); it places whole layers,
+with their KV slices, on one card or the other. The binding limit is therefore 16{,}311\,MiB on
+whichever card is fuller. \Cref{sec:context} shows default placement stranding 2--3.8\,GiB on GPU0 while
+GPU1 ran out.
+
+\textbf{The cards are attached asymmetrically.} GPU1 shares a chipset uplink with both disks, the swap
+file and the network. I did not test whether this contributes to the per-card asymmetries measured
+later; the documented cause of those is layer placement. It is recorded because a host description
+that omits it would be incomplete.
+
+\textbf{System RAM is small, and it binds twice.} With the model memory-mapped, about 10\,GiB is
+available. This (i)~caps the standard KL-divergence tool at 8{,}192 tokens of context, because it holds
+a chunk's logits in memory at 248\,KB per token (at 16{,}384 tokens the host fell to 305\,MiB free and
+wrote nothing in 13 minutes), and (ii)~caused the study's only serving outage
+(\cref{sec:hostram}). No full-precision reference fits anywhere: BF16 weights are 54.7\,GB, so every
+divergence in this report is measured against the largest quantized build, not against the original
+model.
+
+\section{Software versions and model builds}\label{sec:software}
+
+\begin{table}[t]
+\centering\small
+\caption{Engines and tools. A result is tied to the image that produced it; image digests are in the
+repository's \texttt{env-manifest.json}.}\label{tab:software}
+\begin{tabularx}{\linewidth}{@{}l>{\raggedright\arraybackslash}p{4.4cm}X@{}}
+\toprule
+label & version & used for \\
+\midrule
+\textbf{E-A} llama.cpp (MTP build) & 0.3.0-dev, commit \texttt{d222767}; image \texttt{feb0231976b6} &
+first battery: divergence, HellaSwag, HumanEval+, RULER, split sweeps, MTP speculation \\
+\textbf{E-B} llama.cpp DFlash fork & 0.1.2-dev build 50, commit \texttt{f7aadef}; image \texttt{22bb8b7fed8b} &
+the only DFlash2-capable build during the first battery \\
+\textbf{E-C} llama.cpp upstream & build b10975, commit \texttt{4c9233c}; image \texttt{5268283a8d65} &
+second battery: both drafters on one build; KV map, speed, AA-LCR, GPQA, soak; now serving \\
+\textbf{E-H} llama.cpp PR\,\#27342 build & commit \texttt{1deefcc} (\emph{image deleted}) &
+all measurements before 2026-08-29, marked \hist{} \\
+vLLM & 0.27.1 (stable) and a 0.26.1rc1 nightly & NVFP4 accuracy; NVFP4 speculative speed \\
+SGLang & 0.5.18 & attempted; never started (\cref{sec:servers}) \\
+EvalPlus & patched local install & HumanEval / HumanEval+ scoring \\
+mini-SWE-agent & 2.4.6 & SWE-bench Verified agent scaffold \\
+RULER & reference generators and metric & long-context retrieval \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{table}[t]
+\centering\small
+\caption{Model builds. All are Unsloth Dynamic GGUFs of Qwen3.8-27B and all embed the MTP head.
+\QsixXL{} is the divergence reference. Sizes in bytes as downloaded; SHA-256 prefixes are in the
+repository.}\label{tab:arms}
+\shrinktofit{\begin{tabular}{@{}llrrl@{}}
+\toprule
+build & role & bytes & GiB & batteries \\
+\midrule
+\QsixXL & divergence reference & 25{,}299{,}061{,}664 & 23.56 & first \\
+\Qsix   & arm & 21{,}983{,}677{,}344 & 20.47 & first, second \\
+\Qfive  & arm & 20{,}876{,}938{,}144 & 19.44 & first \\
+\Qfour  & arm & 17{,}559{,}178{,}144 & 16.35 & first, second \\
+\IQfour & historical only & 14{,}252{,}845{,}984 & 13.27 & \hist \\
+\Qthree, \arm{Q4\_K\_M} & historical only (files deleted) & --- & --- & \hist \\
+NVFP4 (W4A4, FP8 KV) & vLLM checkpoint & $\approx$22\,GB & --- & \hist \\
+DFlash2 drafter \arm{Q4\_K\_M} & speculative sidecar & 1{,}143{,}006{,}816 & 1.06 & second \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\Cref{tab:software,tab:arms} pin the stack. Two facts about versions turned out to matter more than
+expected.
+
+\textbf{Deleting one image froze the exploratory period's results.} Build E-H was the only one on which tensor
+split (\flag{-sm tensor}) ever worked on these cards. On E-A and E-B the flag is listed in
+\flag{--help} and the server dies with a CUDA illegal-memory-access error. When E-H was deleted during
+routine disk cleanup, every tensor-split result and every 262K-token result measured until then became
+unreproducible, and two model files from that period were also gone. Re-measuring on surviving builds
+gave \emph{different} context ceilings. Those early rows are kept, marked \hist{}, and never placed
+in a table with later ones. \emph{Flag availability is not capability.}
+
+\textbf{A drafter file is bound to an engine build.} The DFlash2 drafter loads only on builds that
+know its tensor layout. On E-A it fails with \texttt{wrong number of tensors; expected 81, got 58},
+and a harness that scored by exit status recorded a clean 0.000 pass@1, indistinguishable in a results
+table from a model that ran and failed. The same signature later blocked a production cut-over
+(\cref{sec:config}). The drafter file itself was also revised upstream during the study (a rope-metadata
+fix); the first-battery DFlash2 rows used the earlier revision on a different engine from the MTP
+rows, which is why \cref{sec:spec} ranks the drafters only from the second battery.
+
+\paragraph{Engine defaults are not what the documentation says.} On E-A, a request with no sampling
+fields runs at temperature 1.0, top-$k$ 20, top-$p$ 0.95, min-$p$ 0.05. That matches neither
+llama.cpp's documented defaults (0.8 / 40 / 0.95 / 0.05) nor either of Qwen's presets. The server
+echoes effective settings per request, so this is cheap to check; every run here sends an explicit
+sampling block and asserts the echo. The model also \emph{reasons by default}. The widely quoted
+\texttt{/no\_think} prompt suffix does not disable it on this chat template. What does is the request field
+\begin{center}\verb|chat_template_kwargs: {"enable_thinking": false}|\end{center}
+while \verb|{"reasoning_effort": "none"}| raises a template exception (accepted values are
+\texttt{low}, \texttt{medium}, \texttt{xhigh}). A two-token probe distinguishes the states in about a second and
+ran before every battery.

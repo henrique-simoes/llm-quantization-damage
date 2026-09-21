@@ -1,0 +1,54 @@
+\section{Agentic behaviour: SWE-bench Verified and step counts}\label{sec:agentic}
+
+The target workload is a coding agent, so the exploratory period spent four days on SWE-bench Verified
+with mini-SWE-agent: 50 instances per build, non-thinking, greedy, 250-step limit. All rows here are
+historical\hist.
+
+\begin{table}[t]
+\centering\small
+\caption{SWE-bench Verified\hist: resolved instances, aggregated from per-instance reports scored on
+x86-64. Denominators differ because empty patches and infrastructure errors were excluded case by
+case. This is \emph{Verified}, not SWE-bench Pro (on which Qwen reports 61.7 for this model); the two
+are not comparable.}\label{tab:swe}
+\shrinktofit{\begin{tabular}{@{}lrrl@{}}
+\toprule
+build & resolved / scored & rate & Wilson 95\,\% \\
+\midrule
+\IQfour & 38 / 49 & 77.6\,\% & [64.1, 87.0] \\
+\Qfive & 38 / 50 & 76.0\,\% & [62.6, 85.7] \\
+\Qsix & 37 / 49 & 75.5\,\% & [61.9, 85.4]; bootstrap [63.3, 87.8] \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\textbf{The most expensive benchmark ranks the ladder backwards, and that means nothing.}
+\Cref{tab:swe} puts the smallest build first. The three builds span 2.1 points; one instance is worth
+2 points; one build's interval alone spans 24. A 50-instance agentic benchmark cannot rank neighbouring
+quantizations, and an apparent inversion at this size carries no information about them. What the
+table does support: all three builds in the 4- to 6-bit range resolve about three quarters of these
+instances under this scaffold.
+
+Getting even these numbers right took three generations of totals. Scoring first ran on an ARM64
+laptop, and three SWE-bench evaluation images have no ARM64 variant, so specific instances were
+silently counted as failures for specific builds. An aggregator then read only the first of seven
+concatenated batch reports and published 8 resolved where the true figure was 37. Both were found
+by audit and repaired from per-instance records without re-running anything.
+
+\textbf{Below the ladder, a cliff that no cheap instrument saw.} The 3-bit build \Qthree{} was the
+fastest configuration of the whole study (116.9\tps{} into an empty cache with MTP depth 8) and scored
+84.1 / 81.7 on HumanEval / HumanEval+ with no empty responses: lower than its neighbours, not
+alarming. Given agentic tasks, it hit the 250-step limit on \textbf{6 of 6} instances, never converging
+once. \Qsix{} on the same six instances converged on all six (mean 45 steps, median 37). I stopped the
+3-bit run there, since the remaining 44 instances would have cost about 88 GPU-hours to confirm a
+6-to-0 split. This is a qualitative result: $n=6$, one scaffold, one seed, a build that is not part of
+the main ladder and whose file is gone. It does not say where between 3 and 4 bits the failure begins.
+It is still the sharpest single illustration of the report's theme: every cheap instrument rated this
+build acceptable or best, and the one expensive multi-step instrument rated it unusable.
+
+\textbf{Step counts are not a quality proxy in either direction.} Among builds that converge, mean
+steps on three shared instances were 23 for \IQfour{} and 29 for \Qfive, against about 45 for the
+6-bit build on a different instance set. Per-instance counts overlap and one instance reverses the
+order, so nothing is separated at $n=3$. Read with the 3-bit result, the profile across the wider
+ladder is non-monotone: the lowest rung never finishes, the middle rungs finish soonest, the top rung
+takes longest. Since step count multiplies token cost much more than tokens-per-second does, agentic
+efficiency deserves a properly powered study; this was not one.

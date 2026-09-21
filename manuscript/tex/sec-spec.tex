@@ -1,0 +1,184 @@
+\section{Speculative decoding: MTP versus DFlash2}\label{sec:spec}
+
+Two drafters were available for this model. \textbf{MTP} is a prediction head trained with the model
+and stored in the same GGUF file; it costs no extra weights but keeps its own one-layer \flag{f16}
+draft cache. \textbf{DFlash2} is a separate 1.1\,GB block-diffusion drafter that proposes a block of
+up to 7 tokens in one parallel pass, conditioned on hidden states tapped from five target layers
+\citep{chen2026dflash,incoai2026dflash2_card}. Without speculation this machine decodes a 27B model at
+12--23\tps{} into a shallow cache, depending on build and engine, and at 3.5\tps{} at 246K tokens, so a drafter is not optional for
+interactive use.
+
+\subsection{Speculation is a different decode path, not a free speed knob}\label{sec:nonequiv}
+For nine days my notes said: speculative decoding is lossless under greedy decoding, so it changes
+speed only, and no accuracy run needs a speculative arm. Perplexity runs for speculative
+configurations were skipped on that basis. The first experiment that tested the premise refuted it.
+
+\begin{table}[t]
+\centering\small
+\caption{Speculation at context 32{,}768, first battery. \Qsix, greedy (temperature 0, top-$p$ 1, fixed
+seed), 1{,}024-token limit, all 164 HumanEval+ problems, zero empty responses. ``Byte-exact'' compares
+each completion with the no-speculation baseline. The DFlash2 row ran on a different engine build
+(E-B) and an older drafter file, so its equivalence and speed are not comparable with the MTP
+rows.}\label{tab:nonequiv}
+\shrinktofit{\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+configuration & tok/s (median) & speed-up & acceptance & byte-exact & HE\,\% & HE+\,\% \\
+\midrule
+no speculation & 18.46 & 1.00$\times$ & --- & 164/164\textsuperscript{a} & 94.5 & 91.5 \\
+MTP $n{=}2$ & 37.44 & 2.03$\times$ & 0.954 & \textbf{131/164}\textsuperscript{a} & 93.9 & 90.2 \\
+MTP $n{=}4$ & 47.03 & 2.55$\times$ & 0.892 & \textbf{131/164} & 93.9 & 90.9 \\
+\emph{DFlash2 $n{=}4$ (E-B)} & \emph{51.78} & \emph{2.80$\times$} & \emph{0.917} & \emph{132/164} & \emph{93.3} & \emph{90.2} \\
+\bottomrule
+\multicolumn{7}{@{}l}{\footnotesize\textsuperscript{a}\,Re-run unchanged a day later: all 164 completions byte-identical to the first run, in both arms.}
+\end{tabular}}
+\end{table}
+
+\Cref{tab:nonequiv}: with MTP on, 33 of 164 completions differ from the plain-decoding output, at
+temperature 0 with a fixed seed. A repeat a day later reproduced \emph{both} arms byte for byte. So
+this is not run-to-run noise. The engine is deterministic, and speculation deterministically takes a
+different path for about one problem in five. Depth 2 and depth 4 each change 33 problems but share
+only 25 of them.
+
+\textbf{What this does and does not mean.} Task accuracy did not move: pass@1 differs by at most 1.3
+points across the four rows, far inside $\pm4.6$. The changed completions are different programs, not
+worse ones. ``One in five'' is also a fact about HumanEval+'s output lengths: the chance of divergence
+rises with completion length, from 2.4\,\% of the shortest quartile of problems to about 50\,\% of the
+longest, a hazard near one divergence per 950 generated tokens that grows with position. That pattern
+fits accumulating numerical differences better than a broken acceptance rule.
+
+\textbf{The mechanism is not established.} The leading explanation is batch-shape numerics: verifying
+$n{+}1$ tokens in one pass runs different GPU kernels from decoding one token, the logits differ in
+their last bits, and a near-tie flips. Kernels of this kind are deterministic run to run yet vary with
+batch shape \citep{thinkingmachines2025nondeterminism}, which is exactly what byte-identical repeats
+plus cross-configuration differences look like. At one point I read the determinism result as ruling
+this explanation out; it does not, and that reading is withdrawn. Others report the same behaviour on
+llama.cpp with quantized targets \citep{llamacpp_issue25618}, and vLLM states its guarantee as
+lossless ``up to hardware numerics'' \citep{vllm_specdecode_docs}. I did not compare logits at a
+divergence point, so this remains the leading hypothesis. All of it is greedy-only; sampling at
+temperature above zero was not tested.
+
+\begin{takeaway}
+Treat the speculative setting as part of the configuration under test. A reproducible pipeline must
+pin it, not only the seed, and a quantization comparison should run without speculation on both arms
+or with the identical setting on both.
+\end{takeaway}
+
+\subsection{First-battery results, and why they cannot rank the drafters}
+The DFlash2 row of \cref{tab:nonequiv} was the fastest at 32K. At depth, the first battery recorded
+DFlash2 failing to load above 163{,}840 tokens and collapsing to 8\tps{} there. I reported that as
+``fastest when shallow, dominated when deep'' and then had to take most of it back:
+\begin{itemize}
+\item the at-depth speed was timed over a \emph{17-token} generation (the probe sent a corpus to the
+chat endpoint with no instruction; the model acknowledged it and stopped). The same defect voided
+MTP's first at-depth figures and every historical acceptance of exactly 1.000;
+\item the load failures at 213K and 262K were the drafter's 738\,MiB weight buffer failing to fit on
+GPU0 under a split tuned for MTP: a placement problem, not a DFlash2 limit;
+\item the arm ran on a different engine build, with a drafter file that predated an upstream
+metadata fix, at draft depth 4 where the drafter's block size of 8 makes 7 the design point.
+\end{itemize}
+Between the batteries DFlash2 support was merged into upstream llama.cpp
+\citep{llamacpp_pr27342_dflash2}, which removed the engine confound and made a fair comparison
+possible.
+
+\subsection{Same build, both drafters, to 246K tokens}\label{sec:s15speed}
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=2 by 1,horizontal sep=1.2cm,ylabels at=edge left},
+  paper,width=0.5\linewidth,height=6.2cm,
+  xlabel={filled context (thousand tokens)},ylabel={decode (tok/s), median},
+  xmin=0,xmax=270,ymin=0,ymax=58,xtick={32,131,246},
+  legend style={font=\scriptsize}]
+\nextgroupplot[title={\small\Qsix},legend to name=speclegend,legend columns=3,
+  error bars/y dir=both,error bars/y explicit,error bars/error bar style={line width=0.5pt}]
+\addplot[cbred,mark=triangle*] coordinates {(32.768,48.39) += (0,5.8) -= (0,13.7) (131.072,31.50) += (0,4.7) -= (0,4.7) (246.415,25.68) += (0,5.7) -= (0,5.4)};
+\addplot[cbblue,mark=*] coordinates {(32.768,29.39) += (0,0.3) -= (0,4.2) (131.072,21.56) += (0,3.1) -= (0,1.7) (246.415,17.29) += (0,3.1) -= (0,2.1)};
+\addplot[cbblue,mark=o,dashed] coordinates {(32.768,26.94) (131.072,19.28) (246.415,14.15)};
+\addplot[cbred,mark=triangle,dashed] coordinates {(32.768,28.60) (131.072,22.89) (246.415,17.46)};
+\addplot[black!65,mark=square*,densely dotted] coordinates {(32.768,11.66) (131.072,5.61) (246.415,3.49)};
+\legend{DFlash2 $n{=}7$,MTP $n{=}4$,MTP $n{=}2$,DFlash2 $n{=}3$,no speculation}
+\nextgroupplot[title={\small\Qfour},
+  error bars/y dir=both,error bars/y explicit,error bars/error bar style={line width=0.5pt}]
+\addplot[cbred,mark=triangle*] coordinates {(32.768,44.01) += (0,1.3) -= (0,5.9) (131.072,33.95) += (0,9.9) -= (0,5.0) (246.415,27.66) += (0,8.7) -= (0,4.7)};
+\addplot[cbblue,mark=*] coordinates {(32.768,29.58) += (0,1.5) -= (0,3.1) (131.072,22.06) += (0,4.8) -= (0,2.7) (246.415,16.33) += (0,4.3) -= (0,3.8)};
+\addplot[cbblue,mark=o,dashed] coordinates {(32.768,27.92) (131.072,20.17) (246.415,14.66)};
+\addplot[cbred,mark=triangle,dashed] coordinates {(32.768,29.11) (131.072,21.54) (246.415,16.88)};
+\addplot[black!65,mark=square*,densely dotted] coordinates {(32.768,13.14) (131.072,5.93) (246.415,3.61)};
+\end{groupplot}
+\node at ($(group c1r1.south)!0.5!(group c2r1.south)+(0,-1.75cm)$) {\pgfplotslegendfromname{speclegend}};
+\end{tikzpicture}
+\caption{Decode rate against filled context, both drafters on one upstream build (E-C). Greedy,
+identical code prompts, \flag{q4\_0} KV, 1{,}024-token continuations, 8 per cell (4 at 32K); markers are
+medians and bars the full range across continuations. At its design depth ($n{=}7$) DFlash2 leads at
+every depth on both builds. At a shared shallow depth ($n{=}3$, dashed) the two drafters are
+indistinguishable. Without speculation decode falls to 3.5\tps{} at 246K.}\label{fig:specdepth}
+\end{figure}
+
+The second battery ran both drafters on build E-C with the current drafter file, each at several draft
+depths, each as a separate server launch. (On this build the draft depth cannot be changed per
+request: the per-request fields are compiled out, while the properties endpoint still echoes a value,
+so a per-request sweep would silently measure one depth.) Every cell was filled with the same real
+code to 32K, 131K or 246K tokens, then asked for 1{,}024-token continuations.
+
+\Cref{fig:specdepth} gives the result. At 246{,}415 filled tokens DFlash2 at $n{=}7$ decodes at 25.7
+against MTP's best 17.3\tps{} on \Qsix{} (+49\,\%) and 27.7 against 17.0 on \Qfour{} (+62\,\%). At
+131K the margins are +45\,\% and +54\,\%; at 32K, +64\,\% and +45\,\%. MTP's best depth is 4 in two of those cells and 3 in the other four (\cref{app:speed}). The ranges of
+DFlash2 at $n{=}7$ and the best MTP depth overlap in one cell only (\Qsix{} at 246K, by 0.15\tps).
+Three details matter for anyone reproducing this:
+
+\textbf{The advantage comes entirely from draft depth.} At a shared depth of 3 the two drafters are
+within noise of each other everywhere. MTP gains little from going deeper (its depth 2, 3 and 4
+medians are within 10--22\,\% of each other, and depth 4 does not beat depth 3 consistently), while DFlash2 gains 40--70\,\% from depth 3 to 7 because
+its block is drafted in one parallel pass.
+
+\textbf{DFlash2's accepted length grows with depth of context.} Mean tokens accepted per verification
+pass rose from 4.4 to 4.6 on \Qsix{} and from 3.5 to 4.6 on \Qfour{} between 32K and 246K. The
+``acceptance collapse at depth'' in my early notes was the short-generation artifact described above.
+Raw acceptance ratios are not comparable between drafters (they divide by different depths); report
+accepted length and tokens per second.
+
+\textbf{Speculation is worth more the deeper the context.} Against no speculation the best drafter
+gives $3.4$--$4.2\times$ at 32K, $5.6$--$5.7\times$ at 131K and $7.4$--$7.7\times$ at 246K, because
+each verification pass amortises an ever more expensive attention read over several tokens. DFlash2's
+prefill is also 34--52\,\% faster at depth (201 against 135\tps{} at 246K on \Qsix), since MTP
+prefills its draft cache as well.
+
+The pre-registered selection rule compared decode on thinking-mode requests of about 100K input tokens
+(three per configuration; median [min, max]). It chose DFlash2 on both builds: 20.4 [19.8, 22.7]
+against 16.3 [16.1, 16.6]\tps{} on \Qsix, cleanly; 29.8 [23.8, 51.3] against 17.4 [15.9, 22.1] on
+\Qfour, where the ranges do not overlap but one range spans a factor of two over three requests. The matched-depth probe above is the stronger evidence for the same conclusion. The
+accuracy batteries in \cref{sec:aalcr} then served as a long-generation speed check over 756 real
+answers: DFlash2 decoded at a median 34.6--48.9\tps{} against MTP's 23.7--28.2, at lower energy per
+request (28--41\,kJ against 45--78\,kJ).
+
+\subsection{Draft depth and the acceptance trap}
+The first battery swept MTP depth $\{2,4,8\}$ at matched depths of 131K and 196K on all four builds,
+three 512-token generations per cell, to learn the best depth per build. It could not answer.
+Repetition-to-repetition decode spread reached 166\,\%, and acceptance within one cell ranged by up to
+0.63. Two lessons survive.
+
+\emph{Clustered events give falsely tight intervals.} Pooled over 1{,}000--4{,}000 draft events, a
+Wilson interval on acceptance is $\pm0.02$. The events inside one generation are strongly correlated;
+the effective sample is the three generations, and their spread is $\pm0.3$.
+
+\emph{``Acceptance falls with draft depth'' is nearly a tautology.} It fell in 10 of 11 adjacent pairs
+(one-sided sign test $p=0.006$, which fails a Holm correction at its rank). For any per-token match
+probability $q<1$, the ratio accepted/drafted must fall as depth grows. Inverting the
+stop-at-first-mismatch formula gives $q\approx0.68$--$0.95$, roughly constant across depth within a
+cell. $q$ carries the information; the ratio does not. At the full 262K window, MTP $n{=}8$ failed to
+load at all: its draft context no longer fits.
+
+\subsection{Where decode variance comes from}\label{sec:variance}
+Early speed tables on this host showed 17--41\,\% spread between identical repetitions, which I first
+called unexplained noise. Two reviewers noted that decode correlates with acceptance at $r^2$ of
+0.83--0.99. That correlation is an identity, not a finding: llama.cpp's speculative decode rate is
+exactly $(1+n\cdot\text{acceptance})/t_\text{pass}$, since each target pass emits one guaranteed token
+plus the accepted drafts. Reconstructing generated length from pass and acceptance counts recovers 190
+to 191 of 192 tokens in all 47 cells. What is informative is the residual. Dividing throughput by
+tokens-per-pass, with nothing fitted, collapses within-configuration spread from 16.7--40.7\,\% to
+1.3--13.4\,\%; 98.7\,\% of within-cell variance is tokens-per-pass and 0.9\,\% is pass time. The
+``noise'' was sampling variance of the generated text: those cells ran at temperature 0.7, so each
+repetition wrote a different continuation with a different acceptance. Pass time itself is well
+behaved, linear in filled depth at about 0.45\,\textmu s per token. \textbf{Run speed probes greedy
+with fixed prompts.} The second battery did, which is why its ranges are usable.

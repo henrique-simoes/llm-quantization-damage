@@ -57,3 +57,10 @@ __pycache__/
 # intended for a later release once reviewed; nothing in them is a credential.
 CLAUDE.md
 AGENTS.md
+
+# LaTeX build products (main.pdf and main.bbl are kept: the PDF is the deliverable, arXiv can use the .bbl)
+manuscript/tex/*.aux
+manuscript/tex/*.log
+manuscript/tex/*.out
+manuscript/tex/*.blg
+manuscript/tex/*.toc

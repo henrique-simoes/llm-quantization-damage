@@ -1,0 +1,184 @@
+\section{Accuracy versus quantization versus context depth}\label{sec:depth}
+
+Does a 4-bit build lose more than a 6-bit build as the context fills? Divergence cannot be measured at
+depth on this host (\cref{sec:hardware}), and comparing free-running generations fails for a structural
+reason: I tried it, and greedy trajectories from different builds fork within the first 2 to 126
+characters, after which every pair of builds is ``completely different'' (normalised edit distance
+0.61--0.79) regardless of how close they are on the ladder. Adjacent builds measured further apart than
+the extremes. Distance between quantizations has to be measured on distributions at a fixed context,
+not on emitted text. That leaves task instruments: RULER in the first battery, AA-LCR and GPQA in the
+second.
+
+\subsection{RULER retrieval to 131K, and a headline withdrawn}\label{sec:ruler}
+
+\begin{table}[t]
+\centering\small
+\caption{RULER, first battery: RULER's own generators and \texttt{string\_match\_all} metric, greedy,
+no speculation, one split for both builds, \flag{q4\_0} KV. The harness used the raw completion endpoint
+with a \textbf{128-token output budget and reasoning left on}. ``Closed'' means the output contains
+the end-of-reasoning tag. Prompts reached 98--100\,\% of the target length in every cell.}\label{tab:ruler}
+\shrinktofit{\begin{tabular}{@{}lrlrrrr@{}}
+\toprule
+task & context & build & $n$ & score\,\% & closed & closed \emph{and} wrong \\
+\midrule
+single needle & 8K / 32K / 131K & \QsixXL & 25 / 25 / 12 & 100 / 100 / 100 & all & 0 \\
+single needle & 8K / 32K / 131K & \Qfour & 25 / 25 / 12 & 100 / 100 / 100 & all & 0 \\
+multi-key (4 keys) & 131{,}072 & \QsixXL & 100 & \textbf{89.0} & 77 & \textbf{0} \\
+multi-key (4 keys) & 131{,}072 & \Qfour & 100 & \textbf{79.0} & 60 & \textbf{0} \\
+\midrule
+\multicolumn{7}{@{}l}{multi-key, paired: score discordance 10 vs 0, exact McNemar $p=0.002$, $-10.0$ pts $[-15.9,-4.1]$} \\
+\multicolumn{7}{@{}l}{\phantom{multi-key, paired: }closure discordance 22 vs 5, $p=0.0015$, $-17.0$ pts $[-26.6,-7.4]$} \\
+\multicolumn{7}{@{}l}{\phantom{multi-key, paired: }on the 55 items where \emph{neither} build hit the budget: 55/55 vs 55/55, zero discordance} \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\textbf{Single-needle retrieval is saturated and unaffected.} Both ends of the ladder score 100\,\% at
+8K, 32K and 131K tokens, and every response finished its reasoning inside the budget, so these are
+real ceilings, not artifacts of lenient string matching (\cref{tab:ruler}).
+
+\textbf{The multi-key result is a budget effect.} With four keys planted and one queried, \QsixXL{}
+scored 89/100 and \Qfour{} 79/100 at 131K tokens. All ten discordant items favoured the larger build;
+$p=0.002$; recovery 88.8\,\%, right inside the band Red Hat publishes for 4-bit weights at 128K
+\citep{redhat_longcontext_quant}. I wrote it up as the study's long-context headline. It took 9.4 GPU-hours and
+the analysis script was committed before the second arm finished.
+
+It does not measure retrieval. Re-reading the saved predictions: \emph{not one response in either arm
+finished reasoning and then gave a wrong answer.} Every failure is a truncation at 128 tokens. On the
+55 items where neither build hit the budget, both score 55 of 55. What differs is how often the
+reasoning block closed in time: 77 against 60, itself significant ($p=0.0015$). The 4-bit build
+``thought'' longer on the harder task. The closure audit also shows why depth is not the cause: at the
+same 131K tokens, same builds, same budget, single-needle closes 12 of 12 and multi-key closes 77 and
+60 of 100. Task difficulty drives the reasoning length.
+
+So the retrieval question at 131K on the multi-key task is \emph{unanswered}, not answered in the
+negative, and the comparison with the Red Hat band is void. What remains is a smaller finding of its own:
+a more heavily quantized build spent measurably more tokens reasoning about the same questions. The
+same budget mechanism explains the thinking-mode HumanEval+ rows in \cref{tab:humaneval}, and a harder
+RULER task (variable tracking) was excluded from the battery for the same defect in its extreme form
+(0 of 25 closed). A score alone cannot tell a real ceiling from a truncation; the closure column can.
+
+\subsection{AA-LCR and GPQA Diamond: long-document reasoning with a short-context control}\label{sec:aalcr}
+
+The second battery avoided those traps. It used the chat endpoint with the model's documented
+reasoning control at its highest effort (\texttt{xhigh}), Qwen's official thinking sampling, and an
+output budget large enough that truncation was rare (1 of 756 answers). Two instruments ran under
+identical settings:
+
+\textbf{AA-LCR} \citep{artificialanalysis2026aalcr}: 100 questions, each over a set of real documents
+totalling about 100K tokens, requiring reasoning across them. Served at the full 262K window with each
+build's gentlest workable cache: \flag{q4\_0} for \Qsix, \flag{q8\_0} for \Qfour. Answers took 2 to 60
+minutes each. Correctness is judged by an LLM equality checker using the benchmark's published prompt.
+
+\textbf{GPQA Diamond} \citep{rein2023gpqa}: 198 graduate-level science questions of about 200 tokens,
+scored by answer extraction. This is the short-context control: if a drafter or build broke reasoning
+in general, it would show here. Single answers reached 94{,}000 generated tokens. With short prompts
+the cache could be gentler still: \flag{q8\_0} for \Qsix{} and \flag{f16} for \Qfour.
+
+Design: all four build $\times$ drafter configurations ran a paired subset (30 AA-LCR questions, 50
+GPQA items); then the faster drafter (DFlash2, \cref{sec:s15speed}) ran the full sets on both builds.
+A full pass with MTP was not run, by design, to stay inside a 117-hour GPU budget. Build and cache
+precision change together between arms, so the comparison is between \emph{configurations}, never
+between quantizations alone.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[paper,height=7.6cm,width=0.8\linewidth,
+  xmin=50,xmax=100,xlabel={accuracy (\%), Wilson 95\,\% interval},
+  ytick={1,2,3,4,5.5,6.5,8,9,10,11,12.5,13.5},
+  yticklabels={{\Qsix{} + MTP, $n{=}30$},{\Qsix{} + DFlash2, $n{=}30$},{\Qfour{} + MTP, $n{=}30$},{\Qfour{} + DFlash2, $n{=}30$},{\Qsix{} + DFlash2, $n{=}100$},{\Qfour{} + DFlash2, $n{=}100$},{\Qsix{} + MTP, $n{=}50$},{\Qsix{} + DFlash2, $n{=}50$},{\Qfour{} + MTP, $n{=}50$},{\Qfour{} + DFlash2, $n{=}50$},{\Qsix{} + DFlash2, $n{=}198$},{\Qfour{} + DFlash2, $n{=}198$}},
+  yticklabel style={font=\scriptsize},ymin=0.2,ymax=14.9,
+  error bars/x dir=both,error bars/x explicit,error bars/error bar style={line width=0.8pt}]
+\addplot[only marks,mark=*,cbblue] coordinates {
+ (73.3,1) += (12.5,0) -= (17.8,0)
+ (80.0,2) += (10.5,0) -= (17.3,0)
+ (83.3,3) += (9.3,0) -= (16.9,0)
+ (86.7,4) += (8.0,0) -= (16.4,0)
+ (83.0,5.5) += (6.1,0) -= (8.5,0)
+ (87.0,6.5) += (5.2,0) -= (8.0,0)};
+\addplot[only marks,mark=square*,cbred] coordinates {
+ (96.0,8) += (2.9,0) -= (9.5,0)
+ (94.0,9) += (3.9,0) -= (10.2,0)
+ (94.0,10) += (3.9,0) -= (10.2,0)
+ (90.0,11) += (5.7,0) -= (11.4,0)
+ (89.9,12.5) += (3.5,0) -= (5.0,0)
+ (88.4,13.5) += (3.7,0) -= (5.2,0)};
+\draw[black!30] (axis cs:50,7.25) -- (axis cs:100,7.25);
+\node[font=\footnotesize\bfseries,text=cbblue,anchor=west] at (axis cs:51,6.7) {AA-LCR ($\sim$100K-token documents)};
+\node[font=\footnotesize\bfseries,text=cbred,anchor=west] at (axis cs:51,14.35) {GPQA Diamond (short prompts)};
+\draw[dashed,cbblue] (axis cs:82.0,0.2) -- (axis cs:82.0,7.25);
+\draw[dashed,cbred] (axis cs:90.5,7.25) -- (axis cs:90.5,14.9);
+\end{axis}
+\end{tikzpicture}
+\caption{No build and no drafter separates from any other on either instrument. Second battery, build
+E-C, reasoning effort \texttt{xhigh}, official thinking sampling. AA-LCR rows are the three-judge
+resolved scores; the $n{=}30$ DFlash2 rows are scored on the paired-subset items, where the resolved
+and first-judge scores coincide. Dashed lines are Artificial Analysis' figures for the same model served through the vendor's API
+(0.820, 0.905), shown for orientation: different serving stack, precision and, for AA-LCR, judge. Build and cache precision change together between rows: the comparison is between configurations, never between quantizations alone.}\label{fig:accuracy}
+\end{figure}
+
+\begin{table}[t]
+\centering\small
+\caption{AA-LCR judging. The same 260 answers were scored by two independent LLM judges using the
+benchmark's equality-checker prompt; a third judge ruled on the 11 disagreements. Identifiers are as
+recorded in the artifacts.}\label{tab:judges}
+\shrinktofit{\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+judge & \Qfour+DFlash2 & \Qfour+MTP & \Qsix+DFlash2 & \Qsix+MTP & total \\
+ & (/100) & (/30) & (/100) & (/30) & (/260) \\
+\midrule
+judge 1 (\texttt{muse-spark}, effort xhigh) & 88 & 25 & 84 & 22 & 219 \\
+judge 2 (\texttt{gpt-5.6-luna}, effort medium) & 87 & 25 & 87 & 23 & 222 \\
+\textbf{resolved} (third judge on disagreements) & \textbf{87} & \textbf{25} & \textbf{83} & \textbf{22} & \textbf{217} \\
+\midrule
+\multicolumn{6}{@{}l}{Cohen's $\kappa$ over all 260: judge 1 $\times$ 2: 0.836 (agreement 249/260); 1 $\times$ 3: 0.972; 2 $\times$ 3: 0.869} \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\paragraph{Result.} \Cref{fig:accuracy}: every interval overlaps every other within each instrument.
+On the full AA-LCR pass \Qfour{} scores 87/100 and \Qsix{} 83/100 (resolved); on full GPQA, 175/198 and
+178/198. The nominal order flips between the two instruments, as it did between HumanEval+ and
+SWE-bench in the first period. On the paired subsets the drafters do not separate either (AA-LCR
+22--26 of 30; GPQA 45--48 of 50). Speculation at depth 7 on long reasoning chains did not cost
+accuracy that these instruments can see, at $n=30$ to 198.
+
+This is the second battery's version of the report's thesis: 756 long answers, about 69 GPU-hours,
+and a 4-bit build with an 8-bit cache is indistinguishable from a 6-bit build with a 4-bit cache at
+the full window. Divergence separated the same two weight builds at 18\,$\sigma$ in forty minutes.
+Both statements are true. They answer different questions, and only the first is about outcomes a
+user would notice.
+
+\paragraph{Judging.} An LLM-judged benchmark carries judge variance. \Cref{tab:judges}: the two full
+judges differ by 3 items overall and by at most 3 on any arm; the resolved score sits in a 5-item band
+(217 to 222). A hand audit of the disagreements found no pipeline defect. It did find that the misses
+are not scattered: a small set of questions recurs across arms where the official key is arguable
+(a rounding convention, a conditional answer scored against an unconditional key, an entity list with
+one debatable member). Four to six items decide every subset contrast, and several of those are
+key-ambiguous. AA-LCR scores should always name the judge and its settings.
+
+\paragraph{Against the public baseline.} Artificial Analysis reports 0.820 on AA-LCR and 0.905 on GPQA
+Diamond for this model at \texttt{xhigh} effort through Alibaba's API
+\citep{artificialanalysis2026qwen38}. The local figures (83--87\,\% and 88--90\,\%) are in the same
+range. The comparison is loose in several ways: a hosted model presumably at full precision against
+local 4- to 6-bit builds with quantized caches; an undisclosed sampling temperature on their side;
+for AA-LCR a different judge. It supports ``local quantized serving is in the neighbourhood of the
+hosted model on these two instruments'', and no more.
+
+\subsection{What depth does to speed}
+Depth costs speed far more visibly than it costs accuracy. Without speculation, decode falls from
+11.7--13.1\tps{} at 32K filled tokens to 3.5--3.6 at 246K (\cref{fig:specdepth}): attention reads the
+whole cache for every token, and under layer split the card that owns a layer does all of that work.
+Prefill falls from about 490--530\tps{} to 215--230. With DFlash2 the same 246K context still decodes
+at 26--28\tps. A speed table measured into an empty cache (which is what most published tables are,
+including my own early ones at 57.5\tps{}) overstates full-window speed by $3$--$5\times$. Any speed
+figure should state how full the cache was.
+
+\begin{takeaway}
+Up to 131K tokens, single-needle retrieval is perfect at 4 and 6 bits. At about 100K tokens of real
+documents, reasoning accuracy is 83--87\,\% on the two full passes and 73--87\,\% on the 30-question
+subsets, for both builds and both drafters, with overlapping intervals and a nominal order that flips between instruments. No accuracy instrument in this study
+shows a quantization $\times$ depth interaction; none had the power to exclude a small one. Output
+budget, not retrieval, produced the one ``significant'' long-context difference.
+\end{takeaway}

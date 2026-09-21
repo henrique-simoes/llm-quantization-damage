@@ -1,0 +1,74 @@
+\section{Three inference servers, and why llama.cpp}\label{sec:servers}
+
+I tried three servers before settling on one: llama.cpp with GGUF builds, vLLM with NVIDIA's NVFP4
+checkpoint, and SGLang. This section reports what each could do on this hardware. All of it predates
+2026-08-29 (\hist), so it is orientation, not a controlled comparison, and the comparison it does
+support is narrower than it looks: backend, weight format, KV precision and speculative method all
+change together between rows.
+
+\begin{table}[t]
+\centering\small
+\caption{One probe across engines\hist: greedy, 1{,}024-token generation, single stream, median of three
+runs, \textbf{decode into a nearly empty KV cache}. vLLM runs tensor-parallel across both cards with
+\flag{--enforce-eager}. Power is GPU telemetry plus CPU package plus a fixed platform allowance
+(modelled). Context ceiling is the largest window that boots (vLLM) or that prefills and generates
+(llama.cpp); the llama.cpp ceilings are first-battery values from \cref{sec:context}, the only
+non-historical cells in this table, shown for orientation.}\label{tab:backends}
+\shrinktofit{\begin{tabular}{@{}llrrrrrr@{}}
+\toprule
+backend / weights & speculation & tok/s & speed-up & accept. & avg W & J/tok & ctx ceiling \\
+\midrule
+vLLM / NVFP4 & none & 12.44 & 1.00$\times$ & --- & 126 & 9.96 & 51{,}200 \\
+vLLM / NVFP4 & MTP $n{=}2$ & 28.11 & 2.26$\times$ & 0.709 & 133 & 4.57 & $\approx$49K \\
+vLLM / NVFP4 & MTP $n{=}4$ & \textbf{41.21} & \textbf{3.31}$\times$ & 0.559 & 148 & \textbf{3.60} & $\approx$49K \\
+vLLM / NVFP4 & DFlash2 (BF16 drafter) & \multicolumn{6}{l}{infeasible: out of memory at every setting tried} \\
+\addlinespace
+llama.cpp / \Qfour & none & 23.00 & 1.00$\times$ & --- & 207 & 9.00 & 262{,}144 \\
+llama.cpp / \Qfour & MTP $n{=}2$ & 32.69 & 1.42$\times$ & 0.728 & 214 & 6.55 & 262{,}144 \\
+llama.cpp / \Qfour & DFlash2 $n{=}4$ (4-bit drafter) & 38.51 & 1.67$\times$ & 0.714 & 218 & 5.67 & 262{,}144 \\
+\addlinespace
+SGLang 0.5.18 & EAGLE & \multicolumn{6}{l}{never started: out of memory initialising the draft worker} \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\paragraph{vLLM with NVFP4.} Tensor parallelism splits every layer across both cards, so vLLM balances
+memory better than llama.cpp's layer split does. It lost on two other axes. \emph{Context:} at the
+highest GPU-memory-utilisation setting that boots (0.97; at 0.99 the server dies within a minute on
+16\,GB cards) the nightly build reports a KV pool of 52{,}337 tokens, a working ceiling of 51{,}200,
+about one fifth of the model's native window, and MTP takes a little more. An earlier run on the
+stable image recorded 98{,}304; the two were never measured back to back, so the ceiling may be
+image-dependent. Neither figure was verified with a deep prefill, because that battery was stopped
+early. \emph{Fidelity:} NVFP4 scored 85.4/84.1 on HumanEval/HumanEval+ in thinking mode against
+90.9/88.4 for \QsixXL{} (\cref{tab:humaneval}); on matched perplexity windows it sits just below the
+whole GGUF ladder (\cref{sec:ppl}); and Unsloth's published KL divergence for it on code is 0.026
+against roughly 0.002 for their 6-bit dynamic build \citep{unsloth_dynamic3}. None of those gaps is
+large, and the HumanEval+ one is inside its interval. Taken together with a five-fold context deficit
+they decided the practical question.
+
+\paragraph{The larger speculative multiplier belongs to the slower baseline.} In \cref{tab:backends}
+vLLM gains $3.3\times$ from MTP and llama.cpp gains $1.4$--$1.7\times$, yet the best absolute rates
+differ by 7\,\%. The \flag{--enforce-eager} setting this configuration needs slows vLLM's plain decode to
+12.4\tps, which leaves more for speculation to win back. A speed-up ratio without its baseline says
+little. One thing does carry across engines: MTP acceptance at depth 2 is 0.728 on llama.cpp and 0.709
+on vLLM, which suggests acceptance is mostly a property of the model's draft head, not of either
+implementation.
+
+\paragraph{A separate draft model hits a wall on 16\,GB cards.} SGLang failed at every context length
+tried (131K down to 16K) with \texttt{Tried to allocate 1.19\,GiB} while initialising its EAGLE draft
+worker. vLLM with the 3.6\,GB BF16 DFlash2 drafter failed on an allocation of the \emph{same size} at
+every utilisation setting from 0.78 to 0.97. llama.cpp with a 1.1\,GB 4-bit GGUF drafter worked. So
+three stacks were tried, two failed the same way, and the one that succeeded differs in the two ways
+one would predict: a quantized drafter, and layer-split placement that leaves per-card headroom where
+tensor-parallel replication does not. The matching 1.19\,GiB figure is an observation; no allocator
+was instrumented. MTP avoids the problem on both backends because its predictor lives inside the
+checkpoint. SGLang produced no measurement of any kind, and nothing here says anything about its
+quality: a non-speculative SGLang configuration was not attempted.
+
+\begin{takeaway}
+\textbf{Why llama.cpp.} On two unlinked 16\,GB cards it was the only server that reached the native
+262K window, the only one that ran a separate drafter, and the one with the wider choice of weight
+precisions. vLLM's tensor parallelism balances memory better and its MTP path was the most
+energy-efficient configuration measured (3.60\,J/token at depth 0), so this is a statement about this
+memory budget and these builds, not about the engines in general.
+\end{takeaway}

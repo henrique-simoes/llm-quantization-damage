@@ -1,0 +1,500 @@
+\begin{thebibliography}{57}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[{Qwen Team}(2026{\natexlab{a}})]{qwen38}
+{Qwen Team}.
+\newblock {Qwen3.8-Max}: A new bar for coding and cowork, August
+  2026{\natexlab{a}}.
+\newblock URL \url{https://qwen.ai/blog?id=qwen3.8}.
+
+\bibitem[{Qwen Team}(2026{\natexlab{b}})]{qwen38_27b_card}
+{Qwen Team}.
+\newblock {Qwen3.8-27B}.
+\newblock Hugging Face model card, 2026{\natexlab{b}}.
+\newblock URL \url{https://huggingface.co/Qwen/Qwen3.8-27B}.
+\newblock Apache-2.0; created 2026-08-05. Native context 262{,}144. Official
+  sampling --- thinking: temp 1.0 / top\_p 0.95 / top\_k 20 / min\_p 0.0 /
+  presence 0.0; non-thinking: temp 0.7 / top\_p 0.80 / top\_k 20 / min\_p 0.0 /
+  presence 1.5. \texttt{reasoning\_effort} options: \texttt{xhigh} $|$
+  \texttt{medium} $|$ \texttt{low}.
+
+\bibitem[Dutta et~al.(2024)Dutta, Krishnan, Kwatra, and
+  Ramjee]{dutta2024accuracy}
+Abhinav Dutta, Sanjeev Krishnan, Nipun Kwatra, and Ramachandran Ramjee.
+\newblock Accuracy is not all you need.
+\newblock In \emph{Advances in Neural Information Processing Systems 37
+  (NeurIPS)}, 2024.
+\newblock \doi{10.48550/arXiv.2407.09141}.
+\newblock URL \url{https://arxiv.org/abs/2407.09141}.
+
+\bibitem[Gerganov and {llama.cpp contributors}(2026)]{llamacpp}
+Georgi Gerganov and {llama.cpp contributors}.
+\newblock {llama.cpp}: {LLM} inference in {C}/{C}++, 2026.
+\newblock URL \url{https://github.com/ggml-org/llama.cpp}.
+\newblock Engine commit \texttt{d222767}; container image
+  \texttt{llamacpp-mtp:latest}, digest
+  \texttt{sha256:feb0231976b65b548772845652833a370f78890d94f485a1392e25fdb5944b62}.
+
+\bibitem[{Unsloth AI}(2026{\natexlab{a}})]{unsloth_dynamic3}
+{Unsloth AI}.
+\newblock Unsloth dynamic 3.0 {GGUF}s.
+\newblock Unsloth documentation, 2026{\natexlab{a}}.
+\newblock URL \url{https://unsloth.ai/docs/basics/dynamic-3.0-ggufs}.
+\newblock Ranks Dynamic {GGUF}s on mean {KL} divergence; warns that calibrating
+  and evaluating on the same Wikipedia-like data overfits the metric. A
+  companion ``Dynamic 2.0'' page cited in earlier drafts no longer resolves.
+
+\bibitem[{Unsloth AI}(2026{\natexlab{b}})]{unsloth_qwen38_gguf}
+{Unsloth AI}.
+\newblock {unsloth/Qwen3.8-27B-GGUF}.
+\newblock Hugging Face model repository, 2026{\natexlab{b}}.
+\newblock URL \url{https://huggingface.co/unsloth/Qwen3.8-27B-GGUF}.
+\newblock Source of every {GGUF} arm in this study. Exact file sizes and
+  {SHA}-256 digests are recorded in
+  \texttt{manuscript/references/PROVENANCE.md}.
+
+\bibitem[Layton(2025)]{nvidia_nvfp4}
+Simon Layton.
+\newblock Introducing {NVFP4} for efficient and accurate low-precision
+  inference.
+\newblock NVIDIA Technical Blog, 2025.
+\newblock URL
+  \url{https://developer.nvidia.com/blog/introducing-nvfp4-for-efficient-and-accurate-low-precision-inference/}.
+\newblock Publication date not independently confirmed; treat as mid-2025.
+
+\bibitem[Kwon et~al.(2023)Kwon, Li, Zhuang, Sheng, Zheng, Yu, Gonzalez, Zhang,
+  and Stoica]{kwon2023pagedattention}
+Woosuk Kwon, Zhuohan Li, Siyuan Zhuang, Ying Sheng, Lianmin Zheng, Cody~Hao Yu,
+  Joseph~E. Gonzalez, Hao Zhang, and Ion Stoica.
+\newblock Efficient memory management for large language model serving with
+  {PagedAttention}.
+\newblock In \emph{Proceedings of the 29th Symposium on Operating Systems
+  Principles (SOSP)}, pages 611--626. ACM, 2023.
+\newblock \doi{10.1145/3600006.3613165}.
+\newblock URL \url{https://doi.org/10.1145/3600006.3613165}.
+
+\bibitem[{vLLM Project}(2026)]{vllm}
+{vLLM Project}.
+\newblock {vLLM}: a high-throughput and memory-efficient inference and serving
+  engine for {LLM}s, 2026.
+\newblock URL \url{https://github.com/vllm-project/vllm}.
+\newblock Versions used: stable \texttt{0.27.1} (image digest
+  \texttt{sha256:0a51ea5b4ae2\ldots}) and nightly
+  \texttt{0.26.1rc1.dev1219+g46638857f} (\texttt{sha256:22d3b1217fda\ldots});
+  full digests are in the repository's environment manifest.
+
+\bibitem[Merity et~al.(2017)Merity, Xiong, Bradbury, and
+  Socher]{merity2017pointer}
+Stephen Merity, Caiming Xiong, James Bradbury, and Richard Socher.
+\newblock Pointer sentinel mixture models.
+\newblock In \emph{5th International Conference on Learning Representations
+  (ICLR)}, 2017.
+\newblock \doi{10.48550/arXiv.1609.07843}.
+\newblock URL \url{https://arxiv.org/abs/1609.07843}.
+\newblock Introduces {WikiText-2}, the convention corpus for {llama.cpp}
+  perplexity and {KL}-divergence measurement.
+
+\bibitem[{kalomaze}(2023)]{kalomaze2023ppl}
+{kalomaze}.
+\newblock Perplexity / {PPL}, as a quantization loss benchmark, is inaccurate
+  --- {KL} divergence seem to be a better data point.
+\newblock GitHub Discussion \#4110, \texttt{ggml-org/llama.cpp}, November 2023.
+\newblock URL \url{https://github.com/ggml-org/llama.cpp/discussions/4110}.
+
+\bibitem[{ggml-org llama.cpp contributors}(2026)]{llamacpp_perplexity_readme}
+{ggml-org llama.cpp contributors}.
+\newblock {llama.cpp} perplexity tool: perplexity and {KL}-divergence
+  measurement.
+\newblock
+  \url{https://github.com/ggml-org/llama.cpp/blob/master/tools/perplexity/README.md},
+  2026.
+\newblock URL
+  \url{https://github.com/ggml-org/llama.cpp/blob/master/tools/perplexity/README.md}.
+\newblock Documents \texttt{--kl-divergence-base} and \texttt{--kl-divergence}.
+  Accessed 2026-09-02.
+
+\bibitem[{Fireworks AI}(2024)]{fireworks2024quantization}
+{Fireworks AI}.
+\newblock How {Fireworks} evaluates quantization precisely and interpretably.
+\newblock Fireworks AI blog, August 2024.
+\newblock URL \url{https://fireworks.ai/blog/fireworks-quantization}.
+\newblock Publishes a {KLD} $<0.007$ threshold for high-quality deployments.
+
+\bibitem[{oobabooga}(2026)]{localbench2026gguf}
+{oobabooga}.
+\newblock {GGUF} quantization quality benchmark: Methodology.
+\newblock LocalBench (Substack), April 2026.
+\newblock URL
+  \url{https://localbench.substack.com/p/gguf-benchmark-methodology}.
+\newblock ${\sim}250{,}000$ tokens across 6 task categories; {KLD} on prompt
+  tokens plus top-1 agreement, over top-40 log-probabilities. Argues the
+  commonly quoted 0.01--0.03 band for \texttt{Q4\_K\_M} is an artifact of
+  short-context Wikipedia protocols.
+
+\bibitem[Kurt(2026)]{kurt2026whichquant}
+Uygar Kurt.
+\newblock Which quantization should {I} use? {A} unified evaluation of
+  {llama.cpp} quantization on {Llama-3.1-8B-Instruct}, 2026.
+\newblock URL \url{https://arxiv.org/abs/2601.14277}.
+
+\bibitem[Miller(2024)]{miller2024errorbars}
+Evan Miller.
+\newblock Adding error bars to evals: A statistical approach to language model
+  evaluations, 2024.
+\newblock URL \url{https://arxiv.org/abs/2411.00640}.
+
+\bibitem[Bowyer et~al.(2025)Bowyer, Aitchison, and Ivanova]{bowyer2025clt}
+Sam Bowyer, Laurence Aitchison, and Desi~R. Ivanova.
+\newblock Position: Don't use the {CLT} in {LLM} evals with fewer than a few
+  hundred datapoints.
+\newblock \url{https://arxiv.org/abs/2503.01747}, 2025.
+\newblock ICML 2025 position paper; arXiv:2503.01747.
+
+\bibitem[Hsieh et~al.(2024)Hsieh, Sun, Kriman, Acharya, Rekesh, Jia, Zhang, and
+  Ginsburg]{hsieh2024ruler}
+Cheng-Ping Hsieh, Simeng Sun, Samuel Kriman, Shantanu Acharya, Dima Rekesh, Fei
+  Jia, Yang Zhang, and Boris Ginsburg.
+\newblock {RULER}: What's the real context size of your long-context language
+  models?
+\newblock In \emph{First Conference on Language Modeling (COLM)}, 2024.
+\newblock \doi{10.48550/arXiv.2404.06654}.
+\newblock URL \url{https://arxiv.org/abs/2404.06654}.
+
+\bibitem[{NVIDIA}(2024)]{ruler_repo}
+{NVIDIA}.
+\newblock {RULER}: reference implementation and synthetic task generators,
+  2024.
+\newblock URL \url{https://github.com/NVIDIA/RULER}.
+\newblock Task generators, official templates and the
+  \texttt{string\_match\_all} metric reproduced verbatim and unit-checked in
+  this study.
+
+\bibitem[Yen et~al.(2025)Yen, Gao, Hou, Ding, Fleischer, Izsak, Wasserblat, and
+  Chen]{yen2025helmet}
+Howard Yen, Tianyu Gao, Minmin Hou, Ke~Ding, Daniel Fleischer, Peter Izsak,
+  Moshe Wasserblat, and Danqi Chen.
+\newblock {HELMET}: How to evaluate long-context language models effectively
+  and thoroughly.
+\newblock In \emph{International Conference on Learning Representations
+  (ICLR)}, 2025.
+\newblock arXiv:2410.02694.
+
+\bibitem[Modarressi et~al.(2025)]{modarressi2025nolima}
+Ali Modarressi et~al.
+\newblock {NoLiMa}: Long-context evaluation beyond literal matching.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2025.
+\newblock arXiv:2502.05167. Full author list to be completed before
+  publication.
+
+\bibitem[Fang et~al.(2025)Fang, Wang, Liu, Zhang, Jegelka, Gao, Ding, and
+  Wang]{fang2025longppl}
+Lizhe Fang, Yifei Wang, Zhaoyang Liu, Chenheng Zhang, Stefanie Jegelka, Jinyang
+  Gao, Bolin Ding, and Yisen Wang.
+\newblock What is wrong with perplexity for long-context language modeling?
+\newblock In \emph{The Thirteenth International Conference on Learning
+  Representations (ICLR)}, 2025.
+\newblock \doi{10.48550/arXiv.2410.23771}.
+\newblock URL
+  \url{https://proceedings.iclr.cc/paper_files/paper/2025/hash/ebd6641c32ed633c2a3addc689d39896-Abstract-Conference.html}.
+\newblock Proposes {LongPPL}; reports Pearson $-0.96$ with long-context
+  benchmark performance where plain perplexity correlates poorly.
+
+\bibitem[Mekala et~al.(2025)Mekala, Atmakuru, Song, Karpinska, and
+  Iyyer]{mekala2025quantlongcontext}
+Anmol Mekala, Anirudh Atmakuru, Yixiao Song, Marzena Karpinska, and Mohit
+  Iyyer.
+\newblock Does quantization affect models' performance on long-context tasks?
+\newblock In \emph{Proceedings of the 2025 Conference on Empirical Methods in
+  Natural Language Processing (EMNLP)}, 2025.
+\newblock \doi{10.48550/arXiv.2505.20276}.
+\newblock URL \url{https://arxiv.org/abs/2505.20276}.
+
+\bibitem[Kurti{\'c} et~al.(2025)Kurti{\'c}, Kurtz, Marques, and
+  Alistarh]{redhat_longcontext_quant}
+Eldar Kurti{\'c}, Mark Kurtz, Alexandre Marques, and Dan Alistarh.
+\newblock How well do quantized models handle long-context tasks?
+\newblock Red Hat Developer (originally published by Neural Magic), 2025.
+\newblock URL
+  \url{https://developers.redhat.com/articles/2024/02/03/how-well-do-quantized-models-handle-long-context-tasks}.
+\newblock {RULER} on {Llama-3.1} 8B/70B at 4K--128K across {FP} W8A8, {INT}
+  W8A8 and {INT} W4A16. The page's stated date of 2024-02-03 is a
+  site-migration artifact and precedes the model and benchmark it evaluates.
+
+\bibitem[{Artificial
+  Analysis}(2026{\natexlab{a}})]{artificialanalysis2026aalcr}
+{Artificial Analysis}.
+\newblock {AA-LCR}: Artificial analysis long context reasoning, version 1.1.
+\newblock \url{https://huggingface.co/datasets/ArtificialAnalysis/AA-LCR},
+  2026{\natexlab{a}}.
+\newblock Hugging Face dataset ArtificialAnalysis/AA-LCR, revision 9a77ef56
+  (2026-09-04), Apache-2.0.
+
+\bibitem[Liu et~al.(2024)]{liu2024kivi}
+Zirui Liu et~al.
+\newblock {KIVI}: A tuning-free asymmetric 2bit quantization for {KV} cache.
+\newblock In \emph{International Conference on Machine Learning (ICML)}, 2024.
+\newblock arXiv:2402.02750. Full author list to be completed before
+  publication.
+
+\bibitem[Hooper et~al.(2024)]{hooper2024kvquant}
+Coleman Hooper et~al.
+\newblock {KVQuant}: Towards 10 million context length {LLM} inference with
+  {KV} cache quantization.
+\newblock In \emph{Advances in Neural Information Processing Systems
+  (NeurIPS)}, 2024.
+\newblock arXiv:2401.18079. Full author list to be completed before
+  publication.
+
+\bibitem[{oobabooga (localbench)}(2026)]{localbench2026kvquant}
+{oobabooga (localbench)}.
+\newblock Gemma 4 and qwen 3.6 with q8\_0 and q4\_0 {KV} cache: {KL} divergence
+  results.
+\newblock
+  \url{https://localbench.substack.com/p/kv-cache-quantization-benchmark},
+  2026.
+\newblock Published 2026-04-24.
+
+\bibitem[Leviathan et~al.(2023)Leviathan, Kalman, and
+  Matias]{leviathan2023speculative}
+Yaniv Leviathan, Matan Kalman, and Yossi Matias.
+\newblock Fast inference from transformers via speculative decoding.
+\newblock In \emph{Proceedings of the 40th International Conference on Machine
+  Learning (ICML)}, volume 202 of \emph{Proceedings of Machine Learning
+  Research}, pages 19274--19286. PMLR, 2023.
+\newblock URL \url{https://proceedings.mlr.press/v202/leviathan23a.html}.
+
+\bibitem[Chen et~al.(2023)Chen, Borgeaud, Irving, Lespiau, Sifre, and
+  Jumper]{chen2023speculativesampling}
+Charlie Chen, Sebastian Borgeaud, Geoffrey Irving, Jean-Baptiste Lespiau,
+  Laurent Sifre, and John Jumper.
+\newblock Accelerating large language model decoding with speculative sampling,
+  2023.
+\newblock URL \url{https://arxiv.org/abs/2302.01318}.
+
+\bibitem[Cai et~al.(2024)Cai, Li, Geng, Peng, Lee, Chen, and
+  Dao]{cai2024medusa}
+Tianle Cai, Yuhong Li, Zhengyang Geng, Hongwu Peng, Jason~D. Lee, Deming Chen,
+  and Tri Dao.
+\newblock {Medusa}: Simple {LLM} inference acceleration framework with multiple
+  decoding heads.
+\newblock In \emph{Proceedings of the 41st International Conference on Machine
+  Learning (ICML)}, volume 235 of \emph{Proceedings of Machine Learning
+  Research}. PMLR, 2024.
+\newblock URL \url{https://proceedings.mlr.press/v235/cai24b.html}.
+
+\bibitem[Gloeckle et~al.(2024)Gloeckle, Idrissi, Rozi{\`e}re, Lopez-Paz, and
+  Synnaeve]{gloeckle2024multitoken}
+Fabian Gloeckle, Badr~Youbi Idrissi, Baptiste Rozi{\`e}re, David Lopez-Paz, and
+  Gabriel Synnaeve.
+\newblock Better \& faster large language models via multi-token prediction,
+  2024.
+\newblock URL \url{https://arxiv.org/abs/2404.19737}.
+
+\bibitem[{DeepSeek-AI}(2024)]{deepseekv3}
+{DeepSeek-AI}.
+\newblock {DeepSeek-V3} technical report, 2024.
+\newblock URL \url{https://arxiv.org/abs/2412.19437}.
+
+\bibitem[Chen et~al.(2026)Chen, Liang, and Liu]{chen2026dflash}
+Jian Chen, Yesheng Liang, and Zhijian Liu.
+\newblock {DFlash}: Block diffusion for flash speculative decoding.
+\newblock In \emph{Proceedings of the 43rd International Conference on Machine
+  Learning (ICML)}. PMLR, 2026.
+\newblock \doi{10.48550/arXiv.2602.06036}.
+\newblock URL \url{https://arxiv.org/abs/2602.06036}.
+\newblock Authors' implementation: \url{https://github.com/z-lab/dflash}.
+
+\bibitem[{Inco AI}(2026)]{incoai2026dflash2}
+{Inco AI}.
+\newblock {DFlash 2}: Keep drafting parallel.
+\newblock \url{https://inco.ai/blog/dflash2/}, 2026.
+\newblock Blog post, 2026-08-18.
+
+\bibitem[{ggml-org}(2026{\natexlab{a}})]{llamacpp_pr27342_dflash2}
+{ggml-org}.
+\newblock spec : add {DFlash2} support (local convolution + candidate
+  selector), llama.cpp pull request \#27342.
+\newblock \url{https://github.com/ggml-org/llama.cpp/pull/27342},
+  2026{\natexlab{a}}.
+\newblock Merged 2026-08-27.
+
+\bibitem[He and {Thinking Machines
+  Lab}(2025)]{thinkingmachines2025nondeterminism}
+Horace He and {Thinking Machines Lab}.
+\newblock Defeating nondeterminism in {LLM} inference.
+\newblock
+  \url{https://thinkingmachines.ai/blog/defeating-nondeterminism-in-llm-inference/},
+  2025.
+\newblock Blog post, September 2025.
+
+\bibitem[{vLLM project}(2026)]{vllm_specdecode_docs}
+{vLLM project}.
+\newblock Speculative decoding: lossless guarantees.
+\newblock \url{https://docs.vllm.ai/en/latest/features/speculative_decoding/},
+  2026.
+\newblock Documentation, retrieved 2026-09-15.
+
+\bibitem[{ggml-org}(2026{\natexlab{b}})]{llamacpp_issue25618}
+{ggml-org}.
+\newblock Eval bug: Speculative decoding (draft-mtp / draft-dspark): greedy
+  output diverges from vanilla on quantized targets, llama.cpp issue \#25618.
+\newblock \url{https://github.com/ggml-org/llama.cpp/issues/25618},
+  2026{\natexlab{b}}.
+\newblock Opened 2026-07-13; open as of 2026-09-15.
+
+\bibitem[Chen et~al.(2021)Chen, Tworek, Jun, Yuan, Pinto, Kaplan, Edwards,
+  Burda, Joseph, Brockman, et~al.]{chen2021humaneval}
+Mark Chen, Jerry Tworek, Heewoo Jun, Qiming Yuan, Henrique Ponde de~Oliveira
+  Pinto, Jared Kaplan, Harri Edwards, Yuri Burda, Nicholas Joseph, Greg
+  Brockman, et~al.
+\newblock Evaluating large language models trained on code, 2021.
+\newblock URL \url{https://arxiv.org/abs/2107.03374}.
+
+\bibitem[Liu et~al.(2023)Liu, Xia, Wang, and Zhang]{evalplus}
+Jiawei Liu, Chunqiu~Steven Xia, Yuyao Wang, and Lingming Zhang.
+\newblock Is your code generated by chat{GPT} really correct? rigorous
+  evaluation of large language models for code generation.
+\newblock In \emph{Thirty-seventh Conference on Neural Information Processing
+  Systems}, 2023.
+\newblock URL \url{https://openreview.net/forum?id=1qvx610Cu7}.
+
+\bibitem[Zellers et~al.(2019)Zellers, Holtzman, Bisk, Farhadi, and
+  Choi]{zellers2019hellaswag}
+Rowan Zellers, Ari Holtzman, Yonatan Bisk, Ali Farhadi, and Yejin Choi.
+\newblock {HellaSwag}: Can a machine really finish your sentence?
+\newblock In \emph{Proceedings of the 57th Annual Meeting of the Association
+  for Computational Linguistics (ACL)}, 2019.
+\newblock \doi{10.48550/arXiv.1905.07830}.
+\newblock URL \url{https://arxiv.org/abs/1905.07830}.
+
+\bibitem[Jimenez et~al.(2024)Jimenez, Yang, Wettig, Yao, Pei, Press, and
+  Narasimhan]{jimenez2024swebench}
+Carlos~E. Jimenez, John Yang, Alexander Wettig, Shunyu Yao, Kexin Pei, Ofir
+  Press, and Karthik Narasimhan.
+\newblock {SWE}-bench: Can language models resolve real-world {GitHub} issues?
+\newblock In \emph{The Twelfth International Conference on Learning
+  Representations (ICLR)}, 2024.
+\newblock \doi{10.48550/arXiv.2310.06770}.
+\newblock URL \url{https://arxiv.org/abs/2310.06770}.
+
+\bibitem[{OpenAI}(2024{\natexlab{a}})]{openai2024swebenchverified}
+{OpenAI}.
+\newblock Introducing {SWE}-bench verified.
+\newblock OpenAI blog, August 2024{\natexlab{a}}.
+\newblock URL \url{https://openai.com/index/introducing-swe-bench-verified/}.
+\newblock A 500-instance human-validated subset of the {SWE}-bench test set.
+  Distinct from {SWE}-bench Pro; scores on the two are not comparable.
+
+\bibitem[Yang et~al.(2024)Yang, Jimenez, Wettig, Lieret, Yao, Narasimhan, and
+  Press]{yang2024sweagent}
+John Yang, Carlos~E. Jimenez, Alexander Wettig, Kilian Lieret, Shunyu Yao,
+  Karthik~R. Narasimhan, and Ofir Press.
+\newblock {SWE}-agent: Agent-computer interfaces enable automated software
+  engineering.
+\newblock In \emph{The Thirty-eighth Annual Conference on Neural Information
+  Processing Systems}, 2024.
+\newblock URL \url{https://arxiv.org/abs/2405.15793}.
+
+\bibitem[{SWE-agent contributors}(2026)]{miniswe}
+{SWE-agent contributors}.
+\newblock \texttt{mini-swe-agent}, 2026.
+\newblock URL \url{https://github.com/SWE-agent/mini-swe-agent}.
+\newblock Used for the {SWE}-bench Verified runs. A simpler rewrite of
+  {SWE}-agent; the {SWE}-agent paper describes a different system.
+
+\bibitem[Rein et~al.(2023)Rein, Hou, Stickland, Petkova, Pang, Dirani, Mishra,
+  and Bowman]{rein2023gpqa}
+David Rein, Betty~Li Hou, Asa~Cooper Stickland, Jackson Petkova,
+  Richard~Yuanzhe Pang, Julien Dirani, Nikita Mishra, and Samuel~R. Bowman.
+\newblock {GPQA}: A graduate-level google-proof {Q\&A} benchmark.
+\newblock \emph{arXiv preprint arXiv:2311.12022}, 2023.
+\newblock Published at COLM 2024.
+
+\bibitem[Jain et~al.(2025)Jain, Han, Gu, Li, Yan, Zhang, Wang, Solar-Lezama,
+  Sen, and Stoica]{jain2025livecodebench}
+Naman Jain, King Han, Alex Gu, Wen-Ding Li, Fanjia Yan, Tianjun Zhang, Sida
+  Wang, Armando Solar-Lezama, Koushik Sen, and Ion Stoica.
+\newblock {LiveCodeBench}: Holistic and contamination free evaluation of large
+  language models for code.
+\newblock In \emph{The Thirteenth International Conference on Learning
+  Representations (ICLR)}, 2025.
+\newblock \doi{10.48550/arXiv.2403.07974}.
+\newblock URL \url{https://arxiv.org/abs/2403.07974}.
+
+\bibitem[Merrill et~al.(2026)Merrill, Shaw, Carlini, Li, Raj, Bercovich, Shi,
+  Shin, Walshe, Buchanan, et~al.]{merrill2026terminalbench}
+Mike~A. Merrill, Alexander~G. Shaw, Nicholas Carlini, Boxuan Li, Harsh Raj,
+  Ivan Bercovich, Lin Shi, Jeong~Yeon Shin, Thomas Walshe, E.~Kelly Buchanan,
+  et~al.
+\newblock Terminal-bench: Benchmarking agents on hard, realistic tasks in
+  command line interfaces, 2026.
+\newblock URL \url{https://arxiv.org/abs/2601.11868}.
+\newblock Describes Terminal-Bench 2.0 (89 tasks); leaderboard at
+  \url{https://www.tbench.ai/}.
+
+\bibitem[{Artificial
+  Analysis}(2026{\natexlab{b}})]{artificialanalysis2026methodology}
+{Artificial Analysis}.
+\newblock Intelligence benchmarking methodology; {LLM} performance benchmarking
+  methodology.
+\newblock
+  \url{https://artificialanalysis.ai/methodology/intelligence-benchmarking},
+  2026{\natexlab{b}}.
+\newblock Retrieved 2026-09-15.
+
+\bibitem[{OpenAI}(2024{\natexlab{b}})]{openai_simpleevals}
+{OpenAI}.
+\newblock simple-evals.
+\newblock \url{https://github.com/openai/simple-evals}, 2024{\natexlab{b}}.
+\newblock \texttt{common.py} multiple-choice template and answer pattern.
+
+\bibitem[Wilson(1927)]{wilson1927interval}
+Edwin~B. Wilson.
+\newblock Probable inference, the law of succession, and statistical inference.
+\newblock \emph{Journal of the American Statistical Association}, 22\penalty0
+  (158):\penalty0 209--212, 1927.
+\newblock \doi{10.1080/01621459.1927.10502953}.
+
+\bibitem[McNemar(1947)]{mcnemar1947test}
+Quinn McNemar.
+\newblock Note on the sampling error of the difference between correlated
+  proportions or percentages.
+\newblock \emph{Psychometrika}, 12\penalty0 (2):\penalty0 153--157, 1947.
+\newblock \doi{10.1007/BF02295996}.
+
+\bibitem[Efron(1979)]{efron1979bootstrap}
+B.~Efron.
+\newblock Bootstrap methods: Another look at the jackknife.
+\newblock \emph{The Annals of Statistics}, 7\penalty0 (1):\penalty0 1--26,
+  1979.
+\newblock \doi{10.1214/aos/1176344552}.
+
+\bibitem[{ggml-org}(2026{\natexlab{c}})]{llamacpp_pr20288_checkpoints}
+{ggml-org}.
+\newblock Context checkpoints near the end of the prompt, llama.cpp pull
+  request \#20288.
+\newblock \url{https://github.com/ggml-org/llama.cpp/pull/20288},
+  2026{\natexlab{c}}.
+
+\bibitem[{Inco AI} and {z-lab}(2026)]{incoai2026dflash2_card}
+{Inco AI} and {z-lab}.
+\newblock {Qwen3.8-27B-DFlash2} model card and {GGUF} release (mirrored as
+  z-lab/qwen3.8-27b-dflash2-gguf).
+\newblock \url{https://huggingface.co/incoai/Qwen3.8-27B-DFlash2}, 2026.
+\newblock Q4\_K\_M GGUF sha256 1a25c568..., revision with
+  dflash.rope.dimension\_sections.
+
+\bibitem[{Artificial
+  Analysis}(2026{\natexlab{c}})]{artificialanalysis2026qwen38}
+{Artificial Analysis}.
+\newblock {Qwen3.8 27B} (xhigh, medium, low, non-reasoning): Intelligence,
+  performance \& price analysis.
+\newblock \url{https://artificialanalysis.ai/models/qwen3-8-27b},
+  2026{\natexlab{c}}.
+\newblock Retrieved 2026-09-15; archived locally with SHA-256 checksums.
+
+\end{thebibliography}

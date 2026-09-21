@@ -1,0 +1,52 @@
+\section{Conclusion}\label{sec:conclusion}
+
+A 27B hybrid-attention model runs at its full 262K-token window on two 16\,GB consumer cards, decodes
+at 26--28 tokens per second with that window nearly full, and answers long-document reasoning questions
+about as well as the hosted model does on public leaderboards. Getting there took a hand-swept layer
+split, a quantized cache, a drafter run at its design depth, and a soak test that watches host RAM.
+None of those appear in a typical quantization table.
+
+The methodological result is about instruments. For choosing between neighbouring quantizations, every
+task benchmark I could afford (six, from a 30-minute multiple-choice run to four days of
+agentic repair) returned overlapping intervals, and more than once ranked the ladder backwards. KL divergence
+against a reference separated the same builds decisively in two hours, showed the damage to be about
+twice as large on code as on prose, and located it in a few percent of tokens. The two views are
+consistent: a perturbation confined to a thin tail rarely lands on a decisive token, so outcomes barely
+move. That link is consistent with the data and was not tested; the tail's shape is also a property of
+the corpus, not of quantization. What a practitioner should take from the pair is a bound, not a ranking: going from the 6-bit
+reference to the 4-bit build cost at most about three points of HumanEval+ here, and nothing visible
+on GPQA Diamond or AA-LCR.
+
+Against the title's three axes, then. \emph{Accuracy:} quantization from 6 to 4 bits costs a
+divergence that is easy to measure ($3.7\times$ on code) and an outcome difference that no benchmark here
+could detect; speculative decoding changes about one greedy completion in five and no score.
+\emph{Context:} quantization decides how precise a cache fits beside the weights at 262K tokens (8-bit
+for \Qfour, 4-bit for \Qsix, and only 212{,}992 tokens for \QsixXL), and the layer split decides whether
+the window loads at all; a drafter costs little context with a quantized cache and one 32K-token rung,
+for the separate drafter, with an \flag{f16} cache. \emph{Speed:} quantization buys almost none at depth
+(builds within 7\,\% at the full window), while speculation buys $3.4$--$4.2\times$ at 32K filled tokens
+and $7.4$--$7.7\times$ at 246K, with DFlash2 at draft depth 7 ahead of MTP by 45--65\,\% at every depth.
+
+The same lesson held on the systems side. A context ceiling depended on the layer split. A perplexity
+gap went from 29\,\% to 0.8\,\% when the convention was matched. A ``lossless'' speed feature changed one
+completion in five. A drafter looked dominated until it was run on the right build, at the right depth,
+for more than 17 tokens. In each case the number was a property of the protocol until the protocol
+was pinned.
+
+Three things I would ask of published local-inference numbers, including my own: state the corpus,
+window and scoring rule with every perplexity or divergence; state the split, cache precision and
+filled depth with every context or speed figure; and keep per-item records, because that is what made
+fourteen of sixteen corrections free.
+
+\section*{Artifact availability}
+Data, harness source, the decision log, the ledger and all per-finding notes (including the superseded
+ones) are at \url{https://github.com/henrique-simoes/llm-quantization-damage} under CC~BY~4.0 (data
+and text) and an open-source licence (code). Raw server logs and the 1\,Hz power log are too large to
+publish; derived artifacts and verbatim extracts stand in for them. AA-LCR documents and GPQA items are
+not redistributed, per their licences; answer files carry item identifiers only.
+
+\section*{Acknowledgements}
+This work depends on llama.cpp and its contributors, the Qwen team, Unsloth's quantized builds, the
+DFlash authors and the maintainers who ported the drafter, vLLM, EvalPlus, SWE-bench and
+mini-SWE-agent, RULER, GPQA, and Artificial Analysis for publishing AA-LCR with its scoring prompt. No
+external funding was received. Errors are mine.

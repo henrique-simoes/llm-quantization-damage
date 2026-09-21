@@ -1,0 +1,60 @@
+\section{The resulting configuration}\label{sec:config}
+
+This section is the practical answer for this machine, chosen in the priority order accuracy, then
+usable context, then speed. It is a decision for one host and one workload (a single-user coding
+agent). The rest of the report does not depend on it.
+
+\begin{table}[t]
+\centering\small
+\caption{The configuration that now serves on this host, and its tested fallback. Both hold the native
+262{,}144-token window in one slot.}\label{tab:config}
+\begin{tabularx}{\linewidth}{@{}lXX@{}}
+\toprule
+ & \textbf{serving} & fallback \\
+\midrule
+weights & \Qfour{} (16.4\,GiB) & \Qsix{} (20.5\,GiB) \\
+KV cache & \flag{q8\_0} & \flag{q4\_0} \\
+drafter & DFlash2, draft depth 7, drafter on GPU1 & built-in MTP, depth 4 \\
+engine & upstream llama.cpp b10975 (E-C) & MTP build (E-A) \\
+split & layer, \flag{-ts 58,42} & layer, \flag{-ts 58,42} \\
+decode at $\sim$100K input, thinking & 29.8\tps{} [23.8, 51.3] & 16.3\tps{} [16.1, 16.6] \\
+decode at 246K filled, greedy code (\flag{q4\_0} KV probe) & 27.7\tps & 17.3\tps \\
+AA-LCR / GPQA Diamond & 87/100 \,/\, 175/198 & 22/30 \,/\, 48/50 (subsets) \\
+peak host RAM, 252K-token soak & 1.7\,GiB & 5.4\,GiB \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{verbatim}
+llama-server -m Qwen3.8-27B-UD-Q4_K_XL.gguf -ngl 99 -sm layer -ts 58,42 \
+  -c 262144 -fit off -fa on -ctk q8_0 -ctv q8_0 -b 2048 -ub 512 \
+  -np 1 -ctxcp 4 -cram 0 \
+  --spec-type draft-dflash -md Qwen3.8-27B-DFlash2-Q4_K_M.gguf \
+  -ngld 99 --spec-draft-n-max 7 -devd CUDA1
+\end{verbatim}
+
+\paragraph{How the decision went.} After the first battery the choice was \Qsix{} with MTP and a
+4-bit cache: the highest-fidelity build that reaches the full window, since speed did not separate the
+builds and divergence did. The second battery changed the picture on three counts. No accuracy
+instrument separated \Qsix{} with a 4-bit cache from \Qfour{} with an 8-bit cache at the full window
+(\cref{sec:aalcr}), and outside evidence makes the 4-bit cache the riskier unknown at depth
+(\cref{sec:kvq}). DFlash2 was 45--65\,\% faster at every depth (\cref{sec:s15speed}). And it used 3.6\,GiB
+less host RAM on a 14\,GiB machine whose only outage had been host RAM (\cref{sec:hostram}). On
+divergence \Qfour{} is measurably further from the reference than \Qsix; whether a user would ever
+notice is exactly what the task instruments could not show. I weighed a measured speed and memory gain
+against an unmeasurable accuracy difference, and kept the 6-bit line one restart away.
+
+\paragraph{What did not survive first contact.} The first cut-over failed. The serving image (E-A)
+lists \flag{draft-dflash} in its help text and cannot parse the drafter file: the same ``expected 81,
+got 58'' signature that had produced a silent zero a month earlier. The winner needed a different
+engine build, not a different flag. The second attempt, on build E-C, passed the gate that the outage
+had created: a 44-turn soak to 252{,}525 tokens under serving sampling, peak host memory 1{,}714\,MiB,
+no swap growth, rollbacks reprocessing 4 tokens, and recovery from a forced kill to a healthy server
+at the full window.
+
+\paragraph{If your hardware differs.} The numbers will not transfer. The procedure should: (1)~compute
+the KV budget from the architecture; (2)~sweep the layer split for \emph{your} build, cache precision
+and drafter, keeping the fastest split that loads; (3)~accept a window only after a deep prefill
+\emph{and} a generation; (4)~prefer the gentlest cache precision that holds your window; (5)~run the
+drafter at its design depth and measure at your real context depth with greedy fixed prompts;
+(6)~soak-test a growing multi-turn conversation while watching host RAM before trusting any of it.
