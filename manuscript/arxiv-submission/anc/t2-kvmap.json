@@ -1,0 +1,277 @@
+{
+ "schema": "s15-t2/v1",
+ "image": "sha256:5268283a8d6510d167364f19aee93e98180d8eb0cac4b7edb20af7e3edf40c17",
+ "cells": {
+  "Q6_K|mtp|q4_0": {
+   "quant": "Q6_K",
+   "drafter": "mtp",
+   "kv": "q4_0",
+   "predicted_max_tokens": 289885,
+   "start_rung": 262144,
+   "tests": [],
+   "failed_above": null,
+   "native_cap": true,
+   "ceiling": 262144,
+   "best": {
+    "ts": "58,42",
+    "devd": null,
+    "vram_peak_mib": [
+     15400,
+     15106
+    ],
+    "key": "t2-Q6_K-mtp-q4_0-262144-ts58_42-def-a1",
+    "prompt_tok_s": 494.83520884074034,
+    "decode_tok_s": 18.4371422617113
+   }
+  },
+  "Q6_K|mtp|q8_0": {
+   "quant": "Q6_K",
+   "drafter": "mtp",
+   "kv": "q8_0",
+   "predicted_max_tokens": 167828,
+   "start_rung": 163840,
+   "tests": [],
+   "failed_above": 229376,
+   "failed_above_attempts": 2,
+   "draft_kv_q8_variant": {
+    "rung": 229376,
+    "status": "fail",
+    "key": "t2-Q6_K-mtp-q8_0-229376-ts56_44-def-a1",
+    "note": "not adopted without matched-depth tau (DEC-17 item 9)"
+   },
+   "ceiling": 196608,
+   "best": {
+    "ts": "56,44",
+    "devd": null,
+    "vram_peak_mib": [
+     15552,
+     15722
+    ],
+    "key": "t2-Q6_K-mtp-q8_0-196608-ts56_44-def-a1",
+    "prompt_tok_s": 568.94259858017,
+    "decode_tok_s": 20.71861313577102
+   }
+  },
+  "Q6_K|mtp|f16": {
+   "quant": "Q6_K",
+   "drafter": "mtp",
+   "kv": "f16",
+   "predicted_max_tokens": 93786,
+   "start_rung": 65536,
+   "tests": [],
+   "failed_above": 163840,
+   "failed_above_attempts": 2,
+   "ceiling": 131072,
+   "best": {
+    "ts": "56,44",
+    "devd": null,
+    "vram_peak_mib": [
+     15696,
+     15144
+    ],
+    "key": "t2-Q6_K-mtp-f16-131072-ts56_44-def-a1",
+    "prompt_tok_s": 705.2893253295405,
+    "decode_tok_s": 24.960277257392093
+   }
+  },
+  "Q6_K|dflash2|q4_0": {
+   "quant": "Q6_K",
+   "drafter": "dflash2",
+   "kv": "q4_0",
+   "predicted_max_tokens": 325860,
+   "start_rung": 262144,
+   "tests": [],
+   "failed_above": null,
+   "native_cap": true,
+   "ceiling": 262144,
+   "best": {
+    "ts": "58,42",
+    "devd": "CUDA1",
+    "vram_peak_mib": [
+     15614,
+     14388
+    ],
+    "key": "t2-Q6_K-dflash2-q4_0-262144-ts58_42-CUDA1-a1",
+    "prompt_tok_s": 489.0728843915041,
+    "decode_tok_s": 22.467897617264068
+   }
+  },
+  "Q6_K|dflash2|q8_0": {
+   "quant": "Q6_K",
+   "drafter": "dflash2",
+   "kv": "q8_0",
+   "predicted_max_tokens": 172514,
+   "start_rung": 163840,
+   "tests": [],
+   "failed_above": 229376,
+   "failed_above_attempts": 2,
+   "ceiling": 196608,
+   "best": {
+    "ts": "56,44",
+    "devd": "CUDA1",
+    "vram_peak_mib": [
+     15754,
+     15532
+    ],
+    "key": "t2-Q6_K-dflash2-q8_0-196608-ts56_44-CUDA1-a1",
+    "prompt_tok_s": 558.3535081921536,
+    "decode_tok_s": 27.887564978435705
+   }
+  },
+  "Q6_K|dflash2|f16": {
+   "quant": "Q6_K",
+   "drafter": "dflash2",
+   "kv": "f16",
+   "predicted_max_tokens": 91648,
+   "start_rung": 65536,
+   "tests": [],
+   "failed_above": 131072,
+   "failed_above_attempts": 2,
+   "ceiling": 98304,
+   "best": {
+    "ts": "58,42",
+    "devd": "CUDA1",
+    "vram_peak_mib": [
+     15664,
+     14246
+    ],
+    "key": "t2-Q6_K-dflash2-f16-98304-ts58_42-CUDA1-a1",
+    "prompt_tok_s": 737.1822471676302,
+    "decode_tok_s": 37.59547300475822
+   }
+  },
+  "Q4_K_XL|mtp|q4_0": {
+   "quant": "Q4_K_XL",
+   "drafter": "mtp",
+   "kv": "q4_0",
+   "predicted_max_tokens": 486285,
+   "start_rung": 262144,
+   "tests": [],
+   "failed_above": null,
+   "native_cap": true,
+   "ceiling": 262144,
+   "best": {
+    "ts": "56,44",
+    "devd": null,
+    "vram_peak_mib": [
+     13408,
+     14814
+    ],
+    "key": "t2-Q4_K_XL-mtp-q4_0-262144-ts56_44-def-a1",
+    "prompt_tok_s": 537.3230455317146,
+    "decode_tok_s": 18.31949500429881
+   }
+  },
+  "Q4_K_XL|mtp|q8_0": {
+   "quant": "Q4_K_XL",
+   "drafter": "mtp",
+   "kv": "q8_0",
+   "predicted_max_tokens": 281533,
+   "start_rung": 262144,
+   "tests": [],
+   "failed_above": null,
+   "native_cap": true,
+   "ceiling": 262144,
+   "best": {
+    "ts": "56,44",
+    "devd": null,
+    "vram_peak_mib": [
+     15710,
+     15702
+    ],
+    "key": "t2-Q4_K_XL-mtp-q8_0-262144-ts56_44-def-a1",
+    "prompt_tok_s": 518.4905123211454,
+    "decode_tok_s": 15.193516489440194
+   }
+  },
+  "Q4_K_XL|mtp|f16": {
+   "quant": "Q4_K_XL",
+   "drafter": "mtp",
+   "kv": "f16",
+   "predicted_max_tokens": 157328,
+   "start_rung": 131072,
+   "tests": [],
+   "failed_above": 229376,
+   "failed_above_attempts": 2,
+   "ceiling": 196608,
+   "best": {
+    "ts": "54,46",
+    "devd": null,
+    "vram_peak_mib": [
+     15620,
+     15340
+    ],
+    "key": "t2-Q4_K_XL-mtp-f16-196608-ts54_46-def-a1",
+    "prompt_tok_s": 624.4339250409394,
+    "decode_tok_s": 28.707668408115403
+   }
+  },
+  "Q4_K_XL|dflash2|q4_0": {
+   "quant": "Q4_K_XL",
+   "drafter": "dflash2",
+   "kv": "q4_0",
+   "predicted_max_tokens": 565904,
+   "start_rung": 262144,
+   "tests": [],
+   "failed_above": null,
+   "native_cap": true,
+   "ceiling": 262144,
+   "best": {
+    "ts": "58,42",
+    "devd": "CUDA1",
+    "vram_peak_mib": [
+     14116,
+     13606
+    ],
+    "key": "t2-Q4_K_XL-dflash2-q4_0-262144-ts58_42-CUDA1-a1",
+    "prompt_tok_s": 530.5333773281784,
+    "decode_tok_s": 23.461897029820257
+   }
+  },
+  "Q4_K_XL|dflash2|q8_0": {
+   "quant": "Q4_K_XL",
+   "drafter": "dflash2",
+   "kv": "q8_0",
+   "predicted_max_tokens": 299596,
+   "start_rung": 262144,
+   "tests": [],
+   "failed_above": null,
+   "native_cap": true,
+   "ceiling": 262144,
+   "best": {
+    "ts": "58,42",
+    "devd": "CUDA1",
+    "vram_peak_mib": [
+     15610,
+     14588
+    ],
+    "key": "t2-Q4_K_XL-dflash2-q8_0-262144-ts58_42-CUDA1-a1",
+    "prompt_tok_s": 515.7560571364404,
+    "decode_tok_s": 16.45780339984723
+   }
+  },
+  "Q4_K_XL|dflash2|f16": {
+   "quant": "Q4_K_XL",
+   "drafter": "dflash2",
+   "kv": "f16",
+   "predicted_max_tokens": 159160,
+   "start_rung": 131072,
+   "tests": [],
+   "failed_above": 196608,
+   "failed_above_attempts": 2,
+   "ceiling": 163840,
+   "best": {
+    "ts": "58,42",
+    "devd": "CUDA1",
+    "vram_peak_mib": [
+     15396,
+     14182
+    ],
+    "key": "t2-Q4_K_XL-dflash2-f16-163840-ts58_42-CUDA1-a1",
+    "prompt_tok_s": 665.6036675281134,
+    "decode_tok_s": 32.55849841479617
+   }
+  }
+ },
+ "updated_utc": "2026-09-16T00:58:30Z"
+}

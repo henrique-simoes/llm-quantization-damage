@@ -1,0 +1,23 @@
+\begin{abstract}
+\noindent
+Running a 27B-parameter model at home means choosing a quantization, a KV-cache precision, a context
+length, a GPU split and a speculative decoder, usually from tables measured on other hardware
+under an unstated protocol. This report measures those choices for Qwen3.8-27B on two 16\,GB
+RTX~5060~Ti cards with 14\,GiB of system RAM.
+\emph{Accuracy.} Task benchmarks did not resolve an accuracy ordering between a 4-bit and a 6-bit
+build: HellaSwag ($n{=}400$), HumanEval+ ($n{=}164$), SWE-bench Verified ($n{=}50$), GPQA Diamond
+($n{=}198$) and AA-LCR ($n{=}100$) return overlapping intervals, and paired HumanEval+ bounds the
+difference within about 4 points. Mean KL divergence from a 6-bit reference (2K tokens, 2.3 GPU-hours) orders every adjacent pair, in 30--32 of 32 paired windows. It is about twice as large
+on code as on prose and strongly right-skewed. It measures distance, not lost quality. Speculative
+decoding reproducibly changed 33 of 164 greedy completions without changing the observed task score.
+\emph{Context.} The native 262{,}144-token window fits on 32\,GB of consumer VRAM only after
+rebalancing the layer split by hand; the engine default fails for three of four builds, and the best
+split does not transfer between builds. The 4-bit build holds that window with an 8-bit cache, the
+6-bit build only with a 4-bit cache; both drafters reach the same window unless the cache
+is unquantized.
+\emph{Speed.} At the full window a smaller build is not measurably faster. On one engine build, a
+block-diffusion drafter (DFlash2) at its design depth decodes 45--65\,\% faster than the built-in
+multi-token-prediction head at every depth to 246K tokens, about $7\times$ faster than no speculation,
+with 3.6\,GiB less host RAM. Host RAM, not VRAM, caused the only serving outage.
+Sixteen of the study's own claims were withdrawn or narrowed on re-analysis, fourteen at no GPU cost. All data, harness code and the decision log are public.
+\end{abstract}

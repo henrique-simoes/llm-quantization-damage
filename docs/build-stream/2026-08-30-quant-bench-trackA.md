@@ -2924,3 +2924,11 @@ already gathered. A gate must not be changed silently after it fires.
   ~23 h for the full passes against ~47 h at the mean (GPQA reasoning is heavy-tailed: 20 s–51 min); now the mean, so the
   117 h pause fires as intended.
 - **Relaunch:** 20:51:53Z; swap cycled to 1 MiB, GPUs 4 MiB, resumed at `29 to do of 50`. No items repeated.
+
+### L-44 | 2026-09-21T18:00:00Z | S16-drafting | claude-fable-5-1 | operator session | Report drafted, audited twice, re-analysed; PN-100..103
+The arXiv report is drafted in `manuscript/tex/` (39 pp, native pgfplots figures). Two review passes
+(one same-family numeric audit, one different-family adversarial read) produced zero-GPU re-analysis:
+paired window-level bootstrap of the divergence ladder (PN-100), Tango score intervals for the paired
+HumanEval+ bound (PN-101), corrected S15 percentages, answer count and battery cost (PN-102), and four
+scope statements (PN-103). S15 answer metadata mirrored text-stripped to `data/raw/e12/s15/answers-meta/`.
+Agent review files are untracked working material. No GPU work; serving untouched.

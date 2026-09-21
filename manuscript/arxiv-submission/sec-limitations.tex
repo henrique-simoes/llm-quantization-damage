@@ -1,0 +1,65 @@
+\section{Limitations}\label{sec:limits}
+
+\paragraph{One model, one machine, one engine family.} Every number is for Qwen3.8-27B in Unsloth
+Dynamic GGUF builds on two RTX~5060~Ti cards with llama.cpp builds from August--September 2026. The
+hybrid attention layout (KV in 16 of 64 layers) makes the context arithmetic unusually favourable;
+dense models of this size will not reach these windows on this memory. The split optima, ceilings and
+speeds are specific to this host. One operator, mostly one seed.
+
+\paragraph{There is no full-precision reference.} BF16 weights do not fit, so every divergence is a
+distance from a 6-bit build along a ladder. The reference's own damage is unmeasured and is zero here
+by construction. Unsloth's published figures suggest it is small \citep{unsloth_dynamic3}; I did not
+verify that. The reference build \QsixXL{} is also not the same file as the \Qsix{} arm carried into
+the second battery.
+
+\paragraph{Divergence is measured at 2K tokens, on prompt tokens, on two corpora.} Not at depth, not on
+generated text, not on other programming languages, natural languages or tool-calling formats. The
+calibration data of these builds is not published in detail, so a bias toward Wikipedia-like text
+cannot be excluded. The tool's standard errors assume independent tokens (\cref{sec:multiplicity}).
+
+\paragraph{Long-context task accuracy is thinly measured.} RULER's retrieval question at 131K on the
+multi-key task is open (\cref{sec:ruler}); the fix (a generous output budget, reasoning off) was
+identified and not run. AA-LCR covers about 100K tokens, not 262K, with $n=100$ and a full pass for one
+drafter only. No code-editing task was evaluated at depth for any build; every agentic run used
+prompts near 40K tokens. Nothing in this report licenses ``accuracy holds at 250K''.
+
+\paragraph{The cache precision is validated only at short context.} The \flag{q4\_0} cost (KLD 0.003)
+was measured at 2K tokens on one build and one corpus. Outside evidence suggests far larger effects at
+depth (\cref{sec:kvq}). In the second battery, build and cache precision change together, so their
+effects cannot be separated.
+
+\paragraph{Task benchmarks are underpowered by construction.} That is a finding, and also a limit: a
+null here means ``not separated at this $n$'', never ``equal''. HumanEval+ bounds the 4-bit to 6-bit
+difference at about 4 points; AA-LCR and GPQA bound it at roughly 10. A difference of one or two points
+could exist and would be invisible to everything I ran except divergence.
+
+\paragraph{Sampling.} Historical rows used greedy decoding, which matches neither of Qwen's presets, so
+their absolute values are not comparable to any published score. The model card's own benchmarks
+(LiveCodeBench v6, SWE-bench Pro, Terminal-Bench) were not run. The non-equivalence result for
+speculative decoding is greedy-only, and its mechanism is not established.
+
+\paragraph{Speed and energy.} Speed is single-stream, single-slot. Batch serving was out of scope. The
+first battery's speed cells ran at temperature 0.7 and carry text-driven variance; the second
+battery's are greedy with $k=8$ per cell, which is small. There is no wall-power sensor; system power
+is modelled; no controlled energy-per-token curve at depth exists. Thermal asymmetry was observed, not
+controlled.
+
+\paragraph{Cancelled and incomplete work.} A breadth wave (speculation at temperature above zero, the
+presence-penalty setting, the draft cache precision) and the energy curve were cancelled to stay
+within budget. The vLLM context battery was stopped before its deep-prefill arm, so its ceiling is
+boot-verified only; the stable-versus-nightly discrepancy (98K against 51K) is unresolved. SGLang was
+attempted with a speculative worker only. Several context failures at the default split are single
+attempts. Six intermediate GGUF builds were never tested.
+
+\paragraph{Historical rows cannot be re-measured.} The engine image behind everything before
+2026-08-29 is gone, with two model files. Those rows are labelled and kept apart. The evidence chain
+for most numbers ends in server logs that are too large to publish; the repository carries the derived
+artifacts and verbatim extracts. By the usual badge definitions this is ``artifacts available'', not
+``results reproduced''.
+
+\paragraph{Judged benchmarks depend on the judge.} AA-LCR totals moved across a 5-item band among
+three judges, and a handful of questions with arguable keys decide every small-sample contrast.
+
+\paragraph{Process.} AI agents executed the campaign and assisted the analysis and the writing, under
+my direction. That speeds up work and errors alike; \cref{sec:corrections} is the record of how many of
+the latter were caught, and cannot say how many were not.

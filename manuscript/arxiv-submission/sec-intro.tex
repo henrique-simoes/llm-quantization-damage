@@ -1,0 +1,86 @@
+\section{Introduction}\label{sec:intro}
+
+A capable open-weight coding model now fits on hardware a person can buy. Qwen3.8-27B
+\citep{qwen38,qwen38_27b_card} in a 4- to 6-bit GGUF build occupies 17--25\,GB, and two 16\,GB consumer
+cards hold it together with a long context. What that sentence hides is a stack of decisions: which
+quantization, which KV-cache precision, how much context, how to split layers between two cards that
+cannot share memory, which speculative decoder and how deep. Each is usually made from a published
+table, and each table was measured on different hardware, a different engine build, and a protocol
+the table rarely states.
+
+This report measures those decisions on one fixed machine: two NVIDIA RTX~5060~Ti 16\,GB cards, a
+12-thread desktop CPU and 14\,GiB of RAM. The campaign ran from late August to mid-September 2026. It
+started as a practical question (\emph{what is the best configuration for a local coding agent on this
+box?}) and turned into a methods question, because the first thing the measurements showed was that
+the usual instruments could not answer it.
+
+\paragraph{The thesis.} \emph{The instrument decides whether there is anything to see.} Every task
+benchmark I ran on neighbouring quantizations of this model returned overlapping intervals:
+multiple choice, code generation, agentic software repair, graduate-level science questions and
+long-document reasoning, at the sample sizes those benchmarks actually have. Over the same builds, KL
+divergence against a reference build separated every adjacent pair with disjoint intervals, in about
+twenty minutes of GPU time per build. That is an independent confirmation of
+\citet{dutta2024accuracy}, on a different model family, quantization scheme and hardware class. What
+this report adds is where the damage sits (a thin tail of tokens, far heavier on code than on prose),
+a measured bound linking the two kinds of instrument, and the same lesson repeated on the systems
+side: a context ceiling, a speed figure or a ``lossless'' claim is a property of a protocol as much as
+of a model.
+
+\paragraph{The title's six questions, in brief.} The title names three costs (accuracy, context length,
+generation speed) of two choices (quantization, speculative decoding). The answers, each specific to
+this stack:
+\begin{itemize}
+\item \emph{Quantization, accuracy.} Measurable on distributions, invisible on outcomes: mean KL
+divergence on code rises $3.7\times$ from the 6-bit to the 4-bit build, and no benchmark at
+$n=30$ to 400 separates them (\cref{sec:quant,sec:depth}).
+\item \emph{Quantization, context.} Three of four builds reach the native 262{,}144 tokens once the
+layer split is tuned; the largest stops at 212{,}992. At the full window the 4-bit build affords an
+8-bit KV cache and the 6-bit build only a 4-bit one (\cref{sec:context}).
+\item \emph{Quantization, speed.} Almost nothing at depth: the builds decode within 7\,\% of each
+other at the full window, inside the repetition spread (\cref{sec:efficiency}).
+\item \emph{Speculation, accuracy.} It changes 33 of 164 greedy completions, reproducibly, and moves
+no accuracy score beyond its interval (\cref{sec:nonequiv,sec:aalcr}).
+\item \emph{Speculation, context.} Both drafters fit the full window with a quantized cache; with an
+\flag{f16} cache the separate drafter costs one 32K-token rung more than the built-in head, and the
+built-in head at draft depth 8 no longer loads at 262K (\cref{sec:kvmap,sec:spec}).
+\item \emph{Speculation, speed.} $3.4$--$4.2\times$ over plain decoding at 32K filled tokens, rising to
+$7.4$--$7.7\times$ at 246K; DFlash2 at its design depth is 45--65\,\% faster than MTP throughout
+(\cref{sec:s15speed}).
+\end{itemize}
+
+\paragraph{What is in the report.}
+\begin{itemize}
+\item \textbf{Quantization} (\cref{sec:quant}). A KL-divergence ladder over four Unsloth Dynamic GGUF
+builds on prose, code and the actual task prompts; the tail structure of the damage; perplexity under
+three protocols, including one checkpoint that scored ``29\,\% worse'' or ``0.8\,\% worse'' depending
+only on convention; paired HellaSwag and HumanEval+ bounds; the cost of a 4-bit KV cache.
+\item \textbf{Context} (\cref{sec:context}). Exact KV arithmetic for this hybrid architecture; how a
+manual layer split moves the reachable window from failing to the native 262{,}144 tokens; a bracketed
+context $\times$ KV-precision map for two builds and two drafters; three distinct ways a long-context
+server fails; and a host-RAM incident that no VRAM measurement could have predicted.
+\item \textbf{Speculative decoding} (\cref{sec:spec}). Evidence that speculation is a reproducibly
+different decode path, not a free speed knob; a like-for-like comparison of the model's built-in
+multi-token-prediction (MTP) head against the DFlash2 block-diffusion drafter on one engine build, at
+depths up to 246K tokens.
+\item \textbf{Accuracy versus depth} (\cref{sec:depth}). RULER retrieval to 131K tokens, including a
+headline result I withdrew after finding it measured output budget, not retrieval; AA-LCR long-document
+reasoning and GPQA Diamond under three independent judges.
+\item \textbf{Agentic behaviour, speed, energy} (\cref{sec:agentic,sec:efficiency}), the resulting
+\textbf{configuration} (\cref{sec:config}), a \textbf{register of the study's own defects and
+retractions} (\cref{sec:corrections}), and \textbf{limitations} (\cref{sec:limits}).
+\end{itemize}
+
+\paragraph{Status of this document.} This is a technical report by one independent practitioner. It
+is not peer reviewed and does not come from a university group or an AI lab. I am a professional
+master's candidate at the Universidade de S\~ao Paulo; the university did not sponsor or review this
+work. One model, one machine, one engine family: the numbers are specific to this stack and the report
+says so wherever it matters. What should transfer is the method and the failure modes. Every number
+traces to a committed artifact through a per-finding note, and the notes that turned out wrong are
+still there, marked as superseded.
+
+\paragraph{How to read it.} Readers who want the configuration can go to \cref{sec:config}. Readers
+choosing a quantization should read \cref{sec:quant}; readers fighting for context length,
+\cref{sec:context}; readers choosing a drafter, \cref{sec:spec}. Each table states its protocol,
+$n$ and estimator in the table. Rows marked \hist{} were measured before 2026-08-29 on an engine image
+that no longer exists and cannot be reproduced on current builds (\cref{sec:corrections}); they are
+never mixed with later rows. Blue boxes give the one-sentence takeaway of a section.

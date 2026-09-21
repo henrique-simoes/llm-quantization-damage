@@ -1,0 +1,73 @@
+\section{Background and related work}\label{sec:background}
+
+\paragraph{Weight quantization in the GGUF ecosystem.} llama.cpp \citep{llamacpp} stores weights in
+block-quantized ``k-quant'' formats: a tensor is cut into small blocks, each with its own scale, at
+nominal widths from 2 to 8 bits. Community builds mix widths per tensor. The Unsloth Dynamic (UD)
+builds used here \citep{unsloth_dynamic3,unsloth_qwen38_gguf} keep sensitive tensors at higher
+precision and calibrate with an importance matrix, so ``\arm{UD-Q4\_K\_XL}'' names a recipe, not a
+uniform 4-bit model. NVIDIA's NVFP4 \citep{nvidia_nvfp4} is a 4-bit floating-point format with
+hardware support on Blackwell GPUs; it is served here through vLLM \citep{kwon2023pagedattention,vllm}.
+
+\paragraph{Measuring quantization damage.} The usual report is perplexity on WikiText-2
+\citep{merity2017pointer} plus a battery of task benchmarks. Both have known weaknesses. Perplexity is
+an average, and practitioners have long noted that the average hides token-level movement
+\citep{kalomaze2023ppl}; llama.cpp therefore ships a KL-divergence mode that compares full output
+distributions against saved reference logits \citep{llamacpp_perplexity_readme}.
+\citet{dutta2024accuracy} made the general argument rigorously: accuracy can stay flat while a large
+share of individual answers ``flip'', and they recommend KL divergence and flip counts as the metrics
+of record. Public tables by Unsloth \citep{unsloth_dynamic3}, Fireworks
+\citep{fireworks2024quantization}, LocalBench \citep{localbench2026gguf} and others
+\citep{kurt2026whichquant} report KL divergence, nearly always on prose and at about 2K tokens of
+context. Fireworks suggests mean KLD below 0.007 as a deployment-quality threshold; I cite it as an
+outside reference point, not as a pass mark. On statistics, I follow \citet{miller2024errorbars} and
+\citet{bowyer2025clt}: report intervals, analyse paired designs as paired, and distrust normal
+approximations at small $n$.
+
+\paragraph{Long context.} RULER \citep{hsieh2024ruler,ruler_repo} generalises needle-in-a-haystack
+tests with multi-key, tracing and aggregation variants. HELMET \citep{yen2025helmet} and NoLiMa
+\citep{modarressi2025nolima} show that literal-match retrieval overstates long-context ability.
+LongPPL \citep{fang2025longppl} argues that perplexity must be restricted to context-dependent tokens
+to mean anything at length. Two studies measure quantization at long context directly and find 4-bit
+weights lose measurable accuracy at long context while 8-bit is nearly free
+\citep{mekala2025quantlongcontext,redhat_longcontext_quant}. Artificial Analysis' Long Context
+Reasoning set (AA-LCR) \citep{artificialanalysis2026aalcr} asks questions that require reasoning over
+roughly 100K tokens of real documents. For KV-cache quantization, KIVI \citep{liu2024kivi} and KVQuant
+\citep{hooper2024kvquant} establish that 4-bit KV is near-lossless only with per-channel key
+quantization, which llama.cpp's block-wise \flag{q4\_0} cache does not do; a community measurement on
+a sibling model reports KV-induced divergence one to two orders of magnitude larger at 250K tokens
+than at 2K \citep{localbench2026kvquant}.
+
+\paragraph{Speculative decoding.} A cheap drafter proposes several tokens and the target model
+verifies them in one pass \citep{leviathan2023speculative,chen2023speculativesampling}. Under exact
+arithmetic the accepted output is distributed identically to the target's own. Drafters differ:
+Medusa adds extra heads \citep{cai2024medusa}; multi-token prediction (MTP) trains the predictor with
+the model \citep{gloeckle2024multitoken,deepseekv3}, and Qwen3.8 ships with such a head; DFlash
+\citep{chen2026dflash} is a small block-diffusion drafter that proposes a whole block in parallel and
+conditions on hidden states tapped from the target. The Qwen3.8 drafter of that family is referred to
+here as DFlash2 \citep{incoai2026dflash2,llamacpp_pr27342_dflash2}. ``Lossless'' holds only up to
+floating-point numerics: GPU kernels can be deterministic run-to-run and still give different results
+at different batch shapes \citep{thinkingmachines2025nondeterminism}, vLLM documents the same caveat
+\citep{vllm_specdecode_docs}, and an open llama.cpp issue reports greedy divergence under
+speculation \citep{llamacpp_issue25618}.
+
+\paragraph{Benchmarks used.} HumanEval \citep{chen2021humaneval} with the EvalPlus extended tests
+\citep{evalplus}; HellaSwag \citep{zellers2019hellaswag}; SWE-bench \citep{jimenez2024swebench} in its
+human-validated Verified subset \citep{openai2024swebenchverified}, driven by mini-SWE-agent
+\citep{yang2024sweagent,miniswe}; GPQA Diamond \citep{rein2023gpqa}; RULER; AA-LCR. Qwen's card
+reports LiveCodeBench v6 \citep{jain2025livecodebench}, SWE-bench Pro and Terminal-Bench
+\citep{merrill2026terminalbench} for this model and no HumanEval figure; none of those three was run
+here, so no number in this report is comparable to the model card (\cref{sec:limits}).
+
+\paragraph{What is new here, and what is not.} This is a measured case study of one deployment, not
+a new evaluation principle. That accuracy can mask distributional change is prior work
+\citep{dutta2024accuracy}. That perplexity depends on window, stride and tokenization is documented
+\citep{hf_perplexity_guide}. Community tools already report token-level quantiles and tails of KL
+divergence alongside the mean \citep{mlx_kld}, including for this model
+\citep{malaiwah_kld_method}. Greedy divergence under speculation on quantized targets has been
+reported as a bug \citep{llamacpp_issue25618}. What this report contributes are specific measurements
+I could not find elsewhere: the code-against-prose comparison of the divergence distribution with a
+cache-only control; a paired interval placing a $3.7\times$ divergence increase beside a pass@1
+difference within about four points; one 36-fold perplexity swing decomposed into its conventions; a
+bracketed context map for a hybrid-attention model on two unlinked consumer cards; a benchmark-scale
+count of speculative non-identity with a determinism control; and a same-build MTP versus DFlash2
+comparison to 246K tokens of filled context.

@@ -1,0 +1,73 @@
+\section{The study's own defects and retractions, as method}\label{sec:corrections}
+
+Sixteen claims in my notes were withdrawn, superseded or narrowed before this report was written,
+several of them headlines. Fourteen cost no GPU time to correct, because completions, predictions,
+per-cell timings and server logs had been kept, not only their summaries. I report them because they
+are the most reusable part of the work: each is a way a careful-looking local benchmark produces a
+wrong number that looks fine.
+
+\begin{table}[t]
+\centering\footnotesize
+\caption{Selected retractions. ``Before'' columns must not be quoted as results.}\label{tab:retractions}
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{4.6cm}X>{\raggedright\arraybackslash}p{2.6cm}@{}}
+\toprule
+claim before & claim after & found by \\
+\midrule
+Speculative decoding is lossless under greedy; skip its accuracy runs & 131/164 byte-exact; a reproducibly different decode path; task accuracy unchanged & first experiment that tested it \\
+4-bit weights cost 10 points of retrieval at 131K ($p=0.002$) & a reasoning-budget effect; on items where the budget did not bind, 55/55 vs 55/55 & adversarial re-read of predictions \\
+MTP $n{=}4$ leads $n{=}2$ by 46\,\% at 262K; DFlash2 collapses at depth; acceptance 1.000 at 250K & all timed over 17- to 55-token generations; withdrawn & implausible magnitude in a server log \\
+The context ceiling is a property of the split, not the build & true for 3 of 4 builds; the smallest loads at the default & review \\
+Repetition noise is 32.9\,\% (then 46.7\,\%) & 40.7\,\% under a stated estimator over matched cells; mostly text variance, not engine noise & two reviews, then a re-check of the correction \\
+HumanEval+ ``McNemar $p=1.0$, indistinguishable'' & the test's minimum $p$ was 0.25; replaced by a paired interval & adversarial review \\
+Benchmarks miss damage because they are saturated & false for 2 of 3 instruments; the general framing is prior work \citep{dutta2024accuracy} & review \\
+The divergence tail is something quantization does & its shape belongs to the corpus; quantization sets the level & the study's own KV-only control \\
+Code is perturbed ``100--200$\times$'' less at the median & about 200$\times$; the ``100'' was the reciprocal of a rounded cell & verification pass \\
+Divergence took 20 minutes, benchmarks 20 hours & 2.3\,h against 14.3\,h (first battery) & recomputed from artifacts \\
+Three engines hit the 1.19\,GiB wall & two did; llama.cpp succeeded & re-reading my own evidence table \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Three families of defect.} Almost every error in \cref{tab:retractions}, and every harness
+bug behind them, belongs to one of three families.
+
+\emph{(i) An aggregate over cells that differ in an untracked variable.} Six ``repetitions'' that
+spanned four context depths. A correction of that error which then mixed two checkpoint settings in
+one group and quietly changed the spread estimator. A speed column holding a last repetition, a first
+repetition and a median side by side, which reversed a ranking. A log parser that published the first
+of seven concatenated batch summaries. \textbf{Rule:} every table names its estimator and $n$; group
+only on the full cell key; recompute headline numbers from artifacts at write-up time.
+
+\emph{(ii) A contract documented but not asserted.} A ``prefill at least 90\,\% of the window'' rule
+that lived in a docstring while a pad-builder bug delivered 79.7\,\%. A harness that scored a
+subprocess by exit status: ten divergence cells burned 1.5 GPU-hours, exited 0 and recorded nothing,
+because the parser expected ASCII ``+/-'' and the tool prints ``$\pm$''; the saved logs recovered every
+number. A speed probe that checked the prompt depth and never checked that anything was generated,
+giving 52\tps{} at 131K tokens from a 17-token reply. A sweep in which every cell failed, marked done.
+\textbf{Rule:} assert in code that the measurement exists and has the shape you asked for; a run that
+measured nothing must fail loudly.
+
+\emph{(iii) An identifier or binding that is not unique.} A drafter launched on an engine that cannot
+parse it records a clean 0.000 that looks like a catastrophic model. Two cells sharing one label shared
+one log path, and the second run overwrote the first's evidence inside a well-formed file. A safety
+check that matched process names by substring matched its own supervisor and cancelled an eleven-hour
+campaign in eight minutes. \textbf{Rule:} a label includes every dimension that varies; the engine
+image digest sits next to every number; process matching is anchored to a path.
+
+\paragraph{Premises suppress measurements.} The ``lossless'' premise did more damage than any bug. It
+was recorded as fact on day one, and for nine days it excused every accuracy run with a speculative
+arm; it also shaped the first configuration decision (``about $2\times$ decode without touching
+outputs''). The refutation took 1.3 GPU-hours once someone thought to run it. A claim about what an
+implementation preserves is an empirical claim about that implementation.
+
+\paragraph{Guards are calibrated to a workload.} After the host-RAM outage I added a guard that stops
+a benchmark when swap grows. It then stopped the GPQA battery three times while 8\,GiB of RAM was
+free: very long generations (30--60 minutes each) let the kernel migrate idle pages to swap, which
+looks like the outage and is benign. Swap \emph{activity} distinguishes the two; swap
+\emph{occupancy} does not. The second battery ran with 12\,GiB of swap for that reason; no answer was
+lost or repeated across any restart, because the guard runs after each answer is written.
+
+\paragraph{Corrections are not exempt.} One spread figure went through three published values because
+the note correcting it committed both of the defects it described. Several of the corrections above
+were found by independent adversarial review passes over my notes, not by me. If there is one
+practice to copy from this project, it is scheduling that review before writing the paper.

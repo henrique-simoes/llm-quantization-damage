@@ -1,0 +1,61 @@
+{
+ "schema": "s15-t3/v1",
+ "image": "sha256:5268283a8d6510d167364f19aee93e98180d8eb0cac4b7edb20af7e3edf40c17",
+ "quants": {
+  "Q6_K": {
+   "rule": "DEC-17 item 3",
+   "best_n": {
+    "mtp": 4,
+    "dflash2": 7
+   },
+   "mtp": {
+    "n": 3,
+    "decode_median": 16.2791070155094,
+    "decode_ci95": [
+     16.125131143714356,
+     16.560714097991905
+    ],
+    "prefill_median": 246.21327795761312
+   },
+   "dflash2": {
+    "n": 3,
+    "decode_median": 20.409178810319155,
+    "decode_ci95": [
+     19.820209878884476,
+     22.69805491640812
+    ],
+    "prefill_median": 314.6552512668532
+   },
+   "winner": "dflash2",
+   "note": ""
+  },
+  "Q4_K_XL": {
+   "rule": "DEC-17 item 3",
+   "best_n": {
+    "mtp": 4,
+    "dflash2": 7
+   },
+   "mtp": {
+    "n": 3,
+    "decode_median": 17.439683996674617,
+    "decode_ci95": [
+     15.865487821393453,
+     22.09307981817449
+    ],
+    "prefill_median": 257.7305427175888
+   },
+   "dflash2": {
+    "n": 3,
+    "decode_median": 29.82719446589119,
+    "decode_ci95": [
+     23.80471491045473,
+     51.34954738145906
+    ],
+    "prefill_median": 335.7433983478302
+   },
+   "winner": "dflash2",
+   "note": ""
+  }
+ },
+ "finished_utc": "2026-09-16T10:06:34Z"
+}

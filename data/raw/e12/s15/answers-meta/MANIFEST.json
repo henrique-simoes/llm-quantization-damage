@@ -1,0 +1,50 @@
+[
+ {
+  "bench": "aalcr",
+  "arm": "Q4_K_XL-dflash2-q8_0",
+  "n": 100,
+  "source_sha256": "72aaee0eb9176838eb8a8ca14f447a346e71a21c21670f1bf6991dfccb5bb56d"
+ },
+ {
+  "bench": "aalcr",
+  "arm": "Q4_K_XL-mtp-q8_0",
+  "n": 30,
+  "source_sha256": "ebfe5a769a915134eefd165e47bb6c6b3913dcb35eb61b8921562a04081009ad"
+ },
+ {
+  "bench": "aalcr",
+  "arm": "Q6_K-dflash2-q4_0",
+  "n": 100,
+  "source_sha256": "40093d831438d224c8447dbb468ef244b8ce7256f31893f61f1a33108dadd6f4"
+ },
+ {
+  "bench": "aalcr",
+  "arm": "Q6_K-mtp-q4_0",
+  "n": 30,
+  "source_sha256": "413b23fdd2f3e7f3dc196eec895837fecba5248260ae23cfeb18e992fb78d1e4"
+ },
+ {
+  "bench": "gpqa",
+  "arm": "Q4_K_XL-dflash2-f16",
+  "n": 198,
+  "source_sha256": "d027a4293131ee8743e02cc137595aaec954d6bc9cd44749bd76eeb407190d13"
+ },
+ {
+  "bench": "gpqa",
+  "arm": "Q4_K_XL-mtp-f16",
+  "n": 50,
+  "source_sha256": "0364c0f43ec6bc10f71f832af41a8cae8c66265e200223ed746372a07a219b1f"
+ },
+ {
+  "bench": "gpqa",
+  "arm": "Q6_K-dflash2-q8_0",
+  "n": 198,
+  "source_sha256": "9d191d315bdb4a9ef14a90dc1abe7754cf1bd714fbf331eb8d84bb20ca16869b"
+ },
+ {
+  "bench": "gpqa",
+  "arm": "Q6_K-mtp-q8_0",
+  "n": 50,
+  "source_sha256": "a2506167f080fb7d3edc386a3f4052c14dcb0cd021de59953827c83e66852b9b"
+ }
+]

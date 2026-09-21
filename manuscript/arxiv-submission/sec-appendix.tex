@@ -1,0 +1,135 @@
+\section{Full divergence table}\label{app:kld}
+
+\begin{table}[h]
+\centering\scriptsize
+\caption{All ten divergence cells. \texttt{llama-perplexity --kl-divergence} against \QsixXL{} logits,
+context 2{,}048, \flag{q4\_0} KV, build E-A. Mean $\pm$ tool-reported SE (tokens treated as independent).
+Quantiles carry no interval. The last row perturbs only the KV cache (\flag{q4\_0} against \flag{f16})
+on the reference weights.}\label{tab:kldfull}
+\setlength{\tabcolsep}{3.5pt}
+\shrinktofit{\begin{tabular}{@{}llrrrrrrrr@{}}
+\toprule
+build & corpus & tokens & mean KLD $\pm$ SE & top-1 \% & median & p90 & p95 & p99 & p99.9 \\
+\midrule
+\Qsix & prose & 65{,}536 & .003321 $\pm$ .000126 & 97.50 & .001392 & .006742 & .010549 & .028639 & .098167 \\
+\Qfive & prose & 65{,}536 & .004465 $\pm$ .000281 & 97.14 & .001810 & .008856 & .013936 & .037323 & .124839 \\
+\Qfour & prose & 65{,}536 & .008207 $\pm$ .000340 & 96.22 & .003509 & .016333 & .025546 & .069578 & .259651 \\
+\Qsix & code & 65{,}536 & .005829 $\pm$ .000233 & 99.14 & .000007 & .003029 & .016109 & .142839 & .623575 \\
+\Qfive & code & 65{,}536 & .010285 $\pm$ .000458 & 98.87 & .000010 & .004790 & .026311 & .250389 & 1.06461 \\
+\Qfour & code & 65{,}536 & .021529 $\pm$ .000834 & 98.43 & .000017 & .010006 & .055800 & .562891 & 2.19352 \\
+\Qsix & task & 18{,}432 & .010403 $\pm$ .000448 & 98.05 & .000197 & .020278 & .050149 & .189885 & .575163 \\
+\Qfive & task & 18{,}432 & .017285 $\pm$ .000703 & 97.34 & .000345 & .035139 & .082368 & .313987 & .807942 \\
+\Qfour & task & 18{,}432 & .036129 $\pm$ .001534 & 95.89 & .000685 & .077069 & .175076 & .616163 & 1.74658 \\
+\QsixXL, KV only & code & 65{,}536 & .002955 $\pm$ .000127 & 99.40 & .000004 & .001529 & .008188 & .067592 & .322095 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+Separation between builds in combined standard errors: on code 8.67 (\Qsix/\Qfive), 11.82
+(\Qfive/\Qfour), 18.13 (\Qsix/\Qfour); on prose 3.71, 8.48, 13.48; on task prompts 8.26, 11.17, 16.10.
+
+\section{The layer-split sweep for one build}\label{app:ts}
+
+\begin{table}[h]
+\centering\small
+\caption{\Qfive{} at 262{,}144 tokens, first battery, MTP $n{=}2$, \flag{q4\_0} KV, prefill to 94.8\,\%
+(248{,}522 tokens), first repetition of each split. Balance and speed are unrelated except for one
+unexplained outlier.}\label{tab:q5sweep}
+\shrinktofit{\begin{tabular}{@{}lrrrrl@{}}
+\toprule
+\flag{-ts} & GPU0 MiB & GPU1 MiB & imbalance & decode tok/s & outcome \\
+\midrule
+default & 13{,}540 & 15{,}070 & 1{,}530 & --- & compute-buffer OOM (1 attempt) \\
+54,46 & 14{,}660 & 15{,}402 & 742 & 10.82 & ok (median of 3: 12.70) \\
+56,44 & 14{,}946 & 15{,}112 & 166 & 10.78 & ok (median of 3: 12.51) \\
+58,42 & 15{,}498 & 15{,}470 & \textbf{28} & \textbf{8.50} & ok \\
+60,40 & 15{,}260 & 14{,}084 & 1{,}176 & 10.67 & ok \\
+62,38 & 15{,}546 & 13{,}796 & 1{,}750 & 10.44 & ok \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\section{Matched-depth speed probe, all cells}\label{app:speed}
+
+\begin{table}[h]
+\centering\footnotesize
+\caption{Second battery, build E-C, greedy, identical code prompts, \flag{q4\_0} KV, 1{,}024-token
+continuations. Median decode tok/s [min--max] over $k$ continuations ($k=4$ at 32K, $k=8$ otherwise).
+Each draft depth is a separate server launch.}\label{tab:speedfull}
+\setlength{\tabcolsep}{4pt}
+\shrinktofit{\begin{tabular}{@{}llrrr@{}}
+\toprule
+build & drafter, depth & 32{,}768 filled & 131{,}072 filled & 246{,}415 filled \\
+\midrule
+\Qsix & none & 11.7 & 5.6 & 3.5 \\
+\Qsix & MTP 2 & 26.9 [25.8--27.3] & 19.3 [18.5--20.6] & 14.2 [13.7--15.8] \\
+\Qsix & MTP 3 & 29.5 [26.9--29.9] & 21.8 [19.8--23.1] & 15.9 [15.0--19.3] \\
+\Qsix & MTP 4 & 29.4 [25.2--29.7] & 21.6 [19.8--24.6] & 17.3 [15.2--20.4] \\
+\Qsix & DFlash2 3 & 28.6 [26.5--31.4] & 22.9 [19.8--24.4] & 17.5 [15.0--20.7] \\
+\Qsix & DFlash2 5 & 30.0 [27.5--41.3] & 23.9 [19.2--28.6] & 20.1 [16.7--25.0] \\
+\Qsix & DFlash2 7 & \textbf{48.4} [34.7--54.2] & \textbf{31.5} [26.8--36.2] & \textbf{25.7} [20.3--31.4] \\
+\addlinespace
+\Qfour & none & 13.1 & 5.9 & 3.6 \\
+\Qfour & MTP 2 & 27.9 [26.9--29.2] & 20.2 [18.9--22.1] & 14.7 [13.6--15.9] \\
+\Qfour & MTP 3 & 30.3 [28.0--31.7] & 21.4 [20.0--25.1] & 17.0 [15.2--18.4] \\
+\Qfour & MTP 4 & 29.6 [26.5--31.1] & 22.1 [19.4--26.9] & 16.3 [12.5--20.6] \\
+\Qfour & DFlash2 3 & 29.1 [27.3--30.5] & 21.5 [20.1--26.3] & 16.9 [15.0--19.8] \\
+\Qfour & DFlash2 5 & 30.6 [28.2--35.4] & 22.5 [20.1--33.0] & 21.2 [16.6--25.4] \\
+\Qfour & DFlash2 7 & \textbf{44.0} [38.1--45.3] & \textbf{34.0} [29.0--43.8] & \textbf{27.7} [23.0--36.4] \\
+\midrule
+\multicolumn{5}{@{}l}{Prefill tok/s at 32K / 131K / 246K: \Qsix{} none 487/309/216, MTP 397/209/135, DFlash2 424/281/201;} \\
+\multicolumn{5}{@{}l}{\phantom{Prefill tok/s at 32K / 131K / 246K: }\Qfour{} none 533/330/228, MTP 425/218/139, DFlash2 457/297/211.} \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\section{MTP draft depth at matched context depth (first battery)}\label{app:draftdepth}
+
+\begin{table}[h]
+\centering\footnotesize
+\caption{Acceptance ratio, with the implied per-token match probability $q$ in parentheses, from
+inverting $\text{acc}(n)=q(1-q^{n})/(n(1-q))$. Each build at its own split, \flag{q4\_0} KV, official
+non-thinking sampling, three 512-token generations per cell, identical prompt length per rung. Decode
+spread between repetitions reached 166\,\%, so no best depth per build can be read from this
+table.}\label{tab:draftdepth}
+\shrinktofit{\begin{tabular}{@{}rlccc@{}}
+\toprule
+context & build & $n{=}2$ & $n{=}4$ & $n{=}8$ \\
+\midrule
+131{,}072 & \Qfour & 0.673 (0.76) & 0.512 (0.75) & 0.404 (0.79) \\
+131{,}072 & \Qfive & 0.814 (0.87) & 0.493 (0.74) & 0.449 (0.82) \\
+131{,}072 & \Qsix & 0.775 (0.84) & 0.558 (0.78) & 0.251 (0.68) \\
+131{,}072 & \QsixXL & 0.759 (0.83) & invalid (short generation) & 0.332 (0.75) \\
+196{,}608 & \Qfour & 0.666 (0.76) & invalid (short generation) & 0.373 (0.77) \\
+196{,}608 & \Qfive & 0.746 (0.82) & 0.429 (0.69) & 0.573 (0.88) \\
+196{,}608 & \Qsix & 0.920 (0.95) & 0.790 (0.91) & 0.517 (0.85) \\
+196{,}608 & \QsixXL & 0.704 (0.79) & 0.556 (0.78) & failed to load \\
+262{,}144 & \Qsix & 0.738 (0.81) & 0.492 (0.74) & failed to load \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\section{A checklist for local-inference measurements}\label{app:checklist}
+Collected from the failures in \cref{sec:corrections}; each line would have prevented at least one
+wrong number in this study.
+\begin{enumerate}
+\item Record the engine image digest, model file hash and full launch line next to every number.
+\item Send an explicit sampling block with every request and assert the server's echo of it.
+\item Probe the reasoning state (on/off) with a two-token request before each battery.
+\item Launch with automatic context fitting off; assert reported context equals requested context.
+\item Accept a context window only after a deep prefill with real text \emph{and} a generation of
+known length; read VRAM after the prefill; try a failed rung twice.
+\item Re-sweep the layer split after any change of build, cache precision or drafter.
+\item For speed: greedy, fixed prompts, a stated filled depth, and an assertion that the generation
+reached its requested length. Report accepted length per pass, not acceptance ratio, across drafters.
+\item Treat the speculative setting as part of the accuracy configuration.
+\item Compare builds on the same items and analyse them as paired; before reporting a null, state the
+smallest $p$ the design could return.
+\item For output-budgeted tasks with reasoning on, report how many responses finished reasoning.
+\item For LLM-judged benchmarks, name the judge and its settings; use two judges and report agreement.
+\item Save server logs before removing any container; give every run a unique label that includes every
+dimension that varies; make a run that measured nothing fail.
+\item Before serving, soak-test a growing multi-turn conversation to the full window and watch host RAM
+and swap activity, not only VRAM.
+\item Keep per-item records. Recompute headline numbers from them when writing up.
+\end{enumerate}

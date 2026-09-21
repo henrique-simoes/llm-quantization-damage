@@ -1,0 +1,90 @@
+\section{Method}\label{sec:method}
+
+\subsection{Two batteries}
+The work came in two batteries plus an earlier exploratory period.
+
+\textbf{Exploratory period\hist{} (2026-08-20 to 08-28).} Perplexity, HumanEval+ in two modes,
+SWE-bench Verified, agentic step counts, cross-backend speed. Greedy decoding throughout. Measured on
+the deleted build E-H.
+
+\textbf{First battery (08-29 to 09-03), build E-A.} Four builds: \Qfour, \Qfive, \Qsix{} and the
+reference \QsixXL. Context ceilings under a layer-split sweep; KL divergence on three corpora;
+HellaSwag; paired generative HumanEval+; speculative equivalence and determinism; RULER to 131K.
+
+\textbf{Second battery (09-15 to 09-19), build E-C.} Two builds (\Qfour, \Qsix) $\times$ two drafters
+(MTP, DFlash2) on one upstream build: a bracketed context $\times$ KV-precision map, a matched-depth
+speed probe, AA-LCR and GPQA Diamond at the model's highest reasoning effort, and a 252K-token
+multi-turn soak. Its design was fixed in a decision record before it ran, including the rule for
+choosing a drafter.
+
+\subsection{Instruments}
+\paragraph{KL divergence.} \texttt{llama-perplexity --kl-divergence} against saved logits from \QsixXL,
+context 2{,}048, 32 chunks (65{,}536 tokens) per cell, on (a)~WikiText-2 test, (b)~a Python corpus
+built from Django source files, (c)~the 164 HumanEval+ prompts (18{,}432 tokens). The tool reports mean
+KLD with a standard error that treats tokens as independent, top-1 agreement, and quantiles of per-token
+KLD without intervals. Divergence here is \emph{ladder-relative} (distance from the 6-bit reference,
+whose own damage is unmeasured and zero by construction) and is computed on \emph{prompt tokens} under
+teacher forcing, so it is not a measurement of generated-code quality.
+
+\paragraph{Task benchmarks.} HellaSwag through the same tool, 400 items, identical items for every
+build. HumanEval+ through EvalPlus, 164 problems, scored on base and extended tests. SWE-bench
+Verified, 50 instances, mini-SWE-agent with a 250-step limit, scored from per-instance reports on an
+x86-64 host. RULER single-needle and multi-key retrieval from RULER's own generators and
+\texttt{string\_match\_all} metric. GPQA Diamond (198 items) with Artificial Analysis' prompt template
+and last-match answer extraction \citep{artificialanalysis2026methodology}, cross-checked against the
+\texttt{simple-evals} extraction pattern \citep{openai_simpleevals}; the two agreed on all 496 scored
+answers. AA-LCR (100 questions over 30 document sets of about 100K tokens) with its published
+equality-checker prompt, judged by three different LLM judges (\cref{sec:aalcr}).
+
+\paragraph{Context ceiling.} A window counts as reached only if the server (i)~loads with
+\flag{-fit off} (otherwise llama.cpp may silently shrink the context), (ii)~reports the requested
+\texttt{n\_ctx}, (iii)~prefills at least 94\,\% of it with real source code, and (iv)~then generates a
+fixed number of tokens. VRAM is read after the deep prefill, because compute buffers grow with batch;
+it is recorded, never used as a pass mark (an early VRAM threshold rejected a rung that works). A
+ceiling needs a failed rung above it, attempted twice, because layer-split memory varies by
+100--200\,MiB from load to load.
+
+\paragraph{Speed.} Decode rate is the server's own \texttt{predicted\_per\_second} over a generation of
+known length. Decode into an empty cache and decode at depth differ by $3$--$5\times$ on this host, so
+every speed figure states its filled depth. A harness rule added after a failure
+(\cref{sec:corrections}): a speed cell is valid only if the generation reached its requested length.
+
+\subsection{Sampling configurations}
+\begin{table}[h]
+\centering\small
+\caption{Sampling configurations. Absolute scores are not comparable across rows, and rows are never
+mixed in a table.}\label{tab:sampling}
+\shrinktofit{\begin{tabular}{@{}lrrrrrl@{}}
+\toprule
+configuration & temp & top-$p$ & top-$k$ & min-$p$ & presence & used for \\
+\midrule
+engine default as measured & 1.0 & 0.95 & 20 & 0.05 & 0 & nothing (a hazard, \cref{sec:software}) \\
+Qwen official, non-thinking & 0.7 & 0.80 & 20 & 0 & 1.5 & split sweeps, paired HumanEval+ \\
+Qwen official, thinking & 1.0 & 0.95 & 20 & 0 & 0 & AA-LCR, GPQA (effort \texttt{xhigh}) \\
+greedy & 0 & 1 & --- & --- & 0 & divergence, HellaSwag, equivalence, speed probe, \hist{} rows \\
+greedy, reasoning on & 0 & 1 & --- & --- & 0 & RULER only \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\subsection{Statistics}
+Pass rates carry Wilson 95\,\% intervals \citep{wilson1927interval}. Two builds scored on the same
+items are compared as paired data: the difference in proportions $d=(b-c)/n$ over the discordant
+counts $b,c$, a Tango score interval on $d$ (a Wald interval is unreliable with three to five discordant pairs), and an exact McNemar test \citep{mcnemar1947test}. Alongside a null I state the smallest $p$ the test could have returned \emph{given the observed} number of
+discordant pairs (it is $2^{1-m}$ for $m$ pairs; a property of the data in hand, not a power calculation); with three discordant pairs that minimum is 0.25, so ``$p=1.0$'' carries no
+information about the builds. Continuous summaries use bootstrap intervals \citep{efron1979bootstrap}.
+Speed spreads are $(\max-\min)/\text{median}$ over repetitions matched on every launch parameter. The
+unit of independence for speculative acceptance is the generation, not the draft event: pooled
+per-event intervals of $\pm0.02$ sat on run-to-run ranges of $\pm0.3$. Nineteen tests across the first
+battery are corrected together in \cref{sec:multiplicity}.
+
+\subsection{How the work was run}
+An agent-driven harness executed the campaign under my direction. I designed the protocol, approved
+each experiment before it ran, and am responsible for all content including every error. AI
+assistants also helped analyse artifacts and draft this text. The decision log, a ledger of what was
+run, and about a hundred per-finding notes (each with its evidence path and caveats) are released with
+the data, so the chain from an instruction to a number can be inspected. Independent adversarial
+review passes over those notes produced most of the corrections in \cref{sec:corrections}.
+Operating rules that earned their place: server logs are saved before any container is removed;
+nothing is deleted before its hash is recorded; every battery starts with a pilot that must pass; a
+run that measured nothing must not exit successfully; notes are appended and superseded, never edited.

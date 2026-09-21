@@ -1,0 +1,320 @@
+\section{Quantization: choices and tests}\label{sec:quant}
+
+\subsection{Which builds, and why}
+The ladder is four Unsloth Dynamic builds between 16 and 24\,GiB (\cref{tab:arms}). The choice was
+bounded from both sides. Below it, the 3-bit build was the fastest configuration measured in the whole
+study and failed every agentic task it was given (\cref{sec:agentic}). Above it, an 8-bit build
+(31\,GB) leaves no room for context and BF16 does not fit at all. \Qfour{} is Unsloth's recommended
+default for this model; \QsixXL{} is the largest build that still leaves a usable window, which also
+makes it the only available reference. Two further points, \IQfour{} and NVFP4, appear in the
+historical rows. Six intermediate builds in the repository (\arm{Q4\_K\_S}, \arm{Q5\_K\_S},
+\arm{Q5\_K\_M}, \arm{Q6\_K\_M}, \arm{Q6\_K\_L} and the deleted \arm{Q4\_K\_M}) were not tested.
+
+\subsection{Divergence ranks the ladder}\label{sec:kld}
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[paper,ybar,bar width=17pt,height=5.8cm,width=0.85\linewidth,
+  xtick={1,2,3},
+  xticklabels={WikiText-2 prose,Django code,HumanEval+ prompts},
+  xmin=0.5,xmax=3.5,ymin=0,ymax=0.041,
+  ylabel={mean KL divergence vs.\ \QsixXL},
+  yticklabel style={/pgf/number format/fixed,/pgf/number format/precision=3},
+  scaled y ticks=false,
+  legend pos=north west,legend columns=1,legend image post style={scale=0.9},
+  error bars/y dir=both,error bars/y explicit,error bars/error bar style={black,line width=0.6pt}]
+\addplot[fill=cbsky,draw=cbblue!80!black] coordinates {(1,0.003321) +- (0,0.000126) (2,0.005829) +- (0,0.000233) (3,0.010403) +- (0,0.000448)};
+\addplot[fill=cborange,draw=cborange!60!black,postaction={pattern=north east lines,pattern color=black!40}] coordinates {(1,0.004465) +- (0,0.000281) (2,0.010285) +- (0,0.000458) (3,0.017285) +- (0,0.000703)};
+\addplot[fill=cbred,draw=cbred!70!black,postaction={pattern=crosshatch dots,pattern color=black!45}] coordinates {(1,0.008207) +- (0,0.000340) (2,0.021529) +- (0,0.000834) (3,0.036129) +- (0,0.001534)};
+\addlegendimage{line legend,dashed,black!60,line width=0.6pt}
+\legend{\Qsix,\Qfive,\Qfour,0.007 (external threshold)}
+\draw[dashed,black!60] (axis cs:0.5,0.007) -- (axis cs:3.5,0.007);
+\end{axis}
+\end{tikzpicture}
+\caption{Divergence separates every adjacent pair of builds in every domain, and the damage grows as
+the corpus approaches the real task. Bars are mean KLD $\pm 1$ tool-reported SE; $n=65{,}536$ tokens
+per cell (18{,}432 for task prompts); context 2{,}048; \flag{q4\_0} KV; greedy teacher forcing. The
+dashed line is an external quality threshold, shown for orientation only.}\label{fig:kld}
+\end{figure}
+
+\Cref{fig:kld} is the central result. Against the \QsixXL{} reference, mean KLD on code is
+$0.0058\pm0.0002$ for \Qsix, $0.0103\pm0.0005$ for \Qfive{} and $0.0215\pm0.0008$ for \Qfour. The order \Qsix{} $<$ \Qfive{} $<$ \Qfour{} holds in every domain (\cref{tab:paired-kld}). Each cell took about twenty minutes. The full table with quantiles is in
+\cref{app:kld}.
+
+Three things follow.
+
+\textbf{Prose tables flatter the quantizer.} The same build diverges 1.8--2.6$\times$ more on code than
+on prose, and 3.1--4.4$\times$ more on the HumanEval+ prompts than on prose. The amplification grows as
+bits are removed (prose to task: $3.1\times$, $3.9\times$, $4.4\times$). Against the external 0.007
+line, two of three builds pass on prose, one passes on code, none passes on the task prompts. Public
+quantization tables are almost all measured on prose.
+
+\textbf{Top-1 agreement points the other way.} On code every build agrees with the reference on the
+argmax token \emph{more} often than on prose (98.4--99.1\,\% against 96.2--97.5\,\%), while its mean
+KLD is double. Code is far more predictable (reference perplexity 1.18 against 5.79), so the top token
+usually survives even as the distribution under it moves. A table reporting only top-1 agreement would
+conclude this model quantizes better for code. Report the pair. On the task prompts \Qfour{} agrees on
+95.9\,\% of tokens: about one token in 24 differs from the reference under greedy decoding.
+
+\textbf{How sure is the ordering?} The tool's standard error treats 65{,}536 tokens from contiguous
+windows as independent, and comparing two builds through their separate errors ignores that they were
+scored on the same tokens against the same reference logits. Both problems have a fix that costs no
+GPU time. The tool prints a running mean after each 2{,}048-token window, so per-window means can be
+recovered by differencing, and the builds can be compared \emph{paired by window}
+(\cref{tab:paired-kld}). Every adjacent difference has a bootstrap interval that excludes zero, and
+the larger build has the lower divergence in 30 to 32 of 32 windows. The naive calculation had given
+8.7--18 ``standard errors'' on code; the paired window-level $t$ is 4.1--4.5 there, and 5.5--11 on
+prose. The ordering is secure. The size of the naive separations was not.
+
+\begin{table}[t]
+\centering\small
+\caption{Paired differences in mean KLD between builds, by window. Per-window means recovered from the
+tool's running mean (printed to five decimals); percentile bootstrap over windows, $B=20{,}000$. Windows
+are contiguous chunks of one corpus per domain, so the intervals cover window-to-window variation on
+these corpora, not the choice of corpus.}\label{tab:paired-kld}
+\shrinktofit{\begin{tabular}{@{}llrlr@{}}
+\toprule
+corpus (windows) & pair & mean difference & bootstrap 95\,\% CI & windows where larger build is closer \\
+\midrule
+code (32) & \Qfive{} $-$ \Qsix & 0.00446 & [0.0027, 0.0065] & 32 / 32 \\
+ & \Qfour{} $-$ \Qfive & 0.01124 & [0.0063, 0.0170] & 31 / 32 \\
+prose (32) & \Qfive{} $-$ \Qsix & 0.00114 & [0.0008, 0.0016] & 30 / 32 \\
+ & \Qfour{} $-$ \Qfive & 0.00375 & [0.0032, 0.0045] & 32 / 32 \\
+task prompts (9) & \Qfive{} $-$ \Qsix & 0.00689 & [0.0056, 0.0081] & 9 / 9 \\
+ & \Qfour{} $-$ \Qfive & 0.01884 & [0.0160, 0.0215] & 9 / 9 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\textbf{What this instrument measures.} Divergence here is a distance: the mean teacher-forced KL from
+one 6-bit reference, on these corpora, at 2{,}048 tokens of context. It is not accuracy, and a larger
+distance is not by itself a worse model; \citet{dutta2024accuracy} keep distance metrics and capability
+metrics apart for the same reason. KL divergence obeys no triangle inequality, so an ordering of
+distances from \QsixXL{} does not establish the ordering of distances from the unquantized model, and
+errors that the reference shares with a build would make that build look closer than it is. The builds
+also mix bit-widths per tensor, so the ordering describes three recipes, not a clean effect of bit
+count. I use ``damage'' in this report as shorthand for this distance, and the task benchmarks below
+are the only evidence here about whether it matters.
+
+\subsection{The damage lives in a thin tail}\label{sec:tail}
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[paper,height=5.8cm,ymode=log,
+  symbolic x coords={median,p90,p95,p99,p99.9,max},xtick=data,
+  xlabel={quantile of per-token KL divergence},
+  ylabel={code $\div$ prose},
+  ymin=0.003,ymax=20,legend pos=south east,
+  extra y ticks={1},extra y tick labels={},extra y tick style={grid style={black!60,dashed}}]
+\addplot[cbblue,mark=*] coordinates {(median,0.0050) (p90,0.449) (p95,1.527) (p99,4.988) (p99.9,6.352) (max,0.629)};
+\addplot[cborange!85!black,mark=square*] coordinates {(median,0.0055) (p90,0.541) (p95,1.888) (p99,6.709) (p99.9,8.528) (max,0.813)};
+\addplot[cbred,mark=triangle*] coordinates {(median,0.0048) (p90,0.613) (p95,2.184) (p99,8.090) (p99.9,8.448) (max,0.730)};
+\legend{\Qsix,\Qfive,\Qfour}
+\node[font=\scriptsize,text=black!70,anchor=west] at (axis cs:median,1.6) {code worse $\uparrow$};
+\node[font=\scriptsize,text=black!70,anchor=west] at (axis cs:median,0.6) {prose worse $\downarrow$};
+\end{axis}
+\end{tikzpicture}
+\caption{``Code is twice as bad as prose'' is an average of two opposite facts. At the median a code
+token is perturbed about $200\times$ \emph{less} than a prose token; the order flips between the 90th
+and 95th percentile; at the 99th, code is 5--8$\times$ worse. The single worst token is again milder on
+code. Quantiles carry no interval, and the median row cannot rank the builds (its inputs have one or
+two significant digits).}\label{fig:tail}
+\end{figure}
+
+\Cref{fig:tail} divides each quantile of per-token KLD on code by the same quantile on prose. About
+90\,\% of code tokens are nearly untouched by quantization; a band between the 95th and 99.9th
+percentile moves a great deal. A mean-only report averages ``almost nothing happens'' with ``something
+drastic happens'' and states neither.
+
+This is a candidate explanation for why benchmarks see so little. A benchmark scores outcomes, not
+tokens. A perturbation confined to a few percent of positions changes an outcome only when one of
+those positions is decisive. That predicts small discordance between builds, and small discordance is
+what the paired benchmarks below show (3 and 5 problems of 164). It is a hypothesis with one successful
+quantitative prediction; no experiment here manipulates the tail and watches a benchmark move.
+
+\paragraph{A scope I got wrong at first.} I initially read the tail as something quantization
+\emph{does}. The study contains a control that says otherwise. One cell perturbs only the KV cache
+(\flag{q4\_0} against \flag{f16}) on the reference weights. Normalising each cell by its own
+mean, the 99th percentile sits at 24--26$\times$ the mean for all three quantized builds on code, at
+23$\times$ for the KV-only cell, and at 8.4--8.6$\times$ for every build on prose
+(\cref{tab:tailshape}). The \emph{shape} of the tail belongs to the corpus. Quantization sets the
+\emph{level}: $0.0030 \rightarrow 0.0058 \rightarrow 0.0103 \rightarrow 0.0215$. The control was not
+designed for this purpose, so the comparison is suggestive, not clean.
+
+\begin{table}[t]
+\centering\small
+\caption{Tail shape, each cell normalised by its own mean KLD. Flat within a corpus over a $7\times$
+range of mean divergence; different by about $3\times$ between corpora; reproduced by a perturbation
+with no weight quantization in it.}\label{tab:tailshape}
+\shrinktofit{\begin{tabular}{@{}lllrrrr@{}}
+\toprule
+cell & corpus & perturbation & mean KLD & median/mean & p95/mean & \textbf{p99/mean} \\
+\midrule
+\Qsix / \Qfive / \Qfour & prose & weights & .0033 / .0045 / .0082 & 0.41--0.43 & 3.1--3.2 & \textbf{8.4--8.6} \\
+\Qsix / \Qfive / \Qfour & code & weights & .0058 / .0103 / .0215 & 0.001 & 2.6--2.8 & \textbf{24.4--26.2} \\
+\QsixXL & code & \textbf{KV dtype only} & .0030 & 0.001 & 2.8 & \textbf{22.9} \\
+\Qsix / \Qfive / \Qfour & task prompts & weights & .0104 / .0173 / .0361 & 0.02 & 4.8--4.9 & \textbf{17.1--18.3} \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\subsection{Perplexity: right order, no resolution, and a 36-fold swing}\label{sec:ppl}
+
+\begin{table}[t]
+\centering\small
+\caption{WikiText-2 perplexity\hist, Protocol~1: 602 windows of 512 tokens, scoring the second half of
+each window with the first half as context; $\pm$ is the tool's standard error. The whole ladder spans
+0.033 while each point carries $\pm0.041$.}\label{tab:ppl}
+\shrinktofit{\begin{tabular}{@{}lrrr@{}}
+\toprule
+build & PPL & $\pm$ SE & $\Delta$ vs best \\
+\midrule
+\QsixXL & 6.6511 & 0.0411 & --- \\
+\Qfive & 6.6556 & 0.0411 & +0.07\,\% \\
+\Qfour & 6.6617 & 0.0412 & +0.16\,\% \\
+\IQfour & 6.6839 & 0.0413 & +0.49\,\% \\
+\emph{NVFP4 (vLLM), re-scored on the same windows} & 6.7073 & n/r & +0.85\,\% \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+Perplexity orders the ladder correctly (\cref{tab:ppl}) and cannot certify a single step of it: even
+the extremes overlap. A second protocol from the same period (20 windows of 4{,}096 tokens, f16 KV)
+gave different absolute values (5.50--5.55) and was not even monotone. The KV-cache experiment makes
+the same point from the other side: switching the cache from \flag{f16} to \flag{q4\_0} moved code
+perplexity from 1.1791 to 1.1809 (+0.15\,\%) while the measured KL divergence of that change is half
+that of dropping a whole quantization level.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}
+\begin{axis}[paper,xbar,height=4.4cm,width=0.62\linewidth,bar width=11pt,
+  ytick={1,2,3},ymin=0.4,ymax=3.6,
+  yticklabels={{matched: same file, 602 windows, half-window scoring},{same file and windows, all positions scored},{as first measured: other file, 160 windows, no context}},
+  yticklabel style={font=\scriptsize,text width=5.4cm,align=right},
+  xmin=0,xmax=42,xlabel={apparent degradation vs.\ \QsixXL{} (\%)},
+  nodes near coords,nodes near coords style={font=\scriptsize,anchor=west},
+  point meta=explicit symbolic]
+\addplot[fill=cbred!80,draw=cbred!60!black] coordinates {(0.85,1)[{PPL 6.71 (+0.8\,\%)}] (21.4,2)[{PPL 8.08 (+21\,\%)}] (29.1,3)[{PPL 8.58 (+29\,\%)}]};
+\end{axis}
+\end{tikzpicture}
+\caption{One checkpoint, one benchmark corpus, three conventions\hist. The NVFP4 build looked 29\,\%
+worse than the GGUF ladder until it was re-scored on the ladder's exact windows with the ladder's
+scoring rule. The corpus file (two conversions of the same dataset, 297K against 309K tokens), the
+number of windows and the scoring rule all contributed; tokenizer mismatch was suspected, tested and
+ruled out.}\label{fig:swing}
+\end{figure}
+
+\Cref{fig:swing} is the most transferable result of the exploratory period. The first NVFP4 perplexity
+(8.58 against 6.65) suggested a 29\,\% loss. Re-scored on the same windows under the same half-window
+rule it is 6.71: a 0.8\,\% loss, a 36-fold change in the estimated effect from convention alone. The
+corrected number still ranks NVFP4 below every GGUF build, so the ranking held and the magnitude did
+not. A perplexity published without its corpus file, window count and scoring rule cannot be compared
+with another.
+
+\subsection{What task benchmarks can say: bounds}\label{sec:bounds}
+
+\begin{table}[t]
+\centering\small
+\caption{HellaSwag, first battery. 400 items, the same items for every build, greedy log-likelihood
+scoring. The most quantized build scores nominally highest; two builds answer all 400 items
+identically.}\label{tab:hellaswag}
+\shrinktofit{\begin{tabular}{@{}lrrl@{\hskip 1.5em}lrrr@{}}
+\toprule
+build & correct & acc.\,\% & Wilson 95\,\% & pair & discordant & diff.\ (pts) & min.\ attainable $p$ \\
+\midrule
+\QsixXL & 331 & 82.75 & [78.7, 86.1] & \QsixXL{} vs \Qsix & 2 & $+0.50$ & 0.50 \\
+\Qsix & 329 & 82.25 & [78.2, 85.7] & \QsixXL{} vs \Qfive & \textbf{0} & 0.00 & 1.00 \\
+\Qfive & 331 & 82.75 & [78.7, 86.1] & \QsixXL{} vs \Qfour & 2 & $-0.50$ & 0.50 \\
+\Qfour & \textbf{333} & \textbf{83.25} & [79.3, 86.6] & \Qsix{} vs \Qfour & 4 & $-1.00$ & 0.125 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\begin{table}[t]
+\centering\small
+\caption{HumanEval+, first battery, paired. 164 problems, Qwen's official non-thinking sampling, same
+seed, context 32{,}768, \textbf{no speculation on either arm}, zero empty responses.}\label{tab:he-paired}
+\shrinktofit{\begin{tabular}{@{}lrlrl@{}}
+\toprule
+build & HumanEval & Wilson 95\,\% & HumanEval+ & Wilson 95\,\% \\
+\midrule
+\QsixXL & 94.51\,\% (155) & [89.9, 97.1] & 90.24\,\% (148) & [84.7, 93.9] \\
+\Qfour  & 93.90\,\% (154) & [89.1, 96.7] & 89.63\,\% (147) & [84.0, 93.4] \\
+\midrule
+\multicolumn{5}{@{}l}{paired, \Qfour{} $-$ \QsixXL: base $-0.61$ pts, 95\,\% score CI $[-3.80,+2.28]$, 3 discordant (1 vs 2), min.\ $p$ 0.25} \\
+\multicolumn{5}{@{}l}{\phantom{paired, \Qfour{} $-$ \QsixXL: }plus $-0.61$ pts, 95\,\% score CI $[-4.19,+2.74]$, 5 discordant (2 vs 3), min.\ $p$ 0.0625} \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\Cref{tab:hellaswag,tab:he-paired} show the two first-battery task benchmarks on the same builds that
+divergence orders in every window. HellaSwag spreads the four builds over one point, puts
+the 4-bit build on top, and finds two builds identical on every item. HumanEval+ has the ladder's
+extremes agreeing on 159 of 164 problems.
+
+My first write-up reported the HumanEval+ result as ``McNemar $p=1.0$, indistinguishable''. That test
+could not have reached significance: with three discordant pairs the smallest possible two-sided $p$
+is 0.25. This is the very error the report warns about, and I made it in the report's own anchor
+experiment. The informative statement is the interval:
+
+\begin{takeaway}
+A $3.7\times$ increase in code-prompt KL divergence (\QsixXL{} $\rightarrow$ \Qfour) moves HumanEval+
+pass@1 by $-0.6$ points, with a 95\,\% confidence interval reaching about 4 points. Benchmarks at these sample
+sizes \emph{bound} quantization damage; they do not \emph{rank} it.
+\end{takeaway}
+
+\begin{table}[t]
+\centering\small
+\caption{HumanEval / HumanEval+ pass@1\hist, 164 problems, greedy. Monotone in bit-width, but only the
+3-bit step exceeds the $\pm4.6$-point interval. With reasoning on (4{,}096-token budget) every build
+scores lower, and the builds differ mainly in how often they run out of budget and return nothing.
+MTP and DFlash2 rows are not comparable at a fixed build (\cref{sec:nonequiv}).}\label{tab:humaneval}
+\shrinktofit{\begin{tabular}{@{}llrrlr@{}}
+\toprule
+mode & build (speculation) & HE & HE+ & Wilson 95\,\% (HE+) & empty \\
+\midrule
+non-thinking & \Qthree & 84.1 & 81.7 & [75.1, 86.9] & 0\,\% \\
+ & \IQfour & 90.2 & 87.8 & [81.9, 92.0] & 0\,\% \\
+ & \Qfive & 93.3 & 90.9 & [85.5, 94.4] & 0\,\% \\
+ & \QsixXL & 93.9 & 91.5 & [86.2, 94.9] & 0\,\% \\
+ & \QsixXL, window 32K \emph{and} 131K (control) & 93.3 & 90.2 & [84.7, 93.9] & 0\,\% \\
+\addlinespace
+thinking & \IQfour{} (MTP) & 86.6 & 86.0 & [79.8, 90.5] & 12.8\,\% \\
+ & \Qfour{} (MTP) & 87.8 & 86.0 & [79.8, 90.5] & 12.2\,\% \\
+ & \Qfive{} (MTP) & 89.0 & 86.0 & [79.8, 90.5] & 11.0\,\% \\
+ & \QsixXL{} (MTP) & 90.9 & 88.4 & [82.6, 92.5] & 7.9\,\% \\
+ & \IQfour{} (DFlash2) & 89.0 & 87.8 & [81.9, 92.0] & 10.4\,\% \\
+ & \Qfour{} (DFlash2) & 90.2 & 87.2 & [81.2, 91.5] & 8.5\,\% \\
+ & NVFP4 on vLLM (none) & 85.4 & 84.1 & [77.8, 89.0] & 12.8\,\% \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+The historical HumanEval+ ladder (\cref{tab:humaneval}) agrees. Scores rise with bit-width in the same
+order as perplexity and divergence, yet the three upper builds span 3.7 points against a $\pm4.6$-point
+interval; the 5-bit to 6-bit step is one problem. Two side results are worth keeping. The context
+control is the cleanest null in the study: allocating a 131K window instead of 32K changed nothing, to
+the last problem. And in thinking mode with a 4{,}096-token budget, three of four MTP rows score exactly
+86.0 on HumanEval+ and differ only in their empty-response rate (12.8\,\% down to 7.9\,\% with
+fidelity): that benchmark partly measures whether reasoning fits its budget. The same mechanism
+returns in \cref{sec:ruler}.
+
+\subsection{The 4-bit KV cache is validated at 2K tokens, and only there}\label{sec:kvq}
+Every context result in this report depends on a quantized KV cache, so its cost was measured:
+\flag{q4\_0} against \flag{f16} on the reference build, code corpus, gives mean KLD
+$0.00296\pm0.00013$ with 99.4\,\% top-1 agreement. That is about half the size of the step from
+\QsixXL{} to \Qsix{} (0.0058). It is a comparison of sizes; KL divergences from a common reference do
+not add, and no cell applies both perturbations.
+
+This number should not be carried to long context. It was taken at 2{,}048 tokens, where the cache
+barely matters. The literature says 4-bit KV needs per-channel key quantization to stay near-lossless
+\citep{liu2024kivi,hooper2024kvquant}, which \flag{q4\_0} lacks, and a BF16-referenced community
+measurement on the sibling Qwen3.6-27B over about 250K tokens reports KLD of 0.024 for \flag{q8\_0} and
+0.09--0.12 for \flag{q4\_0} \citep{localbench2026kvquant}: one to two orders of magnitude above my
+short-context figure. I could not measure divergence at depth on this host (\cref{sec:hardware}). The
+second battery handles the question differently: it finds the gentlest KV precision each build can
+hold at the full window (\cref{sec:kvmap}) and measures task accuracy at that precision
+(\cref{sec:aalcr}).
