@@ -6,25 +6,27 @@ historical\hist.
 
 \begin{table}[t]
 \centering\small
-\caption{SWE-bench Verified\hist: resolved instances, aggregated from per-instance reports scored on
-x86-64. Denominators differ because empty patches and infrastructure errors were excluded case by
-case. This is \emph{Verified}, not SWE-bench Pro (on which Qwen reports 61.7 for this model); the two
-are not comparable.}\label{tab:swe}
-\shrinktofit{\begin{tabular}{@{}lrrl@{}}
+\caption{SWE-bench Verified\hist, 50 instances per build. ``Scored'' excludes instances that produced
+no evaluable patch; the last column counts every such instance as a failure, which is the conservative
+reading and puts all builds on the same 50 instances. This is \emph{Verified}, not SWE-bench Pro (on
+which Qwen reports 61.7 for this model); the two are not comparable.}\label{tab:swe}
+\shrinktofit{\begin{tabular}{@{}lrrlr@{}}
 \toprule
-build & resolved / scored & rate & Wilson 95\,\% \\
+build & resolved / scored & rate & Wilson 95\,\% & resolved / 50 attempted \\
 \midrule
-\IQfour & 38 / 49 & 77.6\,\% & [64.1, 87.0] \\
-\Qfive & 38 / 50 & 76.0\,\% & [62.6, 85.7] \\
-\Qsix & 37 / 49 & 75.5\,\% & [61.9, 85.4]; bootstrap [63.3, 87.8] \\
+\IQfour & 38 / 49 & 77.6\,\% & [64.1, 87.0] & 76.0\,\% \\
+\Qfive & 38 / 50 & 76.0\,\% & [62.6, 85.7] & 76.0\,\% \\
+\Qsix & 37 / 49 & 75.5\,\% & [61.9, 85.4] & 74.0\,\% \\
 \bottomrule
 \end{tabular}}
 \end{table}
 
 \textbf{The most expensive benchmark ranks the ladder backwards, and that means nothing.}
 \Cref{tab:swe} puts the smallest build first. The three builds span 2.1 points; one instance is worth
-2 points; one build's interval alone spans 24. A 50-instance agentic benchmark cannot rank neighbouring
-quantizations, and an apparent inversion at this size carries no information about them. What the
+2 points; one build's interval alone spans 24. These 50-instance runs do not resolve an ordering among these builds; with every attempted instance
+counted, two builds tie and the third is one instance behind. The excluded instances were not
+separated into infrastructure failures and model failures at the time (for \Qsix{} the one exclusion
+was an empty patch, which is a model failure), so the right-hand column is the safer one to quote. What the
 table does support: all three builds in the 4- to 6-bit range resolve about three quarters of these
 instances under this scaffold.
 
@@ -42,13 +44,12 @@ once. \Qsix{} on the same six instances converged on all six (mean 45 steps, med
 3-bit run there, since the remaining 44 instances would have cost about 88 GPU-hours to confirm a
 6-to-0 split. This is a qualitative result: $n=6$, one scaffold, one seed, a build that is not part of
 the main ladder and whose file is gone. It does not say where between 3 and 4 bits the failure begins.
-It is still the sharpest single illustration of the report's theme: every cheap instrument rated this
-build acceptable or best, and the one expensive multi-step instrument rated it unusable.
+It is still the sharpest illustration of the report's theme: on these six instances the 3-bit build
+exhausted its step budget every time, after single-shot scores that gave no warning of it.
 
 \textbf{Step counts are not a quality proxy in either direction.} Among builds that converge, mean
 steps on three shared instances were 23 for \IQfour{} and 29 for \Qfive, against about 45 for the
 6-bit build on a different instance set. Per-instance counts overlap and one instance reverses the
-order, so nothing is separated at $n=3$. Read with the 3-bit result, the profile across the wider
-ladder is non-monotone: the lowest rung never finishes, the middle rungs finish soonest, the top rung
-takes longest. Since step count multiplies token cost much more than tokens-per-second does, agentic
+order, so nothing is separated at $n=3$. The instance sets do not match across these runs, so the counts cannot be read as an efficiency
+ordering of the ladder. Since step count multiplies token cost much more than tokens-per-second does, agentic
 efficiency deserves a properly powered study; this was not one.

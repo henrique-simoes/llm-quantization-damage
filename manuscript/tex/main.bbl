@@ -1,4 +1,4 @@
-\begin{thebibliography}{57}
+\begin{thebibliography}{60}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
@@ -435,6 +435,27 @@ Mike~A. Merrill, Alexander~G. Shaw, Nicholas Carlini, Boxuan Li, Harsh Raj,
 \newblock URL \url{https://arxiv.org/abs/2601.11868}.
 \newblock Describes Terminal-Bench 2.0 (89 tasks); leaderboard at
   \url{https://www.tbench.ai/}.
+
+\bibitem[{Hugging Face}()]{hf_perplexity_guide}
+{Hugging Face}.
+\newblock Perplexity of fixed-length models.
+\newblock Transformers documentation.
+\newblock URL \url{https://huggingface.co/docs/transformers/en/perplexity}.
+\newblock Retrieved 2026-09-21.
+
+\bibitem[asher()]{mlx_kld}
+asher.
+\newblock mlx-kld: {KL}-divergence measurement for quantized {MLX} models.
+\newblock GitHub repository.
+\newblock URL \url{https://github.com/asher/mlx-kld}.
+\newblock Retrieved 2026-09-21.
+
+\bibitem[malaiwah()]{malaiwah_kld_method}
+malaiwah.
+\newblock {KLD} method notes for {Qwen3.8-27B} {EXL3} quantizations.
+\newblock GitHub repository, \texttt{docs/42-kld-method.md}.
+\newblock URL \url{https://github.com/malaiwah/qwen38-27b-exl3}.
+\newblock Retrieved 2026-09-21.
 
 \bibitem[{Artificial
   Analysis}(2026{\natexlab{b}})]{artificialanalysis2026methodology}

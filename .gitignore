@@ -64,3 +64,7 @@ manuscript/tex/*.log
 manuscript/tex/*.out
 manuscript/tex/*.blg
 manuscript/tex/*.toc
+
+# Agent review passes are working material, kept locally, not published
+manuscript/review/
+manuscript/REVIEW-V2.md

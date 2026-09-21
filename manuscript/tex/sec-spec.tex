@@ -127,7 +127,7 @@ against MTP's best 17.3\tps{} on \Qsix{} (+49\,\%) and 27.7 against 17.0 on \Qfo
 DFlash2 at $n{=}7$ and the best MTP depth overlap in one cell only (\Qsix{} at 246K, by 0.15\tps).
 Three details matter for anyone reproducing this:
 
-\textbf{The advantage comes entirely from draft depth.} At a shared depth of 3 the two drafters are
+\textbf{The advantage appears at DFlash2's design depth and not at a shared shallow depth.} At a shared depth of 3 the two drafters are
 within noise of each other everywhere. MTP gains little from going deeper (its depth 2, 3 and 4
 medians are within 10--22\,\% of each other, and depth 4 does not beat depth 3 consistently), while DFlash2 gains 40--70\,\% from depth 3 to 7 because
 its block is drafted in one parallel pass.
@@ -138,7 +138,7 @@ pass rose from 4.4 to 4.6 on \Qsix{} and from 3.5 to 4.6 on \Qfour{} between 32K
 Raw acceptance ratios are not comparable between drafters (they divide by different depths); report
 accepted length and tokens per second.
 
-\textbf{Speculation is worth more the deeper the context.} Against no speculation the best drafter
+\textbf{The decode speed-up from speculation grew with filled context.} Against no speculation the best drafter
 gives $3.4$--$4.2\times$ at 32K, $5.6$--$5.7\times$ at 131K and $7.4$--$7.7\times$ at 246K, because
 each verification pass amortises an ever more expensive attention read over several tokens. DFlash2's
 prefill is also 34--52\,\% faster at depth (201 against 135\tps{} at 246K on \Qsix), since MTP
@@ -180,5 +180,7 @@ tokens-per-pass, with nothing fitted, collapses within-configuration spread from
 1.3--13.4\,\%; 98.7\,\% of within-cell variance is tokens-per-pass and 0.9\,\% is pass time. The
 ``noise'' was sampling variance of the generated text: those cells ran at temperature 0.7, so each
 repetition wrote a different continuation with a different acceptance. Pass time itself is well
-behaved, linear in filled depth at about 0.45\,\textmu s per token. \textbf{Run speed probes greedy
-with fixed prompts.} The second battery did, which is why its ranges are usable.
+behaved, linear in filled depth at about 0.45\,\textmu s per token. \textbf{For controlled comparisons, run speed probes greedy with fixed prompts}, and report sampled
+workload throughput separately, since real acceptance depends on the text being generated. The second
+battery did both (this probe, and the 756 sampled answers of \cref{sec:aalcr}). Its medians and ranges
+describe the continuations that were run within one launch per cell; they are not a significance test.

@@ -146,11 +146,13 @@ accuracy that these instruments can see, at $n=30$ to 198.
 
 This is the second battery's version of the report's thesis: 756 long answers, about 69 GPU-hours,
 and a 4-bit build with an 8-bit cache is indistinguishable from a 6-bit build with a 4-bit cache at
-the full window. Divergence separated the same two weight builds at 18\,$\sigma$ in forty minutes.
+the full window. Divergence ordered the same two weight builds in every one of 32 windows, in forty minutes.
 Both statements are true. They answer different questions, and only the first is about outcomes a
 user would notice.
 
-\paragraph{Judging.} An LLM-judged benchmark carries judge variance. \Cref{tab:judges}: the two full
+\paragraph{Judging.} An LLM-judged benchmark carries judge variance, and a two-of-three majority is a
+consensus label, not ground truth. The Wilson intervals in \cref{fig:accuracy} cover neither judge error
+nor the clustering of questions within shared document sets. \Cref{tab:judges}: the two full
 judges differ by 3 items overall and by at most 3 on any arm; the resolved score sits in a 5-item band
 (217 to 222). A hand audit of the disagreements found no pipeline defect. It did find that the misses
 are not scattered: a small set of questions recurs across arms where the official key is arguable

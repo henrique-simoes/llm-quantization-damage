@@ -12,9 +12,10 @@ agentic repair) returned overlapping intervals, and more than once ranked the la
 against a reference separated the same builds decisively in two hours, showed the damage to be about
 twice as large on code as on prose, and located it in a few percent of tokens. The two views are
 consistent: a perturbation confined to a thin tail rarely lands on a decisive token, so outcomes barely
-move. That link is consistent with the data and was not tested; the tail's shape is also a property of
+move. That link is consistent with the data and was not tested, and other explanations compete with it
+(coarse binary scoring, compensating flips, a single seed and decoding policy, possible benchmark exposure); the tail's shape is also a property of
 the corpus, not of quantization. What a practitioner should take from the pair is a bound, not a ranking: going from the 6-bit
-reference to the 4-bit build cost at most about three points of HumanEval+ here, and nothing visible
+reference to the 4-bit build moved HumanEval+ by $-0.6$ points with an interval reaching about four, and nothing visible
 on GPQA Diamond or AA-LCR.
 
 Against the title's three axes, then. \emph{Accuracy:} quantization from 6 to 4 bits costs a

@@ -39,9 +39,7 @@ dashed line is an external quality threshold, shown for orientation only.}\label
 \end{figure}
 
 \Cref{fig:kld} is the central result. Against the \QsixXL{} reference, mean KLD on code is
-$0.0058\pm0.0002$ for \Qsix, $0.0103\pm0.0005$ for \Qfive{} and $0.0215\pm0.0008$ for \Qfour. Adjacent
-builds are separated by 8.7 and 11.8 combined standard errors on code, 3.7 and 8.5 on prose, 8.3 and
-11.2 on the task prompts. Each cell took about twenty minutes. The full table with quantiles is in
+$0.0058\pm0.0002$ for \Qsix, $0.0103\pm0.0005$ for \Qfive{} and $0.0215\pm0.0008$ for \Qfour. The order \Qsix{} $<$ \Qfive{} $<$ \Qfour{} holds in every domain (\cref{tab:paired-kld}). Each cell took about twenty minutes. The full table with quantiles is in
 \cref{app:kld}.
 
 Three things follow.
@@ -59,12 +57,45 @@ usually survives even as the distribution under it moves. A table reporting only
 conclude this model quantizes better for code. Report the pair. On the task prompts \Qfour{} agrees on
 95.9\,\% of tokens: about one token in 24 differs from the reference under greedy decoding.
 
-\textbf{The standard error is optimistic.} The tool treats 65{,}536 tokens from 32 contiguous windows
-of one document as independent. They are not, so the true intervals are wider by an unknown design
-effect. The code-domain separations survive a design effect of 8 to 36 even under a Bonferroni
-correction over all 19 tests in the first battery; the 3.7\,$\sigma$ prose pair survives only to 1.5.
-I therefore lead with the code domain and do not quote the prose pair alone
-(\cref{sec:multiplicity}).
+\textbf{How sure is the ordering?} The tool's standard error treats 65{,}536 tokens from contiguous
+windows as independent, and comparing two builds through their separate errors ignores that they were
+scored on the same tokens against the same reference logits. Both problems have a fix that costs no
+GPU time. The tool prints a running mean after each 2{,}048-token window, so per-window means can be
+recovered by differencing, and the builds can be compared \emph{paired by window}
+(\cref{tab:paired-kld}). Every adjacent difference has a bootstrap interval that excludes zero, and
+the larger build has the lower divergence in 30 to 32 of 32 windows. The naive calculation had given
+8.7--18 ``standard errors'' on code; the paired window-level $t$ is 4.1--4.5 there, and 5.5--11 on
+prose. The ordering is secure. The size of the naive separations was not.
+
+\begin{table}[t]
+\centering\small
+\caption{Paired differences in mean KLD between builds, by window. Per-window means recovered from the
+tool's running mean (printed to five decimals); percentile bootstrap over windows, $B=20{,}000$. Windows
+are contiguous chunks of one corpus per domain, so the intervals cover window-to-window variation on
+these corpora, not the choice of corpus.}\label{tab:paired-kld}
+\shrinktofit{\begin{tabular}{@{}llrlr@{}}
+\toprule
+corpus (windows) & pair & mean difference & bootstrap 95\,\% CI & windows where larger build is closer \\
+\midrule
+code (32) & \Qfive{} $-$ \Qsix & 0.00446 & [0.0027, 0.0065] & 32 / 32 \\
+ & \Qfour{} $-$ \Qfive & 0.01124 & [0.0063, 0.0170] & 31 / 32 \\
+prose (32) & \Qfive{} $-$ \Qsix & 0.00114 & [0.0008, 0.0016] & 30 / 32 \\
+ & \Qfour{} $-$ \Qfive & 0.00375 & [0.0032, 0.0045] & 32 / 32 \\
+task prompts (9) & \Qfive{} $-$ \Qsix & 0.00689 & [0.0056, 0.0081] & 9 / 9 \\
+ & \Qfour{} $-$ \Qfive & 0.01884 & [0.0160, 0.0215] & 9 / 9 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\textbf{What this instrument measures.} Divergence here is a distance: the mean teacher-forced KL from
+one 6-bit reference, on these corpora, at 2{,}048 tokens of context. It is not accuracy, and a larger
+distance is not by itself a worse model; \citet{dutta2024accuracy} keep distance metrics and capability
+metrics apart for the same reason. KL divergence obeys no triangle inequality, so an ordering of
+distances from \QsixXL{} does not establish the ordering of distances from the unquantized model, and
+errors that the reference shares with a build would make that build look closer than it is. The builds
+also mix bit-widths per tensor, so the ordering describes three recipes, not a clean effect of bit
+count. I use ``damage'' in this report as shorthand for this distance, and the task benchmarks below
+are the only evidence here about whether it matters.
 
 \subsection{The damage lives in a thin tail}\label{sec:tail}
 
@@ -213,14 +244,14 @@ build & HumanEval & Wilson 95\,\% & HumanEval+ & Wilson 95\,\% \\
 \QsixXL & 94.51\,\% (155) & [89.9, 97.1] & 90.24\,\% (148) & [84.7, 93.9] \\
 \Qfour  & 93.90\,\% (154) & [89.1, 96.7] & 89.63\,\% (147) & [84.0, 93.4] \\
 \midrule
-\multicolumn{5}{@{}l}{paired, \Qfour{} $-$ \QsixXL: base $-0.61$ pts, 95\,\% CI $[-2.68,+1.46]$, 3 discordant (1 vs 2), min.\ $p$ 0.25} \\
-\multicolumn{5}{@{}l}{\phantom{paired, \Qfour{} $-$ \QsixXL: }plus $-0.61$ pts, 95\,\% CI $[-3.28,+2.06]$, 5 discordant (2 vs 3), min.\ $p$ 0.0625} \\
+\multicolumn{5}{@{}l}{paired, \Qfour{} $-$ \QsixXL: base $-0.61$ pts, 95\,\% score CI $[-3.80,+2.28]$, 3 discordant (1 vs 2), min.\ $p$ 0.25} \\
+\multicolumn{5}{@{}l}{\phantom{paired, \Qfour{} $-$ \QsixXL: }plus $-0.61$ pts, 95\,\% score CI $[-4.19,+2.74]$, 5 discordant (2 vs 3), min.\ $p$ 0.0625} \\
 \bottomrule
 \end{tabular}}
 \end{table}
 
 \Cref{tab:hellaswag,tab:he-paired} show the two first-battery task benchmarks on the same builds that
-divergence separates at 18\,$\sigma$ end to end. HellaSwag spreads the four builds over one point, puts
+divergence orders in every window. HellaSwag spreads the four builds over one point, puts
 the 4-bit build on top, and finds two builds identical on every item. HumanEval+ has the ladder's
 extremes agreeing on 159 of 164 problems.
 
@@ -231,7 +262,7 @@ experiment. The informative statement is the interval:
 
 \begin{takeaway}
 A $3.7\times$ increase in code-prompt KL divergence (\QsixXL{} $\rightarrow$ \Qfour) moves HumanEval+
-pass@1 by $-0.6$ points, and by at most about 3 points at 95\,\% confidence. Benchmarks at these sample
+pass@1 by $-0.6$ points, with a 95\,\% confidence interval reaching about 4 points. Benchmarks at these sample
 sizes \emph{bound} quantization damage; they do not \emph{rank} it.
 \end{takeaway}
 

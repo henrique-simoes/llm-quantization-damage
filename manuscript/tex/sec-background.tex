@@ -58,10 +58,16 @@ reports LiveCodeBench v6 \citep{jain2025livecodebench}, SWE-bench Pro and Termin
 \citep{merrill2026terminalbench} for this model and no HumanEval figure; none of those three was run
 here, so no number in this report is comparable to the model card (\cref{sec:limits}).
 
-\paragraph{What is new here.} Not the claim that accuracy masks damage; that is prior work and is
-credited as such. The additions are: the quantile structure of the divergence and its dependence on
-domain, with a control showing the tail's shape belongs to the corpus; a paired bound connecting a
-$3.7\times$ divergence increase to at most about three points of pass@1; a decomposed 36-fold
-perplexity swing caused by convention alone; a bracketed context map for a hybrid-attention model on
-two unlinked consumer cards; a deterministic non-equivalence result for speculative decoding; and a
-same-build MTP versus DFlash2 comparison to 246K tokens of filled context.
+\paragraph{What is new here, and what is not.} This is a measured case study of one deployment, not
+a new evaluation principle. That accuracy can mask distributional change is prior work
+\citep{dutta2024accuracy}. That perplexity depends on window, stride and tokenization is documented
+\citep{hf_perplexity_guide}. Community tools already report token-level quantiles and tails of KL
+divergence alongside the mean \citep{mlx_kld}, including for this model
+\citep{malaiwah_kld_method}. Greedy divergence under speculation on quantized targets has been
+reported as a bug \citep{llamacpp_issue25618}. What this report contributes are specific measurements
+I could not find elsewhere: the code-against-prose comparison of the divergence distribution with a
+cache-only control; a paired interval placing a $3.7\times$ divergence increase beside a pass@1
+difference within about four points; one 36-fold perplexity swing decomposed into its conventions; a
+bracketed context map for a hybrid-attention model on two unlinked consumer cards; a benchmark-scale
+count of speculative non-identity with a determinism control; and a same-build MTP versus DFlash2
+comparison to 246K tokens of filled context.

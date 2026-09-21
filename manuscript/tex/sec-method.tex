@@ -70,9 +70,8 @@ greedy, reasoning on & 0 & 1 & --- & --- & 0 & RULER only \\
 \subsection{Statistics}
 Pass rates carry Wilson 95\,\% intervals \citep{wilson1927interval}. Two builds scored on the same
 items are compared as paired data: the difference in proportions $d=(b-c)/n$ over the discordant
-counts $b,c$, a Wald interval on $d$, and an exact McNemar test \citep{mcnemar1947test}. Before
-reporting a null I state the smallest $p$ that the test could have returned given the number of
-discordant pairs; with three discordant pairs that minimum is 0.25, so ``$p=1.0$'' carries no
+counts $b,c$, a Tango score interval on $d$ (a Wald interval is unreliable with three to five discordant pairs), and an exact McNemar test \citep{mcnemar1947test}. Alongside a null I state the smallest $p$ the test could have returned \emph{given the observed} number of
+discordant pairs (it is $2^{1-m}$ for $m$ pairs; a property of the data in hand, not a power calculation); with three discordant pairs that minimum is 0.25, so ``$p=1.0$'' carries no
 information about the builds. Continuous summaries use bootstrap intervals \citep{efron1979bootstrap}.
 Speed spreads are $(\max-\min)/\text{median}$ over repetitions matched on every launch parameter. The
 unit of independence for speculative acceptance is the generation, not the draft event: pooled
